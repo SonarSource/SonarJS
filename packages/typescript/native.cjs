@@ -27,6 +27,7 @@ exports.createBackend = ts => {
       ? path.resolve(__dirname, '../analysis/src/jsts')
       : path.resolve(__dirname, '../../lib/analysis/src/jsts');
   let loadedRuntime, loadedProjects;
+  let instrumentation = {};
   const runtime = () => {
     if (!loadedRuntime)
       throw new Error('Initialize the selected compiler backend before creating programs');
@@ -38,6 +39,11 @@ exports.createBackend = ts => {
     return loadedProjects;
   };
   return {
+    configureInstrumentation(options) {
+      if (options.filesystem && !['callbacks', 'layer'].includes(options.filesystem))
+        throw new Error('Compiler filesystem must be callbacks or layer');
+      instrumentation = { collectTiming: !!options.collectTiming, filesystem: options.filesystem };
+    },
     async initialize() {
       if (process.env.SONARJS_TYPESCRIPT_BACKEND === 'wasm') {
         const wasm = await import(pathToFileURL(path.join(__dirname, 'wasm/runtime.mjs')).href);
@@ -63,8 +69,16 @@ exports.createBackend = ts => {
       version: ts.version,
       versionMajorMinor: ts.versionMajorMinor,
       createCompilerHost(options, parents) {
-        return { ...ts.createCompilerHost(options, parents), readDirectory: ts.sys.readDirectory };
+        return {
+          ...ts.createCompilerHost(options, parents),
+          readDirectory: ts.sys.readDirectory,
+          getDefaultLibLocation: () => runtime().getNativeLibraryDirectory(),
+          getDefaultLibFileName: options =>
+            `${runtime().getNativeLibraryDirectory()}/${ts.getDefaultLibFileName(options)}`,
+        };
       },
+      getDefaultLibFilePath: options =>
+        `${runtime().getNativeLibraryDirectory()}/${ts.getDefaultLibFileName(options)}`,
       createProgram(options, compilerOptions, host) {
         const input = Array.isArray(options)
           ? { rootNames: options, options: compilerOptions, host }
@@ -93,7 +107,7 @@ exports.createBackend = ts => {
               },
             }
           : undefined;
-        return runtime().createNativePrograms([input], { fs }).programs[0];
+        return runtime().createNativePrograms([input], { ...instrumentation, fs }).programs[0];
       },
       createSemanticDiagnosticsBuilderProgram() {
         throw new TypeScriptFailure(

@@ -29,9 +29,13 @@ export function createOwnershipPolicy({ repository, classicRoot, sdkRoot, wasmRo
     `${root}/lib/analysis/src/jsts/program/cache/`,
     `${root}/lib/shared/src/fs-cache/`,
   ];
-  const measurementFiles = ['ownership.mjs', 'profiling.mjs', 'results.mjs'].map(
-    file => `${root}/tools/ts7-benchmark/${file}`,
-  );
+  const measurementFiles = [
+    'ownership.mjs',
+    'profiling.mjs',
+    'allocation.mjs',
+    'routing.mjs',
+    'results.mjs',
+  ].map(file => `${root}/tools/ts7-benchmark/${file}`);
   const classifySource = frame => {
     const url = frame.url ?? '';
     if (url.startsWith('wasm://') || /^wasm-function\[/.test(frame.functionName ?? ''))

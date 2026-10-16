@@ -57,6 +57,9 @@ test('missing controls, instrumented controls and mismatched rounds cannot produ
   const instrumented = reports();
   instrumented[0].instrumentation.metrics = true;
   assert.throws(() => comparePerformance(instrumented), /Instrumented control/);
+  const allocating = reports();
+  allocating[0].instrumentation.allocation = true;
+  assert.throws(() => comparePerformance(allocating), /Instrumented control/);
   const unpaired = reports();
   unpaired[1].round = 2;
   assert.throws(() => comparePerformance(unpaired), /Unpaired/);
@@ -72,10 +75,17 @@ test('separate SDK diagnostics are included and counter mismatches are rejected'
         methods: { query: { requestCount: 3, roundTripMs: 12, bytesSent: 2, bytesReceived: 4 } },
         rules: { S1: { listenerCalls: 10, exclusiveMs: 4, requestCount: 3, roundTripMs: 12 } },
       },
+      allocations: {
+        estimatedBytes: 1024,
+        owners: { 'compiler/facade-adapters': 1024 },
+        gc: { count: 2, durationMs: 3 },
+      },
     }));
   const comparison = comparePerformance(reports(), diagnostics);
   assert.equal(comparison.backends.native.detailed.methods[0].requestCount.median, 3);
   assert.match(renderComparison(comparison), /Separate instrumented diagnostics/);
+  assert.equal(comparison.backends.native.allocations.estimatedBytes.median, 1024);
+  assert.match(renderComparison(comparison), /Separate allocation and GC diagnostics/);
   assert.equal(comparison.diagnosticWorkload.listenerCountsMatch, true);
   diagnostics[1].profile.rules.S1.listenerCalls++;
   assert.equal(

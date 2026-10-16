@@ -1,4 +1,13 @@
-import { getCompilerInfo, initializeCompiler } from 'typescript/control';
+import {
+  getCompilerInfo,
+  getCompilerGateway,
+  initializeCompiler,
+  configureCompilerInstrumentation,
+  getProgramInstrumentation,
+  getProgramFileNames,
+  clearProgramCache,
+  compilerOptionsToJson,
+} from 'typescript/control';
 import '../../packages/analysis/src/jsts/native/compatibility.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -19,6 +28,8 @@ import {
   summarizeOwnership,
 } from './ownership.mjs';
 import { normalizeDiagnostics } from './results.mjs';
+import { assertCompilerRouting } from './routing.mjs';
+import { startAllocationProfile, summarizeAllocations } from './allocation.mjs';
 import ts from 'typescript';
 import { build } from '../../packages/analysis/src/jsts/builders/build.ts';
 import { sampleNativeMemory } from './memory.mjs';
@@ -53,6 +64,8 @@ let detachTiming;
 let detachClient;
 let stopCpu;
 let cpuProfile;
+let stopAllocation;
+let allocationProfile;
 const unsupported = new Map();
 const checkerFailures = [];
 globalThis[Symbol.for('sonarjs.ts7.unsupported')] = member =>
@@ -71,6 +84,7 @@ const report = {
     metrics: !!config.profile,
     cpu: !!config.cpuProfile,
     ownership: !!config.layerProfile,
+    allocation: !!config.allocationProfile,
     sampleIntervalMicros: config.sampleIntervalMicros ?? 1000,
   },
   unsupported: {},
@@ -94,33 +108,22 @@ const report = {
         ? 'local-js'
         : 'ipc',
 };
-let api;
-let adapter;
-let nativeSession;
 let filesystemSession;
 try {
   const initializationStart = performance.now();
   await initializeCompiler();
   report.timings.compilerInitializationMs = performance.now() - initializationStart;
-  const { createNativePrograms, compilerOptionsToJson } =
-    await import('../../packages/analysis/src/jsts/native/session.mjs');
-  const require = createRequire(import.meta.url);
+  configureCompilerInstrumentation({ collectTiming: true, filesystem: config.filesystem });
   if (profiler && config.backend !== 'classic')
     [detachTiming, detachClient] = await attachNativeProfiler(profiler);
   if (config.cpuProfile || config.layerProfile)
     stopCpu = await startCpuProfile(config.sampleIntervalMicros ?? 1000);
+  if (config.allocationProfile)
+    stopAllocation = await startAllocationProfile(config.allocationIntervalBytes);
   timeline = config.layerProfile ? createAnalysisTimeline() : undefined;
   started = timeline ? timeline.start() : monotonicMicros();
   analysisCpuStart = process.cpuUsage();
-  const nativeLibrary = path.join(
-    path.dirname(
-      require.resolve(
-        '@typescript/typescript-' + process.platform + '-' + process.arch + '/package.json',
-      ),
-    ),
-    'lib',
-  );
-  const libraryDirectories = [path.dirname(ts.getDefaultLibFilePath({})), nativeLibrary];
+  const libraryDirectories = [path.dirname(ts.getDefaultLibFilePath({}))];
   if (config.archive) {
     filesystemSession = installFsCache().beginAnalysis({
       archivePath: config.archive,
@@ -159,41 +162,18 @@ try {
   report.timings.selectionMs = performance.now() - selectionStart;
   const programStart = performance.now();
   phase('program');
-  let programs;
-  if (config.backend === 'classic') {
-    programs = selections.map(({ options }) =>
-      createStandardProgram({
-        ...options,
-        host: hostProfiler
-          ? hostProfiler.wrap(
-              new IncrementalCompilerHost(options.options, root, config.skipOutsideNodeModules),
-            )
-          : new IncrementalCompilerHost(options.options, root, config.skipOutsideNodeModules),
-      }),
-    );
-  } else {
-    nativeSession = createNativePrograms(
-      selections.map(({ options }) => options),
-      {
-        cwd: root,
-        requestFiles: texts,
-        filesystem: config.filesystem,
-        skipOutsideNodeModules: config.skipOutsideNodeModules,
-        collectTiming: true,
-        instrumentHost: hostProfiler?.wrap,
-        onCheckerError: (method, error) => checkerFailures.push({ method, message: error.message }),
-      },
-    );
-    ({ api, adapter, programs } = nativeSession);
-    Object.assign(report.timings, nativeSession.timings);
-  }
+  const programs = selections.map(({ options }) =>
+    createStandardProgram({
+      ...options,
+      host: hostProfiler
+        ? hostProfiler.wrap(
+            new IncrementalCompilerHost(options.options, root, config.skipOutsideNodeModules),
+          )
+        : new IncrementalCompilerHost(options.options, root, config.skipOutsideNodeModules),
+    }),
+  );
   const membership = programs.map(
-    (program, index) =>
-      new Set(
-        config.backend === 'classic'
-          ? program.getSourceFiles().map(file => file.fileName.replaceAll('\\', '/'))
-          : nativeSession.rawPrograms[index].getSourceFileNames(),
-      ),
+    program => new Set(getProgramFileNames(program).map(file => file.replaceAll('\\', '/'))),
   );
   report.timings.programMs = performance.now() - programStart;
   phase('rule-selection');
@@ -298,15 +278,28 @@ try {
     }
   }
   phase('validation');
-  nativeSession?.assertHealthy();
+  report.compilerRouting = assertCompilerRouting(getCompilerGateway(), ts);
   report.timings.parseMs = parseMs;
   report.timings.lintMs = lintMs;
-  report.filesystem = adapter?.getMetrics();
   report.hostCallbacks = hostProfiler?.getReport();
-  report.ipc = api?.getTimingInfo();
+  const instrumentation = programs.map(getProgramInstrumentation).filter(Boolean);
+  if (instrumentation.length) {
+    report.filesystem =
+      instrumentation.length === 1
+        ? instrumentation[0].filesystem
+        : instrumentation.map(value => value.filesystem);
+    report.ipc = { ...instrumentation[0].ipc, totals: {} };
+    for (const value of instrumentation) {
+      checkerFailures.push(...value.failures);
+      for (const [key, amount] of Object.entries(value.timings))
+        report.timings[key] = (report.timings[key] ?? 0) + amount;
+      for (const [key, amount] of Object.entries(value.ipc.totals))
+        report.ipc.totals[key] = (report.ipc.totals[key] ?? 0) + amount;
+    }
+  }
   if (profiler) {
     report.profile = profiler.getReport();
-    if (api) {
+    if (report.ipc) {
       const keys = ['requestCount', 'roundTripMs', 'bytesSent', 'bytesReceived'];
       report.profile.matchesSdkTotals = keys.every(
         key => report.profile.totals[key] === report.ipc.totals[key],
@@ -323,6 +316,27 @@ try {
   report.analysisTimeline = analysisTimeline;
   report.timings.analysisMs = ((analysisTimeline?.endUs ?? monotonicMicros()) - started) / 1000;
   if (analysisCpuStart) report.nodeCpuMicros = process.cpuUsage(analysisCpuStart);
+  if (stopAllocation) {
+    try {
+      allocationProfile = await stopAllocation();
+      const info = getCompilerInfo();
+      report.allocations = {
+        ...summarizeAllocations(
+          allocationProfile,
+          createOwnershipPolicy({
+            repository: fileURLToPath(new URL('../../', import.meta.url)),
+            classicRoot: info.classicRoot,
+            sdkRoot: info.sdkRoot,
+            wasmRoot: process.env.SONARJS_TS7_WASM,
+          }),
+        ),
+        profilePath: config.allocationProfile,
+      };
+    } catch (error) {
+      report.errors.push({ message: error.message });
+      report.valid = false;
+    }
+  }
   detachTiming?.();
   detachClient?.();
   if (profiler && !report.profile) report.profile = profiler.getReport();
@@ -362,6 +376,7 @@ try {
   report.checkerFailures = checkerFailures;
   try {
     Linter.releaseAfterAnalysis();
+    getCompilerGateway().assertHealthy();
   } catch (error) {
     report.errors.push({ message: error.message });
     report.valid = false;
@@ -374,7 +389,7 @@ try {
     report.errors.push({ message: error.message });
     report.valid = false;
   }
-  if (api) {
+  if (report.ipc) {
     try {
       report.memory.native = sampleNativeMemory();
     } catch (error) {
@@ -385,13 +400,7 @@ try {
         report.memory.nodeRssBytes + report.memory.native.rssBytes;
   }
   try {
-    nativeSession?.dispose();
-  } catch (error) {
-    report.errors.push({ message: error.message });
-    report.valid = false;
-  }
-  try {
-    if (!nativeSession) api?.close();
+    clearProgramCache();
   } catch (error) {
     report.errors.push({ message: error.message });
     report.valid = false;
@@ -399,6 +408,8 @@ try {
   clearSourceFileContentCache();
   if (cpuProfile)
     fs.writeFileSync(config.cpuProfile ?? config.layerProfile, JSON.stringify(cpuProfile));
+  if (allocationProfile)
+    fs.writeFileSync(config.allocationProfile, JSON.stringify(allocationProfile));
   for (const files of Object.values(report.issues))
     for (const lines of Object.values(files)) lines.sort((a, b) => a - b);
   report.diagnostics = Object.fromEntries(

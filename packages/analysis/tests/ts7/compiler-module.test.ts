@@ -6,6 +6,7 @@ import { test } from 'node:test';
 import ts from 'typescript';
 import { build } from 'esbuild';
 import { typescriptModulePlugin } from '../../../../tools/typescript-module-plugin.mjs';
+import { findCompilerRoot } from '../../../typescript/boundary.cjs';
 
 const output = path.resolve('tools/ts7-benchmark/out');
 
@@ -109,6 +110,8 @@ test('application code cannot bypass the module using a physical private SDK pat
 
 test('production consumers import the shared module, not private compiler SDKs', () => {
   let files = 0;
+  const packageCache = new Map<string, string | undefined>();
+  const ownedRoot = path.resolve('packages/typescript');
   const visit = (directory: string) => {
     for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
       const file = path.join(directory, entry.name);
@@ -142,6 +145,27 @@ test('production consumers import the shared module, not private compiler SDKs',
             )
           ) {
             assert.fail(`Private compiler reference in ${file}: ${node.text}`);
+          }
+          if (moduleSpecifier && ts.isStringLiteral(node)) {
+            const resolved = ts.resolveModuleName(
+              node.text,
+              file,
+              { moduleResolution: ts.ModuleResolutionKind.NodeNext },
+              ts.sys,
+            ).resolvedModule?.resolvedFileName;
+            if (resolved) {
+              assert.equal(
+                findCompilerRoot(resolved, packageCache, ownedRoot),
+                undefined,
+                `Physical compiler import in ${file}: ${node.text}`,
+              );
+              const normalized = resolved.replaceAll('\\', '/');
+              assert.ok(
+                !normalized.includes('/jsts/native/') &&
+                  !normalized.includes('/typescript/compat/'),
+                `Private compiler implementation import in ${file}: ${node.text}`,
+              );
+            }
           }
           ts.forEachChild(node, check);
         };
@@ -223,6 +247,37 @@ test('bundling routes application and parser imports through the same module', a
     );
   } finally {
     assert.ok(directory.startsWith(output + path.sep));
+    fs.rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test('bundle boundary rejects local compiler copies and lookalike private importer paths', async () => {
+  const directory = fs.mkdtempSync(path.join(output, 'compiler-boundary-'));
+  try {
+    const compiler = path.join(directory, 'vendor/compiler');
+    fs.mkdirSync(compiler, { recursive: true });
+    fs.writeFileSync(path.join(compiler, 'package.json'), '{"name":"typescript"}');
+    fs.writeFileSync(path.join(compiler, 'index.cjs'), 'module.exports={escaped:true};');
+    for (const relative of ['consumer.cjs', 'packages/analysis/src/jsts/native/consumer.cjs']) {
+      const entry = path.join(directory, relative);
+      fs.mkdirSync(path.dirname(entry), { recursive: true });
+      fs.writeFileSync(
+        entry,
+        `module.exports=require(${JSON.stringify(path.join(compiler, 'index.cjs'))});`,
+      );
+      await assert.rejects(
+        build({
+          entryPoints: [entry],
+          bundle: true,
+          write: false,
+          platform: 'node',
+          plugins: [typescriptModulePlugin()],
+          logLevel: 'silent',
+        }),
+        /bypasses the owned TypeScript module/,
+      );
+    }
+  } finally {
     fs.rmSync(directory, { recursive: true, force: true });
   }
 });

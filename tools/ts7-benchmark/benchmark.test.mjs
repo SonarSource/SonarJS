@@ -7,6 +7,12 @@ import { test } from 'node:test';
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 
+test('benchmark creates programs through the common factory without private native construction', () => {
+  const source = fs.readFileSync(path.join(directory, 'worker.mjs'), 'utf8');
+  assert.doesNotMatch(source, /createNativePrograms|native\/session\.mjs|rawPrograms/);
+  assert.match(source, /getProgramInstrumentation/);
+});
+
 test(
   'SonarJS benchmark matches issues and active rules with archive record/replay',
   { timeout: 120_000 },
@@ -92,6 +98,7 @@ for (const [args, message] of [
   [['--backends', 'ts7,wasm'], /requires ts6/],
   [['--backends', 'ts6,ts6'], /unique choices/],
   [['--sample-interval-us', '0'], /between 100 and 10000/],
+  [['--allocation-interval-bytes', '0'], /at least 1024/],
   [['--calibrate'], /requires an instrumentation/],
 ]) {
   test(`benchmark rejects malformed input: ${args.join(' ')}`, () => {
@@ -132,6 +139,7 @@ test(
         '--runs',
         '1',
         '--layer-profile',
+        '--allocation-profile',
         '--calibrate',
         '--output',
         output,
@@ -152,6 +160,14 @@ test(
       assert.ok(fs.existsSync(report.ownership.profilePath));
       assert.ok(report.hostCallbacks.readFile.calls > 0);
       assert.equal(control.ownership, undefined);
+      assert.equal(control.allocations, undefined);
+      assert.ok(report.allocations.estimatedBytes > 0);
+      assert.ok(fs.existsSync(report.allocations.profilePath));
+      assert.equal(report.compilerRouting.sameFacade, true);
+      assert.equal(report.compilerRouting.provider, report.compilerBackend);
+      assert.ok(report.compilerRouting.ownedImporters > 0);
+      assert.ok(report.compilerRouting.typescriptEslintImporters > 0);
+      assert.equal(control.compilerRouting.sameFacade, true);
       assert.deepEqual(control.diagnostics, report.diagnostics);
       assert.ok(
         Object.values(report.diagnostics).some(value =>

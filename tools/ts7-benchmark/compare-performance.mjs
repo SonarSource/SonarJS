@@ -61,7 +61,8 @@ export function comparePerformance(reports, additionalReports = []) {
         report =>
           report.instrumentation?.metrics ||
           report.instrumentation?.cpu ||
-          report.instrumentation?.ownership,
+          report.instrumentation?.ownership ||
+          report.instrumentation?.allocation,
       )
     )
       throw new Error(`Instrumented control for ${label}`);
@@ -171,6 +172,23 @@ export function comparePerformance(reports, additionalReports = []) {
             )
           : undefined,
       consumerSources: [],
+      allocations:
+        diagnostics.length && diagnostics.every(report => report.allocations)
+          ? {
+              runs: diagnostics.length,
+              estimatedBytes: stats(diagnostics, report => report.allocations.estimatedBytes),
+              gcDurationMs: stats(diagnostics, report => report.allocations.gc.durationMs),
+              gcCount: stats(diagnostics, report => report.allocations.gc.count),
+              owners: Object.fromEntries(
+                [
+                  ...new Set(diagnostics.flatMap(report => Object.keys(report.allocations.owners))),
+                ].map(key => [
+                  key,
+                  stats(diagnostics, report => report.allocations.owners[key] ?? 0),
+                ]),
+              ),
+            }
+          : undefined,
       detailed: diagnostics.length
         ? {
             runs: diagnostics.length,
@@ -480,6 +498,25 @@ export function renderComparison(result) {
         '',
       );
     }
+  }
+  if (labels.some(label => result.backends[label].allocations)) {
+    lines.push(
+      '## Separate allocation and GC diagnostics',
+      '',
+      'Weighted V8 allocation estimates include collected objects. These are diagnostic runs, not runtime measurements, exact allocated bytes or causal GC attribution. Go allocations and WASM linear memory are excluded.',
+      '',
+      table(
+        ['Backend', 'Estimated JS allocation bytes', 'GC events', 'Observed GC ms'],
+        labels.map(label => {
+          const value = result.backends[label].allocations;
+          return [
+            label,
+            ...['estimatedBytes', 'gcCount', 'gcDurationMs'].map(key => cell(value?.[key])),
+          ];
+        }),
+      ),
+      '',
+    );
   }
   lines.push('## Limits', '', ...result.interpretation.map(line => `- ${line}`), '');
   return lines.join('\n');

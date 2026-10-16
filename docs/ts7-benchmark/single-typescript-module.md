@@ -32,7 +32,9 @@ build-time compatibility choice, not permission for consumers to load TS6 at
 runtime, nor proof that TS7 implements every declared member.
 
 `typescript/control` supplies backend-neutral initialization, retained-project
-lifecycle, cache policy, filename metadata and audit controls. It is part of the same package;
+lifecycle, cache policy, filename metadata, audit controls and optional diagnostic
+instrumentation. Program metrics expose copied counters/timings, not SDK APIs,
+raw programs or native sessions. It is part of the same package;
 it is not a second semantic interface for SonarJS rules.
 
 ## Resolution And Ownership
@@ -43,7 +45,11 @@ it is not a second semantic interface for SonarJS rules.
 - Supported historical `lib/typescript` and `lib/tsserverlibrary` entry points
   resolve to that facade too. Unsupported compiler subpaths fail explicitly.
 - Physical compiler imports, nested compiler copies and npm aliases are checked
-  by package identity. Only explicit private implementation roots bypass routing.
+  by package identity, including compiler checkouts outside `node_modules`.
+  Only explicit private implementation roots bypass routing. Runtime and bundle
+  resolution share `packages/typescript/boundary.cjs` for compiler identities,
+  supported entries and implementation roots; similarly named directories in a
+  consumer's own tree do not gain implementation privileges.
 - `typescript-classic` and `typescript-native` are private compiler dependencies.
   Production consumers outside those roots are audited for direct imports.
 - One provider is fixed for the worker lifetime. Select before importing consumers;
@@ -114,6 +120,8 @@ Filesystem customization uses the standard TypeScript host callbacks and existin
 SonarJS filesystem hooks. There is no separate scoped-filesystem control API.
 
 Native program creation adapts provided host callbacks to the native virtual FS.
+The public compiler host advertises the selected backend's standard-library
+directory, allowing restricted hosts to admit the correct declarations.
 Existing filesystem archive record/replay and retained IDE snapshot tests exercise
 the integration. Omitting an optional directory probe means unknown, as in TS6;
 it is not permission to consult a different filesystem. Arbitrary custom host
@@ -174,6 +182,17 @@ The master comparison harness now uses the real production factory/build/linter
 on both sides. Each candidate report includes `compilerRouting` with provider,
 facade identity, SonarJS importers and typescript-eslint importers. Earlier measurements of the retired service must not be presented as measurements
 of this module design.
+
+The cross-provider benchmark now preloads the owned module before resolving the
+worker's static consumer graph and requires that same routing evidence for TS6,
+IPC and both WASM bridges. Caught gateway failures remain fatal at validation and
+cleanup. Static production-import auditing also resolves compiler package
+identities and rejects imports into private native/compatibility implementations.
+Both benchmark providers now create programs through the production factory and
+host, with selection behind the owned `ts.createProgram`. The earlier worker's
+private native-construction path has been removed. See the
+[interface/allocation comparison](interface-20261016.md) for the corrected
+four-provider results and isolated gateway allocation experiment.
 
 The [new five-pair ag-grid comparison](unified-ts6-master-ag-grid.md) records
 matching issue lines and shared-module routing, plus measured timing/memory ranges.

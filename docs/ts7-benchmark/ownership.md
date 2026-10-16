@@ -6,10 +6,13 @@ outside-layer parity or production readiness.
 
 ## Scope and accounting
 
-All providers use the same production `build`/parser route and SonarJS linter.
-Before this change the TS6 benchmark called `parse` directly while native used
-`build`. Program creation still selects the intended provider. Initialization,
-analysis and worker wall time remain separate measurements.
+All providers use the same production `createStandardProgram` factory,
+`IncrementalCompilerHost`, `build`/parser route and SonarJS linter. The owned
+`ts.createProgram` selects the provider. The benchmark does not call private
+native constructors; `typescript/control` returns optional diagnostic metadata
+without exposing compiler sessions or raw programs. The host advertises the
+selected provider's library directory. Initialization, analysis and worker wall
+time remain separate measurements.
 
 V8 sampling observes the complete active stack without wrapping compiler
 objects, methods or getters. The canonical ownership policy lives in
@@ -86,6 +89,15 @@ columns, secondary locations, fixes, suggestions and duplicate counts are
 retained. A matching line count with a changed message or fix fails parity.
 
 ## What the measurements can establish
+
+Separate `--allocation-profile` diagnostics collect V8 weighted allocation samples,
+including objects collected by minor/major GC, and GC performance entries. They
+reuse the canonical source-ownership policy and retain raw trees/stacks/events.
+Profiler startup/stop and summary processing remain outside the analysis timer;
+their sampling window brackets analysis. Diagnostic timing is not a replacement
+for controls. These are estimated transient JS bytes, excluding Go allocations,
+WASM linear memory and peak/retained heap. Allocation sites do not establish
+which allocator caused an observed GC event.
 
 Sampling reaches lazy getters, deferred iterator bodies, cache/conversion work
 and callbacks without altering AST/type identities or shapes. Tests exercise

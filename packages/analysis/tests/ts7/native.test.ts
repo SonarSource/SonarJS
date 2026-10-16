@@ -3,6 +3,10 @@ import {
   prepareProgramRequest,
   finishProgramRequest,
   getCompilerGateway,
+  configureCompilerInstrumentation,
+  getProgramInstrumentation,
+  getCompilerInfo,
+  getProgramFileNames,
 } from 'typescript/control';
 import assert from 'node:assert/strict';
 import ts from 'typescript';
@@ -22,6 +26,7 @@ import {
 import { build } from '../../src/jsts/builders/build.js';
 import { parsersMap } from '../../src/jsts/parsers/eslint.js';
 import { getNativeSession } from '../../src/jsts/native/session.mjs';
+import { IncrementalCompilerHost } from '../../src/jsts/program/compilerHost.js';
 import {
   setSourceFilesContext,
   clearSourceFileContentCache,
@@ -34,6 +39,41 @@ import { sanitizeInputFiles } from '../../src/common/input-sanitize.js';
 
 const root = normalizeToAbsolutePath(path.resolve('tools/ts7-benchmark/fixtures/project'));
 const file = normalizeToAbsolutePath(path.join(root, 'index.ts'));
+
+test('public program factory uses the selected libraries and exposes only diagnostic data', () => {
+  clearProgramCache();
+  configureCompilerInstrumentation({ collectTiming: true });
+  const options = createProgramOptions(
+    path.join(root, 'tsconfig.json'),
+    undefined,
+    true,
+    undefined,
+    root,
+  );
+  const host = new IncrementalCompilerHost(options.options, root, true);
+  const library = ts.getDefaultLibFilePath(options.options);
+  assert.equal(host.getDefaultLibLocation(), path.dirname(library));
+  assert.ok(host.readFile(library)?.length, 'restriction must admit the selected compiler library');
+  if (getCompilerInfo().backend === 'wasm')
+    assert.ok(library.startsWith(getCompilerInfo().sdkRoot!.replaceAll('\\', '/')));
+  const program = createStandardProgram({ ...options, host });
+  try {
+    const libraries = getProgramFileNames(program).filter(file =>
+      path.basename(file).startsWith('lib.'),
+    );
+    assert.ok(libraries.length > 0);
+    assert.ok(libraries.every(file => file.startsWith(path.dirname(library) + '/')));
+    const metrics = getProgramInstrumentation(program)!;
+    assert.ok(metrics.ipc.totals.requestCount > 0);
+    assert.equal('api' in metrics, false);
+    assert.equal('programs' in metrics, false);
+    assert.equal('rawPrograms' in metrics, false);
+    assert.deepEqual(metrics.failures, []);
+  } finally {
+    clearProgramCache();
+    configureCompilerInstrumentation({ collectTiming: false });
+  }
+});
 
 function checkType(program, code, expected) {
   const parsed = build({

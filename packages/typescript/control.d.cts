@@ -28,6 +28,20 @@ export interface CompilerGateway {
 export function installCompilerGateway(provider: CompilerProvider): CompilerGateway;
 export function getCompilerGateway(): CompilerGateway;
 export function initializeCompiler(): Promise<void>;
+/** Optional metrics only; program creation still uses the public compiler API. */
+export function configureCompilerInstrumentation(options: {
+  collectTiming?: boolean;
+  filesystem?: 'callbacks' | 'layer';
+}): void;
+export function getProgramInstrumentation(program: ts.Program):
+  | {
+      timings: Record<string, number>;
+      filesystem: Readonly<Record<string, unknown>>;
+      ipc: { totals: Record<string, number>; recentRequests: readonly unknown[] };
+      failures: readonly { method: string; message: string }[];
+    }
+  | undefined;
+export function compilerOptionsToJson(options: ts.CompilerOptions): Record<string, unknown>;
 export function getCompilerInfo(): {
   backend: string;
   version: string;

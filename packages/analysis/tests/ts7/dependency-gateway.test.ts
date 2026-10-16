@@ -144,6 +144,32 @@ test('unsupported compiler operations do not become undefined or a silent fallba
   );
 });
 
+test('cached compiler functions preserve identity, receivers, constructor semantics and sticky errors', () => {
+  run(`
+    const {TypeScriptFailure}=await import('typescript/errors');
+    const recoverable=new Error('source error');
+    const fatal=new TypeScriptFailure('unsupported-operation','unsupported nested operation');
+    class Box { constructor(value) { this.value=value; } }
+    const exports={marker:42, Box, receiver(){return this.marker;}, fail(error){throw error;}};
+    const gateway=installCompilerGateway({...fake,exports});
+    const compiler=require('typescript');
+    const receiver=compiler.receiver;
+    assert.equal(receiver,compiler.receiver);
+    assert.equal(receiver.call({marker:0}),42);
+    class Derived extends compiler.Box {}
+    const instance=new Derived(7);
+    assert.ok(instance instanceof Derived);
+    assert.ok(instance instanceof Box);
+    assert.equal(instance.value,7);
+    assert.throws(()=>compiler.fail(recoverable),error=>error===recoverable);
+    gateway.assertHealthy();
+    assert.equal(receiver(),42);
+    assert.throws(()=>compiler.fail(fatal),error=>error===fatal);
+    assert.throws(()=>receiver(),error=>error===fatal);
+    assert.throws(()=>gateway.assertHealthy(),error=>error===fatal);
+  `);
+});
+
 for (const mode of ['alias', 'absolute', 'relative']) {
   test(`a ${mode} import of a physical compiler cannot bypass the gateway`, () => {
     const specifier =
@@ -218,6 +244,29 @@ test('compiler package metadata belongs to the provider, not the installed packa
   );
 });
 
+test('nested compiler packages cannot hijack the public control/error entries', () => {
+  run(
+    `
+    const gateway=installCompilerGateway(fake);
+    const control=require('consumer');
+    assert.equal(typeof control.getCompilerGateway,'function');
+    const esm=await import('consumer/esm.mjs');
+    assert.equal(esm.getCompilerGateway,control.getCompilerGateway);
+    assert.equal(esm.TypeScriptFailure,control.TypeScriptFailure);
+    gateway.assertHealthy();
+  `,
+    {
+      'node_modules/consumer/index.js': "module.exports=require('typescript/control');",
+      'node_modules/consumer/esm.mjs':
+        "export {getCompilerGateway} from 'typescript/control'; export {TypeScriptFailure} from 'typescript/errors';",
+      'node_modules/consumer/node_modules/typescript/package.json':
+        '{"name":"typescript","exports":{"./control":"./escape.cjs","./errors":"./escape.cjs"}}',
+      'node_modules/consumer/node_modules/typescript/escape.cjs':
+        "throw new Error('Nested compiler must never execute');",
+    },
+  );
+});
+
 test('preloaded compiler dependencies are rejected instead of retaining an old binding', () => {
   run(
     `
@@ -231,6 +280,27 @@ test('preloaded compiler dependencies are rejected instead of retaining an old b
     },
   );
 });
+
+for (const mode of ['require', 'import', 'preloaded']) {
+  test(`a compiler outside node_modules cannot escape through ${mode}`, () => {
+    run(
+      mode === 'preloaded'
+        ? `require('./consumer.cjs'); assert.throws(()=>installCompilerGateway(fake), /before loading/);`
+        : `const gateway=installCompilerGateway(fake);
+          ${
+            mode === 'import'
+              ? "await assert.rejects(import('./vendor/compiler/index.cjs'), /bypasses compiler gateway/);"
+              : "assert.throws(()=>require('./consumer.cjs'), /bypasses compiler gateway/);"
+          }
+          assert.throws(()=>gateway.assertHealthy(), /bypasses compiler gateway/);`,
+      {
+        'consumer.cjs': "module.exports=require('./vendor/compiler/index.cjs');",
+        'vendor/compiler/package.json': '{"name":"typescript","type":"commonjs"}',
+        'vendor/compiler/index.cjs': 'module.exports={escaped:true};',
+      },
+    );
+  });
+}
 
 test('application and dependencies receive the same program/host API', () => {
   run(

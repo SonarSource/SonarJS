@@ -29,12 +29,14 @@ const valuedOptions = new Set([
   '--native-sdk',
   '--backends',
   '--sample-interval-us',
+  '--allocation-interval-bytes',
 ]);
 const flagOptions = new Set([
   '--restrict-node-modules',
   '--profile',
   '--cpu-profile',
   '--layer-profile',
+  '--allocation-profile',
   '--calibrate',
   '--help',
 ]);
@@ -116,9 +118,14 @@ if (
   sampleIntervalMicros > 10000
 )
   throw new Error('--sample-interval-us must be an integer between 100 and 10000');
+const allocationIntervalBytes = Number(value('--allocation-interval-bytes') ?? 32768);
+if (!Number.isSafeInteger(allocationIntervalBytes) || allocationIntervalBytes < 1024)
+  throw new Error('--allocation-interval-bytes must be an integer of at least 1024');
 if (
   args.includes('--calibrate') &&
-  !args.some(option => ['--profile', '--cpu-profile', '--layer-profile'].includes(option))
+  !args.some(option =>
+    ['--profile', '--cpu-profile', '--layer-profile', '--allocation-profile'].includes(option),
+  )
 )
   throw new Error('--calibrate requires an instrumentation option');
 if (!['callbacks', 'layer'].includes(filesystem))
@@ -234,6 +241,11 @@ for (let run = 0; run < runs; run++) {
             : undefined,
         control,
         sampleIntervalMicros,
+        allocationProfile:
+          !control && args.includes('--allocation-profile')
+            ? `${prefix}.heapprofile.json`
+            : undefined,
+        allocationIntervalBytes,
         skipOutsideNodeModules: args.includes('--restrict-node-modules'),
         archiveMode,
         ...(archiveMode
@@ -252,6 +264,9 @@ for (let run = 0; run < runs; run++) {
           pathToFileURL(
             path.resolve(directory, '../../packages/analysis/src/jsts/native/compatibility.mjs'),
           ).href,
+          // Bind routing before Node resolves the worker's static consumer graph.
+          '--import',
+          'typescript',
           '--import',
           'tsx',
           path.join(directory, 'worker.mjs'),
@@ -369,6 +384,8 @@ const summary = {
     metrics: args.includes('--profile'),
     cpu: args.includes('--cpu-profile'),
     ownership: args.includes('--layer-profile'),
+    allocation: args.includes('--allocation-profile'),
+    allocationIntervalBytes,
     sampleIntervalMicros,
   },
   valid,

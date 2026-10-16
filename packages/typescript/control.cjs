@@ -1,5 +1,6 @@
 const path = require('node:path');
 const { installCompilerGateway, TypeScriptFailure } = require('./gateway.cjs');
+const { getImplementationRoots } = require('./boundary.cjs');
 
 let gateway;
 let backend;
@@ -27,12 +28,10 @@ function getCompilerGateway() {
   }
   // This is the only TS6 SDK load in the module. Consumers cannot import its alias.
   const ts = require('typescript-classic');
-  const privateRoots = [
+  const privateRoots = getImplementationRoots(
     __dirname,
     bundled ? __dirname : path.dirname(require.resolve('typescript-classic/package.json')),
-    path.resolve(__dirname, '../analysis/src/jsts/native'),
-    path.resolve(__dirname, '../../lib/analysis/src/jsts/native'),
-  ];
+  );
   const exports = { ...ts };
   backend = selection === 'ts6' ? undefined : require('./native.cjs').createBackend(ts);
   Object.assign(exports, backend?.compiler);
@@ -54,6 +53,41 @@ module.exports = {
   initializeCompiler: () => {
     getCompilerGateway();
     return (initialization ??= Promise.resolve().then(() => backend?.initialize()));
+  },
+  configureCompilerInstrumentation: options => {
+    getCompilerGateway();
+    backend?.configureInstrumentation(options);
+  },
+  getProgramInstrumentation: program => {
+    getCompilerGateway();
+    const session = backend?.runtime().getNativeSession(program);
+    if (!session) return undefined;
+    session.assertHealthy();
+    return {
+      timings: { ...session.timings },
+      filesystem: session.adapter.getMetrics(),
+      ipc: session.api.getTimingInfo(),
+      failures: session.failures.map(failure => ({ ...failure })),
+    };
+  },
+  compilerOptionsToJson: options => {
+    const ts = getCompilerGateway().facade;
+    const result = {};
+    const optionName = (type, value) => {
+      if (!(type instanceof Map)) return value;
+      const name = [...type].find(([, candidate]) => candidate === value)?.[0];
+      if (name === undefined) throw new Error(`Cannot translate compiler option value ${value}`);
+      return name;
+    };
+    for (const declaration of ts.optionDeclarations) {
+      const value = options[declaration.name];
+      if (value === undefined) continue;
+      result[declaration.name] =
+        declaration.type === 'list'
+          ? value.map(item => optionName(declaration.element.type, item))
+          : optionName(declaration.type, value);
+    }
+    return result;
   },
   getCompilerInfo: () => {
     const selected = getCompilerGateway();

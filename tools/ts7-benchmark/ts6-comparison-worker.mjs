@@ -3,6 +3,7 @@ import path from 'node:path';
 import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 import { createHash } from 'node:crypto';
+import { assertCompilerRouting } from './routing.mjs';
 
 // Only Node built-ins are loaded before selecting the repository/backend.
 const [configPath, outputPath] = process.argv.slice(2);
@@ -176,21 +177,7 @@ try {
       }
     }
     if (gateway) {
-      gateway.assertHealthy();
-      const observations = gateway.observations();
-      const own = observations.filter(item => item.importer.includes('/packages/analysis/src/'));
-      const dependencies = observations.filter(item =>
-        item.importer.includes('/node_modules/@typescript-eslint/'),
-      );
-      if (!own.length || !dependencies.length)
-        throw new Error('Missing application or typescript-eslint routing evidence');
-      report.compilerRouting = {
-        provider: gateway.provider,
-        sameFacade: gateway.facade === ts,
-        ownedImporters: own.length,
-        typescriptEslintImporters: dependencies.length,
-        observations,
-      };
+      report.compilerRouting = assertCompilerRouting(gateway, ts);
     }
     report.valid = true;
   }

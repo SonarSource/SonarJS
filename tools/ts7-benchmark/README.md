@@ -7,7 +7,7 @@ An [in-process WASM provider](../../docs/ts7-benchmark/wasm.md) is also runnable
 with `--native-backend wasm` and a locally built, revision-matched compiler.
 Use `--native-sdk <snapshot>` to compare the corresponding native IPC build.
 The [agreed plan](../../docs/ts7-benchmark/plan.md) retains the original design
-and records implementation findings. Run from the `SonarJS-ts7-benchmark` worktree.
+and records implementation findings. Run from this repository's worktree.
 
 The [execution-path comparison](../../docs/ts7-benchmark/execution-paths.md)
 diagrams master versus the current production integration, including the narrower
@@ -65,6 +65,9 @@ The worker always runs this worktree's SonarJS rule implementation.
 - `--layer-profile`: exclusive sampled consumer/whole-TypeScript-layer/host/
   unattributed wall time, per phase, component, source and function. Writes the
   raw `*.ownership.cpuprofile` and exact host callback counts/returned bytes.
+- `--allocation-profile`: separate diagnostic weighted JS allocation samples
+  and GC events, including allocations collected during analysis.
+- `--allocation-interval-bytes N`: 32768 by default; minimum 1024.
 - `--sample-interval-us N`: 1000 by default; 100–10000. Smaller intervals add
   overhead. This changes sampling resolution, not an accuracy guarantee.
 - `--calibrate`: pair every instrumented worker with a fresh uninstrumented
@@ -130,6 +133,34 @@ run** to obtain query/rule counters and whole-layer attribution together. Pass
 that directory as a second argument to `compare-performance.mjs` to verify its
 result parity against the calibrated comparison. Collect allocation/GC evidence
 separately before asserting causal ownership of an outside-layer difference.
+
+Add `--allocation-profile` to a separate diagnostic run to collect weighted V8
+allocation samples, including objects collected by minor and major GC, plus GC
+event durations. `--allocation-interval-bytes` defaults to 32768 (minimum 1024).
+Each `*.heapprofile.json` retains the raw heap sampling tree and GC events;
+`allocations` in the worker report contains exclusive source ownership and the
+largest allocation stacks. The comparison reporter includes allocation/GC
+distributions when the second directory contains these diagnostics. These are
+estimates of JS allocations, excluding Go allocations and WASM linear memory;
+GC duration does not identify the allocator responsible for a pause. Keep these
+runs separate from the controls used to compare speed.
+
+Every benchmark worker binds the compiler gateway before resolving its static
+consumer imports. Reports require a healthy shared facade and observed imports
+from both SonarJS and typescript-eslint. Static production-import auditing and
+runtime/bundle regressions also cover aliases and physical compiler checkouts
+outside `node_modules`.
+
+Every provider creates programs through the same production `createStandardProgram`
+factory and `IncrementalCompilerHost`. Backend selection happens inside the owned
+`ts.createProgram`; the worker never constructs private native programs directly.
+The host uses the selected provider's standard-library directory.
+`typescript/control` supplies optional instrumentation settings and copied program
+metrics without exposing SDK APIs, raw programs or native sessions.
+
+The [interface and allocation report](../../docs/ts7-benchmark/interface-20261016.md)
+records the corrected common-factory comparison, isolated gateway experiment and
+remaining consumer/GC gap. No rule or rule-helper changes were made for that work.
 
 Run three independent modes with the same inputs and distinct output directories:
 

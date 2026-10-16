@@ -40,25 +40,16 @@ __export(stdin_exports, {
 });
 module.exports = __toCommonJS(stdin_exports);
 var import_node_module = require('node:module');
-var import_node_fs = require('node:fs');
 var import_node_path = __toESM(require('node:path'));
 var import_node_url = require('node:url');
 var import_errors = require('./errors.cjs');
+var import_boundary = require('./boundary.cjs');
 var import_errors2 = require('./errors.cjs');
 const require2 = (0, import_node_module.createRequire)(__filename);
 const virtualModule = 'sonarjs-typescript:dependency-facade';
 const metadataModule = 'sonarjs-typescript:dependency-metadata';
 const registry = /* @__PURE__ */ Symbol.for('sonarjs.typescript.dependency-gateway.v1');
 let installed;
-const normalized = url => url.replaceAll('\\', '/');
-const dependency = url => /\/node_modules\//i.test(normalized(url));
-const compilerEntry =
-  /^(?:typescript|typescript-classic|@typescript\/(?:native-preview|api))(?:\/|$)/;
-const compilerPackageNames = /* @__PURE__ */ new Set([
-  'typescript',
-  '@typescript/native-preview',
-  '@typescript/api',
-]);
 function installCompilerGateway(provider) {
   if (installed) {
     if (installed.provider !== provider)
@@ -87,34 +78,13 @@ function installCompilerGateway(provider) {
   const implementation = url => roots.some(root => url.startsWith(root));
   const packageCache = /* @__PURE__ */ new Map();
   const compilerRoot = url => {
-    if (!url.startsWith('file:') || !dependency(url)) return void 0;
-    let directory = import_node_path.default.dirname((0, import_node_url.fileURLToPath)(url));
-    const traversed = [];
-    let result;
-    while (import_node_path.default.dirname(directory) !== directory) {
-      if (packageCache.has(directory)) {
-        result = packageCache.get(directory);
-        break;
-      }
-      traversed.push(directory);
-      try {
-        const manifest = JSON.parse(
-          (0, import_node_fs.readFileSync)(
-            import_node_path.default.join(directory, 'package.json'),
-            'utf8',
-          ),
-        );
-        if (manifest.name) {
-          result = compilerPackageNames.has(manifest.name) ? directory : void 0;
-          break;
-        }
-      } catch (error) {
-        if (error.code !== 'ENOENT') throw error;
-      }
-      directory = import_node_path.default.dirname(directory);
-    }
-    for (const directory2 of traversed) packageCache.set(directory2, result);
-    return result;
+    return url.startsWith('file:')
+      ? (0, import_boundary.findCompilerRoot)(
+          (0, import_node_url.fileURLToPath)(url),
+          packageCache,
+          __dirname,
+        )
+      : void 0;
   };
   for (const module2 of Object.values(require2.cache)) {
     if (!module2 || implementation((0, import_node_url.pathToFileURL)(module2.filename).href))
@@ -131,34 +101,40 @@ function installCompilerGateway(provider) {
   }
   const target = /* @__PURE__ */ Object.create(null);
   const functionCache = /* @__PURE__ */ new Map();
+  const rethrow = error => {
+    if (error instanceof import_errors.TypeScriptFailure) failure ??= error;
+    throw error;
+  };
   const names = Object.getOwnPropertyNames(provider.exports);
   for (const name of names.filter(name2 => !['default', '__esModule'].includes(name2)))
     Object.defineProperty(target, name, {
       enumerable: true,
       get() {
         healthy();
+        const cached = functionCache.get(name);
+        if (cached) return cached;
         const value = provider.exports[name];
         if (typeof value !== 'function') return value;
-        const invoke = call => {
-          healthy();
-          try {
-            return call();
-          } catch (error) {
-            if (error instanceof import_errors.TypeScriptFailure) failure ??= error;
-            throw error;
-          }
-        };
-        if (!functionCache.has(name))
-          functionCache.set(
-            name,
-            new Proxy(value, {
-              apply: (target2, _this, args) =>
-                invoke(() => Reflect.apply(target2, provider.exports, args)),
-              construct: (target2, args, newTarget) =>
-                invoke(() => Reflect.construct(target2, args, newTarget)),
-            }),
-          );
-        return functionCache.get(name);
+        const wrapped = new Proxy(value, {
+          apply(target2, _this, args) {
+            healthy();
+            try {
+              return Reflect.apply(target2, provider.exports, args);
+            } catch (error) {
+              return rethrow(error);
+            }
+          },
+          construct(target2, args, newTarget) {
+            healthy();
+            try {
+              return Reflect.construct(target2, args, newTarget);
+            } catch (error) {
+              return rethrow(error);
+            }
+          },
+        });
+        functionCache.set(name, wrapped);
+        return wrapped;
       },
     });
   const facade = new Proxy(Object.freeze(target), {
@@ -187,24 +163,30 @@ function installCompilerGateway(provider) {
 export default facade;export {facade as 'module.exports'};
 ${hints}`;
   const metadataSource = `const metadata=Object.freeze(${JSON.stringify(provider.packageMetadata)});export default metadata;export {metadata as 'module.exports'};`;
-  const supportedRoot = specifier =>
-    /^(?:typescript|typescript-classic)$/.test(specifier) ||
-    /^(?:typescript|typescript-classic)\/lib\/(?:typescript|tsserverlibrary)(?:\.js)?$/.test(
-      specifier,
-    );
   (0, import_node_module.registerHooks)({
     resolve(specifier, context, next) {
       if (specifier === virtualModule || specifier === metadataModule)
         return { url: specifier, shortCircuit: true };
       const parent = context.parentURL ?? '';
-      if (implementation(parent) || ['typescript/control', 'typescript/errors'].includes(specifier))
-        return next(specifier, context);
-      if (compilerEntry.test(specifier)) {
+      if (implementation(parent)) return next(specifier, context);
+      if (import_boundary.controlEntries.has(specifier)) {
+        const file =
+          specifier === 'typescript/errors'
+            ? 'errors.cjs'
+            : context.conditions.includes('require')
+              ? 'control.cjs'
+              : 'control.mjs';
+        return next(
+          (0, import_node_url.pathToFileURL)(import_node_path.default.join(__dirname, file)).href,
+          context,
+        );
+      }
+      if (import_boundary.compilerEntry.test(specifier)) {
         healthy();
         observations.set(`${parent}:${specifier}`, { importer: parent, specifier });
-        if (/^(?:typescript|typescript-classic)\/package\.json$/.test(specifier))
+        if (import_boundary.metadataEntry.test(specifier))
           return { url: metadataModule, shortCircuit: true };
-        if (!supportedRoot(specifier))
+        if (!import_boundary.supportedRoot.test(specifier))
           return fail(
             `Unsupported dependency compiler entry: ${specifier} from ${parent}`,
             specifier,

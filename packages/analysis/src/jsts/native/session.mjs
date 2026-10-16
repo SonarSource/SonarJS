@@ -18,6 +18,7 @@ import path from 'node:path';
 import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 import ts from 'typescript';
+import { compilerOptionsToJson } from 'typescript/control';
 import { API } from 'typescript-native/sync';
 import { createFileSystemLayer } from 'typescript-native/fs';
 import { createNativeFileSystem } from './filesystem.mjs';
@@ -45,24 +46,20 @@ const nativePrograms = new WeakMap();
 const programSessions = new WeakMap();
 let unsupportedObserver;
 
-/** Reverse legacy option enums before letting the native config parser convert them. */
-export function compilerOptionsToJson(options) {
-  const result = {};
-  const optionName = (type, value) => {
-    if (!(type instanceof Map)) return value;
-    const name = [...type].find(([, candidate]) => candidate === value)?.[0];
-    if (name === undefined) throw new Error(`Cannot translate compiler option value ${value}`);
-    return name;
-  };
-  for (const declaration of ts.optionDeclarations) {
-    const value = options[declaration.name];
-    if (value === undefined) continue;
-    result[declaration.name] =
-      declaration.type === 'list'
-        ? value.map(item => optionName(declaration.element.type, item))
-        : optionName(declaration.type, value);
-  }
-  return result;
+export function getNativeLibraryDirectory() {
+  const require = createRequire(import.meta.url);
+  if (process.env.SONARJS_TYPESCRIPT_BACKEND === 'wasm')
+    return path
+      .join(path.dirname(require.resolve('typescript-native/package.json')), 'lib')
+      .replaceAll('\\', '/');
+  return path
+    .join(
+      path.dirname(
+        require.resolve(`@typescript/typescript-${process.platform}-${process.arch}/package.json`),
+      ),
+      'lib',
+    )
+    .replaceAll('\\', '/');
 }
 
 export function createNativePrograms(programOptions, settings = {}) {
@@ -76,13 +73,7 @@ export function createNativePrograms(programOptions, settings = {}) {
     };
     globalThis[key] = unsupportedObserver;
   }
-  const require = createRequire(import.meta.url);
-  const nativeLibrary = path.join(
-    path.dirname(
-      require.resolve(`@typescript/typescript-${process.platform}-${process.arch}/package.json`),
-    ),
-    'lib',
-  );
+  const nativeLibrary = getNativeLibraryDirectory();
   const cwd = settings.cwd ?? programOptions[0].host?.getCurrentDirectory() ?? process.cwd();
   const requestFiles =
     settings.requestFiles ??
