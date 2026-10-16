@@ -25,5 +25,11 @@ export const fields = [
       description: 'Regular expression used to check the function names against.',
       default: '^[_a-z][a-zA-Z0-9]*$',
     },
+    {
+      field: 'ignoreCallArgumentKeys',
+      description:
+        'Ignore function-valued keys of object literals passed directly as call or constructor arguments.',
+      default: false,
+    },
   ],
 ] as const satisfies ESLintConfiguration;
