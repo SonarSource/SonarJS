@@ -26,6 +26,10 @@ import * as meta from './generated-meta.js';
 // These tag names can also identify SVG elements when React renders through a component.
 const SHARED_HTML_SVG_TAG_NAMES = new Set(['a', 'font', 'image', 'script', 'style', 'title']);
 
+/**
+ * Suppresses the upstream report for proven editing hosts or conditional values
+ * that cannot add an element to sequential keyboard navigation.
+ */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
     {
