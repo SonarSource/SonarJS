@@ -395,6 +395,42 @@ export function getUniqueWriteReference(
 }
 
 /**
+ * Unwraps TypeScript expressions and follows single-write variable aliases. Parameter defaults
+ * and destructured bindings are not values of the whole binding, so they remain unresolved.
+ * Self-referencing and mutually-referencing aliases terminate at an unresolved identifier.
+ */
+export function resolveSingleWriteExpression(
+  context: Rule.RuleContext,
+  node: TSESTree.Node,
+): TSESTree.Node;
+export function resolveSingleWriteExpression(
+  context: Rule.RuleContext,
+  node: estree.Node,
+): estree.Node;
+export function resolveSingleWriteExpression(context: Rule.RuleContext, node: Node): Node {
+  const seen = new Set<Node>();
+  let value = unwrapTypeScriptExpression(node);
+  while (value.type === 'Identifier' && !seen.has(value)) {
+    seen.add(value);
+    const variable = getVariableFromName(context, value.name, value as estree.Node);
+    const definition = variable?.defs[0];
+    if (
+      variable?.defs.length !== 1 ||
+      definition?.type !== 'Variable' ||
+      definition.node.id.type !== 'Identifier'
+    ) {
+      break;
+    }
+    const write = getUniqueWriteReference(variable);
+    if (!write) {
+      break;
+    }
+    value = unwrapTypeScriptExpression(write);
+  }
+  return value;
+}
+
+/**
  * Returns all read references reachable from `scope`, including nested scopes.
  */
 export function collectReferences(scope: Scope.Scope): Scope.Reference[] {

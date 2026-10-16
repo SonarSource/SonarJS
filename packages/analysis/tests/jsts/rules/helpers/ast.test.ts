@@ -18,7 +18,12 @@ import path from 'node:path';
 
 import { Linter, Rule } from 'eslint';
 import type estree from 'estree';
-import { getProperty, getUniqueWriteUsageOrNode } from '../../../../src/jsts/rules/helpers/ast.js';
+import parser from '@typescript-eslint/parser';
+import {
+  getProperty,
+  getUniqueWriteUsageOrNode,
+  resolveSingleWriteExpression,
+} from '../../../../src/jsts/rules/helpers/ast.js';
 
 import { describe, test } from 'node:test';
 import { expect } from 'expect';
@@ -124,13 +129,92 @@ describe('getUniqueWriteUsageOrNode', () => {
   });
 });
 
-function resolveCallArgument(code: string): estree.Node | undefined {
+for (const [name, languageOptions] of [
+  ['JavaScript', { ecmaVersion: 2022 }],
+  ['TypeScript', { ecmaVersion: 2022, parser }],
+] as const) {
+  describe(`resolveSingleWriteExpression with ${name}`, () => {
+    for (const [subject, code, expected] of [
+      ['literal', "consume('value');", { type: 'Literal', value: 'value' }],
+      [
+        'alias chain',
+        "const value = 'value'; const alias = value; consume(alias);",
+        { type: 'Literal', value: 'value' },
+      ],
+      [
+        'single assignment',
+        "let value; value = 'value'; consume(value);",
+        { type: 'Literal', value: 'value' },
+      ],
+      ['unresolved name', 'consume(value);', { type: 'Identifier', name: 'value' }],
+      [
+        'multiple writes',
+        "let value = 'first'; value = 'second'; consume(value);",
+        { type: 'Identifier', name: 'value' },
+      ],
+      [
+        'parameter default',
+        "function f(value = 'default') { consume(value); }",
+        { type: 'Identifier', name: 'value' },
+      ],
+      [
+        'destructured binding',
+        "const { value } = { value: 'value' }; consume(value);",
+        { type: 'Identifier', name: 'value' },
+      ],
+      [
+        'destructured default',
+        "const [value = 'default'] = []; consume(value);",
+        { type: 'Identifier', name: 'value' },
+      ],
+      [
+        'rest binding',
+        "const { children, ...value } = { children: 'value' }; consume(value);",
+        { type: 'Identifier', name: 'value' },
+      ],
+      [
+        'self-reference',
+        'let value = value; consume(value);',
+        { type: 'Identifier', name: 'value' },
+      ],
+      [
+        'mutual references',
+        'let first = second; let second = first; consume(first);',
+        { type: 'Identifier' },
+      ],
+    ] as const) {
+      test(`resolves ${subject} without assuming an unknown value`, () => {
+        expect(
+          resolveCallArgument(code, resolveSingleWriteExpression, languageOptions),
+        ).toMatchObject(expected);
+      });
+    }
+  });
+}
+
+test('resolveSingleWriteExpression unwraps nested TypeScript assertions throughout aliases', () => {
+  const resolved = resolveCallArgument(
+    `const value = ('value' as string)!;
+     const alias = value satisfies string;
+     consume((alias as string)!);`,
+    resolveSingleWriteExpression,
+    { parser },
+  );
+  expect(resolved).toMatchObject({ type: 'Literal', value: 'value' });
+});
+
+function resolveCallArgument(
+  code: string,
+  resolve: (context: Rule.RuleContext, node: estree.Node) => estree.Node = (context, node) =>
+    getUniqueWriteUsageOrNode(context, node, true),
+  languageOptions: Linter.LanguageOptions = { ecmaVersion: 2022 },
+): estree.Node | undefined {
   let resolved: estree.Node | undefined;
   const linter = new Linter();
   const messages = linter.verify(
     code,
     {
-      languageOptions: { ecmaVersion: 2022 },
+      languageOptions,
       plugins: {
         sonarjs: {
           rules: {
@@ -140,7 +224,7 @@ function resolveCallArgument(code: string): estree.Node | undefined {
                   CallExpression(node: estree.CallExpression) {
                     const argument = node.arguments[0];
                     if (argument?.type !== 'SpreadElement') {
-                      resolved = getUniqueWriteUsageOrNode(context, argument, true);
+                      resolved = resolve(context, argument);
                     }
                   },
                 };
