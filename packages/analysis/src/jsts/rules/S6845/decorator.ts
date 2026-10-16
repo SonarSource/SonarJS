@@ -130,11 +130,8 @@ function directContentEditableAttribute(
 }
 
 /**
+ * Matches: <div tabIndex={disabled ? null : -1} />
  * Requires no spreads or later tabIndex attributes.
- *
- * @example
- * <div tabIndex={disabled ? null : -1} /> -> true
- * <div tabIndex={disabled ? null : 0} />  -> false
  */
 function isTabIndexOutsideSequentialFocusOrder(reportDescriptor: Rule.ReportDescriptor): boolean {
   if (!('node' in reportDescriptor) || reportDescriptor.node.type !== 'JSXAttribute') {
@@ -153,12 +150,8 @@ function isTabIndexOutsideSequentialFocusOrder(reportDescriptor: Rule.ReportDesc
 }
 
 /**
+ * Matches: <div id="title" tabIndex={value} title="Title" />
  * Rejects any spread or later tabIndex attribute, including case variants.
- *
- * @example For the first tabIndex
- * <div tabIndex={value} title="Title" />   -> true
- * <div tabIndex={value} tabIndex={0} />    -> false
- * <div tabIndex={value} {...props} />      -> false
  */
 function hasNoTabIndexOverrides(node: TSESTree.JSXAttribute): boolean {
   const parent = node.parent;
@@ -181,11 +174,11 @@ function hasNoTabIndexOverrides(node: TSESTree.JSXAttribute): boolean {
 }
 
 /**
+ * Matches:
+ *   null
+ *   -1
+ *   condition ? null : nested ? -1 : -2
  * Every leaf must be null or a negative integer literal.
- *
- * @example
- * condition ? null : nested ? -1 : -2 -> true
- * condition ? null : 0                 -> false
  */
 function isNonSequentialTabIndexValue(expression: TSESTree.Expression): boolean {
   if (expression.type === 'ConditionalExpression') {
