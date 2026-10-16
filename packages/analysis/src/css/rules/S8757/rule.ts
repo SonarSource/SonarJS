@@ -103,13 +103,15 @@ const ruleImpl: stylelint.RuleBase = (primary, secondaryOptions, context) => {
 
   return async (root: PostCSS.Root | PostCSS.Document, result) => {
     if ((root as PostCSS.Node).type === 'document') {
-      for (const child of (root as PostCSS.Document).nodes) {
-        if ((child as PostCSS.Node).type !== 'root') {
-          continue;
-        }
-        const childRoot = child as unknown as PostCSS.Root;
-        await runOnBlock(childRoot, result, isSassBlock(childRoot, result));
-      }
+      const childRoots = (root as PostCSS.Document).nodes.filter(
+        child => (child as PostCSS.Node).type === 'root',
+      ) as unknown as PostCSS.Root[];
+      // Blocks share the same result and rely on message counts, so they must run sequentially
+      await childRoots.reduce<Promise<void>>(
+        (previous, childRoot) =>
+          previous.then(() => runOnBlock(childRoot, result, isSassBlock(childRoot, result))),
+        Promise.resolve(),
+      );
       return;
     }
     await runOnBlock(root as PostCSS.Root, result, isSassBlock(root as PostCSS.Root, result));

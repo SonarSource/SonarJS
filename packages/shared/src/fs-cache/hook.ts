@@ -1374,9 +1374,10 @@ class CachedDir {
 
   async *[Symbol.asyncIterator]() {
     try {
-      let entry;
-      while ((entry = await this.read()) !== null) {
+      let entry = await this.read();
+      while (entry !== null) {
         yield entry;
+        entry = this.readSync();
       }
     } finally {
       if (!this.closed) {
@@ -1425,16 +1426,12 @@ async function readDirectoryWithOpendir(
       options?: OperationOptions,
     ) => Promise<fs.Dir>
   )(input, options);
-  try {
-    const entries: fs.Dirent[] = [];
-    let entry: fs.Dirent | null;
-    while ((entry = await directory.read()) !== null) {
-      entries.push(entry);
-    }
-    return entries;
-  } finally {
-    await directory.close();
+  const entries: fs.Dirent[] = [];
+  // The async iterator reads entries sequentially and closes the directory when done or on error.
+  for await (const entry of directory) {
+    entries.push(entry);
   }
+  return entries;
 }
 
 function createDirectoryPatches(archive: ArchiveFacade, executor: CacheExecutor) {

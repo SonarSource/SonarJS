@@ -40,15 +40,18 @@ async function collectGeneratedSourceDeclaredPreloadPathsForPackage(
 ) {
   const declaredPreloadPaths = new Set<NormalizedAbsolutePath>();
 
-  for (const detector of GENERATED_SOURCE_DETECTORS) {
-    mergeDeclaredPreloadPaths(
-      declaredPreloadPaths,
-      await detector.resolveDeclaredPreloadPaths?.({
+  const resolvedPreloadPaths = await Promise.all(
+    GENERATED_SOURCE_DETECTORS.map(detector =>
+      detector.resolveDeclaredPreloadPaths?.({
         baseDir,
         packageDir,
         taskInvocations,
       }),
-    );
+    ),
+  );
+
+  for (const preloadPaths of resolvedPreloadPaths) {
+    mergeDeclaredPreloadPaths(declaredPreloadPaths, preloadPaths);
   }
 
   return declaredPreloadPaths;

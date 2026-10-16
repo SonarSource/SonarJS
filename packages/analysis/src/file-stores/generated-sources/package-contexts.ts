@@ -29,7 +29,7 @@ export async function collectGeneratedSourcePackageContexts(
   baseDir: NormalizedAbsolutePath,
   packageJsons: ReadonlyMap<NormalizedAbsolutePath, File>,
 ) {
-  const packageContexts: GeneratedSourcePackageContext[] = [];
+  const parsedPackages: { packageDir: NormalizedAbsolutePath; packageJson: PackageJson }[] = [];
 
   for (const [packageDir, file] of [...packageJsons.entries()].sort(([left], [right]) =>
     left.localeCompare(right),
@@ -39,18 +39,22 @@ export async function collectGeneratedSourcePackageContexts(
       continue;
     }
 
-    packageContexts.push({
-      packageDir,
-      packageJson,
-      taskInvocations: await collectGeneratedSourceTaskInvocations({
-        baseDir,
-        packageDir,
-        packageJson,
-      }),
-    });
+    parsedPackages.push({ packageDir, packageJson });
   }
 
-  return packageContexts;
+  return Promise.all(
+    parsedPackages.map(
+      async ({ packageDir, packageJson }): Promise<GeneratedSourcePackageContext> => ({
+        packageDir,
+        packageJson,
+        taskInvocations: await collectGeneratedSourceTaskInvocations({
+          baseDir,
+          packageDir,
+          packageJson,
+        }),
+      }),
+    ),
+  );
 }
 
 export function createGeneratedSourcePackageJsonMap(
