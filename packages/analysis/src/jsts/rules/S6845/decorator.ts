@@ -77,7 +77,7 @@ function isEditableHtmlHost(opening: TSESTree.JSXOpeningElement): boolean {
   }
 
   const attribute = directContentEditableAttribute(opening);
-  if (!attribute || attribute.name.name !== 'contentEditable') {
+  if (attribute?.name.name !== 'contentEditable') {
     return false;
   }
   if (attribute.value === null) {
