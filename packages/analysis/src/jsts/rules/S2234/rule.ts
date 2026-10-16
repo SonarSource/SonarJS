@@ -38,6 +38,10 @@ import * as meta from './generated-meta.js';
 /** What a compared operand reads: its lexical variable, or its name when it resolves to none. */
 type Operand = Scope.Variable | string;
 
+function isDefined<T>(value: T | undefined): value is T {
+  return value !== undefined;
+}
+
 interface FunctionSignature {
   params: Array<string | undefined>;
   declaration?: FunctionNodeType;
@@ -158,16 +162,18 @@ export const rule: Rule.RuleModule = {
             return undefined;
         }
       }
+      function getSideOperands(side: estree.Node): Operand[] {
+        return [getOperand(side), resolveMemberSnapshot(side)].filter(isDefined);
+      }
+      function resolveArgumentName(name: string): Operand {
+        return getVariableFromName(context, name, node) ?? name;
+      }
       function checkComparedArguments(lhs: estree.Node, rhs: estree.Node): boolean {
         // A side stands both for what it reads and for what it snapshots, since either can be the
         // argument being ordered: `if (m < n) f(b, a)` compares through the snapshots of `a` and
         // `b`, while `if (x < y) f(y, x)` compares the arguments themselves.
-        const sides = [lhs, rhs].map(side =>
-          [getOperand(side), resolveMemberSnapshot(side)].filter(operand => operand !== undefined),
-        );
-        const [first, second] = argumentNames.map(
-          name => getVariableFromName(context, name, node) ?? name,
-        );
+        const sides = [lhs, rhs].map(getSideOperands);
+        const [first, second] = argumentNames.map(resolveArgumentName);
         // Each argument must be matched by a different side, otherwise a condition comparing two
         // members of the same object would pass, e.g. `if (a.length < a.byteLength) f(b, a)`.
         return (
