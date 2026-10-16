@@ -17,7 +17,7 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
 import type { JSXAttribute, JSXOpeningElement } from 'estree-jsx';
-import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
+import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isHtmlElement } from '../helpers/isHtmlElement.js';
 import * as meta from './generated-meta.js';
@@ -30,7 +30,7 @@ const SHARED_HTML_SVG_TAG_NAMES = new Set(['a', 'font', 'image', 'script', 'styl
  * that cannot add an element to sequential keyboard navigation.
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  return interceptReportForReact(
+  return interceptReport(
     {
       ...rule,
       meta: generateMeta(meta, rule.meta),
