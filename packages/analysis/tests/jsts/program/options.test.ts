@@ -127,6 +127,55 @@ describe('createProgramOptions', () => {
   });
 
   describe('missing extended tsconfig', () => {
+    it('should explain that a missing JSON config was looked up using multiple paths', ({
+      mock,
+    }) => {
+      const log = mock.method(console, 'log', () => {});
+      const tsConfig = path.join(fixtures, 'tsconfig.json');
+      const extendedConfig = '@monorepo/tsconfig/nextjs.json';
+
+      const result = createProgramOptions(
+        tsConfig,
+        JSON.stringify({ extends: extendedConfig, files: ['file.ts'] }),
+        true,
+      );
+
+      const messages = log.mock.calls.map(call => call.arguments[0]);
+      const lastLookup = normalizeToAbsolutePath(`/node_modules/${extendedConfig}/tsconfig.json`);
+      // User-facing warnings are emitted by the analysis layer, including on cache hits.
+      expect(messages.filter(message => message.startsWith('WARN'))).toEqual([]);
+      expect(messages).toContain(
+        `DEBUG Could not resolve an extended tsconfig while parsing ${tsConfig}. Last lookup path: ${lastLookup}; using an empty configuration.`,
+      );
+      // The original JSON path is tried before the directory-style fallback.
+      const jsonLookup = `DEBUG TSConfig lookup while parsing ${tsConfig}: checking ${path.join(fixtures, 'node_modules', extendedConfig)}`;
+      const fallbackLookup = `DEBUG TSConfig lookup while parsing ${tsConfig}: checking ${lastLookup}`;
+      expect(messages).toContain(jsonLookup);
+      expect(messages).toContain(fallbackLookup);
+      expect(messages.indexOf(jsonLookup)).toBeLessThan(messages.indexOf(fallbackLookup));
+      expect(result.missingTsConfig).toBe(true);
+      expect(result.rootNames).toEqual([path.join(fixtures, 'file.ts')]);
+    });
+
+    it('should resolve an installed JSON config without warning or a directory-style fallback', ({
+      mock,
+    }) => {
+      const log = mock.method(console, 'log', () => {});
+      const tsConfig = path.join(fixtures, 'tsconfig_found.json');
+
+      const result = createProgramOptions(tsConfig, undefined, true);
+
+      const messages = log.mock.calls.map(call => call.arguments[0]);
+      expect(messages.filter(message => message.startsWith('WARN'))).toEqual([]);
+      expect(messages).toContain(
+        `DEBUG TSConfig lookup while parsing ${tsConfig}: checking ${path.join(fixtures, 'node_modules/@tsconfig/node30/tsconfig.json')}`,
+      );
+      expect(messages.some(message => message.includes('tsconfig.json/tsconfig.json'))).toBe(false);
+      expect(result.missingTsConfig).toBe(false);
+      expect(result.options.target).toBe(ts.ScriptTarget.ES2020);
+      expect(result.options.strict).toBe(true);
+    });
+
     it('should still create options when extended tsconfig does not exist', () => {
       const tsConfig = path.join(fixtures, 'tsconfig_missing.json');
 

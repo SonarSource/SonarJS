@@ -18,6 +18,7 @@ import { rule } from './index.js';
 import { rules } from '../external/unicorn.js';
 import { DefaultParserRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
+import { RuleTester as ESLintRuleTester } from 'eslint';
 
 const upstreamRule = rules['prefer-string-replace-all'];
 
@@ -59,6 +60,11 @@ describe('S7781 upstream sentinel', () => {
           errors: [{ messageId: 'method' }],
           output: `function replace(input) { return input.replaceAll(/(foo)/g, part => part.toUpperCase()); }`,
         },
+        {
+          code: String.raw`input.replaceAll(/\uD83D/gu, 'x');`,
+          errors: [{ messageId: 'pattern', data: { replacement: String.raw`'\uD83D'` } }],
+          output: String.raw`input.replaceAll('\uD83D', 'x');`,
+        },
       ],
     });
   });
@@ -78,6 +84,17 @@ describe('S7781', () => {
           code: String.raw`function collapseWhitespace(input) { return input.replace(/\s+/g, ''); }`,
         },
         {
+          code: String.raw`function replaceEllipsis(input) { return input.replace(/\.{3}/g, '…'); }`,
+        },
+        {
+          code: String.raw`const whitespaceRegex = /\n {2}/g;
+function normalizeIndentation(input) { return input.replace(whitespaceRegex, '\n'); }`,
+        },
+        {
+          // Do not expand nested, large repetition counts.
+          code: `input.replace(/(?:a{1000}){1000000}/g, '');`,
+        },
+        {
           // Compliant: negated character class
           code: `function normalizeSearchTerms(input) { return input.replace(/[^a-zA-Z0-9]+/g, ' '); }`,
         },
@@ -93,54 +110,114 @@ describe('S7781', () => {
           // Compliant: capture-sensitive replacement callback
           code: `function replaceWithCallback(input) { return input.replace(/(foo)/g, part => part.toUpperCase()); }`,
         },
+        // Compliant: Unicode regexes match code points. Converting surrogate characters
+        // or classes to a string search can change which substrings match.
+        ...['u', 'v'].flatMap(flag =>
+          [
+            String.raw`\uD83D`,
+            String.raw`\uDE00`,
+            String.raw`[\uD83D][\uDE00]`,
+            String.raw`(?:[\uD83D]){2}`,
+          ].map(pattern => ({
+            code: `input.replace(/${pattern}/g${flag}, 'x');`,
+            languageOptions: {
+              // The v flag requires ES2024; older parser targets reject it before the rule runs.
+              ecmaVersion: 2024 as const,
+            },
+          })),
+        ),
+        // Unicode surrogate halves are also unsafe in existing replaceAll calls.
+        ...['u', 'v'].flatMap(flag =>
+          [String.raw`\uD83D`, String.raw`\uDE00`].map(pattern => ({
+            code: `input.replaceAll(/${pattern}/g${flag}, 'x');`,
+            languageOptions: { ecmaVersion: 2024 as const },
+          })),
+        ),
+        // Compliant: scoped i modifiers enable case-insensitive matching, which a string cannot preserve.
+        ...['(?i:foo)', '(?:prefix(?i:foo)){2}'].map(pattern => ({
+          code: `input.replace(/${pattern}/g, 'x');`,
+          languageOptions: {
+            // Scoped modifiers require ES2025; older parser targets reject this syntax.
+            ecmaVersion: 2025 as const,
+          },
+        })),
       ],
       invalid: [
         {
           code: `function replace(input) { return input.replace(/hello/g, 'hi'); }`,
-          errors: [{ messageId: 'method' }],
-          output: `function replace(input) { return input.replaceAll('hello', 'hi'); }`,
+          errors: [
+            { message: 'Use `replaceAll()` with a string literal instead of this global regex.' },
+          ],
+          output: `function replace(input) { return input.replaceAll("hello", 'hi'); }`,
         },
         {
           code: `function replaceDot(input) { return input.replace(/[.]/g, '!'); }`,
-          errors: [{ messageId: 'method' }],
-          output: `function replaceDot(input) { return input.replaceAll(/[.]/g, '!'); }`,
+          errors: [{ messageId: 'methodAndPattern' }],
+          output: `function replaceDot(input) { return input.replaceAll(".", '!'); }`,
         },
         {
           code: `function replaceWord(input) { return input.replace(/(?:foo)/g, 'bar'); }`,
-          errors: [{ messageId: 'method' }],
-          output: `function replaceWord(input) { return input.replaceAll(/(?:foo)/g, 'bar'); }`,
+          errors: [{ messageId: 'methodAndPattern' }],
+          output: `function replaceWord(input) { return input.replaceAll("foo", 'bar'); }`,
         },
         {
           code: `function replaceWrappedPrefix(input) { return input.replace(/(?:)foo/g, 'bar'); }`,
-          errors: [{ messageId: 'method' }],
-          output: `function replaceWrappedPrefix(input) { return input.replaceAll(/(?:)foo/g, 'bar'); }`,
+          errors: [{ messageId: 'methodAndPattern' }],
+          output: `function replaceWrappedPrefix(input) { return input.replaceAll("foo", 'bar'); }`,
         },
         {
           code: `function replaceWrappedSuffix(input) { return input.replace(/foo(?:)/g, 'bar'); }`,
-          errors: [{ messageId: 'method' }],
-          output: `function replaceWrappedSuffix(input) { return input.replaceAll(/foo(?:)/g, 'bar'); }`,
+          errors: [{ messageId: 'methodAndPattern' }],
+          output: `function replaceWrappedSuffix(input) { return input.replaceAll("foo", 'bar'); }`,
         },
         {
-          code: String.raw`function replaceEllipsis(input) { return input.replace(/\.{3}/g, '…'); }`,
-          errors: [{ messageId: 'method' }],
-          output: String.raw`function replaceEllipsis(input) { return input.replaceAll(/\.{3}/g, '…'); }`,
+          // Escape quotes, backslashes, control characters, and Unicode separators in the search string.
+          code: String.raw`input.replace(/'"\\\n\r\t\u2028\u2029/g, '');`,
+          errors: [{ messageId: 'methodAndPattern' }],
+          output: String.raw`input.replaceAll("'\"\\\n\r\t\u2028\u2029", '');`,
         },
         {
-          code: `function replaceTriplet(input) { return input.replace(/a{3}/g, 'x'); }`,
-          errors: [{ messageId: 'method' }],
-          output: `function replaceTriplet(input) { return input.replaceAll(/a{3}/g, 'x'); }`,
+          // A supplementary Unicode code point can safely become a complete surrogate pair in a string.
+          code: String.raw`input.replace(/\u{1F600}/gu, '');`,
+          errors: [{ messageId: 'methodAndPattern' }],
+          output: `input.replaceAll("😀", '');`,
         },
         {
-          code: `function replaceRepeatedGroup(input) { return input.replace(/(?:ab){2}/g, 'x'); }`,
-          errors: [{ messageId: 'method' }],
-          output: `function replaceRepeatedGroup(input) { return input.replaceAll(/(?:ab){2}/g, 'x'); }`,
+          // Without u or v, both the regex and string search can match a surrogate half.
+          code: String.raw`input.replace(/\uD83D/g, 'x');`,
+          errors: [{ messageId: 'methodAndPattern' }],
+          output: String.raw`input.replaceAll("\ud83d", 'x');`,
         },
         {
-          code: String.raw`const whitespaceRegex = /\n {2}/g;
-function normalizeIndentation(input) { return input.replace(whitespaceRegex, '\n'); }`,
+          // With v, adjacent surrogate escapes form one code point and remain safe to convert.
+          code: String.raw`input.replace(/\uD83D\uDE00/gv, 'x');`,
+          languageOptions: {
+            // The v flag requires ES2024.
+            ecmaVersion: 2024,
+          },
+          errors: [{ messageId: 'methodAndPattern' }],
+          output: `input.replaceAll("😀", 'x');`,
+        },
+        {
+          // Retain a regex used elsewhere; the fix changes only the replacement method.
+          code: `const marker = /TODO:/g;
+marker.exec(source);
+source.replace(marker, '');`,
           errors: [{ messageId: 'method' }],
-          output: String.raw`const whitespaceRegex = /\n {2}/g;
-function normalizeIndentation(input) { return input.replaceAll(whitespaceRegex, '\n'); }`,
+          output: `const marker = /TODO:/g;
+marker.exec(source);
+source.replaceAll(marker, '');`,
+        },
+        {
+          code: `input.replace(new RegExp('hello', 'g'), 'hi');`,
+          errors: [{ messageId: 'method' }],
+          output: `input.replaceAll(new RegExp('hello', 'g'), 'hi');`,
+        },
+        {
+          // Existing replaceAll calls retain the upstream pattern message and fix.
+          code: `input.replaceAll(/hello/g, 'hi');`,
+          errors: [{ messageId: 'pattern', data: { replacement: "'hello'" } }],
+          output: `input.replaceAll('hello', 'hi');`,
         },
         {
           code: `const spaceRegex = / /g;
@@ -148,6 +225,68 @@ function trimSpaces(input) { return input.replace(spaceRegex, ''); }`,
           errors: [{ messageId: 'method' }],
           output: `const spaceRegex = / /g;
 function trimSpaces(input) { return input.replaceAll(spaceRegex, ''); }`,
+        },
+        {
+          // Non-Unicode regexes and string searches both match individual surrogate halves.
+          code: String.raw`input.replaceAll(/\uD83D/g, 'x');`,
+          errors: [{ messageId: 'pattern', data: { replacement: String.raw`'\uD83D'` } }],
+          output: String.raw`input.replaceAll('\uD83D', 'x');`,
+        },
+        {
+          // Complete surrogate pairs remain safe in upstream pattern fixes.
+          code: String.raw`input.replaceAll(/\uD83D\uDE00/gv, 'x');`,
+          errors: [{ messageId: 'pattern', data: { replacement: String.raw`'\uD83D\uDE00'` } }],
+          output: String.raw`input.replaceAll('\uD83D\uDE00', 'x');`,
+          languageOptions: { ecmaVersion: 2024 },
+        },
+      ],
+    });
+  });
+
+  it('offers the combined fix only for standalone JS/TS files', () => {
+    const ruleTester = new ESLintRuleTester({
+      files: ['**/*'],
+      languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } },
+    });
+    ruleTester.run('prefer-string-replace-all', rule, {
+      valid: [],
+      invalid: [
+        {
+          filename: 'input.jsx',
+          code: String.raw`<script>{input.replace(/\x3c\/script>/g, '')}</script>;`,
+          errors: [{ messageId: 'methodAndPattern' }],
+          output: String.raw`<script>{input.replaceAll("</script>", '')}</script>;`,
+        },
+        ...['js', 'ts', 'mjs', 'cts'].map(extension => ({
+          filename: `input.${extension}`,
+          code: `input.replace(/[.]/g, '!');`,
+          errors: [{ messageId: 'methodAndPattern' }],
+          output: `input.replaceAll(".", '!');`,
+        })),
+        ...['html', 'vue', 'yaml', 'custom'].map(extension => ({
+          filename: `input.${extension}`,
+          code: String.raw`input.replace(/\x3c\/script>/g, '');`,
+          errors: [{ messageId: 'methodAndPattern' }],
+          output: null,
+        })),
+        // Upstream fixes remain available in embedded files.
+        {
+          filename: 'input.html',
+          code: `const pattern = /hello/g; input.replace(pattern, 'hi');`,
+          errors: [{ messageId: 'method' }],
+          output: `const pattern = /hello/g; input.replaceAll(pattern, 'hi');`,
+        },
+        {
+          filename: 'input.html',
+          code: `input.replaceAll(/hello/g, 'hi');`,
+          errors: [{ messageId: 'pattern', data: { replacement: "'hello'" } }],
+          output: `input.replaceAll('hello', 'hi');`,
+        },
+        {
+          filename: 'input.html',
+          code: `input.split('.').join('!');`,
+          errors: [{ messageId: 'split-join' }],
+          output: `input.replaceAll('.', '!');`,
         },
       ],
     });

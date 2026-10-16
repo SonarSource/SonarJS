@@ -333,6 +333,7 @@ export const cssRulesMeta: CssRuleMeta[] = [
   ),
   simpleRule('S9423', 'sonar/declaration-no-important'),
   simpleRule('S9424', 'sonar/declaration-property-value-no-unknown'),
+  simpleRule('S9442', 'sonar/named-grid-areas-no-invalid'),
 ];
 
 /** Reverse map: Stylelint rule key -> SonarQube rule key */

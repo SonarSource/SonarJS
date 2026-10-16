@@ -213,6 +213,99 @@ describe('SonarQube project analysis', () => {
     ]);
   });
 
+  it('should report a missing extended config followed by a cached valid config', async context => {
+    const log = context.mock.method(console, 'log', () => {});
+    const baseDir = normalizeToAbsolutePath(
+      fs.mkdtempSync(path.join(os.tmpdir(), 'missing-extends-cached-config-')),
+    );
+    context.after(() => fs.rmSync(baseDir, { recursive: true, force: true }));
+    fs.writeFileSync(path.join(baseDir, 'base.json'), '{"compilerOptions":{"strict":true}}');
+    const filePaths = ['first.ts', 'second.ts'].map(file => normalizeToAbsolutePath(file, baseDir));
+    const tsconfigs = ['first.json', 'second.json'].map(file =>
+      normalizeToAbsolutePath(file, baseDir),
+    );
+    for (const [index, filePath] of filePaths.entries()) {
+      fs.writeFileSync(filePath, 'const x: number = 1;;');
+      fs.writeFileSync(
+        tsconfigs[index],
+        JSON.stringify({
+          // The first config caches base.json before the second config reads it.
+          extends: index === 0 ? './base.json' : ['@missing/tsconfig', './base.json'],
+          files: [path.basename(filePath)],
+        }),
+      );
+    }
+    const inputFiles = Object.fromEntries(
+      filePaths.map(filePath => [filePath, { filePath, fileType: 'MAIN' as const }]),
+    );
+    const configuration = await initForTest({ baseDir, tsConfigPaths: tsconfigs }, inputFiles);
+    const result = await analyzeProject({ rules, bundles: [] }, configuration);
+
+    const expectedWarning =
+      'At least one referenced/extended tsconfig.json could not be resolved after trying multiple lookup paths. Analysis will continue without the missing configuration. Please install project dependencies using your package manager for a more complete analysis. Check DEBUG logs for the lookup paths tried.';
+    expect(result.meta.warnings).toEqual([expectedWarning]);
+    const warnings = log.mock.calls
+      .map(call => call.arguments[0])
+      .filter(message => message.startsWith('WARN'));
+    expect(warnings).toEqual([`WARN ${tsconfigs[1]}: ${expectedWarning}`]);
+    expect(Object.keys(result.files).sort()).toEqual([...filePaths].sort());
+  });
+
+  it('should report missing extended configs during replay with one summary notification', async context => {
+    const log = context.mock.method(console, 'log', () => {});
+    const baseDir = normalizeToAbsolutePath(
+      fs.mkdtempSync(path.join(os.tmpdir(), 'program-selection-missing-extends-')),
+    );
+    context.after(() => fs.rmSync(baseDir, { recursive: true, force: true }));
+    const filePaths = ['first.ts', 'second.ts'].map(file => normalizeToAbsolutePath(file, baseDir));
+    const tsconfigs = ['first.json', 'second.json'].map(file =>
+      normalizeToAbsolutePath(file, baseDir),
+    );
+    for (const [index, filePath] of filePaths.entries()) {
+      fs.writeFileSync(filePath, 'const x: number = 1;;');
+      fs.writeFileSync(
+        tsconfigs[index],
+        JSON.stringify({
+          extends: '@monorepo/tsconfig/nextjs.json',
+          files: [path.basename(filePath)],
+        }),
+      );
+    }
+    const inputFiles = Object.fromEntries(
+      filePaths.map(filePath => [filePath, { filePath, fileType: 'MAIN' as const }]),
+    );
+    const archivePath = path.join(baseDir, 'selection.pb.gz');
+    const recorder = new ProgramSelectionArchive(archivePath, baseDir, 'record');
+    const configuration = await initForTest({ baseDir, tsConfigPaths: tsconfigs }, inputFiles);
+    const recorded = await analyzeProject(
+      { rules, bundles: [], programSelection: recorder },
+      configuration,
+    );
+    recorder.end();
+
+    const replay = new ProgramSelectionArchive(archivePath, baseDir, 'replay');
+    expect(replay.getRestoredSelections(filePaths).map(selection => selection.program)).toEqual(
+      tsconfigs.map(tsconfig => expect.objectContaining({ kind: 'configured', tsconfig })),
+    );
+    const replayConfiguration = await initForTest({ baseDir }, inputFiles);
+    const firstReplayCall = log.mock.calls.length;
+    const restored = await analyzeProject(
+      { rules, bundles: [], programSelection: replay },
+      replayConfiguration,
+    );
+
+    const expectedWarning =
+      'At least one referenced/extended tsconfig.json could not be resolved after trying multiple lookup paths. Analysis will continue without the missing configuration. Please install project dependencies using your package manager for a more complete analysis. Check DEBUG logs for the lookup paths tried.';
+    expect(recorded.meta.warnings).toEqual([expectedWarning]);
+    expect(restored.meta.warnings).toEqual([expectedWarning]);
+    const warnings = log.mock.calls
+      .slice(firstReplayCall)
+      .map(call => call.arguments[0])
+      .filter(message => message.startsWith('WARN'));
+    expect(warnings).toEqual(tsconfigs.map(tsconfig => `WARN ${tsconfig}: ${expectedWarning}`));
+    expect(restored.files).toEqual(recorded.files);
+  });
+
   it('should replay Vue files from orphan entry-point groups even when TypeScript omits them', async () => {
     const baseDir = normalizeToAbsolutePath(join(fixtures, 'program-selection-vue'));
     const filePath = normalizeToAbsolutePath(join(baseDir, 'prop-mutation.vue'));
@@ -662,7 +755,10 @@ describe('SonarQube project analysis', () => {
     );
   });
 
-  it('should warn when extended tsconfig is missing', async () => {
+  it('should log one warning and retain the analysis notification when extended tsconfig is missing', async ({
+    mock,
+  }) => {
+    const log = mock.method(console, 'log', () => {});
     const baseDir = join(fixtures, 'missing-extends');
 
     const configuration = await initForTest({ baseDir });
@@ -671,8 +767,12 @@ describe('SonarQube project analysis', () => {
     expect(result.meta.warnings.length).toEqual(1);
     const resultWarning = result.meta.warnings.at(0);
     expect(resultWarning).toEqual(
-      "At least one referenced/extended tsconfig.json was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details.",
+      'At least one referenced/extended tsconfig.json could not be resolved after trying multiple lookup paths. Analysis will continue without the missing configuration. Please install project dependencies using your package manager for a more complete analysis. Check DEBUG logs for the lookup paths tried.',
     );
+    const warnings = log.mock.calls
+      .map(call => call.arguments[0])
+      .filter(message => message.startsWith('WARN'));
+    expect(warnings).toEqual([`WARN ${join(baseDir, 'tsconfig.json')}: ${resultWarning}`]);
   });
 
   it('should stream results via incrementalResults callback', async () => {
