@@ -332,6 +332,7 @@ export const cssRulesMeta: CssRuleMeta[] = [
     'Comma-separated list of "at-rules" that are allowed to appear before "@import" rules.',
   ),
   simpleRule('S9423', 'sonar/declaration-no-important'),
+  simpleRule('S9424', 'sonar/declaration-property-value-no-unknown'),
   simpleRule('S9442', 'sonar/named-grid-areas-no-invalid'),
 ];
 

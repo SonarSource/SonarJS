@@ -35,4 +35,5 @@ export const cssOnlyRuleKeys = new Set<string>([
   'at-rule-descriptor-no-unknown',
   'at-rule-descriptor-value-no-unknown',
   'at-rule-prelude-no-invalid',
+  'sonar/declaration-property-value-no-unknown',
 ]);

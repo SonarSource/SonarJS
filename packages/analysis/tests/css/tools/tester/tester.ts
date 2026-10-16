@@ -22,7 +22,7 @@ type ValidAssertion = { code: string; codeFilename?: string };
 type InvalidAssertion = {
   code: string;
   codeFilename?: string;
-  errors: { text?: string; line?: number; column?: number }[];
+  errors: { text?: string; line?: number; column?: number; endLine?: number; endColumn?: number }[];
 };
 
 class StylelintRuleTester {
@@ -56,8 +56,20 @@ class StylelintRuleTester {
     });
     expect(warnings).toHaveLength(errors.length);
     for (const [index, warning] of warnings.entries()) {
-      const { text: actualMessage, line: actualLine, column: actualColumn } = warning;
-      const { text: expectedMessage, line: expectedLine, column: expectedColumn } = errors[index];
+      const {
+        text: actualMessage,
+        line: actualLine,
+        column: actualColumn,
+        endLine: actualEndLine,
+        endColumn: actualEndColumn,
+      } = warning;
+      const {
+        text: expectedMessage,
+        line: expectedLine,
+        column: expectedColumn,
+        endLine: expectedEndLine,
+        endColumn: expectedEndColumn,
+      } = errors[index];
       if (expectedMessage) {
         expect(actualMessage).toBe(expectedMessage);
       }
@@ -66,6 +78,12 @@ class StylelintRuleTester {
       }
       if (expectedColumn) {
         expect(actualColumn).toBe(expectedColumn);
+      }
+      if (expectedEndLine) {
+        expect(actualEndLine).toBe(expectedEndLine);
+      }
+      if (expectedEndColumn) {
+        expect(actualEndColumn).toBe(expectedEndColumn);
       }
     }
   }
