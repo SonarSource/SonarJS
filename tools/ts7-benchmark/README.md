@@ -38,7 +38,58 @@ linted, not program roots or dependencies. Programs remain full-sized.
 For another project, supply its absolute directory and relative tsconfig path.
 The worker always runs this worktree's SonarJS rule implementation.
 
-## Inputs and reports
+## Complete ruling suite
+
+Use the production project pipeline for every active ruling project, including
+CSS, Vue/HTML/YAML extraction, TEST files, exclusions and orphan programs. This
+is a different workload from the configured-root single-project benchmark above.
+Both the regression tests and this runner use `createRulingProject`; rule settings
+and project metadata have one owner.
+
+Populate the corpus at the revision pinned by `its/sources/projects`. A separate
+existing corpus checkout can be supplied explicitly:
+
+```sh
+npm run ts7:ruling -- list
+SONARJS_TS7_WASM=/absolute/path/to/matching/wasm npm run ts7:ruling -- run --corpus /absolute/path/to/jsts-test-sources --runs 3 --output tools/ts7-benchmark/out/ruling-all
+```
+
+The default compares TS6, TS7 IPC, WASM syscall and direct WASM, with three fresh
+workers per project/backend. Use `--backends ts6,ts7` for a smaller comparison or
+`--projects ag-grid,vuetify` for a subset. Registry entries without an active
+ruling test are reported as inactive. Custom fixtures use `its/sources` by default;
+`--sources PATH` overrides that root. No rules or helpers are changed.
+
+Workers run sequentially with rotating backend/project positions, an 8 GiB JS heap
+and a ten-minute per-worker timeout. Override these with `--heap-mb` and
+`--timeout-ms`. Do not run builds, tests or other benchmarks during measurement.
+OS filesystem caches are not cleared. Production cleanup is included in analysis
+time; worker wall time also includes startup, imports and report serialization.
+
+Each completed worker saves its config, log, rich JSON results and public program
+selection archive. Progress, per-project timings and common-cohort totals are
+updated in `report.md` and `summary.json` after each worker. Full diagnostics stay
+on disk; aggregation retains hashes to bound memory use. Sum project times within
+each round before calculating total medians/ranges. Failed workers never count as
+zero-time successes. Observed totals and strictly comparable totals remain separate
+when program selection, rules, sources, parsing results or full findings differ.
+Expected syntax errors in fixtures are retained; runtime/compiler/linter failures
+invalidate the worker. Exit 2 means incomplete, failed or mismatched results.
+
+Interrupted runs can resume with the **same options and unchanged inputs**:
+
+```sh
+SONARJS_TS7_WASM=/absolute/path/to/matching/wasm npm run ts7:ruling -- run --corpus /absolute/path/to/jsts-test-sources --runs 3 --output tools/ts7-benchmark/out/ruling-all --resume
+npm run ts7:ruling -- report --output tools/ts7-benchmark/out/ruling-all
+```
+
+Resume checks measured source hashes, corpus revision/status/patch, custom fixture
+hashes, provider artifacts and run settings. Existing reports, including failures,
+are kept; interrupted attempt artifacts are archived before rerunning that worker.
+Use a fresh output directory after changing sources or inputs. The saved plan
+includes machine/toolchain details and the measured patch/untracked sources.
+
+## Single-project inputs and reports
 
 - `--project PATH`: project directory; defaults to the fixture.
 - `--tsconfig PATH[,PATH]`: explicit configurations relative to the project.

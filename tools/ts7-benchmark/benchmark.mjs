@@ -4,6 +4,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import os from 'node:os';
+import { backends as specifications, backendOrder } from './backends.mjs';
 import {
   compareResults,
   distribution,
@@ -83,12 +84,6 @@ const filesystem = value('--fs') ?? 'callbacks';
 const nativeBackend = value('--native-backend') ?? 'ts7';
 if (!['ts7', 'wasm'].includes(nativeBackend))
   throw new Error('--native-backend must be ts7 or wasm');
-const specifications = {
-  ts6: { label: 'classic', worker: 'classic', provider: 'ts6' },
-  ts7: { label: 'native', worker: 'native', provider: 'ts7' },
-  wasm: { label: 'wasm', worker: 'native', provider: 'wasm', bridge: 'syscall' },
-  'wasm-direct': { label: 'wasm-direct', worker: 'native', provider: 'wasm', bridge: 'direct' },
-};
 if (value('--backends') && value('--native-backend'))
   throw new Error('Use either --backends or --native-backend');
 const selected = value('--backends')?.split(',');
@@ -210,11 +205,7 @@ const runOrder = [];
 for (let run = 0; run < runs; run++) {
   // Latin-square rotation balances positions. A second, reversed block also
   // balances pair ordering for three or more backends (use 2*N repetitions).
-  let order = [
-    ...backends.slice(run % backends.length),
-    ...backends.slice(0, run % backends.length),
-  ];
-  if (backends.length > 2 && Math.floor(run / backends.length) % 2) order.reverse();
+  const order = backendOrder(backends, run);
   runOrder.push(order.map(({ label }) => label));
   for (const specification of order) {
     const { label: backend, worker, provider, bridge } = specification;
