@@ -22,6 +22,9 @@ import { generateMeta } from '../helpers/generate-meta.js';
 import { isHtmlElement } from '../helpers/isHtmlElement.js';
 import * as meta from './generated-meta.js';
 
+// These tag names can also identify SVG elements when React renders through a component.
+const SHARED_HTML_SVG_TAG_NAMES = new Set(['a', 'font', 'image', 'script', 'style', 'title']);
+
 /**
  * Suppresses the upstream report for proven editing hosts or conditional values
  * that cannot add an element to sequential keyboard navigation.
@@ -68,6 +71,7 @@ function isEditableHtmlHost(opening: TSESTree.JSXOpeningElement): boolean {
     opening.name.type !== 'JSXIdentifier' ||
     opening.name.name === 'svg' ||
     opening.name.name === 'math' ||
+    SHARED_HTML_SVG_TAG_NAMES.has(opening.name.name) ||
     !isInHtmlNamespace(opening)
   ) {
     return false;
