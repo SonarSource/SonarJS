@@ -378,13 +378,15 @@ function isEditableHtmlHost(opening: TSESTree.JSXOpeningElement): boolean {
   }
 
   const attribute = directContentEditableAttribute(opening);
-  if (!attribute) {
+  if (
+    !attribute ||
+    attribute.name.type !== 'JSXIdentifier' ||
+    attribute.name.name !== 'contentEditable'
+  ) {
     return false;
   }
-  const isReactContentEditable =
-    attribute.name.type === 'JSXIdentifier' && attribute.name.name === 'contentEditable';
   if (attribute.value === null) {
-    return isReactContentEditable;
+    return true;
   }
   const expression =
     attribute.value.type === 'JSXExpressionContainer'
@@ -398,7 +400,7 @@ function isEditableHtmlHost(opening: TSESTree.JSXOpeningElement): boolean {
         ? expression.quasis[0].value.cooked
         : null;
   return (
-    (isReactContentEditable && value === true) ||
+    value === true ||
     (typeof value === 'string' && ['', 'true', 'plaintext-only'].includes(value.toLowerCase()))
   );
 }
