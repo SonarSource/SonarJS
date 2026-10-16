@@ -4,6 +4,58 @@ function accumulator() {
   return { requestCount: 0, roundTripMs: 0, bytesSent: 0, bytesReceived: 0, maxRoundTripMs: 0 };
 }
 
+/** Exact callback counts/returned bytes. Durations are inclusive, NOT additive
+ * to the exclusive sampled ownership report or to other nested callbacks. */
+export function createHostProfiler() {
+  const metrics = {};
+  const names = [
+    'readFile',
+    'fileExists',
+    'directoryExists',
+    'getAccessibleEntries',
+    'stat',
+    'realpath',
+    'getDirectories',
+    'readDirectory',
+    'getSourceFile',
+    'getSourceFileByPath',
+  ];
+  return {
+    wrap(host) {
+      for (const name of names) {
+        const original = host[name];
+        if (typeof original !== 'function') continue;
+        host[name] = function (...args) {
+          const metric = (metrics[name] ??= {
+            calls: 0,
+            failures: 0,
+            returnedBytes: 0,
+            returnedEntries: 0,
+            inclusiveMs: 0,
+          });
+          metric.calls++;
+          const start = performance.now();
+          try {
+            const value = Reflect.apply(original, this, args);
+            if (name === 'readFile' && value !== undefined)
+              metric.returnedBytes +=
+                typeof value === 'string' ? Buffer.byteLength(value) : value.byteLength;
+            if (Array.isArray(value)) metric.returnedEntries += value.length;
+            return value;
+          } catch (error) {
+            metric.failures++;
+            throw error;
+          } finally {
+            metric.inclusiveMs += performance.now() - start;
+          }
+        };
+      }
+      return host;
+    },
+    getReport: () => structuredClone(metrics),
+  };
+}
+
 export function createPerformanceProfiler() {
   let phase = 'selection';
   let current;
@@ -128,7 +180,7 @@ export function createPerformanceProfiler() {
   };
 }
 
-export async function startCpuProfile() {
+export async function startCpuProfile(intervalMicros = 1000) {
   const session = new Session();
   session.connect();
   const post = (method, params = {}) =>
@@ -137,7 +189,7 @@ export async function startCpuProfile() {
     );
   try {
     await post('Profiler.enable');
-    await post('Profiler.setSamplingInterval', { interval: 1000 });
+    await post('Profiler.setSamplingInterval', { interval: intervalMicros });
     await post('Profiler.start');
   } catch (error) {
     session.disconnect();

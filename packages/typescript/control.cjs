@@ -57,6 +57,10 @@ module.exports = {
   },
   getCompilerInfo: () => {
     const selected = getCompilerGateway();
+    const bundled = typeof __SONARJS_BUNDLED__ !== 'undefined' && __SONARJS_BUNDLED__;
+    const classicRoot = bundled
+      ? undefined
+      : path.dirname(require.resolve('typescript-classic/package.json'));
     const sdkRoot =
       selected.provider === 'wasm'
         ? path.join(process.env.SONARJS_TS7_WASM ?? '', 'sdk')
@@ -70,6 +74,11 @@ module.exports = {
         ? require(path.join(sdkRoot, 'package.json')).version
         : selected.facade.version,
       sdkRoot,
+      classicRoot,
+      revision:
+        (sdkRoot ?? classicRoot)
+          ? require(path.join(sdkRoot ?? classicRoot, 'package.json')).gitHead
+          : undefined,
     };
   },
   prepareProgramRequest: events => {

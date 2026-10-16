@@ -9,7 +9,7 @@ Use `--native-sdk <snapshot>` to compare the corresponding native IPC build.
 The [agreed plan](../../docs/ts7-benchmark/plan.md) retains the original design
 and records implementation findings. Run from the `SonarJS-ts7-benchmark` worktree.
 
-The [execution-path comparison](C:/Users/victor.diez/projects/worktrees/SonarJS-ts7-benchmark/docs/ts7-benchmark/execution-paths.md)
+The [execution-path comparison](../../docs/ts7-benchmark/execution-paths.md)
 diagrams master versus the current production integration, including the narrower
 benchmark path and retained IDE sessions.
 
@@ -46,7 +46,11 @@ The worker always runs this worktree's SonarJS rule implementation.
   means request all SonarJS rules; actual activation still follows SonarJS policy.
 - `--rule-config PATH`: JSON array of SonarJS `RuleConfig` entries, overriding
   rule selection and allowing real rule parameters.
-- `--runs N`: three by default; fresh workers, alternating backend order.
+- `--runs N`: three by default; fresh workers, rotating backend order. For a
+  balanced reversed block with N backends, use 2*N repetitions.
+- `--backends ts6,ts7,wasm,wasm-direct`: compare selected providers in one run;
+  requires TS6 and at least one other choice. The default remains a TS6/IPC pair.
+  `--native-backend wasm` retains the older TS6/WASM pair and output names.
 - `--max-files N`: analyze the first N sorted, eligible roots.
 - `--fs callbacks|layer`: native callbacks by default; layer overlays selected
   source text while dependencies still use callbacks. This is not a full VFS.
@@ -58,6 +62,13 @@ The worker always runs this worktree's SonarJS rule implementation.
 - `--cpu-profile`: separate V8 sampling profile per worker (`*.cpuprofile`) and
   a top-self/top-inclusive summary in the worker JSON. Scope excludes module
   loading and cleanup; includes program setup, parsing, and rule execution.
+- `--layer-profile`: exclusive sampled consumer/whole-TypeScript-layer/host/
+  unattributed wall time, per phase, component, source and function. Writes the
+  raw `*.ownership.cpuprofile` and exact host callback counts/returned bytes.
+- `--sample-interval-us N`: 1000 by default; 100–10000. Smaller intervals add
+  overhead. This changes sampling resolution, not an accuracy guarantee.
+- `--calibrate`: pair every instrumented worker with a fresh uninstrumented
+  control; alternate control/instrumented order between rounds.
 - `--archive-mode record|replay` and `--archive-dir PATH`: actual SonarJS
   filesystem-hook archives, separately recorded for each backend/run.
 
@@ -75,14 +86,50 @@ hook and fails on unrecorded compiler reads; compiler library directories are
 passthrough, so archives are not hermetic compiler installations.
 
 Exit 0 requires valid/stable runs and matching files, source hashes, active rules,
-and issue line arrays (including duplicate counts). Exit 2 signals failed parity
+compiler inputs, issue line arrays, and complete normalized issue objects,
+including messages, columns, secondary locations, fixes and suppressed issues.
+Duplicate multiplicity is preserved; only issue ordering and root file paths
+are normalized. Exit 2 signals failed parity
 or unsupported/checker operations. Other failures are nonzero too; inspect logs.
 A caught unsupported checker error still invalidates the native run.
-Matching lines is not proof of message, secondary location, fix, or suppression
-parity. The harness does not hide mismatches or replace failed native queries
+The richer gate checks exercised outputs; it does not prove exhaustive semantic
+equivalence or cover suppressions/fixes absent from the corpus. The harness does
+not hide mismatches or replace failed native queries
 with a classic checker.
 
 ## Performance instrumentation
+
+For the full-layer comparison, build the matching WASM artifact first, set
+`SONARJS_TS7_WASM` to its absolute directory, and run sequentially:
+
+```sh
+node tools/ts7-benchmark/benchmark.mjs --backends ts6,ts7,wasm,wasm-direct --rules all --runs 8 --layer-profile --calibrate --output tools/ts7-benchmark/out/layer-comparison
+node tools/ts7-benchmark/compare-performance.mjs tools/ts7-benchmark/out/layer-comparison
+```
+
+The command defaults to the small fixture. Supply identical `--project`,
+`--tsconfig`, `--rule-config` and filesystem policy for a real corpus. Results
+include `comparison.md`, `comparison.json`, raw profiles, controls, diagnostic
+differences, code/corpus/toolchain provenance and the candidate patch hash.
+Output directories containing earlier results are rejected.
+
+Use uninstrumented controls for end-to-end speed comparisons. The ownership view
+uses the innermost source frame, including compiler-backed getters/iterators and
+adapters, so a parser callback inside a compiler traversal remains consumer work,
+and compiler reentry returns to the TS layer. Builtins inherit their nearest
+classified caller. GC, unknown sources, long sampling gaps and the unsampled tail
+remain visible. These are sampled elapsed-stack estimates, **not exact per-method
+timings or CPU use**. Host callback durations and SDK timers are nested and must
+not be added to those exclusive totals. Outside-layer parity is not automatically
+accepted by the reporter. See [ownership accounting](../../docs/ts7-benchmark/ownership.md).
+The [16 October comparison](../../docs/ts7-benchmark/ownership-20261016.md) records
+the calibrated ag-grid results and the remaining outside-layer timing gap.
+
+`--profile` can be combined with `--layer-profile` in a **separate diagnostic
+run** to obtain query/rule counters and whole-layer attribution together. Pass
+that directory as a second argument to `compare-performance.mjs` to verify its
+result parity against the calibrated comparison. Collect allocation/GC evidence
+separately before asserting causal ownership of an outside-layer difference.
 
 Run three independent modes with the same inputs and distinct output directories:
 

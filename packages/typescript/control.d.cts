@@ -33,6 +33,8 @@ export function getCompilerInfo(): {
   version: string;
   compatibilityVersion: string;
   sdkRoot?: string;
+  classicRoot?: string;
+  revision?: string;
 };
 export function prepareProgramRequest(events?: readonly string[]): void;
 export function finishProgramRequest(keepForIDE: boolean): void;

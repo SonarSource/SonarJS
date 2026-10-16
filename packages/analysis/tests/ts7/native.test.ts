@@ -97,6 +97,26 @@ test('production factory and released parser share the native compiler contract 
   }
 });
 
+test('production programs resolve standard library types through the selected provider', () => {
+  const code = 'const value = ["native"].map(text => text.length);';
+  setSourceFilesContext({ [file]: { fileContent: code } });
+  try {
+    const program = createStandardProgram(
+      createProgramOptions(
+        normalizeToAbsolutePath(path.join(root, 'tsconfig.json')),
+        undefined,
+        true,
+        undefined,
+        root,
+      ),
+    );
+    checkType(program, code, 'number[]');
+  } finally {
+    clearProgramCache();
+    clearSourceFileContentCache();
+  }
+});
+
 test('single-file production factory uses native parsing, including S125 fragments', () => {
   const code = 'const value: number = 42;';
   try {

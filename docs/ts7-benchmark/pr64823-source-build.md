@@ -51,7 +51,7 @@ patch locates that executable; it does not change API behavior. The first base
 smoke attempt exposed an omitted `lib.d.ts`; the helper was corrected and the
 successful retry is retained separately from the failed log.
 
-`source-sdk.mjs`, preloaded through `NODE_OPTIONS`, redirects `typescript/*`
+`source-sdk.mjs`, preloaded through `NODE_OPTIONS`, redirects `typescript-native/*`
 exports and package metadata to the selected snapshot. It does not replace bare
 classic compatibility imports. Workers inherit the selector. SDK and Go binary
 must match because the PR changes wire handles. The first test-loader attempt

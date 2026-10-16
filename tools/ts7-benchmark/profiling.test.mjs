@@ -1,8 +1,39 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { createPerformanceProfiler, startCpuProfile, summarizeCpuProfile } from './profiling.mjs';
+import {
+  createHostProfiler,
+  createPerformanceProfiler,
+  startCpuProfile,
+  summarizeCpuProfile,
+} from './profiling.mjs';
 
 const sample = { method: 'getType', roundTripMs: 2, bytesSent: 10, bytesReceived: 20 };
+
+test('host instrumentation preserves receivers, nested callbacks, Unicode bytes and failures', () => {
+  const metrics = createHostProfiler();
+  const failure = new Error('host failure');
+  const host = metrics.wrap({
+    text: 'é',
+    readFile() {
+      return this.text;
+    },
+    getSourceFile() {
+      return { text: this.readFile() };
+    },
+    fileExists() {
+      throw failure;
+    },
+  });
+  assert.deepEqual(host.getSourceFile(), { text: 'é' });
+  assert.throws(
+    () => host.fileExists(),
+    error => error === failure,
+  );
+  assert.equal(metrics.getReport().readFile.returnedBytes, 2);
+  assert.equal(metrics.getReport().readFile.calls, 1);
+  assert.equal(metrics.getReport().getSourceFile.calls, 1);
+  assert.equal(metrics.getReport().fileExists.failures, 1);
+});
 
 test('profiling attributes existing SDK samples without changing the collector', () => {
   class Collector {

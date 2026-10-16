@@ -107,9 +107,10 @@ export function createNativePrograms(programOptions, settings = {}) {
   let snapshot;
   try {
     let start = performance.now();
+    const callbacks = { ...adapter.callbacks, ...settings.fs };
     api = new API({
       cwd,
-      fs: { ...adapter.callbacks, ...settings.fs },
+      fs: settings.instrumentHost ? settings.instrumentHost(callbacks) : callbacks,
       collectTiming: settings.collectTiming ?? false,
       useCaseSensitiveFileNames: getFileSystemCaseSensitivity(),
     });

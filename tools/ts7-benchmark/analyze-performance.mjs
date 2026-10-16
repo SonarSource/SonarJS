@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { fingerprint } from './results.mjs';
 
 const [metricsDirectory, baselineDirectory, cpuDirectory] = process.argv.slice(2);
 if (!metricsDirectory || !baselineDirectory)
@@ -25,25 +26,6 @@ if (!group('classic').length || !group('native').length)
   throw new Error('Both backend reports are required');
 const stat = (backend, section, key, metric) =>
   median(group(backend).map(report => report.profile[section][key]?.[metric] ?? 0));
-const canonical = value =>
-  Array.isArray(value)
-    ? value.map(canonical)
-    : value && typeof value === 'object'
-      ? Object.fromEntries(
-          Object.entries(value)
-            .sort(([a], [b]) => a.localeCompare(b))
-            .map(([key, item]) => [key, canonical(item)]),
-        )
-      : value;
-const fingerprint = report =>
-  JSON.stringify(
-    canonical({
-      issues: report.issues,
-      activeRules: report.activeRules,
-      sourceHashes: report.sourceHashes,
-      files: report.files,
-    }),
-  );
 const allReports = [
   ...metrics,
   ...reports(baselineDirectory),

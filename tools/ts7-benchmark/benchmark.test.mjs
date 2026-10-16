@@ -89,6 +89,10 @@ for (const [args, message] of [
   [['--project'], /Missing value/],
   [['--runs', '0'], /positive integer/],
   [['--native-backend', 'invalid'], /must be ts7 or wasm/],
+  [['--backends', 'ts7,wasm'], /requires ts6/],
+  [['--backends', 'ts6,ts6'], /unique choices/],
+  [['--sample-interval-us', '0'], /between 100 and 10000/],
+  [['--calibrate'], /requires an instrumentation/],
 ]) {
   test(`benchmark rejects malformed input: ${args.join(' ')}`, () => {
     const child = spawnSync(process.execPath, [path.join(directory, 'benchmark.mjs'), ...args], {
@@ -110,3 +114,59 @@ test('benchmark help does not launch workers', () => {
   assert.equal(child.status, 0, child.stderr);
   assert.match(child.stdout, /README\.md/);
 });
+
+test(
+  'calibrated ownership reports preserve diagnostics and reconcile each backend',
+  { timeout: 120_000 },
+  () => {
+    fs.mkdirSync(path.join(directory, 'out'), { recursive: true });
+    const output = fs.mkdtempSync(path.join(directory, 'out', 'ownership-integration-'));
+    const child = spawnSync(
+      process.execPath,
+      [
+        path.join(directory, 'benchmark.mjs'),
+        '--backends',
+        process.env.SONARJS_TS7_WASM ? 'ts6,ts7,wasm,wasm-direct' : 'ts6,ts7',
+        '--rules',
+        'S4123',
+        '--runs',
+        '1',
+        '--layer-profile',
+        '--calibrate',
+        '--output',
+        output,
+      ],
+      { encoding: 'utf8', windowsHide: true, timeout: 110_000 },
+    );
+    assert.equal(child.status, 0, child.stdout + child.stderr);
+    const summary = JSON.parse(fs.readFileSync(path.join(output, 'summary.json'), 'utf8'));
+    assert.ok(summary.parityPassed);
+    for (const { label } of summary.backends) {
+      const report = JSON.parse(fs.readFileSync(path.join(output, `${label}-1.json`), 'utf8'));
+      const control = JSON.parse(
+        fs.readFileSync(path.join(output, `${label}-control-1.json`), 'utf8'),
+      );
+      assert.ok(report.ownership.sampling.samples > 0);
+      assert.ok(Math.abs(report.ownership.totals.reconciliationErrorMs) < 0.01);
+      assert.equal(report.ownership.totals.totalMs, report.timings.analysisMs);
+      assert.ok(fs.existsSync(report.ownership.profilePath));
+      assert.ok(report.hostCallbacks.readFile.calls > 0);
+      assert.equal(control.ownership, undefined);
+      assert.deepEqual(control.diagnostics, report.diagnostics);
+      assert.ok(
+        Object.values(report.diagnostics).some(value =>
+          value.issues.some(issue => issue.message && issue.quickFixes?.length),
+        ),
+      );
+      assert.equal(summary.calibration[label].instrumentedToControlRatio.count, 1);
+    }
+    const comparison = spawnSync(
+      process.execPath,
+      [path.join(directory, 'compare-performance.mjs'), output],
+      { encoding: 'utf8', windowsHide: true, timeout: 5_000 },
+    );
+    assert.equal(comparison.status, 0, comparison.stdout + comparison.stderr);
+    assert.ok(fs.existsSync(path.join(output, 'comparison.md')));
+    assert.ok(fs.existsSync(path.join(output, 'provenance.json')));
+  },
+);

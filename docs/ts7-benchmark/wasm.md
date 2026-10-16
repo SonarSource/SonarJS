@@ -73,7 +73,11 @@ exports fails with a rebuild instruction unless the syscall bridge is selected.
 ## Build And Run
 
 Requires Node 24, Go 1.27, a clean TypeScript Go checkout, and an immutable matching
-JS SDK snapshot. The earlier source-build helper can produce that snapshot after
+JS SDK snapshot. An installed matching npm SDK is also supported: the builder
+resolves its platform package, verifies its revision and version, and copies the
+standard library declarations into the artifact alongside the SDK. Library
+hashes and their source are recorded in `build.json`. Missing or mismatched
+libraries fail the build. The earlier source-build helper can produce a snapshot after
 building the upstream compiler and JS API; see [source-build instructions](pr64823-source-build.md).
 
 The current local checkout/snapshot use source revision
