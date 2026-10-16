@@ -24,7 +24,7 @@ import {
   getVariableFromName,
   unwrapTypeScriptExpression,
 } from '../helpers/ast.js';
-import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
+import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isJsxIdentifierNamed } from '../helpers/jsx.js';
 import { isHtmlElement } from '../helpers/isHtmlElement.js';
@@ -40,7 +40,7 @@ const ARIA_NUMBER = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/;
  * @return the rule with separator reports filtered
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  return interceptReportForReact(
+  return interceptReport(
     { ...rule, meta: generateMeta(meta, rule.meta) },
     (context, descriptor) => {
       if (isTabIndexOutsideSequentialFocusOrder(descriptor)) {
