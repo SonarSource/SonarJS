@@ -81,8 +81,10 @@ function isEditableHtmlHost(opening: TSESTree.JSXOpeningElement): boolean {
   if (!attribute) {
     return false;
   }
+  const isReactContentEditable =
+    attribute.name.type === 'JSXIdentifier' && attribute.name.name === 'contentEditable';
   if (attribute.value === null) {
-    return true;
+    return isReactContentEditable;
   }
   const expression =
     attribute.value.type === 'JSXExpressionContainer'
@@ -98,7 +100,7 @@ function isEditableHtmlHost(opening: TSESTree.JSXOpeningElement): boolean {
     return false;
   }
   return (
-    value === true ||
+    (isReactContentEditable && value === true) ||
     (typeof value === 'string' && ['', 'true', 'plaintext-only'].includes(value.toLowerCase()))
   );
 }
@@ -114,7 +116,8 @@ function isInHtmlNamespace(opening: TSESTree.JSXOpeningElement): boolean {
   }
 
   let namespace: 'html' | 'svg' | 'math' = 'html';
-  for (const element of ancestors.reverse()) {
+  ancestors.reverse();
+  for (const element of ancestors) {
     if (element.name.type !== 'JSXIdentifier') {
       continue;
     }
