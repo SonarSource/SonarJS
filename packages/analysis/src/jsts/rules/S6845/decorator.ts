@@ -20,6 +20,7 @@ import type { JSXAttribute, JSXOpeningElement } from 'estree-jsx';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isHtmlElement } from '../helpers/isHtmlElement.js';
+import { isInHtmlNamespace, openingElementOf } from './helpers.js';
 import * as meta from './generated-meta.js';
 
 // These tag names can also identify SVG elements when React renders through a component.
@@ -28,6 +29,11 @@ const SHARED_HTML_SVG_TAG_NAMES = new Set(['a', 'font', 'image', 'script', 'styl
 /**
  * Suppresses the upstream report for proven editing hosts or conditional values
  * that cannot add an element to sequential keyboard navigation.
+ *
+ * @example Pseudocode
+ * report(<div contentEditable tabIndex={0} />.tabIndex)           -> suppress
+ * report(<div tabIndex={disabled ? null : -1} />.tabIndex)        -> suppress
+ * report(<div tabIndex={0} />.tabIndex)                           -> forward
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
@@ -48,16 +54,14 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   );
 }
 
-function openingElementOf(
-  reportDescriptor: Rule.ReportDescriptor,
-): TSESTree.JSXOpeningElement | undefined {
-  if (!('node' in reportDescriptor) || !reportDescriptor.node) {
-    return undefined;
-  }
-  const node = reportDescriptor.node as TSESTree.Node;
-  return node.type === 'JSXAttribute' ? (node.parent as TSESTree.JSXOpeningElement) : undefined;
-}
-
+/**
+ * Requires a proven HTML editing host with an exact JSX attribute name.
+ *
+ * @example Pseudocode
+ * <div contentEditable="plaintext-only" /> -> true
+ * <div contenteditable="true" />           -> false
+ * <svg><div contentEditable /></svg>        -> false
+ */
 function isEditableHtmlHost(opening: TSESTree.JSXOpeningElement): boolean {
   const element = {
     type: 'JSXElement' as const,
@@ -103,32 +107,14 @@ function isEditableHtmlHost(opening: TSESTree.JSXOpeningElement): boolean {
   );
 }
 
-function isInHtmlNamespace(opening: TSESTree.JSXOpeningElement): boolean {
-  const ancestors: TSESTree.JSXOpeningElement[] = [];
-  let ancestor: TSESTree.Node | undefined = opening.parent?.parent;
-  while (ancestor) {
-    if (ancestor.type === 'JSXElement') {
-      ancestors.push(ancestor.openingElement);
-    }
-    ancestor = ancestor.parent;
-  }
-
-  let namespace: 'html' | 'svg' | 'math' = 'html';
-  ancestors.reverse();
-  for (const element of ancestors) {
-    if (element.name.type !== 'JSXIdentifier') {
-      continue;
-    }
-    const name = element.name.name;
-    if (namespace === 'html' && (name === 'svg' || name === 'math')) {
-      namespace = name;
-    } else if (namespace === 'svg' && name === 'foreignObject') {
-      namespace = 'html';
-    }
-  }
-  return namespace === 'html';
-}
-
+/**
+ * Finds one direct contentEditable attribute without a spread.
+ *
+ * @example Pseudocode
+ * <div contentEditable="true" />            -> attribute
+ * <div {...props} contentEditable="true" /> -> undefined
+ * <div contentEditable contenteditable />   -> undefined
+ */
 function directContentEditableAttribute(
   opening: TSESTree.JSXOpeningElement,
 ): JSXAttribute | undefined {
@@ -149,8 +135,11 @@ function directContentEditableAttribute(
 }
 
 /**
- * Matches: <div tabIndex={disabled ? null : -1} />
  * Requires no spreads or later tabIndex attributes.
+ *
+ * @example Pseudocode
+ * <div tabIndex={disabled ? null : -1} /> -> true
+ * <div tabIndex={disabled ? null : 0} />  -> false
  */
 function isTabIndexOutsideSequentialFocusOrder(reportDescriptor: Rule.ReportDescriptor): boolean {
   if (!('node' in reportDescriptor) || reportDescriptor.node.type !== 'JSXAttribute') {
@@ -169,8 +158,12 @@ function isTabIndexOutsideSequentialFocusOrder(reportDescriptor: Rule.ReportDesc
 }
 
 /**
- * Matches: <div id="title" tabIndex={value} title="Title" />
  * Rejects any spread or later tabIndex attribute, including case variants.
+ *
+ * @example Pseudocode for the first tabIndex
+ * <div tabIndex={value} title="Title" />   -> true
+ * <div tabIndex={value} tabIndex={0} />    -> false
+ * <div tabIndex={value} {...props} />      -> false
  */
 function hasNoTabIndexOverrides(node: TSESTree.JSXAttribute): boolean {
   const parent = node.parent;
@@ -193,11 +186,11 @@ function hasNoTabIndexOverrides(node: TSESTree.JSXAttribute): boolean {
 }
 
 /**
- * Matches:
- *   null
- *   -1
- *   condition ? null : nested ? -1 : -2
  * Every leaf must be null or a negative integer literal.
+ *
+ * @example Pseudocode
+ * condition ? null : nested ? -1 : -2 -> true
+ * condition ? null : 0                 -> false
  */
 function isNonSequentialTabIndexValue(expression: TSESTree.Expression): boolean {
   if (expression.type === 'ConditionalExpression') {
