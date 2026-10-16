@@ -77,10 +77,26 @@ function isAnsiSequenceStart(character: AST.Character): boolean {
     return false;
   }
   const next = elements[index + 1];
-  if (next.type !== 'Character') {
-    return false;
+  return isFixedBracket(next, LEFT_BRACKET) || isFixedBracket(next, RIGHT_BRACKET);
+}
+
+/** Groups and exact-one repetitions must preserve one fixed bracket. */
+function isFixedBracket(element: AST.Element | undefined, bracket: number): boolean {
+  if (isCharacter(element, bracket)) {
+    return true;
   }
-  return next.value === LEFT_BRACKET || next.value === RIGHT_BRACKET;
+  if (isGroup(element)) {
+    return element.alternatives.every(
+      alternative =>
+        alternative.elements.length === 1 && isFixedBracket(alternative.elements[0], bracket),
+    );
+  }
+  return (
+    element?.type === 'Quantifier' &&
+    element.min === 1 &&
+    element.max === 1 &&
+    isFixedBracket(element.element, bracket)
+  );
 }
 
 type OscMatcher = { start: number; end: number };
@@ -120,7 +136,7 @@ function oscIntroducerLength(elements: readonly AST.Element[], index: number): n
   if (isCharacter(element, OSC)) {
     return 1;
   }
-  if (isCharacter(element, ESC) && isCharacter(elements[index + 1], RIGHT_BRACKET)) {
+  if (isCharacter(element, ESC) && isFixedBracket(elements[index + 1], RIGHT_BRACKET)) {
     return 2;
   }
   return isGroup(element) && element.alternatives.every(isOscIntroducerAlternative) ? 1 : 0;
@@ -132,7 +148,7 @@ function isOscIntroducerAlternative(alternative: AST.Alternative): boolean {
     (alternative.elements.length === 1 && isCharacter(first, OSC)) ||
     (alternative.elements.length === 2 &&
       isCharacter(first, ESC) &&
-      isCharacter(second, RIGHT_BRACKET))
+      isFixedBracket(second, RIGHT_BRACKET))
   );
 }
 
