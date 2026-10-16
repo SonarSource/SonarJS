@@ -17,10 +17,23 @@
 import {
   DefaultParserRuleTester,
   NoTypeCheckingRuleTester,
+  RuleTester,
 } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import { getESLintCoreRule } from '../external/core.js';
 import { describe, it } from 'node:test';
+import path from 'node:path';
+
+const guardedText = `
+function guardedText(parts: string[] | undefined): string {
+  if (!parts) return '';
+  let text = '';
+  for (const part of parts?.values()) {
+    text += part;
+  }
+  return text;
+}
+`;
 
 // Sentinel: verify that the upstream ESLint rule still raises on the patterns our decorator suppresses.
 // If this test starts failing (i.e., the upstream rule no longer reports these patterns),
@@ -33,6 +46,7 @@ describe('S6523 upstream sentinel', () => {
     ruleTester.run('upstream no-unsafe-optional-chaining raises on fixed patterns', upstreamRule, {
       valid: [],
       invalid: [
+        { code: guardedText, errors: 1 },
         // the ticket's own reproducer
         {
           code: `
@@ -68,6 +82,173 @@ function filterComments(ast: { leadingComments?: Array<{ value: string }> }) {
 });
 
 describe('S6523', () => {
+  it('uses narrowed array receiver types with strict null checks', () => {
+    const ruleTester = new RuleTester({
+      parserOptions: {
+        project: path.join(import.meta.dirname, 'fixtures', 'tsconfig.json'),
+      },
+    });
+    const filename = path.join(import.meta.dirname, 'fixtures', 'index.ts');
+
+    ruleTester.run('guarded array receivers', rule, {
+      valid: [
+        { code: guardedText, filename },
+        {
+          code: `function f(parts: string[] | null | undefined) {
+            if (parts == null) return;
+            return [...parts?.entries()];
+          }`,
+          filename,
+        },
+        {
+          code: `function f(parts: string[] | undefined) {
+            if (parts !== undefined) return [...parts?.keys()];
+          }`,
+          filename,
+        },
+        {
+          code: `function f(parts: string[] | number[] | undefined) {
+            if (!parts) throw new Error();
+            return [...parts?.slice()];
+          }`,
+          filename,
+        },
+        {
+          code: `function f(parts: [string, number] | undefined) {
+            if (!parts) return;
+            return [...parts?.values()];
+          }`,
+          filename,
+        },
+        {
+          code: `function f(parts: string[] | undefined) {
+            let items = parts;
+            if (!items) return;
+            return [...items?.values()];
+          }`,
+          filename,
+        },
+      ],
+      invalid: [
+        {
+          code: `function f(byKey: Record<string, string[]>, key: string) {
+            for (const part of byKey[key]?.values()) {}
+          }`,
+          filename,
+          errors: [{ messageId: 'unsafeOptionalChain' }],
+        },
+        {
+          code: `function f(rows: string[][]) {
+            return [...rows[0]?.entries()];
+          }`,
+          filename,
+          errors: [{ messageId: 'unsafeOptionalChain' }],
+        },
+        {
+          code: `function f(parts: string[] | undefined) {
+            const items = parts as string[];
+            return [...items?.values()];
+          }`,
+          filename,
+          errors: [{ messageId: 'unsafeOptionalChain' }],
+        },
+        {
+          code: `function f(parts: string[] | undefined) {
+            const items = parts!;
+            return [...items?.values()];
+          }`,
+          filename,
+          errors: [{ messageId: 'unsafeOptionalChain' }],
+        },
+        {
+          // A non-nullable declared type alone is not evidence of flow narrowing.
+          code: `function f(parts: string[] | undefined) {
+            const items = parts ?? [];
+            return [...items?.values()];
+          }`,
+          filename,
+          errors: [{ messageId: 'unsafeOptionalChain' }],
+        },
+        {
+          code: `function f(parts: string[] | undefined) { return [...parts?.values()]; }`,
+          filename,
+          errors: [{ messageId: 'unsafeOptionalChain' }],
+        },
+        {
+          code: `function f(parts: string[] | undefined) {
+            if (!parts) return;
+            parts = undefined;
+            return [...parts?.values()];
+          }`,
+          filename,
+          errors: [{ messageId: 'unsafeOptionalChain' }],
+        },
+        {
+          code: `function f(parts: string[] | null | undefined) {
+            if (parts === undefined) return;
+            return [...parts?.values()];
+          }`,
+          filename,
+          errors: [{ messageId: 'unsafeOptionalChain' }],
+        },
+        {
+          code: `function f(parts: any) {
+            if (!parts) return;
+            return [...parts?.values()];
+          }`,
+          filename,
+          errors: [{ messageId: 'unsafeOptionalChain' }],
+        },
+        {
+          code: `function f(parts: string[] | undefined) { return [...parts!?.values()]; }`,
+          filename,
+          errors: [{ messageId: 'unsafeOptionalChain' }],
+        },
+        {
+          code: `function f(parts: string[] | undefined) {
+            return [...(parts as string[])?.values()];
+          }`,
+          filename,
+          errors: [{ messageId: 'unsafeOptionalChain' }],
+        },
+        {
+          code: `function f(parts: string[] | undefined) {
+            if (!parts) return;
+            return [...parts?.find(Boolean)];
+          }`,
+          filename,
+          errors: [{ messageId: 'unsafeOptionalChain' }],
+        },
+        {
+          code: `function f(parts: string[] | undefined, other: string[] | undefined) {
+            if (!parts) return;
+            return [...parts?.values(), ...other?.values()];
+          }`,
+          filename,
+          errors: [{ messageId: 'unsafeOptionalChain', line: 3, column: 44 }],
+        },
+      ],
+    });
+  });
+
+  it('keeps reporting typed receivers without strict null checks', () => {
+    const ruleTester = new RuleTester({
+      parserOptions: {
+        project: path.join(import.meta.dirname, 'fixtures', 'tsconfig.no-strict-null-checks.json'),
+      },
+    });
+    ruleTester.run('without strict null checks', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: `function f(parts: string[] | undefined) { return [...parts?.values()]; }`,
+          filename: path.join(import.meta.dirname, 'fixtures', 'index.ts'),
+          errors: [{ messageId: 'unsafeOptionalChain' }],
+        },
+      ],
+    });
+  });
+
   it('S6523', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 
@@ -92,6 +273,9 @@ function filterComments(ast: { leadingComments?: Array<{ value: string }> }) {
           { code: `[...(a ?? [])?.toReversed()];` },
           { code: `[...(a ?? [])?.toSpliced(0, 1)];` },
           { code: `[...(a ?? [])?.with(0, 1)];` },
+          { code: `[...(a ?? [])?.values()];` },
+          { code: `[...(a ?? [])?.entries()];` },
+          { code: `[...(a ?? [])?.keys()];` },
           // `||` fallback yields its left operand only when truthy
           { code: `[...(a || [])?.filter(f)];` },
           // left-nested `??` peel
@@ -141,13 +325,14 @@ function filterComments(ast: { leadingComments?: Array<{ value: string }> }) {
           // call: without it, this shape (ChainExpression > TSNonNullExpression > CallExpression)
           // would fall through to `return false` and regress to a report
           { code: `[...(a ?? [])?.filter(f)!];` },
-          // pins the `estree.Super` arm of `isArrayFallback`'s receiver type: `super.x ?? []` is
+          // pins the `estree.Super` arm of `isArrayReceiver`'s receiver type: `super.x ?? []` is
           // non-nullish, so `.filter` on it is safe, the same as any other non-nullish receiver
           {
             code: `class C extends B { m() { return [...(super.x ?? [])?.filter(f)]; } }`,
           },
         ],
         invalid: [
+          { code: guardedText, errors: [{ messageId: 'unsafeOptionalChain' }] },
           // Every row below reports identically before and after the change (measured 1 -> 1):
           // they are over-reach guards proving the exemption stays narrow, not RED coverage.
           // Only the `valid` rows above fail against the pre-change (external, undecorated) rule.
