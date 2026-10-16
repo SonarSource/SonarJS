@@ -419,9 +419,13 @@ describe('S6845', () => {
         { code: '<div contentEditable tabIndex={0} />' },
         { code: '<div contentEditable={true} tabIndex={0} />' },
         { code: '<div contentEditable={""} tabIndex={0} />' },
+        { code: '<div contentEditable={`true`} tabIndex={0} />' },
         { code: '<span contentEditable="true" tabIndex="0" />' },
         { code: '<span contentEditable="plaintext-only" tabIndex="0" />' },
         { code: '<span contenteditable="TRUE" tabIndex="0" />' },
+        {
+          code: 'const props = { contentEditable: false }; <div {...props} contentEditable tabIndex={0} />',
+        },
       ],
       invalid: [
         { code: '<div tabIndex={0} />', errors: 1 },
@@ -438,8 +442,13 @@ describe('S6845', () => {
         },
         { code: '<div contentEditable={`true${false}`} tabIndex={0} />', errors: 1 },
         { code: '<div contentEditable="inherit" tabIndex={0} />', errors: 1 },
+        { code: '<div contentEditable={`false`} tabIndex={0} />', errors: 1 },
         { code: '<div {...{ contentEditable: true }} tabIndex={0} />', errors: 1 },
         { code: '<div contentEditable {...props} tabIndex={0} />', errors: 1 },
+        {
+          code: 'const props = { contentEditable: false }; <div contentEditable {...props} tabIndex={0} />',
+          errors: 1,
+        },
         { code: '<div contentEditable contentEditable={false} tabIndex={0} />', errors: 1 },
         {
           code: '<Editable contentEditable tabIndex={0} />',
