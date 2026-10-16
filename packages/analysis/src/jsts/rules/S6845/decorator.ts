@@ -63,8 +63,13 @@ function isEditableHtmlHost(opening: TSESTree.JSXOpeningElement): boolean {
   if (!isHtmlElement(element)) {
     return false;
   }
-  // `isHtmlElement` includes SVG for other accessibility rules, but contenteditable is HTML-only.
-  if (opening.name.type !== 'JSXIdentifier' || opening.name.name === 'svg') {
+  // A shared tag name does not make an SVG or MathML element an HTML editing host.
+  if (
+    opening.name.type !== 'JSXIdentifier' ||
+    opening.name.name === 'svg' ||
+    opening.name.name === 'math' ||
+    !isInHtmlNamespace(opening)
+  ) {
     return false;
   }
 
@@ -80,16 +85,43 @@ function isEditableHtmlHost(opening: TSESTree.JSXOpeningElement): boolean {
       ? attribute.value.expression
       : attribute.value;
   // A template without expressions is a literal value. Other expressions may be dynamic.
-  const value =
-    expression.type === 'Literal'
-      ? expression.value
-      : expression.type === 'TemplateLiteral' && expression.expressions.length === 0
-        ? expression.quasis[0].value.cooked
-        : null;
+  let value: unknown;
+  if (expression.type === 'Literal') {
+    value = expression.value;
+  } else if (expression.type === 'TemplateLiteral' && expression.expressions.length === 0) {
+    value = expression.quasis[0].value.cooked;
+  } else {
+    return false;
+  }
   return (
     value === true ||
     (typeof value === 'string' && ['', 'true', 'plaintext-only'].includes(value.toLowerCase()))
   );
+}
+
+function isInHtmlNamespace(opening: TSESTree.JSXOpeningElement): boolean {
+  const ancestors: TSESTree.JSXOpeningElement[] = [];
+  let ancestor: TSESTree.Node | undefined = opening.parent?.parent;
+  while (ancestor) {
+    if (ancestor.type === 'JSXElement') {
+      ancestors.push(ancestor.openingElement);
+    }
+    ancestor = ancestor.parent;
+  }
+
+  let namespace: 'html' | 'svg' | 'math' = 'html';
+  for (const element of ancestors.reverse()) {
+    if (element.name.type !== 'JSXIdentifier') {
+      continue;
+    }
+    const name = element.name.name;
+    if (namespace === 'html' && (name === 'svg' || name === 'math')) {
+      namespace = name;
+    } else if (namespace === 'svg' && name === 'foreignObject') {
+      namespace = 'html';
+    }
+  }
+  return namespace === 'html';
 }
 
 function directContentEditableAttribute(
