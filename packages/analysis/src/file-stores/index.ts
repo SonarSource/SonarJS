@@ -162,15 +162,18 @@ async function processPendingFileStores(
     context.retainFile(filePath);
   }
 
-  let sharedFile: File | undefined;
-  for (const { store, request: storeWantsFile } of storeRequests) {
-    if (storeWantsFile === 'content') {
-      sharedFile ??= await context.getFile(filePath, fileContent);
-      await store.processFile(filePath, configuration, sharedFile);
-    } else if (storeWantsFile === 'path' || storeWantsFile === 'deferred-content') {
-      await store.processFile(filePath, configuration);
-    }
-  }
+  const sharedFile: File | undefined = storeRequests.some(({ request }) => request === 'content')
+    ? await context.getFile(filePath, fileContent)
+    : undefined;
+  await Promise.all(
+    storeRequests.map(async ({ store, request: storeWantsFile }) => {
+      if (storeWantsFile === 'content') {
+        await store.processFile(filePath, configuration, sharedFile);
+      } else if (storeWantsFile === 'path' || storeWantsFile === 'deferred-content') {
+        await store.processFile(filePath, configuration);
+      }
+    }),
+  );
 }
 
 function createFileStoreContext(inputFiles?: AnalyzableFiles): FileStoreContext {
