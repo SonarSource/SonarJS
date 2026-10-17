@@ -93,7 +93,7 @@
     "prettier": "3.9.10",
     "prettier-plugin-java": "2.11.0",
     "pretty-quick": "4.2.2",
-    "protobufjs-cli": "2.7.0",
+    "protobufjs-cli": "2.7.1",
     "rimraf": "6.1.3",
     "tsx": "4.23.15",
     "type-fest": "5.10.0"
@@ -141,7 +141,7 @@
     "postcss-scss": "4.0.9",
     "postcss-selector-parser": "7.1.6",
     "postcss-value-parser": "4.2.0",
-    "protobufjs": "8.8.0",
+    "protobufjs": "8.8.1",
     "scslre": "0.3.0",
     "semver": "7.8.5",
     "stylelint": "17.16.0",
