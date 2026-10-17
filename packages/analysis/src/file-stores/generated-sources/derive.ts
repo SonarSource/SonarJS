@@ -62,44 +62,66 @@ export async function deriveGeneratedSources(
     providedPackageContexts ?? (await collectGeneratedSourcePackageContexts(baseDir, packageJsons));
   const parsedPackageJsons = createGeneratedSourcePackageJsonMap(packageContexts);
 
-  for (const { packageDir, packageJson, taskInvocations } of packageContexts) {
-    let dependencyNames: Set<string> | undefined;
-    let dependencies: DependenciesList | undefined;
-    const hasGeneratedSourceDependency = (dependencyName: string) => {
-      dependencyNames ??= collectGeneratedSourceDependencyNames(
-        packageDir,
+  const detectionResults = await Promise.all(
+    packageContexts.map(context =>
+      detectPackageGeneratedSources(
         baseDir,
+        context,
         parsedPackageJsons,
-        packageJson,
-      );
-      return dependencyNames.has(dependencyName);
-    };
-    const getGeneratedSourceDependencies = () => {
-      dependencies ??= resolveGeneratedSourceDependencies(
-        packageDir,
-        baseDir,
-        parsedPackageJsons,
-        packageJson,
-      );
-      return dependencies;
-    };
-    for (const detector of GENERATED_SOURCE_DETECTORS) {
-      mergeDerivedGeneratedSources(
-        derived,
-        await detector.detect({
-          baseDir,
-          packageDir,
-          hasDependency: hasGeneratedSourceDependency,
-          getDependencies: getGeneratedSourceDependencies,
-          projectSnapshot,
-          taskInvocations,
-          sourceFileMatcher,
-        }),
-      );
+        projectSnapshot,
+        sourceFileMatcher,
+      ),
+    ),
+  );
+  for (const packageResults of detectionResults) {
+    for (const result of packageResults) {
+      mergeDerivedGeneratedSources(derived, result);
     }
   }
 
   return derived;
+}
+
+function detectPackageGeneratedSources(
+  baseDir: NormalizedAbsolutePath,
+  { packageDir, packageJson, taskInvocations }: GeneratedSourcePackageContext,
+  parsedPackageJsons: ReturnType<typeof createGeneratedSourcePackageJsonMap>,
+  projectSnapshot: GeneratedSourceProjectSnapshot,
+  sourceFileMatcher: GeneratedSourceFileMatcher | undefined,
+) {
+  let dependencyNames: Set<string> | undefined;
+  let dependencies: DependenciesList | undefined;
+  const hasGeneratedSourceDependency = (dependencyName: string) => {
+    dependencyNames ??= collectGeneratedSourceDependencyNames(
+      packageDir,
+      baseDir,
+      parsedPackageJsons,
+      packageJson,
+    );
+    return dependencyNames.has(dependencyName);
+  };
+  const getGeneratedSourceDependencies = () => {
+    dependencies ??= resolveGeneratedSourceDependencies(
+      packageDir,
+      baseDir,
+      parsedPackageJsons,
+      packageJson,
+    );
+    return dependencies;
+  };
+  return Promise.all(
+    GENERATED_SOURCE_DETECTORS.map(detector =>
+      detector.detect({
+        baseDir,
+        packageDir,
+        hasDependency: hasGeneratedSourceDependency,
+        getDependencies: getGeneratedSourceDependencies,
+        projectSnapshot,
+        taskInvocations,
+        sourceFileMatcher,
+      }),
+    ),
+  );
 }
 
 function collectGeneratedSourceDependencyNames(
