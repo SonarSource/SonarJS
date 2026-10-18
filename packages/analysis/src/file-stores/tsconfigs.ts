@@ -46,9 +46,9 @@ export class TsConfigStore implements FileStore {
   /**
    * Checks if the store is initialized for the given base directory.
    */
-  async isInitialized(configuration: Configuration, _inputFiles?: AnalyzableFiles) {
+  isInitialized(configuration: Configuration, _inputFiles?: AnalyzableFiles) {
     this.dirtyCachesIfNeeded(configuration);
-    return this.baseDir !== undefined;
+    return Promise.resolve(this.baseDir !== undefined);
   }
 
   getTsConfigs() {
@@ -152,13 +152,18 @@ export class TsConfigStore implements FileStore {
       : false;
   }
 
-  async processFile(filename: NormalizedAbsolutePath, _configuration: Configuration, _file?: File) {
+  processFile(
+    filename: NormalizedAbsolutePath,
+    _configuration: Configuration,
+    _file?: File,
+  ): Promise<void> {
     if (this.filenameMatchesProvidedTsConfig(filename)) {
       this.foundPropertyTsConfigs.push(filename);
     }
     if (this.filenameMatchesTsConfig(filename)) {
       this.foundLookupTsConfigs.push(filename);
     }
+    return Promise.resolve();
   }
 
   filenameMatchesTsConfig(filename: NormalizedAbsolutePath) {
@@ -175,7 +180,7 @@ export class TsConfigStore implements FileStore {
   /**
    * Performs post-processing after all files have been processed.
    */
-  async postProcess(configuration: Configuration) {
+  postProcess(configuration: Configuration): Promise<void> {
     const { tsConfigPaths } = configuration;
     if (tsConfigPaths.length && !this.foundPropertyTsConfigs.length) {
       error(`Failed to find any of the provided tsconfig.json files: ${tsConfigPaths.join(', ')}`);
@@ -190,5 +195,6 @@ export class TsConfigStore implements FileStore {
     info(
       `Found ${this.getTsConfigs().length} tsconfig.json file(s): [${this.getTsConfigs().join(', ')}]`,
     );
+    return Promise.resolve();
   }
 }
