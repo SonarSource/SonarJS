@@ -509,6 +509,50 @@ for (const [language, Tester] of [
       });
     });
 
+    it('selects statically known template-literal branches', () => {
+      for (const html of [false, true]) {
+        const code = (expression: string, declarations = '') =>
+          html
+            ? `${button}${declarations}<Button render={<a />} dangerouslySetInnerHTML={{__html: ${expression}}} />;`
+            : `${button}${declarations}<Button render={<a />}>{${expression}}</Button>;`;
+        new Tester().run('anchor-has-content', rule, {
+          valid: [
+            "`` || 'Continue'",
+            "`` ? null : 'Continue'",
+            "`Continue` ? 'Go' : null",
+            "`Continue` && 'Go'",
+            '`Continue` ?? null',
+            '`Continue` || null',
+            "`${label}` ? 'Continue' : null",
+            "`${label}` ?? 'Continue'",
+          ].map(expression => ({ code: code(expression) })),
+          invalid: [
+            "`` ?? 'Continue'",
+            "`` ? 'Continue' : null",
+            "`` && 'Continue'",
+            '`Continue` && null',
+            "`Continue` ? null : 'Continue'",
+            "` ` || 'Continue'",
+            "` ` ?? 'Continue'",
+            "` ` ? null : 'Continue'",
+          ].map(expression => ({ code: code(expression), errors: 1 })),
+        });
+        new Tester().run('anchor-has-content', rule, {
+          valid: [
+            { code: code("label || 'Continue'", 'const label = ``;') },
+            { code: code("label ? 'Continue' : null", 'const label = `Continue`;') },
+          ],
+          invalid: [
+            {
+              code: code("label ?? 'Continue'", 'const empty = ``; const label = empty;'),
+              errors: 1,
+            },
+            { code: code("label ? 'Continue' : null", 'const label = ``;'), errors: 1 },
+          ],
+        });
+      }
+    });
+
     it('selects the rendered branch and final sequence operand', () => {
       const code = (expression: string) =>
         `${button}<Button render={<a />}>{${expression}}</Button>;`;

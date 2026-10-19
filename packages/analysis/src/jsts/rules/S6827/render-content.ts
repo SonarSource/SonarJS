@@ -377,12 +377,15 @@ function getAttributeValue(
     attribute.value.type === 'JSXExpressionContainer'
       ? attribute.value.expression
       : attribute.value;
-  const resolved = resolveSingleWriteExpression(context, value as TSESTree.Node);
-  if (resolved.type === 'Literal') {
-    return resolved.value;
+  return getStaticValue(resolveSingleWriteExpression(context, value as TSESTree.Node));
+}
+
+function getStaticValue(value: TSESTree.Node): unknown {
+  if (value.type === 'Literal') {
+    return value.value;
   }
-  if (resolved.type === 'TemplateLiteral') {
-    return getStaticExpressionValue(resolved as unknown as estree.Expression);
+  if (value.type === 'TemplateLiteral') {
+    return getStaticExpressionValue(value as unknown as estree.Expression);
   }
   return undefined;
 }
@@ -555,9 +558,9 @@ function hasConditionalContent(
   seen: Set<TSESTree.Node>,
   checkContent = hasContent,
 ): boolean {
-  const test = resolveSingleWriteExpression(context, value.test);
-  if (test.type === 'Literal') {
-    return checkContent(test.value ? value.consequent : value.alternate, context, seen);
+  const test = getStaticValue(resolveSingleWriteExpression(context, value.test));
+  if (test !== undefined) {
+    return checkContent(test ? value.consequent : value.alternate, context, seen);
   }
   return (
     checkContent(value.consequent, context, seen) || checkContent(value.alternate, context, seen)
@@ -571,7 +574,8 @@ function hasLogicalContent(
   checkContent = hasContent,
 ): boolean {
   const left = resolveSingleWriteExpression(context, value.left);
-  if (left.type !== 'Literal') {
+  const leftValue = getStaticValue(left);
+  if (leftValue === undefined) {
     return (
       (value.operator !== '&&' && checkContent(value.left, context, seen)) ||
       checkContent(value.right, context, seen)
@@ -579,11 +583,11 @@ function hasLogicalContent(
   }
   let useLeft: boolean;
   if (value.operator === '??') {
-    useLeft = left.value != null;
+    useLeft = leftValue != null;
   } else if (value.operator === '&&') {
-    useLeft = !left.value;
+    useLeft = !leftValue;
   } else {
-    useLeft = !!left.value;
+    useLeft = !!leftValue;
   }
   return checkContent(useLeft ? left : value.right, context, seen);
 }
