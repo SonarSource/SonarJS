@@ -108,12 +108,31 @@ function canSpreadOverrideAttribute(
   argument: TSESTree.Node,
   name: string,
   seen = new Set<TSESTree.Node>(),
+  memo = new Map<TSESTree.Node, boolean>(),
 ): boolean {
   const expression = unwrapTypeScriptExpression(argument);
+  const cached = memo.get(expression);
+  if (cached !== undefined) {
+    return cached;
+  }
   if (seen.has(expression)) {
     return true;
   }
-  const visited = new Set(seen).add(expression);
+  seen.add(expression);
+  const result = canSpreadOverrideExpression(context, expression, name, seen, memo);
+  seen.delete(expression);
+  // Each traversal checks one attribute name, so cached results stay attribute-specific.
+  memo.set(expression, result);
+  return result;
+}
+
+function canSpreadOverrideExpression(
+  context: Rule.RuleContext,
+  expression: TSESTree.Node,
+  name: string,
+  seen: Set<TSESTree.Node>,
+  memo: Map<TSESTree.Node, boolean>,
+): boolean {
   if (expression.type === 'Identifier') {
     const variable = getVariableFromName(context, expression.name, expression as Node);
     // Other reads could mutate or pass the object to code that adds an attribute.
@@ -121,14 +140,14 @@ function canSpreadOverrideAttribute(
       return true;
     }
     const value = getSimpleBindingValue(context, expression);
-    return value === expression || canSpreadOverrideAttribute(context, value, name, visited);
+    return value === expression || canSpreadOverrideAttribute(context, value, name, seen, memo);
   }
   if (expression.type !== 'ObjectExpression') {
     return true;
   }
   return expression.properties.some(property => {
     if (property.type === 'SpreadElement') {
-      return canSpreadOverrideAttribute(context, property.argument, name, visited);
+      return canSpreadOverrideAttribute(context, property.argument, name, seen, memo);
     }
     if (!property.computed && property.key.type === 'Identifier') {
       return property.key.name === name;

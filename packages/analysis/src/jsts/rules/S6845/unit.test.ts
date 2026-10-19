@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { describe, it } from 'node:test';
+import { describe, it, type TestContext } from 'node:test';
 import { SourceCode } from 'eslint';
 import assert from 'node:assert/strict';
 import {
@@ -180,6 +180,20 @@ const invalid = [
   ].map(value => `<div role="separator" aria-valuenow=${value} tabIndex={0} />`),
 ];
 
+function limitScopeQueries(t: TestContext, maxQueries: number) {
+  let scopeQueries = 0;
+  const getScope = SourceCode.prototype.getScope;
+  // Bound real scope queries so an exponential regression fails without hanging CI.
+  t.mock.method(
+    SourceCode.prototype,
+    'getScope',
+    function (this: SourceCode, ...args: Parameters<SourceCode['getScope']>) {
+      assert.ok(++scopeQueries <= maxQueries, 'Repeatedly analyzing shared bindings');
+      return getScope.apply(this, args);
+    },
+  );
+}
+
 describe('S6845', () => {
   for (const [language, Tester] of [
     ['JavaScript JSX', DefaultParserRuleTester],
@@ -263,22 +277,34 @@ describe('S6845', () => {
         ),
         `<div role="separator" aria-valuenow={position${levels}} tabIndex={0} />`,
       ].join('\n');
-      let scopeQueries = 0;
-      const getScope = SourceCode.prototype.getScope;
-      // Bound real scope queries so an exponential regression fails without hanging CI.
-      t.mock.method(
-        SourceCode.prototype,
-        'getScope',
-        function (this: SourceCode, ...args: Parameters<SourceCode['getScope']>) {
-          assert.ok(++scopeQueries <= 16 * (levels + 1), 'Repeatedly analyzing shared bindings');
-          return getScope.apply(this, args);
-        },
-      );
+      limitScopeQueries(t, 16 * (levels + 1));
       new Tester().run('no-noninteractive-tabindex', rule, {
         valid: [],
         invalid: [{ code, options, errors: [{ message }] }],
       });
     });
+    for (const [properties, overridesAttribute] of [
+      ['onKeyDown: resize', false],
+      ['role: "presentation"', true],
+      ['"aria-valuenow": null', true],
+    ] as const) {
+      it(`bounds analysis of shared spreads with ${properties} in ${language}`, t => {
+        const levels = 30;
+        const code = [
+          `const props0 = { ${properties} };`,
+          ...Array.from(
+            { length: levels },
+            (_, index) => `const props${index + 1} = { ...props${index}, ...props${index} };`,
+          ),
+          `<div role="separator" aria-valuenow={50} {...props${levels}} tabIndex={0} />`,
+        ].join('\n');
+        limitScopeQueries(t, 16 * (levels + 1));
+        new Tester().run('no-noninteractive-tabindex', rule, {
+          valid: overridesAttribute ? [] : [{ code, options }],
+          invalid: overridesAttribute ? [{ code, options, errors: [{ message }] }] : [],
+        });
+      });
+    }
     for (const code of invalid) {
       it(`reports ${code} in ${language}`, () => {
         new Tester().run('no-noninteractive-tabindex', rule, {
