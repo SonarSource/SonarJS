@@ -334,6 +334,16 @@ export const cssRulesMeta: CssRuleMeta[] = [
   simpleRule('S9423', 'sonar/declaration-no-important'),
   simpleRule('S9424', 'sonar/declaration-property-value-no-unknown'),
   simpleRule('S9442', 'sonar/named-grid-areas-no-invalid'),
+  singleListParamRule(
+    'S9448',
+    'sonar/function-no-unknown',
+    listParam(
+      'ignoreFunctions',
+      'ignoreFunctions',
+      'Comma-separated list of function names and/or regular expressions for functions to consider as valid.',
+      'theme',
+    ),
+  ),
 ];
 
 /** Reverse map: Stylelint rule key -> SonarQube rule key */
