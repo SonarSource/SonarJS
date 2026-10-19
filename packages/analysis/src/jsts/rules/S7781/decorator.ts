@@ -16,7 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S7781/javascript
 
-import type { AST } from '@eslint-community/regexpp';
+import { type AST, visitRegExpAST } from '@eslint-community/regexpp';
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
 import type estree from 'estree';
@@ -26,22 +26,76 @@ import { getParsedRegex } from '../helpers/regex/extract.js';
 import * as meta from './generated-meta.js';
 
 const METHOD_MESSAGE_ID = 'method';
+const PATTERN_MESSAGE_ID = 'pattern';
+const METHOD_AND_PATTERN_MESSAGE_ID = 'methodAndPattern';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
     {
       ...rule,
-      meta: generateMeta(meta, rule.meta),
+      meta: generateMeta(meta, {
+        ...rule.meta,
+        messages: {
+          ...rule.meta?.messages,
+          [METHOD_AND_PATTERN_MESSAGE_ID]:
+            'Use `replaceAll()` with a string literal instead of this global regex.',
+        },
+      }),
     },
     (context, descriptor) => {
+      if (
+        'messageId' in descriptor &&
+        descriptor.messageId === PATTERN_MESSAGE_ID &&
+        'node' in descriptor
+      ) {
+        const regex = getParsedRegex(descriptor.node, context);
+        if (regex && hasLoneSurrogateInUnicodeMode(regex)) {
+          return;
+        }
+      }
+
       if (!isMethodReportDescriptor(descriptor)) {
         context.report(descriptor);
         return;
       }
 
-      if (shouldKeepReport(descriptor.node, context)) {
+      const call = getEnclosingReplaceCall(descriptor.node);
+      if (!call) {
         context.report(descriptor);
+        return;
       }
+
+      const [pattern] = call.arguments;
+      const literal = getReplacementLiteral(pattern, context);
+      if (literal === null) {
+        return;
+      }
+
+      // Convert only inline regex literals. Regex in variables are kept,
+      // since they may be used elsewhere and it is not generally safe to
+      // transform them into string literals.
+      if (pattern.type !== 'Literal' || !('regex' in pattern)) {
+        context.report(descriptor);
+        return;
+      }
+
+      // Embedded formats require their own escaping for generated string literals.
+      // The generated string literals we generate are not always safe replacements
+      // when the JS/TS is in embedded files.
+      // E.g., in HTML
+      // `input.replace(/\x3c\/script>/g, '')` becomes `input.replaceAll("</script>", '')`,
+      // and the resulting literal </script> ends the HTML script block early
+      const safeToFix = /\.(?:[cm]?[jt]s|[jt]sx)$/i.test(context.physicalFilename);
+      context.report({
+        ...descriptor,
+        messageId: METHOD_AND_PATTERN_MESSAGE_ID,
+        fix: safeToFix
+          ? fixer => [
+              fixer.insertTextAfter(descriptor.node, 'All'),
+              fixer.replaceText(pattern, toStringLiteral(literal)),
+            ]
+          : undefined,
+      });
     },
   );
 }
@@ -60,26 +114,48 @@ function isMethodReportDescriptor(
   );
 }
 
-function shouldKeepReport(node: TSESTree.Identifier, context: Rule.RuleContext) {
-  const callExpression = getEnclosingReplaceCall(node);
-  if (!callExpression) {
-    return true;
-  }
-
-  const [pattern] = callExpression.arguments;
+function getReplacementLiteral(
+  pattern: TSESTree.CallExpressionArgument | undefined,
+  context: Rule.RuleContext,
+): string | null {
   if (!pattern || pattern.type === 'SpreadElement') {
-    // If the pattern is unavailable or opaque, we cannot prove plain-string equivalence.
-    return false;
+    return null;
   }
 
-  // Safe: replace(...) arguments are estree expressions accepted by the regex extraction helper.
   const regex = getParsedRegex(pattern as unknown as estree.Node, context);
-  if (!regex || !hasReducibleFlags(regex.flags)) {
-    return false;
+  if (!regex || !hasReducibleFlags(regex.flags) || hasLoneSurrogateInUnicodeMode(regex)) {
+    return null;
   }
 
   const literal = getEquivalentLiteral(regex.pattern);
-  return literal !== null && literal.length > 0;
+  return literal !== null && literal.length > 0 ? literal : null;
+}
+
+function hasLoneSurrogateInUnicodeMode(regex: AST.RegExpLiteral): boolean {
+  if (!regex.flags.unicode && !regex.flags.unicodeSets) {
+    return false;
+  }
+
+  let hasSurrogate = false;
+  visitRegExpAST(regex.pattern, {
+    onCharacterEnter({ value }) {
+      const MIN_SURROGATE_CODE_POINT = 0xd800;
+      const MAX_SURROGATE_CODE_POINT = 0xdfff;
+      hasSurrogate ||= value >= MIN_SURROGATE_CODE_POINT && value <= MAX_SURROGATE_CODE_POINT;
+    },
+  });
+  // String searches can match half of a surrogate pair, unlike Unicode regexes.
+  return hasSurrogate;
+}
+
+function toStringLiteral(literal: string): string {
+  // Use JSON.stringify to do most of the escaping
+  return (
+    JSON.stringify(literal)
+      // Escape Unicode line and paragraph separators, which JSON.stringify leaves literal.
+      .replaceAll('\u2028', String.raw`\u2028`)
+      .replaceAll('\u2029', String.raw`\u2029`)
+  );
 }
 
 /**
@@ -139,12 +215,10 @@ function hasReducibleFlags(flags: AST.Flags) {
  *   element     := character
  *                | singleCharacterClass
  *                | nonCapturingGroup
- *                | fixedQuantifier
  *   singleCharacterClass := "[" character "]"
  *   nonCapturingGroup    := "(?:" alternative ")"
- *   fixedQuantifier      := element "{n}" | element with min = max = n
  *
- * Example: `/(?:f)[o]{1}[o]/` -> `"foo"`
+ * Example: `/(?:f)[o][o]/` -> `"foo"`
  *
  * Otherwise it returns null.
  */
@@ -179,21 +253,13 @@ function reduceElement(element: AST.Element): string | null {
     case 'CapturingGroup':
       return null;
     case 'Group':
-      return element.alternatives.length === 1 ? reduceAlternative(element.alternatives[0]) : null;
-    case 'Quantifier':
-      return reduceQuantifier(element);
+      // Scoped flags (e.g.,`(?i:FOO)`) can change matching even when every character is fixed.
+      return element.modifiers === null && element.alternatives.length === 1
+        ? reduceAlternative(element.alternatives[0])
+        : null;
     default:
       return null;
   }
-}
-
-function reduceQuantifier(quantifier: AST.Quantifier): string | null {
-  if (quantifier.min !== quantifier.max) {
-    return null;
-  }
-
-  const fragment = reduceElement(quantifier.element);
-  return fragment === null ? null : fragment.repeat(quantifier.min);
 }
 
 function reduceCharacterClass(characterClass: AST.CharacterClass): string | null {
