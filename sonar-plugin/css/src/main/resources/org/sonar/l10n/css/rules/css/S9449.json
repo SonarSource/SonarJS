@@ -21,5 +21,7 @@
   "compatibleLanguages": [
     "css"
   ],
-  "defaultQualityProfiles": []
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
 }
