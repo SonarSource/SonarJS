@@ -68,7 +68,7 @@ class CssStylelintReportTest {
 
     assertThat(issues)
       .extracting(TextRangeIssue::line)
-      .containsExactlyInAnyOrder(111, 81, 55, 58, 58, 114, 32, 60, 101, 104, 9, 14);
+      .containsExactlyInAnyOrder(111, 81, 55, 58, 58, 114, 32, 60, 101, 104, 9, 14, 76);
     assertThat(issues)
       .extracting(TextRangeIssue::ruleKey)
       .containsExactlyInAnyOrder(
@@ -77,6 +77,7 @@ class CssStylelintReportTest {
         "external_stylelint:rule-empty-line-before",
         "external_stylelint:selector-pseudo-element-colon-notation",
         "css:S4658",
+        "css:S9449",
         "external_stylelint:block-no-empty",
         "css:S9423",
         "css:S9423",
