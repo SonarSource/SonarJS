@@ -52,6 +52,9 @@ const animationWords = new Set([
 ]);
 const cssWide = /^(initial|inherit|unset|revert|revert-layer|auto)$/i;
 const noPreference = 'no-preference';
+const numberPattern = String.raw`[-+]?(?:\d*\.\d+|\d+)(?:e[-+]?\d+)?`;
+const numberValue = new RegExp(`^${numberPattern}$`, 'i');
+const timeValue = new RegExp(`^(${numberPattern})(ms|s)$`, 'i');
 
 export type Component =
   | 'names'
@@ -65,12 +68,13 @@ export type Values = Partial<Record<Component, string[] | undefined>>;
 export type MotionContext = { mode: 'all' | 'reduce' | 'skip'; key: string };
 
 export function milliseconds(value: string): number | undefined {
-  const match = /^([+]?(?:\d+(?:\.\d*)?|\.\d+))(ms|s)$/i.exec(value);
+  const match = timeValue.exec(value);
   if (!match) {
     return undefined;
   }
   const multiplier = match[2].toLowerCase() === 's' ? 1000 : 1;
-  return Number(match[1]) * multiplier;
+  const duration = Number(match[1]) * multiplier;
+  return Number.isFinite(duration) && duration >= 0 ? duration : undefined;
 }
 
 export function isLiteral(value: string): boolean {
@@ -116,11 +120,11 @@ function consumeName(parsed: ParsedShorthand, name: string, quoted: boolean): vo
     return;
   }
   parsed.name = name;
-  parsed.valid &&= quoted || (!cssWide.test(name) && !name.startsWith('--'));
+  parsed.valid &&= quoted || !cssWide.test(name);
 }
 
 function consumeWord(parsed: ParsedShorthand, text: string, animation: boolean): void {
-  if (/^[-+]?(?:\d+(?:\.\d*)?|\.\d+)(ms|s)$/i.test(text)) {
+  if (timeValue.test(text)) {
     if (parsed.times === 0) {
       parsed.duration = text;
       parsed.valid &&= milliseconds(text) !== undefined;
@@ -129,8 +133,10 @@ function consumeWord(parsed: ParsedShorthand, text: string, animation: boolean):
     parsed.valid &&= parsed.times <= 2;
     return;
   }
-  if (animation && /^(\d+(?:\.\d+)?|infinite)$/i.test(text)) {
+  if (animation && (numberValue.test(text) || text.toLowerCase() === 'infinite')) {
     parsed.iteration = text.toLowerCase();
+    parsed.valid &&=
+      parsed.iteration === 'infinite' || (Number.isFinite(Number(text)) && Number(text) >= 0);
     return;
   }
   const keywords = animation ? animationWords : timingWords;

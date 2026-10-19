@@ -71,6 +71,57 @@ describe('S9440 spatial motion and reduced-motion safeguards', (): void => {
     to { transform: none; }
   }`;
   const invalidSamples: Sample[] = [
+    ...['.5', '+0.5', '5e-1'].map((iteration: string): Sample => ({
+      name: `fractional iteration count ${iteration}`,
+      code: `.panel { animation: move 1s ${iteration}; }\n${frames}`,
+      target: `animation: move 1s ${iteration}`,
+    })),
+    ...['1e0s', '1E+3ms', '.5e1s'].map((duration: string): Sample => ({
+      name: `exponent animation duration ${duration}`,
+      code: `.panel { animation: move ${duration}; }\n${frames}`,
+      target: `animation: move ${duration}`,
+    })),
+    {
+      name: 'exponent animation duration in longhand',
+      code: `.panel { animation-name: move; animation-duration: 1e0s; }\n${frames}`,
+      target: 'animation-duration: 1e0s',
+    },
+    {
+      name: 'double-hyphen animation name in shorthand',
+      code: `.panel { animation: --move 1s; }\n${frames.replace('move', '--move')}`,
+      target: 'animation: --move 1s',
+    },
+    {
+      name: 'exponent negative animation delay',
+      code: `.panel { animation: move 1s -5e-1s; }\n${frames}`,
+      target: 'animation: move 1s -5e-1s',
+    },
+    ...[
+      'transform 0s, transform 1s',
+      'all 0s, transform 1s',
+      'transform 1s, all 0s, transform 1s',
+      'transform 1s, opacity 0s',
+    ].map((value: string): Sample => ({
+      name: `last matching transition still moves: ${value}`,
+      code: `.panel { transition: ${value}; }\n${states}`,
+      target: `transition: ${value}`,
+    })),
+    {
+      name: 'last duplicate transition uses repeated duration list',
+      code: `.panel { transition-property: transform, opacity, transform; transition-duration: 1s, 0s; }\n${states}`,
+      target: 'transition-duration: 1s, 0s',
+    },
+    {
+      name: 'instant transform does not suppress another moving spatial property',
+      code: `.panel { width: 10px; transition: transform 1s, width 1s, transform 0s; }
+.panel:hover { width: 20px; transform: translateX(1rem); }`,
+      target: 'transition: transform 1s, width 1s, transform 0s',
+    },
+    {
+      name: 'exponent transition duration',
+      code: `.panel { transition: transform 1e0s; }\n${states}`,
+      target: 'transition: transform 1e0s',
+    },
     {
       name: 'nested media declaration still enables unguarded animation',
       code: `.panel {
@@ -442,6 +493,30 @@ ${frames}`,
   }
 
   const validSamples: Array<{ name: string; code: string; filename?: string }> = [
+    ...['transform 1s, transform 0s', 'transform 1s, all 0s'].map(
+      (value: string): { name: string; code: string } => ({
+        name: `last matching transition is instant: ${value}`,
+        code: `.panel { transition: ${value}; }\n${states}`,
+      }),
+    ),
+    {
+      name: 'last matching longhand transition uses its zero duration',
+      code: `.panel { transition-property: transform, transform; transition-duration: 1s, 0s; }\n${states}`,
+    },
+    {
+      name: 'last matching transition uses repeated zero duration',
+      code: `.panel { transition-property: opacity, transform, transform; transition-duration: 0s, 1s; }\n${states}`,
+    },
+    ...['0e0s', '-0e0s', '-1e0s', '1e999s'].map(
+      (duration: string): { name: string; code: string } => ({
+        name: `zero or unresolved exponent duration ${duration}`,
+        code: `.panel { animation: move ${duration}; }\n${frames}`,
+      }),
+    ),
+    ...['.0', '-.5', '0e1', '1e999'].map((iteration: string): { name: string; code: string } => ({
+      name: `zero or invalid iteration count ${iteration}`,
+      code: `.panel { animation: move 1s ${iteration}; }\n${frames}`,
+    })),
     {
       name: 'nested media disables animation for reduced motion',
       code: `.panel {
@@ -813,6 +888,57 @@ ${frames}`,
       tester.valid({ code: sample.code, codeFilename: sample.filename }),
     );
   }
+
+  describe('documented analysis limitations', (): void => {
+    const knownFalsePositives: Sample[] = [
+      {
+        name: 'important base transform prevents a transition',
+        code: `.panel { transform: none !important; transition: transform 1s; }\n${states}`,
+        target: 'transition: transform 1s',
+      },
+      {
+        name: 'important transform prevents an animation',
+        code: `.panel { transform: none !important; animation: move 1s; }\n${frames}`,
+        target: 'animation: move 1s',
+      },
+      {
+        name: 'important reduced-motion transform prevents an animation',
+        code: `.panel { animation: move 1s; }
+@media (prefers-reduced-motion: reduce) { .panel { transform: none !important; } }
+${frames}`,
+        target: 'animation: move 1s',
+      },
+      ...[
+        ['transform', 'rotate(90deg)', 'rotate(.25turn)'],
+        ['transform', 'translateX(1in)', 'translateX(96px)'],
+        ['scale', '1', '100%'],
+        ['transform', 'translateX(10px)', 'translate3d(10px, 0, 0)'],
+      ].map(([property, before, after]: string[]): Sample => ({
+        name: `equivalent spatial values are not normalized: ${before} and ${after}`,
+        code: `.panel { animation: move 1s; }
+@keyframes move {
+  from { ${property}: ${before}; }
+  to { ${property}: ${after}; }
+}`,
+        target: 'animation: move 1s',
+      })),
+    ];
+    for (const sample of knownFalsePositives) {
+      it(`known false positive: ${sample.name}`, (): Promise<void> => invalid(sample));
+    }
+    for (const endpoint of ['from', 'to']) {
+      it(`does not infer a missing endpoint from underlying styles: ${endpoint}`, (): Promise<void> =>
+        tester.valid({
+          code: `.panel { transform: none; animation: spin 1s infinite; }
+@keyframes spin { ${endpoint} { transform: rotate(360deg); } }`,
+        }));
+    }
+    it('keeps stationary incomplete keyframes silent', (): Promise<void> =>
+      tester.valid({
+        code: `.panel { transform: rotate(360deg); animation: spin 1s infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }`,
+      }));
+  });
 
   const equivalentTransforms: Array<[string, string]> = [
     ['initial', 'none'],

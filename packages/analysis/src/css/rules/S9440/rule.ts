@@ -323,6 +323,10 @@ function motionDeclarations(
     properties.some(
       (property: string, index: number): boolean =>
         spatialProperties.has(property) &&
+        index ===
+          properties.findLastIndex(
+            (candidate: string): boolean => candidate === property || candidate === 'all',
+          ) &&
         !durationReduced(baseline, state, 'transitionDurations', index) &&
         (milliseconds(transitionDurations[index % transitionDurations.length]) ?? 0) > 0 &&
         transitionChanges(group, property, groups),
