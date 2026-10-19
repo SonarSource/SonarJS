@@ -1,0 +1,25 @@
+{
+  "title": "Transitions should name the properties they animate",
+  "ruleSpecification": "RSPEC-9449",
+  "sqKey": "S9449",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "defaultSeverity": "Minor",
+  "scope": "Main",
+  "quickfix": "infeasible",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "LOW"
+    },
+    "attribute": "CLEAR"
+  },
+  "compatibleLanguages": [
+    "css"
+  ],
+  "defaultQualityProfiles": []
+}

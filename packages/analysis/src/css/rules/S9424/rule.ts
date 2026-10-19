@@ -28,7 +28,7 @@ import {
   type SyntaxMatchError,
 } from 'css-tree';
 import { calc, ParseErrorMessage, type ParseError } from '@csstools/css-calc';
-import { knownFunctionsOf } from './known-functions.js';
+import { knownFunctionsOf } from '../helpers/known-functions.js';
 import { collectRegisteredSyntaxes, UNIVERSAL_SYNTAX } from './registrations.js';
 
 const ruleName = 'sonar/declaration-property-value-no-unknown';
