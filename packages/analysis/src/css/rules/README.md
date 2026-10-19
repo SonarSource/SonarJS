@@ -96,8 +96,9 @@ independent of runtime filesystem discovery.
 
 `index.ts` collects the generated plugin exports. `metadata.ts` derives the flat
 `cssRulesMeta` compatibility adapter, the reverse key map, and CSS-only keys. The
-Java generator, ruling tools, and rule-data deployment use this adapter. None of
-these consumers needs a separate manual registration step.
+Java generator and ruling tools use this adapter. Rule-data deployment reads rule
+folders directly, so `npm run rspec:refresh` can run before index generation. None
+of these consumers needs a separate manual registration step.
 
 The generator validates duplicate keys, upstream providers and rule names,
 parameter conflicts, and the presence of local implementation files. Registry
