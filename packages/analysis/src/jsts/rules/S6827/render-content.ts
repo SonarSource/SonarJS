@@ -36,6 +36,8 @@ const SHADCN_COMPONENTS: Record<string, readonly string[]> = {
   sidebar: ['SidebarMenuButton', 'SidebarMenuSubButton'],
 };
 
+const NON_RENDERED_ELEMENTS = new Set(['script', 'style', 'template']);
+
 /**
  * Checks whether a render-element anchor receives content from a supported consumer.
  * @param opening the reported anchor
@@ -225,10 +227,13 @@ function hasElementContent(
   seen: Set<TSESTree.Node>,
 ): boolean {
   const attributes = (element.openingElement as JSXOpeningElement).attributes;
-  if (isHidden(attributes, context)) {
+  const name = element.openingElement.name;
+  if (
+    (name.type === 'JSXIdentifier' && NON_RENDERED_ELEMENTS.has(name.name)) ||
+    isHidden(attributes, context)
+  ) {
     return false;
   }
-  const name = element.openingElement.name;
   if (
     name.type === 'JSXMemberExpression' ||
     (name.type === 'JSXIdentifier' && /^[A-Z]/.test(name.name))
@@ -340,7 +345,7 @@ function isHiddenHtmlElement(name: string, attributes: Record<string, string>): 
   return (
     'hidden' in attributes ||
     attributes['aria-hidden'] === 'true' ||
-    ['script', 'style'].includes(name)
+    NON_RENDERED_ELEMENTS.has(name)
   );
 }
 

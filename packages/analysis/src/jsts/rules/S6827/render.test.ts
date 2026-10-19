@@ -295,6 +295,26 @@ for (const [language, Tester] of [
       });
     });
 
+    it('ignores non-rendered intrinsic elements when checking accessible content', () => {
+      const code = (content: string) => `${button}<Button render={<a />}>${content}</Button>;`;
+      new Tester().run('anchor-has-content', rule, {
+        valid: [
+          ...['script', 'style', 'template'].map(name =>
+            code(`<${name}>Hidden</${name}><span>Continue</span>`),
+          ),
+          ...['Script', 'Style', 'Template'].map(name => code(`<${name} />`)),
+        ].map(code => ({ code })),
+        invalid: ['script', 'style', 'template']
+          .flatMap(name => [
+            code(`<${name}>Continue</${name}>`),
+            code(`<${name} title="Continue" />`),
+            code(`<${name} aria-label="Continue" />`),
+            code(`<span><${name}><img alt="Continue" /></${name}></span>`),
+          ])
+          .map(code => ({ code, errors: 1 })),
+      });
+    });
+
     it('allows converging alias paths only when every consumer supplies content', () => {
       const alias = `${button}const link = <a />; const alias = flag ? link : link;`;
       const diamond = `${button}const link = <a />; const left = link; const right = link; const alias = flag ? left : right;`;
@@ -465,6 +485,7 @@ for (const [language, Tester] of [
           '<span aria-hidden="true" aria-label="Continue"></span>',
           '<script title="Continue">Continue</script>',
           '<style aria-label="Continue">Continue</style>',
+          '<template aria-label="Continue"><img alt="Continue"></template>',
           '<span alt="Continue"></span>',
           '<span title=" "><img alt=" "></span><!-- Continue -->',
         ].map(html => ({ code: code(html), errors: 1 })),
