@@ -16,11 +16,12 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S9423/css
 import stylelint from 'stylelint';
+import { meta } from './meta.js';
 import type PostCSS from 'postcss';
 import { createDecoratedRule, type DecoratedMessage } from '../helpers/decorated-result.js';
 
-const SONAR_RULE = 'sonar/declaration-no-important';
-const UPSTREAM_RULE = 'declaration-no-important';
+const SONAR_RULE = meta.bindings[0].stylelintKey;
+const UPSTREAM_RULE = meta.bindings[0].upstreamRule;
 // "!important" inside keyframes is left to S4655
 const KEYFRAMES_NAME = /^(-(o|moz|ms|webkit)-)?keyframes$/i;
 

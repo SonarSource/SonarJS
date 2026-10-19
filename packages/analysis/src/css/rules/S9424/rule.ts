@@ -16,6 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S9424/css
 import stylelint, { type PostcssResult } from 'stylelint';
+import { meta } from './meta.js';
 import type PostCSS from 'postcss';
 import {
   find,
@@ -31,7 +32,7 @@ import { calc, ParseErrorMessage, type ParseError } from '@csstools/css-calc';
 import { knownFunctionsOf } from './known-functions.js';
 import { collectRegisteredSyntaxes, UNIVERSAL_SYNTAX } from './registrations.js';
 
-const ruleName = 'sonar/declaration-property-value-no-unknown';
+const ruleName = meta.bindings[0].stylelintKey;
 
 const messages = stylelint.utils.ruleMessages(ruleName, {
   rejected: (property: string, value: string) =>

@@ -16,12 +16,13 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S9442/css
 import stylelint from 'stylelint';
+import { meta } from './meta.js';
 import type PostCSS from 'postcss';
 import valueParser from 'postcss-value-parser';
 import { createDecoratedRule, type DecoratedMessage } from '../helpers/decorated-result.js';
 
-const SONAR_RULE = 'sonar/named-grid-areas-no-invalid';
-const UPSTREAM_RULE = 'named-grid-areas-no-invalid';
+const SONAR_RULE = meta.bindings[0].stylelintKey;
+const UPSTREAM_RULE = meta.bindings[0].upstreamRule;
 // Matching against the upstream messages keeps the rewrite in sync with Stylelint's wording.
 type UpstreamMessages = {
   expectedToken: () => string;

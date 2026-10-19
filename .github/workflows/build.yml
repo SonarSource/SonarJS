@@ -611,6 +611,7 @@ jobs:
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Run JS tests with coverage
         run: |
+          npm run test:rule-tools
           npm run generate-meta
           npm run bridge:compile
           npm run bridge:test:cov
@@ -671,6 +672,7 @@ jobs:
         name: Run JS tests on Windows
         shell: bash
         run: |
+          npm run test:rule-tools
           npm run generate-meta
           npm run bridge:compile
           npm run bridge:test:js
