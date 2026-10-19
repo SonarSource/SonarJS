@@ -71,11 +71,13 @@ describe('CSS rule scaffolding and generation', () => {
     assert.equal(warnings[0].column, 5);
     assert.match(await readFile(join(folder, 'S100/unit.test.ts'), 'utf8'), /StylelintRuleTester/);
     assert.match(await readFile(join(folder, 'rules.ts'), 'utf8'), /rule as S100/);
+    const metaPath = join(folder, 'S100/meta.ts');
+    const originalMetaSource = await readFile(metaPath, 'utf8');
     await assert.rejects(
       createNewCssRule('S100', original('sonar/other'), folder),
       /duplicate CSS rule key/,
     );
-    assert.equal((await loadPlugin(folder, 'S100')).ruleName, 'sonar/example');
+    assert.equal(await readFile(metaPath, 'utf8'), originalMetaSource);
   });
 
   it('scaffolds a decorator using the existing isolated-report helper', async t => {

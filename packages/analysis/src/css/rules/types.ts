@@ -34,7 +34,7 @@ export type StylelintListParam = {
  * When javaField is true, emits [true, { onTrue[i].stylelintOptionKey: onTrue[i].values }]
  * When false, emits []
  */
-export type StylelintBooleanParam = {
+type StylelintBooleanParam = {
   sqKey: string;
   javaField: string;
   description: string;
@@ -50,12 +50,12 @@ export type CssRuleMeta = {
 };
 
 /** Integration settings for one Stylelint binding. */
-export type CssRuleBinding = Omit<CssRuleMeta, 'sqKey'> & {
+type CssRuleBinding = Omit<CssRuleMeta, 'sqKey'> & {
   /** Restrict checks to plain CSS, including CSS blocks in HTML and Vue. */
   cssOnly?: boolean;
 };
 
-export type CssExternalPlugin = 'stylelint' | '@stylistic/stylelint-plugin';
+type CssExternalPlugin = 'stylelint' | '@stylistic/stylelint-plugin';
 
 /** Local plugins have one binding; an external rule can enable several upstream rules. */
 export type CssRuleDefinition =
