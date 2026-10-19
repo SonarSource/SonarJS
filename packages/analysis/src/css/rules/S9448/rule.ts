@@ -178,7 +178,7 @@ function ignoreMatcher(patterns: string[]): (name: string) => boolean {
     const regex = REGEX_OPTION.exec(pattern);
     if (regex) {
       try {
-        const compiled = new RegExp(regex[1], regex[2]);
+        const compiled = new RegExp(regex[1], regex[2].replaceAll(/[gy]/g, ''));
         return (name: string) => compiled.test(name);
       } catch {
         // not a valid regular expression, so it is matched as a plain name
