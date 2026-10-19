@@ -1,0 +1,44 @@
+{
+"moose:renderer/components/CastControl/CastControl.module.scss": [
+44,
+56
+],
+"moose:renderer/components/Downloads/Downloads.module.scss": [
+29
+],
+"moose:renderer/components/DropUI/DropUI.module.scss": [
+8,
+34
+],
+"moose:renderer/components/FilesList/FilesList.module.scss": [
+30
+],
+"moose:renderer/components/Header/Header.module.scss": [
+28,
+50
+],
+"moose:renderer/components/MiniPlayer/MiniPlayer.module.scss": [
+13
+],
+"moose:renderer/components/Modal/Modal.module.scss": [
+29
+],
+"moose:renderer/components/Player/Player.module.scss": [
+44
+],
+"moose:renderer/components/Settings/settings.module.scss": [
+49
+],
+"moose:renderer/components/Toast/Toast.module.scss": [
+17
+],
+"moose:renderer/components/TorrentDetails/TorrentDetails.module.scss": [
+91
+],
+"moose:renderer/styles/main.scss": [
+27
+],
+"moose:website/src/styles/main.scss": [
+112
+]
+}
