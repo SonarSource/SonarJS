@@ -20,5 +20,8 @@
   },
   "defaultQualityProfiles": [
     "Sonar way"
+  ],
+  "compatibleLanguages": [
+    "css"
   ]
 }
