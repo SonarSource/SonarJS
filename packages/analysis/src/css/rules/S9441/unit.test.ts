@@ -190,11 +190,27 @@ describe('S9441', () => {
         ],
       }));
 
-    it('should report each declaration of src as a candidate', () =>
-      ruleTester.invalid({
-        code: fontFace(FAMILY, 'src: local("Body Text");', URL_SRC),
-        errors: [{ text: MISSING, line: 1 }],
-      }));
+    it('should decide on the last src declaration', async () => {
+      await ruleTester.invalid({
+        code: [
+          fontFace(FAMILY, 'src: local("Body Text");', URL_SRC),
+          fontFace(FAMILY, 'src: url(data:font/woff2;base64,AAAA);', URL_SRC),
+          fontFace(FAMILY, 'src: url(body.eot);', URL_SRC),
+        ].join('\n'),
+        errors: [
+          { text: MISSING, line: 1 },
+          { text: MISSING, line: 6 },
+          { text: MISSING, line: 11 },
+        ],
+      });
+      await ruleTester.valid({
+        code: [
+          fontFace(FAMILY, URL_SRC, 'src: local("Body Text");'),
+          fontFace(FAMILY, URL_SRC, 'src: url(data:font/woff2;base64,AAAA);'),
+          fontFace(FAMILY, URL_SRC, 'src: var(--font-src);'),
+        ].join('\n'),
+      });
+    });
 
     it('should report an @font-face without font-family', () =>
       ruleTester.invalid({
@@ -349,6 +365,27 @@ describe('S9441', () => {
       await invalid.valid({ code: fontFace('font-family: "/(/";', URL_SRC) });
       await invalid.invalid({
         code: fontFace('font-family: "Icons";', URL_SRC),
+        errors: [{ text: MISSING, line: 1 }],
+      });
+    });
+
+    it('should match unquoted names whatever their spacing and comments', async () => {
+      await ignoring.valid({ code: fontFace('font-family: Font   Awesome;', URL_SRC) });
+      await ignoring.valid({ code: fontFace('font-family: Font\n    Awesome;', URL_SRC) });
+      await ignoring.valid({ code: fontFace('font-family: Font /* icons */ Awesome;', URL_SRC) });
+    });
+
+    it('should take quoted names verbatim', async () => {
+      await ignoring.invalid({
+        code: fontFace('font-family: "Font  Awesome";', URL_SRC),
+        errors: [{ text: MISSING, line: 1 }],
+      });
+    });
+
+    it('should not match escaped names', async () => {
+      // known limitation: CSS escapes such as `Font\ Awesome` are compared as written
+      await ignoring.invalid({
+        code: fontFace(String.raw`font-family: Font\ Awesome;`, URL_SRC),
         errors: [{ text: MISSING, line: 1 }],
       });
     });

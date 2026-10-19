@@ -32,7 +32,7 @@ export const messages = {
 
 type SecondaryOptions = { ignoreFontFamilies?: string[] };
 type Descriptors = {
-  sources: PostCSS.Declaration[];
+  source: PostCSS.Declaration | undefined;
   display: PostCSS.Declaration | undefined;
   family: PostCSS.Declaration | undefined;
 };
@@ -61,7 +61,8 @@ const ruleImpl: stylelint.RuleBase = (
       const descriptors = collectDescriptors(atRule);
       if (
         descriptors === undefined ||
-        !descriptors.sources.some(isDownloadableSource) ||
+        descriptors.source === undefined ||
+        !isDownloadableSource(descriptors.source) ||
         isIgnoredFamily(descriptors.family, ignoredFamilies)
       ) {
         return;
@@ -99,12 +100,13 @@ function isString(value: unknown): boolean {
 }
 
 /**
- * Collects the descriptors that matter for the rule. Returns `undefined` when the block contains
+ * Collects the descriptors that matter for the rule, keeping the last declaration of each one as
+ * the browser does. Returns `undefined` when the block contains
  * anything else than declarations and comments (mixins, includes, nested at-rules, ...), as the
  * effective descriptors cannot be resolved safely in that case.
  */
 function collectDescriptors(atRule: PostCSS.AtRule): Descriptors | undefined {
-  const descriptors: Descriptors = { sources: [], display: undefined, family: undefined };
+  const descriptors: Descriptors = { source: undefined, display: undefined, family: undefined };
   for (const node of atRule.nodes ?? []) {
     if (node.type === 'comment') {
       continue;
@@ -114,7 +116,7 @@ function collectDescriptors(atRule: PostCSS.AtRule): Descriptors | undefined {
     }
     switch (node.prop.toLowerCase()) {
       case 'src':
-        descriptors.sources.push(node);
+        descriptors.source = node;
         break;
       case 'font-display':
         descriptors.display = node;
@@ -151,15 +153,20 @@ function isIgnoredFamily(
   if (family === undefined || matchers.length === 0) {
     return false;
   }
-  const name = unquote(family.value.trim());
+  const name = normalizeFamilyName(family.value.trim());
   return matchers.some((matches: (name: string) => boolean): boolean => matches(name));
 }
 
-function unquote(value: string): string {
+/**
+ * Quoted names are taken verbatim. In unquoted names, CSS joins the identifiers with a single
+ * space, and PostCSS has already removed comments from the declaration value.
+ */
+function normalizeFamilyName(value: string): string {
   const first = value.charAt(0);
-  return (first === '"' || first === "'") && value.endsWith(first) && value.length > 1
-    ? value.slice(1, -1)
-    : value;
+  if ((first === '"' || first === "'") && value.endsWith(first) && value.length > 1) {
+    return value.slice(1, -1);
+  }
+  return value.replaceAll(/\s+/g, ' ');
 }
 
 /**
