@@ -34,7 +34,8 @@ const STYLE_AT_RULES = new Set([
 ]);
 const CSS_WIDE_KEYWORDS = new Set(['inherit', 'initial', 'revert', 'revert-layer', 'unset']);
 const DYNAMIC_FUNCTIONS = new Set(['var', 'env', 'attr']);
-const TRANSITION_PROPERTIES = new Set(['transition', 'transition-property', 'transition-duration']);
+const TRANSITION_PROPERTY = 'transition-property';
+const TRANSITION_PROPERTIES = new Set(['transition', TRANSITION_PROPERTY, 'transition-duration']);
 
 type Target = { name: string; declaration: PostCSS.Declaration; start: number; end: number };
 type State<T> = { values: T[] | undefined; important: boolean };
@@ -53,8 +54,8 @@ function checkFile(root: PostCSS.Root, result: PostcssResult): void {
   const blocks = new Set<PostCSS.Container>();
   root.walkDecls((declaration: PostCSS.Declaration): void => {
     const property = ident.decode(declaration.prop).toLowerCase();
-    if (isRelevantProperty(property) && isStyle(declaration)) {
-      blocks.add(declaration.parent!);
+    if (isRelevantProperty(property) && isStyle(declaration) && declaration.parent) {
+      blocks.add(declaration.parent);
     }
   });
   for (const block of blocks) {
@@ -115,7 +116,7 @@ function updateTransitions(
       important,
     };
   }
-  if (property !== 'transition-property' && wins(transitions.durations, important)) {
+  if (property !== TRANSITION_PROPERTY && wins(transitions.durations, important)) {
     transitions.durations = {
       values: parsed.kind === 'known' ? parsed.durations : undefined,
       important,
@@ -213,27 +214,34 @@ function parseDeclaration(
   return parseGroups(declaration, property, nodes, match);
 }
 
+function splitGroups(nodes: CssNode[]): CssNode[][] {
+  let group: CssNode[] = [];
+  const groups = [group];
+  for (const node of nodes) {
+    if (node.type === 'Operator' && node.value === ',') {
+      group = [];
+      groups.push(group);
+    } else {
+      group.push(node);
+    }
+  }
+  return groups;
+}
+
 function parseGroups(
   declaration: PostCSS.Declaration,
   property: string,
   nodes: CssNode[],
   match: LexerMatchResult,
 ): Parsed {
-  const groups: CssNode[][] = [[]];
-  for (const node of nodes) {
-    if (node.type === 'Operator' && node.value === ',') {
-      groups.push([]);
-    } else {
-      groups[groups.length - 1].push(node);
-    }
-  }
+  const groups = splitGroups(nodes);
   const targets: Target[] = [];
   const durations: (number | undefined)[] = [];
   for (const group of groups) {
     const targetNode = group.find((node: CssNode): boolean => {
       return (
         node.type === 'Identifier' &&
-        (property === 'transition-property' ||
+        (property === TRANSITION_PROPERTY ||
           match.isType(node, 'single-transition-property') ||
           ident.decode(node.name).toLowerCase() === 'none')
       );
@@ -243,11 +251,16 @@ function parseGroups(
     if (targetName === 'none' && groups.length > 1) {
       return { kind: 'invalid' };
     }
+    const start = (targetNode ?? group[0])?.loc?.start.offset;
+    const end = (targetNode ?? group.at(-1))?.loc?.end.offset;
+    if (start === undefined || end === undefined) {
+      return { kind: 'unknown' };
+    }
     targets.push({
       name: targetName,
       declaration,
-      start: (targetNode ?? group[0]).loc!.start.offset,
-      end: (targetNode ?? group[group.length - 1]).loc!.end.offset,
+      start,
+      end,
     });
     const time = firstTime(group, property, match);
     if (time !== undefined && time < 0) {
@@ -263,7 +276,7 @@ function firstTime(
   property: string,
   match: LexerMatchResult,
 ): number | undefined {
-  if (property === 'transition-property') {
+  if (property === TRANSITION_PROPERTY) {
     return 0;
   }
   const time = group.find((node: CssNode): boolean => match.isType(node, 'time'));
