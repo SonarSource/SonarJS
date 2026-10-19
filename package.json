@@ -99,7 +99,7 @@
     "type-fest": "5.10.0"
   },
   "dependencies": {
-    "@angular-eslint/eslint-plugin": "22.5.0",
+    "@angular-eslint/eslint-plugin": "22.6.0",
     "@babel/core": "8.0.7",
     "@babel/eslint-parser": "8.0.7",
     "@csstools/css-calc": "3.3.0",
