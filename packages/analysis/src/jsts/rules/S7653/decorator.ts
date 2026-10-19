@@ -14,12 +14,16 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { getNativeEventNames } from '@angular-eslint/utils';
 import type { Rule } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { getCompoundSelector, getOutputMemberName } from './angular.js';
+import { getAngularOutputNames, staticText } from '../helpers/angular.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
+
+const nativeEventNames = getNativeEventNames();
 
 const COMPOUND_SELECTOR = /^([A-Za-z][A-Za-z0-9-]*)\[([A-Za-z][A-Za-z0-9-]*)\]$/;
 
@@ -28,7 +32,7 @@ function capitalize(value: string) {
   return value[0].toUpperCase() + value.slice(1);
 }
 
-/** Suppress reports for selector-derived directive aliases; preserve all other upstream reports. */
+/** Allow collision-avoiding output aliases and unambiguous selector-derived directive aliases. */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
     {
@@ -36,12 +40,17 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       meta: generateMeta(meta, rule.meta),
     },
     (context, reportDescriptor) => {
-      if (
-        !('node' in reportDescriptor) ||
-        !isSelectorDerivedAlias(reportDescriptor.node as TSESTree.Node)
-      ) {
-        context.report(reportDescriptor);
+      if ('node' in reportDescriptor) {
+        const node = reportDescriptor.node as TSESTree.Node;
+        const names = getAngularOutputNames(node);
+        if (
+          (names && nativeEventNames.has(names[0]) && !nativeEventNames.has(names[1])) ||
+          isSelectorDerivedAlias(node)
+        ) {
+          return;
+        }
       }
+      context.report(reportDescriptor);
     },
   );
 }
@@ -63,17 +72,16 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
  * This pattern does not prove a collision in a consuming template.
  */
 function isSelectorDerivedAlias(node: TSESTree.Node) {
-  if (node.type !== 'Literal' || typeof node.value !== 'string') {
+  const alias = staticText(node);
+  if (alias === undefined) {
     return false;
   }
   const memberName = getOutputMemberName(node);
   const selector = getCompoundSelector(node);
   const match = selector?.match(COMPOUND_SELECTOR);
-  if (memberName === undefined || node.value === memberName || !match) {
+  if (memberName === undefined || alias === memberName || !match) {
     return false;
   }
   const selectorIdentity = `${match[1]}${capitalize(match[2])}`;
-  return (
-    node.value === selectorIdentity || node.value === `${selectorIdentity}${capitalize(memberName)}`
-  );
+  return alias === selectorIdentity || alias === `${selectorIdentity}${capitalize(memberName)}`;
 }
