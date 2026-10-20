@@ -1,0 +1,33 @@
+___HEADER___// https://sonarsource.github.io/rspec/#/rspec/___RULE_KEY___/css
+import stylelint, { type PostcssResult } from 'stylelint';
+import type PostCSS from 'postcss';
+import { meta } from './meta.js';
+
+const ruleName = meta.bindings[0].stylelintKey;
+
+export const messages = {
+  unexpected: 'Replace this declaration.', // TODO: use an actionable rule-specific message.
+};
+
+const ruleImpl: stylelint.RuleBase = () => {
+  return (root: PostCSS.Root, result: PostcssResult) => {
+    root.walkDecls(decl => {
+      // TODO: replace this example condition with the rule's detection logic.
+      if (decl.prop === 'invalid-property') {
+        stylelint.utils.report({
+          ruleName,
+          result,
+          node: decl,
+          message: messages.unexpected,
+          index: 0,
+          endIndex: decl.prop.length,
+        });
+      }
+    });
+  };
+};
+
+export const rule = stylelint.createPlugin(
+  ruleName,
+  Object.assign(ruleImpl, { ruleName, messages }),
+) as { ruleName: string; rule: stylelint.Rule };

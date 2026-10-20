@@ -1,0 +1,15 @@
+___HEADER___import { describe, it } from 'node:test';
+import { StylelintRuleTester } from '../../../../tests/css/tools/tester/tester.js';
+import { meta } from './meta.js';
+
+const ruleTester = new StylelintRuleTester(meta.bindings[0].stylelintKey);
+
+describe('___RULE_KEY___', () => {
+  // TODO: replace these examples, then enable both tests.
+  it.todo('accepts valid CSS', () =>
+    ruleTester.valid({ code: 'a { color: red; }' }),
+  );
+  it.todo('reports invalid CSS', () =>
+    ruleTester.invalid({ code: 'a { invalid-property: red; }', errors: [{ line: 1 }] }),
+  );
+});

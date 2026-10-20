@@ -15,10 +15,11 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { describe, it } from 'node:test';
+import { meta } from './meta.js';
 import { StylelintRuleTester } from '../../../../tests/css/tools/tester/tester.js';
 
-const ruleTester = new StylelintRuleTester('sonar/annotation-no-unknown');
-const ruleTesterWithIgnore = new StylelintRuleTester('sonar/annotation-no-unknown', [
+const ruleTester = new StylelintRuleTester(meta.bindings[0].stylelintKey);
+const ruleTesterWithIgnore = new StylelintRuleTester(meta.bindings[0].stylelintKey, [
   true,
   { ignoreAnnotations: ['custom'] },
 ]);

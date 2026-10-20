@@ -16,11 +16,12 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S7923/css
 import stylelint, { type PostcssResult } from 'stylelint';
+import { meta } from './meta.js';
 import type PostCSS from 'postcss';
 import postcssValueParser from 'postcss-value-parser';
 import unitConverter, { type CSSUnits } from 'css-unit-converter';
 
-const ruleName = 'sonar/no-restrict-orientation';
+const ruleName = meta.bindings[0].stylelintKey;
 const angleRegex = /(?<angle>-?\d+(?:\.\d+)?)\s*(?<unit>deg|rad|grad|turn)?/i;
 
 // exported for testing purpose

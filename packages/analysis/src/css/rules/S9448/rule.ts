@@ -16,6 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S9448/css
 import stylelint, { type PostcssResult } from 'stylelint';
+import { meta } from './meta.js';
 import type PostCSS from 'postcss';
 import type { Lexer } from 'css-tree';
 import { isTokenIdent, isTokenOpenCurly, tokenize, type CSSToken } from '@csstools/css-tokenizer';
@@ -31,7 +32,7 @@ import { isLegacyIeFilter, VENDOR_PREFIX } from '../helpers/legacy-syntax.js';
 
 // Stylelint's `function-no-unknown` is not decorated: it skips any value containing braces, even
 // inside strings, and locates issues on the comment-stripped value, which a decorator cannot fix.
-const ruleName = 'sonar/function-no-unknown';
+const ruleName = meta.bindings[0].stylelintKey;
 
 const messages = stylelint.utils.ruleMessages(ruleName, {
   rejected: (name: string) => `Replace this unknown "${name}" function with a known CSS function.`,

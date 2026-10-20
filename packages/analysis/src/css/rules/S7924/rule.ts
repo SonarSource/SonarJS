@@ -17,6 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S7924/css
 
 import stylelint, { type PostcssResult } from 'stylelint';
+import { meta } from './meta.js';
 import type PostCSS from 'postcss';
 import {
   contrast,
@@ -25,7 +26,7 @@ import {
   isAlmostTransparent,
 } from '../../helpers/color.js';
 
-const ruleName = 'sonar/minimum-contrast';
+const ruleName = meta.bindings[0].stylelintKey;
 
 // exported for testing purpose
 export const messages = {

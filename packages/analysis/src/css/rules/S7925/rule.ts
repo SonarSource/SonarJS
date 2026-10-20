@@ -17,10 +17,11 @@
 // https://sonarsource.github.io/rspec/#/rspec/S7925/css
 
 import stylelint, { type PostcssResult } from 'stylelint';
+import { meta } from './meta.js';
 import type PostCSS from 'postcss';
 import postcssValueParser from 'postcss-value-parser';
 
-const ruleName = 'sonar/text-spacing';
+const ruleName = meta.bindings[0].stylelintKey;
 
 function message(property: string) {
   return `Increase this value or remove '!important' from ${property} to allow accessibility adjustments.`;

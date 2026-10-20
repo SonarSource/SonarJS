@@ -16,6 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S9440/css
 import stylelint, { type PostcssResult } from 'stylelint';
+import { meta } from './meta.js';
 import postcss, { type Document, type Root } from 'postcss';
 import type PostCSS from 'postcss';
 import { Parser } from 'htmlparser2';
@@ -37,7 +38,7 @@ import {
   spatialChanges,
 } from './spatial.js';
 
-const ruleName = 'sonar/motion-reduced';
+const ruleName = meta.bindings[0].stylelintKey;
 const keyframesName = /^(-webkit-)?keyframes$/i;
 const initial: Record<Component, string[]> = {
   names: [''],
