@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { execFileSync } from 'node:child_process';
-import { listRulesDir, sonarKeySorter } from './helpers.js';
+import { CSS_RULES_FOLDER, listRulesDir, sonarKeySorter } from './helpers.js';
 import {
   copyFileSync,
   existsSync,
@@ -28,7 +28,6 @@ import {
 import { homedir } from 'node:os';
 import { join as joinNative } from 'node:path';
 import { dirname, join, resolve } from 'node:path/posix';
-import { cssRulesMeta } from '../packages/analysis/src/css/rules/metadata.js';
 
 const sourceFolder = resolve('resources/rule-data');
 
@@ -67,7 +66,7 @@ const GENERATED_RSPEC_SHA_TARGETS = [
 const ROOT_RSPEC_SHA_PATH = 'rspec.sha';
 
 const jsRuleNames = [...new Set([...(await listRulesDir()), 'S2260'])].sort(sonarKeySorter);
-const cssRuleNames = [...new Set([...cssRulesMeta.map(rule => rule.sqKey), 'S2260'])].sort(
+const cssRuleNames = [...new Set([...(await listRulesDir(CSS_RULES_FOLDER)), 'S2260'])].sort(
   sonarKeySorter,
 );
 

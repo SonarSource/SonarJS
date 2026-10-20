@@ -16,10 +16,11 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S8757/css
 import stylelint, { type PostcssResult } from 'stylelint';
+import { meta } from './meta.js';
 import type PostCSS from 'postcss';
 
-const SONAR_RULE = 'sonar/annotation-no-unknown';
-const UPSTREAM_RULE = 'annotation-no-unknown';
+const SONAR_RULE = meta.bindings[0].stylelintKey;
+const UPSTREAM_RULE = meta.bindings[0].upstreamRule;
 
 // Sass-specific value annotations that are only valid in .scss / .sass files
 const SASS_ANNOTATIONS = new Set(['!default', '!global']);

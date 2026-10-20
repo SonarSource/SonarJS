@@ -18,8 +18,9 @@
 import stylelint, { type PostcssResult } from 'stylelint';
 import type PostCSS from 'postcss';
 import postcssValueParser from 'postcss-value-parser';
+import { meta } from './meta.js';
 
-const ruleName = 'sonar/font-display-non-blocking';
+const ruleName = meta.bindings[0].stylelintKey;
 
 const BLOCKING_VALUES = new Set(['auto', 'block']);
 const REGEX_PATTERN = /^\/(?<source>.+)\/(?<flags>[a-z]*)$/;

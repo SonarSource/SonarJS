@@ -15,13 +15,14 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import path from 'node:path';
+import { meta } from './meta.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { StylelintRuleTester } from '../../../../tests/css/tools/tester/tester.js';
 import { LinterWrapper } from '../../linter/wrapper.js';
 import { normalizeToAbsolutePath } from '../../../../../shared/src/helpers/files.js';
 
-const RULE = 'sonar/declaration-property-value-no-unknown';
+const RULE = meta.bindings[0].stylelintKey;
 const ruleTester = new StylelintRuleTester(RULE);
 const vuePath = normalizeToAbsolutePath(path.join(import.meta.dirname, 'component.vue'));
 

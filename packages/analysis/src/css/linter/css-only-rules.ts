@@ -28,13 +28,6 @@
  * Filtering (transform.ts): warnings produced on HTML/Vue files are dropped
  * when the offending position falls inside a non-CSS embedded block.
  *
- * Each CSS-only rule branch adds its stylelint key here.
+ * Rule metadata supplies this set for both routing and warning filtering.
  */
-export const cssOnlyRuleKeys = new Set<string>([
-  'at-rule-no-unknown',
-  'at-rule-descriptor-no-unknown',
-  'at-rule-descriptor-value-no-unknown',
-  'at-rule-prelude-no-invalid',
-  'sonar/declaration-property-value-no-unknown',
-  'sonar/function-no-unknown',
-]);
+export { cssOnlyRuleKeys } from '../rules/metadata.js';

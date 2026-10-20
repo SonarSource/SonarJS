@@ -17,6 +17,7 @@
 import { listRulesDir } from './helpers.js';
 import { generateMetaForRule } from './generate-eslint-meta.js';
 import { updateIndexes } from './generate-rule-indexes.js';
+import { updateCssRuleIndexes } from './generate-css-rule-indexes.js';
 
 /**
  * Generate packages/analysis/src/jsts/rules/SXXXX/generated-meta.ts on each rule
@@ -26,3 +27,4 @@ for (const file of await listRulesDir()) {
   await generateMetaForRule(file);
 }
 await updateIndexes();
+await updateCssRuleIndexes();
