@@ -21,6 +21,18 @@ on:
         description: Build run containing generated results; required when ruling-failed is true
         required: false
         type: string
+      results-artifact-name:
+        description: Name of the generated ruling results artifact
+        required: false
+        type: string
+      run-attempt:
+        description: Attempt number of the build run containing generated results
+        required: false
+        type: number
+      target-ref:
+        description: Target branch or ref for the ruling run
+        required: false
+        type: string
       ruling-failed:
         description: Download and apply generated results from the build run
         required: false
