@@ -68,7 +68,7 @@ describe('bundled dependency SBOM validation', () => {
   it('rejects a BOM containing only the alias directory name', () => {
     assert.throws(
       () => validate(['compiler-alias']),
-      /npm BOM omits packages bundled by esbuild:\ntypescript/,
+      /npm BOM omits packages bundled by esbuild:\r?\ntypescript/,
     );
   });
 
