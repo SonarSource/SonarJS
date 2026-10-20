@@ -159,7 +159,7 @@ do not load local plugin implementations.
 
 ## Verify changes
 
-Run `npm run test:rule-tools` for scaffolding and generation tests. Run the relevant
-CSS rule and linter tests through the normal bridge test workflow. Changes to the
-integration should also preserve Java configuration, CSS ruling results, and the
-bridge bundle. Repeating generation must produce identical output.
+Run the CSS registry checks and the relevant CSS rule and linter tests through the
+normal bridge test workflow. Changes to the integration should also preserve Java
+configuration, CSS ruling results, and the bridge bundle. Repeating generation
+must produce identical output.

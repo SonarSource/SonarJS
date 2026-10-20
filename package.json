@@ -6,7 +6,6 @@
     "format": "prettier --write .",
     "check-format": "prettier --list-different .",
     "new-rule": "tsx tools/new-rule.mts",
-    "test:rule-tools": "node --import tsx --test tools/tests/css-rule-tools.test.ts",
     "generate-meta": "tsx tools/generate-meta.ts",
     "rspec:refresh": "mvn -q -ntp -N -P rspec-refresh -DskipTests process-resources",
     "validate-quickfix": "tsx tools/validate-quickfix.ts",
