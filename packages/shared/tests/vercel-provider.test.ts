@@ -80,3 +80,39 @@ it('uses Vercel in process, preserves host overlays and denies implicit disk rea
     },
   );
 });
+
+it('allows released programs and their default-library ASTs to be collected', () => {
+  execFileSync(
+    process.execPath,
+    [
+      '--expose-gc',
+      '--input-type=commonjs',
+      '-e',
+      String.raw`
+    const assert = require('node:assert/strict');
+    const ts = require('./packages/typescript/index.cjs');
+    async function check() {
+      const reference = (() => {
+        const name = process.cwd().replaceAll('\\', '/') + '/virtual-provider-lifetime.ts';
+        const host = ts.createCompilerHost({});
+        const readFile = host.readFile.bind(host), fileExists = host.fileExists.bind(host);
+        host.readFile = file => file === name ? 'export const value = 1;' : readFile(file);
+        host.fileExists = file => file === name || fileExists(file);
+        const program = ts.createProgram([name], {}, host);
+        program.getSourceFiles();
+        return new WeakRef(program.getSourceFile(name));
+      })();
+      // Yield between collections so WeakRef's current-job keepalive has expired.
+      for (let attempt = 0; attempt < 12; attempt++) {
+        await new Promise(setImmediate);
+        global.gc();
+        await new Promise(setImmediate);
+      }
+      assert.equal(reference.deref(), undefined, 'global compiler caches retained a released program');
+    }
+    check().catch(error => { console.error(error); process.exitCode = 1; });
+  `,
+    ],
+    { env: { ...process.env, SONARJS_TYPESCRIPT_BACKEND: 'vercel' }, stdio: 'pipe' },
+  );
+});

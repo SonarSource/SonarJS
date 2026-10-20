@@ -31,6 +31,10 @@ import * as operators from 'tsc-ts-source/packages/tsc-ts/src/compiler/checker-t
 import * as builder from 'tsc-ts-source/packages/tsc-ts/src/compiler/node-builder.ts';
 import { scanTokens } from 'tsc-ts-source/packages/tsc-ts/src/compiler/astnav.ts';
 export { CheckFlags, diagnosticOf };
+// Every program currently reparses its libraries. Do not let the compiler's
+// process-global sharing cache retain their ASTs and adapter closures forever.
+// Existing checkers keep their own globals and remain usable.
+export const releaseLibraryGlobals = program => symbols.dropLibGlobals(program.getSourceFiles());
 export const getFirstToken = nav.getFirstToken;
 export const getLastToken = nav.getLastToken;
 

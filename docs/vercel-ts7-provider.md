@@ -50,6 +50,9 @@ Changing the pin requires revalidating those private interfaces and source patch
 - Existing SonarJS program caches retain unchanged programs. A changed program is
   rebuilt, rather than reusing semantic views across generations. Existing references
   to an older program stay valid. This draft does not implement TS7 incremental builders.
+  The port's process-global default-library sharing cache is released after checker
+  creation and diagnostics; each checker retains its own globals. This permits garbage
+  collection of abandoned program views without disposing objects a caller still holds.
 - Unsupported compiler operations and adapter failures raise `CompilerContractError`.
   They cannot silently select the TS6 parser/checker or trigger Babel fallback.
   Upstream project-service compatibility is tested separately in a TS6 child process;

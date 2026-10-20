@@ -92,10 +92,17 @@ export function createProgram(input, options, host) {
     options: input.options,
     host: adaptHost(callbacks, input.host ? input.rootNames : [], input.options),
   });
+  const query = invoke => {
+    try {
+      return invoke();
+    } finally {
+      api.releaseLibraryGlobals(raw);
+    }
+  };
   const nodes = createNativeNodeAdapter({
     getSyntacticDiagnostics: file => raw.getSyntacticDiagnostics(raw.getSourceFile(file)),
   });
-  const nativeChecker = api.completeChecker(raw.getTypeChecker());
+  const nativeChecker = api.completeChecker(query(() => raw.getTypeChecker()));
   const types = createNativeTypeAdapter({ checker: nativeChecker, nodeAdapter: nodes });
   const checker = createNativeChecker({
     checker: nativeChecker,
@@ -110,9 +117,11 @@ export function createProgram(input, options, host) {
   };
   checker.getSuggestionDiagnostics = file =>
     compilerCall('getSuggestionDiagnostics', () =>
-      raw
-        .getSuggestionDiagnostics(nodes.unwrapNode(file))
-        .map(d => toClassicDiagnostic(d, getSourceFile)),
+      query(() =>
+        raw
+          .getSuggestionDiagnostics(nodes.unwrapNode(file))
+          .map(d => toClassicDiagnostic(d, getSourceFile)),
+      ),
     );
   const program = {
     getSourceFile,
@@ -143,7 +152,9 @@ export function createProgram(input, options, host) {
     getDeclarationDiagnostics: 'getDeclarationDiagnostics',
   })) {
     program[name] = file =>
-      raw[target](file && nodes.unwrapNode(file)).map(d => toClassicDiagnostic(d, getSourceFile));
+      query(() =>
+        raw[target](file && nodes.unwrapNode(file)).map(d => toClassicDiagnostic(d, getSourceFile)),
+      );
   }
   return compilerMethods(program, 'Program');
 }
