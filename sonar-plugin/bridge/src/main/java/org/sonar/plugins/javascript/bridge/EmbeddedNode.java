@@ -34,6 +34,7 @@ import java.util.Locale;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.scanner.ResourceFetcher;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.plugins.javascript.nodejs.NodeVersion;
 import org.sonar.plugins.javascript.nodejs.ProcessWrapper;
@@ -48,6 +49,7 @@ import org.tukaani.xz.XZInputStream;
 public class EmbeddedNode {
 
   public static final String VERSION_FILENAME = "version.txt";
+  private static final String PLUGIN_KEY = "javascript";
   private static final String DEPLOY_LOCATION = Path.of("js", "node-runtime").toString();
   private static final long EXTRACTION_LOCK_WAIT_TIME_MILLIS = 10000;
   private static final Logger LOG = LoggerFactory.getLogger(EmbeddedNode.class);
@@ -55,6 +57,7 @@ public class EmbeddedNode {
   private final Platform platform;
   private final Environment env;
   private final ProcessWrapper processWrapper;
+  private final ResourceFetcher resourceFetcher;
   private boolean isAvailable;
 
   enum Platform {
@@ -90,6 +93,38 @@ public class EmbeddedNode {
      */
     String versionPathInJar() {
       return pathInJar() + VERSION_FILENAME;
+    }
+
+    /**
+     * Resource paths for {@link ResourceFetcher#fetch}, relative to the resources directory of the on-demand
+     * resources ZIP (JS-2714 / SC-49784). Unlike {@link #archivePathInJar()}/{@link #versionPathInJar()}, the
+     * compressed binary (but not {@code version.txt}) sits under a {@code bin/} folder on every platform except
+     * Windows - that mirrors the layout of the unpacked {@code nodejs-runtime} artifact
+     * ({@code target/downloads/runtimes/<platform>/...}), which the ZIP's {@code resources/} folder copies
+     * verbatim.
+     */
+    String archiveResourcePath() {
+      return switch (this) {
+        case WIN_X64 -> "win-x64/node.exe.xz";
+        case LINUX_ARM64 -> "linux-arm64/bin/node.xz";
+        case LINUX_X64 -> "linux-x64/bin/node.xz";
+        case LINUX_X64_MUSL -> "linux-x64-musl/bin/node.xz";
+        case DARWIN_ARM64 -> "darwin-arm64/bin/node.xz";
+        case DARWIN_X64 -> "darwin-x64/bin/node.xz";
+        default -> "";
+      };
+    }
+
+    String versionResourcePath() {
+      return switch (this) {
+        case WIN_X64 -> "win-x64/" + VERSION_FILENAME;
+        case LINUX_ARM64 -> "linux-arm64/" + VERSION_FILENAME;
+        case LINUX_X64 -> "linux-x64/" + VERSION_FILENAME;
+        case LINUX_X64_MUSL -> "linux-x64-musl/" + VERSION_FILENAME;
+        case DARWIN_ARM64 -> "darwin-arm64/" + VERSION_FILENAME;
+        case DARWIN_X64 -> "darwin-x64/" + VERSION_FILENAME;
+        default -> "";
+      };
     }
 
     /**
@@ -132,11 +167,44 @@ public class EmbeddedNode {
     }
   }
 
+  /**
+   * Used on the SonarLint side, where {@link ResourceFetcher} isn't available: the embedded runtime is only ever
+   * looked up on the classpath there, exactly as before.
+   */
   public EmbeddedNode(ProcessWrapper processWrapper, Environment env) {
+    this(processWrapper, env, null);
+  }
+
+  /**
+   * Used on the scanner side: the embedded runtime is fetched on demand through {@code resourceFetcher} instead of
+   * being read off the classpath, since it is no longer bundled in the plugin JAR (JS-2714 / SC-49784).
+   */
+  public EmbeddedNode(
+    ProcessWrapper processWrapper,
+    Environment env,
+    ResourceFetcher resourceFetcher
+  ) {
     this.platform = Platform.detect(env);
     this.deployLocation = runtimeCachePathFrom(env.getSonarUserHome());
     this.env = env;
     this.processWrapper = processWrapper;
+    this.resourceFetcher = resourceFetcher;
+  }
+
+  /**
+   * Opens a resource, either fetched on demand through {@link #resourceFetcher} (scanner side) or read directly
+   * off the classpath (SonarLint side, or any legacy plugin JAR that still bundles the runtime).
+   *
+   * @param pathInJar classpath form, as returned by {@link Platform#archivePathInJar()} or
+   *          {@link Platform#versionPathInJar()} - used only when {@link #resourceFetcher} is {@code null}
+   * @param resourcePath on-demand-resources form, as returned by {@link Platform#archiveResourcePath()} or
+   *          {@link Platform#versionResourcePath()} - used only when {@link #resourceFetcher} is set
+   */
+  private InputStream openResource(String pathInJar, String resourcePath) throws IOException {
+    if (resourceFetcher != null) {
+      return Files.newInputStream(resourceFetcher.fetch(PLUGIN_KEY, resourcePath));
+    }
+    return getClass().getResourceAsStream(pathInJar);
   }
 
   /**
@@ -171,7 +239,7 @@ public class EmbeddedNode {
       return;
     }
     try {
-      var is = getClass().getResourceAsStream(platform.archivePathInJar());
+      var is = openResource(platform.archivePathInJar(), platform.archiveResourcePath());
 
       if (is == null) {
         if (LOG.isDebugEnabled()) {
@@ -191,7 +259,7 @@ public class EmbeddedNode {
         targetVersion
       );
       // we assume that since the archive exists, the version file must as well
-      var versionIs = getClass().getResourceAsStream(platform.versionPathInJar());
+      var versionIs = openResource(platform.versionPathInJar(), platform.versionResourcePath());
 
       if (Files.exists(targetVersion) && !isDifferent(versionIs, targetVersion)) {
         LOG.debug("Skipping node deploy. Deployed node has latest version.");
@@ -264,7 +332,7 @@ public class EmbeddedNode {
         try {
           LOG.debug("Lock acquired for extraction");
           extract(source, targetRuntime);
-          var versionIs = getClass().getResourceAsStream(platform.versionPathInJar());
+          var versionIs = openResource(platform.versionPathInJar(), platform.versionResourcePath());
           Files.copy(versionIs, deployLocation.resolve(VERSION_FILENAME), REPLACE_EXISTING);
         } finally {
           lock.release();
