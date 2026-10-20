@@ -18,3 +18,4 @@
 export const implementation = 'external';
 export const eslintId = 'prefer-standalone';
 export const externalPlugin = '@angular-eslint';
+export const quickFixMessage = 'Remove redundant standalone declaration';
