@@ -25,9 +25,6 @@
 28,
 37
 ],
-"postgraphql:src/postgraphql/http/__tests__/createPostGraphQLHttpRequestHandler-test.js": [
-479
-],
 "postgraphql:src/postgraphql/schema/auth/__tests__/getJwtGqlType-test.js": [
 11
 ],

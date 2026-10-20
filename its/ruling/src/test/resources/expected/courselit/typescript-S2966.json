@@ -44,21 +44,7 @@
 32,
 40
 ],
-"courselit:apps/web/pages/api/payment/initiate.ts": [
-48,
-55,
-55,
-64,
-65,
-75,
-77,
-81,
-83
-],
 "courselit:apps/web/pages/api/payment/verify.ts": [
 47
-],
-"courselit:apps/web/pages/api/payment/webhook.ts": [
-31
 ]
 }

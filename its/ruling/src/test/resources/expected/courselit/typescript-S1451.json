@@ -167,9 +167,6 @@
 "courselit:apps/web/config/strings.ts": [
 0
 ],
-"courselit:apps/web/graphql/courses/helpers.ts": [
-0
-],
 "courselit:apps/web/graphql/courses/index.ts": [
 0
 ],
@@ -245,13 +242,7 @@
 "courselit:apps/web/graphql/menus/types.ts": [
 0
 ],
-"courselit:apps/web/graphql/settings/helpers.ts": [
-0
-],
 "courselit:apps/web/graphql/settings/index.ts": [
-0
-],
-"courselit:apps/web/graphql/settings/logic.ts": [
 0
 ],
 "courselit:apps/web/graphql/settings/mutation.ts": [
@@ -395,13 +386,7 @@
 "courselit:apps/web/pages/api/media/presigned.ts": [
 0
 ],
-"courselit:apps/web/pages/api/payment/initiate.ts": [
-0
-],
 "courselit:apps/web/pages/api/payment/verify.ts": [
-0
-],
-"courselit:apps/web/pages/api/payment/webhook.ts": [
 0
 ],
 "courselit:apps/web/pages/course/[id]/[slug].tsx": [
@@ -458,13 +443,7 @@
 "courselit:apps/web/pages/tag/[tag].tsx": [
 0
 ],
-"courselit:apps/web/payments/index.ts": [
-0
-],
 "courselit:apps/web/payments/payment.ts": [
-0
-],
-"courselit:apps/web/payments/stripe-payment.ts": [
 0
 ],
 "courselit:apps/web/services/db.ts": [

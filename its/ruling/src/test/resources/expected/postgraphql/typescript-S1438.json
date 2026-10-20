@@ -336,41 +336,6 @@
 56,
 58
 ],
-"postgraphql:src/graphql/schema/node/createNodeFieldEntry.ts": [
-1,
-2,
-3,
-4,
-5,
-6,
-7,
-11,
-22,
-23,
-26,
-32,
-37,
-40,
-43,
-44,
-47,
-49,
-53,
-58,
-60,
-62
-],
-"postgraphql:src/graphql/schema/node/getNodeInterfaceType.ts": [
-1,
-2,
-3,
-4,
-6,
-8,
-10,
-13,
-24
-],
 "postgraphql:src/graphql/schema/type/aliasGqlType.ts": [
 1,
 4,
@@ -1590,15 +1555,6 @@
 145,
 157,
 161
-],
-"postgraphql:src/postgres/inventory/pgClientFromContext.ts": [
-3,
-5,
-13,
-15,
-18,
-21,
-23
 ],
 "postgraphql:src/postgres/inventory/type/PgAliasType.ts": [
 1,

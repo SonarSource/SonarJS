@@ -56,12 +56,6 @@
 "postgraphql:src/graphql/schema/getQueryGqlType.ts": [
 0
 ],
-"postgraphql:src/graphql/schema/node/createNodeFieldEntry.ts": [
-0
-],
-"postgraphql:src/graphql/schema/node/getNodeInterfaceType.ts": [
-0
-],
 "postgraphql:src/graphql/schema/type/aliasGqlType.ts": [
 0
 ],

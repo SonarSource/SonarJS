@@ -86,9 +86,6 @@
 "ant-design:components/breadcrumb/Breadcrumb.tsx": [
 48
 ],
-"ant-design:components/button/__tests__/delay-timer.test.tsx": [
-26
-],
 "ant-design:components/button/button.tsx": [
 37,
 50,

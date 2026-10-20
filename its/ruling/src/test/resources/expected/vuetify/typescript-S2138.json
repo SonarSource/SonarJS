@@ -3,15 +3,6 @@
 77,
 78
 ],
-"vuetify:packages/api-generator/src/web-types.ts": [
-36,
-66,
-78,
-94,
-97,
-104,
-119
-],
 "vuetify:packages/vuetify/src/components/VAppBar/VAppBar.tsx": [
 88
 ],

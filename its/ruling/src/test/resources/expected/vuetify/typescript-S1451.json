@@ -5,9 +5,6 @@
 "vuetify:packages/api-generator/src/helpers/text.ts": [
 0
 ],
-"vuetify:packages/api-generator/src/index.ts": [
-0
-],
 "vuetify:packages/api-generator/src/types.ts": [
 0
 ],
@@ -15,9 +12,6 @@
 0
 ],
 "vuetify:packages/api-generator/src/vetur.ts": [
-0
-],
-"vuetify:packages/api-generator/src/web-types.ts": [
 0
 ],
 "vuetify:packages/api-generator/src/worker.ts": [
@@ -270,12 +264,6 @@
 0
 ],
 "vuetify:packages/vuetify/src/components/VCounter/index.ts": [
-0
-],
-"vuetify:packages/vuetify/src/components/VData/index.ts": [
-0
-],
-"vuetify:packages/vuetify/src/components/VDataIterator/index.ts": [
 0
 ],
 "vuetify:packages/vuetify/src/components/VDatePicker/index.ts": [

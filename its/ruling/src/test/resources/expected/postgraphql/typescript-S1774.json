@@ -33,9 +33,6 @@
 "postgraphql:src/graphql/schema/getQueryGqlType.ts": [
 32
 ],
-"postgraphql:src/graphql/schema/node/getNodeInterfaceType.ts": [
-17
-],
 "postgraphql:src/graphql/schema/type/getGqlInputType.ts": [
 62,
 76,

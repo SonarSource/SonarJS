@@ -599,9 +599,6 @@
 "ant-design:components/typography/Typography.tsx": [
 3
 ],
-"ant-design:components/typography/__tests__/copy.test.tsx": [
-3
-],
 "ant-design:components/typography/hooks/useMergedConfig.ts": [
 1
 ],

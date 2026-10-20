@@ -1,12 +1,6 @@
 {
-"ant-design:components/avatar/__tests__/Avatar.test.js": [
-164
-],
 "ant-design:components/carousel/__tests__/index.test.js": [
 87
-],
-"ant-design:components/checkbox/__tests__/group.test.js": [
-63
 ],
 "ant-design:components/collapse/__tests__/index.test.js": [
 143
@@ -23,19 +17,12 @@
 "ant-design:components/dropdown/__tests__/dropdown-button.test.js": [
 31
 ],
-"ant-design:components/input/__tests__/textarea.test.js": [
-348,
-359
-],
 "ant-design:components/layout/__tests__/index.test.js": [
 288
 ],
 "ant-design:components/locale-provider/__tests__/index.test.js": [
 212,
 238
-],
-"ant-design:components/menu/__tests__/index.test.js": [
-325
 ],
 "ant-design:components/modal/__tests__/confirm.test.js": [
 22,
@@ -66,52 +53,6 @@
 "ant-design:components/slider/__tests__/index.test.js": [
 107,
 112
-],
-"ant-design:components/table/__tests__/Table.filter.test.js": [
-63,
-297,
-433,
-662,
-679,
-721,
-1023,
-1109,
-2276
-],
-"ant-design:components/table/__tests__/Table.pagination.test.js": [
-44
-],
-"ant-design:components/table/__tests__/Table.rowSelection.test.js": [
-45,
-53,
-69,
-670,
-821,
-837,
-899
-],
-"ant-design:components/table/__tests__/Table.sorter.test.js": [
-44
-],
-"ant-design:components/table/__tests__/Table.test.js": [
-211,
-233,
-236
-],
-"ant-design:components/tooltip/__tests__/tooltip.test.js": [
-357
-],
-"ant-design:components/upload/__tests__/upload.test.js": [
-339,
-877
-],
-"ant-design:components/upload/__tests__/uploadlist.test.js": [
-101,
-440,
-1391,
-1431,
-1455,
-1495
 ],
 "ant-design:index-style-only.js": [
 8

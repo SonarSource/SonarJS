@@ -2,29 +2,6 @@
 "ant-design:components/message/__tests__/index.test.js": [
 230
 ],
-"ant-design:components/table/__tests__/Table.filter.test.js": [
-1124
-],
-"ant-design:components/table/__tests__/Table.pagination.test.js": [
-575
-],
-"ant-design:components/table/__tests__/Table.rowSelection.test.js": [
-542,
-567,
-593,
-1373,
-1405,
-1446,
-1631
-],
-"ant-design:components/upload/__tests__/upload.test.js": [
-56,
-133,
-189,
-217,
-749,
-791
-],
 "ant-design:scripts/check-site.js": [
 27
 ],

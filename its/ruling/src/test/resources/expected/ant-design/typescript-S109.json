@@ -29,29 +29,6 @@
 "ant-design:components/anchor/Anchor.tsx": [
 258
 ],
-"ant-design:components/anchor/__tests__/Anchor.test.tsx": [
-412,
-419,
-420,
-426,
-427,
-477,
-483,
-484,
-489,
-490,
-587,
-593,
-594,
-599,
-600,
-656,
-657,
-662,
-663,
-667,
-668
-],
 "ant-design:components/avatar/avatar.tsx": [
 124,
 161
@@ -61,18 +38,6 @@
 87,
 88,
 90
-],
-"ant-design:components/button/__tests__/delay-timer.test.tsx": [
-85
-],
-"ant-design:components/button/__tests__/index.test.tsx": [
-254,
-257
-],
-"ant-design:components/button/__tests__/wave.test.tsx": [
-29,
-31,
-88
 ],
 "ant-design:components/config-provider/cssVariables.tsx": [
 31,
@@ -102,15 +67,6 @@
 101,
 102
 ],
-"ant-design:components/input/__tests__/focus.test.tsx": [
-48,
-48,
-57
-],
-"ant-design:components/input/__tests__/index.test.tsx": [
-117,
-118
-],
 "ant-design:components/modal/ConfirmDialog.tsx": [
 58
 ],
@@ -131,26 +87,8 @@
 "ant-design:components/progress/Steps.tsx": [
 24
 ],
-"ant-design:components/segmented/__tests__/index.test.tsx": [
-118
-],
 "ant-design:components/statistic/Countdown.tsx": [
 8
-],
-"ant-design:components/statistic/__tests__/index.test.tsx": [
-30,
-32,
-57,
-58,
-58,
-59,
-59,
-60,
-61,
-87,
-87,
-87,
-87
 ],
 "ant-design:components/statistic/utils.tsx": [
 27,
@@ -172,9 +110,6 @@
 "ant-design:components/typography/Title.tsx": [
 7,
 7
-],
-"ant-design:components/typography/__tests__/copy.test.tsx": [
-247
 ],
 "ant-design:components/upload/UploadList/ListItem.tsx": [
 81

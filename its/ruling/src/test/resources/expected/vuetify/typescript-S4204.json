@@ -1,7 +1,4 @@
 {
-"vuetify:packages/api-generator/src/index.ts": [
-157
-],
 "vuetify:packages/api-generator/src/types.ts": [
 469,
 473
@@ -18,13 +15,6 @@
 133,
 133,
 135
-],
-"vuetify:packages/api-generator/src/web-types.ts": [
-33,
-40,
-44,
-60,
-101
 ],
 "vuetify:packages/api-generator/src/worker.ts": [
 18,

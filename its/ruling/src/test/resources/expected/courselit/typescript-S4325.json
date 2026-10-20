@@ -12,9 +12,5 @@
 ],
 "courselit:apps/web/components/public/code-injector.tsx": [
 37
-],
-"courselit:apps/web/pages/api/payment/initiate.ts": [
-55,
-65
 ]
 }

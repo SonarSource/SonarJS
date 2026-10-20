@@ -3,37 +3,8 @@
 201,
 274
 ],
-"ant-design:components/alert/__tests__/index.test.tsx": [
-38,
-127,
-144
-],
 "ant-design:components/anchor/Anchor.tsx": [
 27
-],
-"ant-design:components/anchor/__tests__/Anchor.test.tsx": [
-35,
-40,
-61,
-78,
-79,
-118,
-228,
-317,
-533,
-540,
-603,
-734,
-736
-],
-"ant-design:components/anchor/__tests__/cached-context.test.tsx": [
-42,
-44,
-46,
-48,
-49,
-50,
-52
 ],
 "ant-design:components/avatar/avatar.tsx": [
 233
@@ -43,17 +14,6 @@
 ],
 "ant-design:components/badge/index.tsx": [
 63
-],
-"ant-design:components/button/__tests__/index.test.tsx": [
-157,
-181,
-207,
-327
-],
-"ant-design:components/button/__tests__/wave.test.tsx": [
-83,
-87,
-99
 ],
 "ant-design:components/button/button.tsx": [
 171
@@ -100,33 +60,6 @@
 170,
 209
 ],
-"ant-design:components/input/__tests__/focus.test.tsx": [
-62
-],
-"ant-design:components/input/__tests__/index.test.tsx": [
-61,
-80,
-81,
-82,
-102,
-103,
-104,
-231,
-232,
-235,
-287,
-290,
-325,
-339,
-349,
-378,
-379,
-380,
-381,
-382,
-405,
-408
-],
 "ant-design:components/layout/Sider.tsx": [
 122
 ],
@@ -154,12 +87,6 @@
 "ant-design:components/slider/SliderTooltip.tsx": [
 15
 ],
-"ant-design:components/statistic/__tests__/index.test.tsx": [
-123,
-125,
-135,
-137
-],
 "ant-design:components/table/ExpandIcon.tsx": [
 27
 ],
@@ -181,12 +108,6 @@
 "ant-design:components/time-picker/index.tsx": [
 72,
 74
-],
-"ant-design:components/transfer/__tests__/dropdown.test.tsx": [
-54,
-70,
-104,
-131
 ],
 "ant-design:components/transfer/list.tsx": [
 282,

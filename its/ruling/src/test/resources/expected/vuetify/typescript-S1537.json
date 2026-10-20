@@ -2,15 +2,6 @@
 "vuetify:packages/api-generator/src/helpers/sass.ts": [
 16
 ],
-"vuetify:packages/api-generator/src/index.ts": [
-27,
-30,
-33,
-36,
-41,
-52,
-77
-],
 "vuetify:packages/api-generator/src/types.ts": [
 5,
 46,
@@ -33,24 +24,6 @@
 20,
 21,
 29
-],
-"vuetify:packages/api-generator/src/web-types.ts": [
-28,
-40,
-49,
-56,
-68,
-76,
-86,
-87,
-97,
-106,
-113,
-127,
-131,
-148,
-149,
-150
 ],
 "vuetify:packages/docs/build/api-plugin.ts": [
 27,
@@ -913,10 +886,6 @@
 29,
 47,
 56
-],
-"vuetify:packages/vuetify/src/components/VDataIterator/index.ts": [
-8,
-9
 ],
 "vuetify:packages/vuetify/src/components/VDatePicker/index.ts": [
 14,

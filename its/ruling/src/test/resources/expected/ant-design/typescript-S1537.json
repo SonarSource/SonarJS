@@ -105,15 +105,6 @@
 22,
 23
 ],
-"ant-design:components/alert/__tests__/index.test.tsx": [
-33,
-58,
-71,
-107,
-124,
-142,
-152
-],
 "ant-design:components/alert/index.tsx": [
 55,
 62,
@@ -147,44 +138,6 @@
 56,
 58,
 61
-],
-"ant-design:components/anchor/__tests__/Anchor.test.tsx": [
-30,
-38,
-58,
-76,
-94,
-115,
-134,
-154,
-167,
-208,
-225,
-249,
-257,
-271,
-285,
-295,
-314,
-332,
-335,
-353,
-363,
-396,
-408,
-461,
-473,
-512,
-530,
-543,
-572,
-584,
-606,
-640,
-653,
-688,
-713,
-731
 ],
 "ant-design:components/auto-complete/index.tsx": [
 20,
@@ -292,43 +245,6 @@
 "ant-design:components/button/LoadingIcon.tsx": [
 14
 ],
-"ant-design:components/button/__tests__/index.test.tsx": [
-53,
-61,
-62,
-66,
-73,
-74,
-84,
-85,
-94,
-101,
-108,
-127,
-140,
-164,
-205,
-215,
-230,
-241,
-273,
-284,
-294,
-310,
-316,
-325,
-335,
-346
-],
-"ant-design:components/button/__tests__/wave.test.tsx": [
-20,
-38,
-46,
-54,
-62,
-72,
-112
-],
 "ant-design:components/button/button-group.tsx": [
 44,
 46
@@ -371,19 +287,6 @@
 ],
 "ant-design:components/card/Grid.tsx": [
 18
-],
-"ant-design:components/card/__tests__/index.test.tsx": [
-24,
-33,
-42,
-46,
-47,
-53,
-64,
-76,
-77,
-82,
-93
 ],
 "ant-design:components/carousel/index.tsx": [
 43,
@@ -1103,23 +1006,6 @@
 249,
 252,
 264
-],
-"ant-design:components/input/__tests__/focus.test.tsx": [
-20,
-24
-],
-"ant-design:components/input/__tests__/index.test.tsx": [
-51,
-71,
-99,
-140,
-197,
-277,
-308,
-347,
-374,
-375,
-441
 ],
 "ant-design:components/input/__tests__/type.test.tsx": [
 10
@@ -2405,20 +2291,6 @@
 202,
 230
 ],
-"ant-design:components/modal/__tests__/Modal.test.tsx": [
-90
-],
-"ant-design:components/modal/__tests__/hook.test.tsx": [
-39,
-58,
-82,
-94,
-114,
-145,
-149,
-166,
-176
-],
 "ant-design:components/modal/confirm.tsx": [
 74,
 89,
@@ -2569,41 +2441,6 @@
 110,
 116
 ],
-"ant-design:components/segmented/__tests__/index.test.tsx": [
-14,
-21,
-51,
-65,
-67,
-83,
-92,
-100,
-112,
-129,
-146,
-152,
-175,
-179,
-200,
-210,
-219,
-230,
-261,
-265,
-275,
-283,
-306,
-312,
-318,
-324,
-330,
-336,
-346,
-351,
-352,
-354,
-361
-],
 "ant-design:components/segmented/index.tsx": [
 5,
 27,
@@ -2702,17 +2539,6 @@
 52,
 71,
 75
-],
-"ant-design:components/statistic/__tests__/index.test.tsx": [
-39,
-50,
-61,
-65,
-74,
-93,
-105,
-121,
-133
 ],
 "ant-design:components/statistic/utils.tsx": [
 33
@@ -3183,21 +3009,6 @@
 32,
 38
 ],
-"ant-design:components/transfer/__tests__/dropdown.test.tsx": [
-12,
-16,
-20,
-24,
-28,
-29,
-33,
-43,
-85,
-96,
-97,
-120,
-127
-],
 "ant-design:components/transfer/index.tsx": [
 90,
 123,
@@ -3374,36 +3185,6 @@
 32,
 47,
 49
-],
-"ant-design:components/typography/__tests__/copy.test.tsx": [
-25,
-40,
-47,
-57,
-80,
-87,
-116,
-126,
-131,
-140,
-142,
-152,
-162,
-168,
-175,
-180,
-185,
-190,
-196,
-201,
-207,
-218,
-232
-],
-"ant-design:components/typography/__tests__/enter-key-callback.test.tsx": [
-13,
-16,
-20
 ],
 "ant-design:components/typography/hooks/useMergedConfig.ts": [
 5,

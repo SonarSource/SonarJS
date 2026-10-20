@@ -115,20 +115,10 @@
 17,
 20
 ],
-"courselit:apps/web/pages/api/payment/initiate.ts": [
-23,
-23,
-26
-],
 "courselit:apps/web/pages/api/payment/verify.ts": [
 17,
 17,
 20
-],
-"courselit:apps/web/pages/api/payment/webhook.ts": [
-16,
-16,
-19
 ],
 "courselit:apps/web/pages/login.tsx": [
 27

@@ -185,16 +185,6 @@
 54,
 55
 ],
-"postgraphql:src/graphql/schema/node/createNodeFieldEntry.ts": [
-18,
-19,
-61
-],
-"postgraphql:src/graphql/schema/node/getNodeInterfaceType.ts": [
-21,
-22,
-23
-],
 "postgraphql:src/graphql/schema/type/getGqlInputType.ts": [
 8,
 21,

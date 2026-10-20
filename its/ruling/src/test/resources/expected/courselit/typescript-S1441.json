@@ -1271,13 +1271,6 @@
 98,
 99
 ],
-"courselit:apps/web/graphql/courses/helpers.ts": [
-1,
-2,
-3,
-4,
-5
-],
 "courselit:apps/web/graphql/courses/index.ts": [
 1,
 2
@@ -1468,30 +1461,9 @@
 21,
 32
 ],
-"courselit:apps/web/graphql/settings/helpers.ts": [
-1,
-2,
-3,
-4
-],
 "courselit:apps/web/graphql/settings/index.ts": [
 1,
 2
-],
-"courselit:apps/web/graphql/settings/logic.ts": [
-1,
-2,
-3,
-4,
-9,
-10,
-11,
-12,
-13,
-24,
-25,
-26,
-97
 ],
 "courselit:apps/web/graphql/settings/mutation.ts": [
 1,
@@ -1896,24 +1868,6 @@
 12,
 21
 ],
-"courselit:apps/web/pages/api/payment/initiate.ts": [
-1,
-2,
-3,
-4,
-5,
-6,
-7,
-8,
-9,
-10,
-11,
-12,
-13,
-14,
-15,
-27
-],
 "courselit:apps/web/pages/api/payment/verify.ts": [
 1,
 2,
@@ -1928,24 +1882,6 @@
 11,
 12,
 21
-],
-"courselit:apps/web/pages/api/payment/webhook.ts": [
-1,
-2,
-3,
-4,
-5,
-6,
-7,
-8,
-9,
-10,
-11,
-12,
-20,
-49,
-53,
-58
 ],
 "courselit:apps/web/pages/course/[id]/[slug].tsx": [
 1,
@@ -2130,26 +2066,8 @@
 12,
 14
 ],
-"courselit:apps/web/payments/index.ts": [
-1,
-2,
-3,
-4
-],
 "courselit:apps/web/payments/payment.ts": [
 1
-],
-"courselit:apps/web/payments/stripe-payment.ts": [
-1,
-2,
-3,
-4,
-5,
-36,
-44,
-57,
-71,
-72
 ],
 "courselit:apps/web/services/db.ts": [
 1,

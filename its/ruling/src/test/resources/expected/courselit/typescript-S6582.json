@@ -61,15 +61,8 @@
 82,
 219
 ],
-"courselit:apps/web/graphql/courses/helpers.ts": [
-28
-],
 "courselit:apps/web/graphql/lessons/logic.ts": [
 65
-],
-"courselit:apps/web/graphql/settings/logic.ts": [
-97,
-118
 ],
 "courselit:apps/web/graphql/users/logic.ts": [
 35,
@@ -86,9 +79,6 @@
 ],
 "courselit:apps/web/pages/post/[id]/[slug].tsx": [
 51
-],
-"courselit:apps/web/payments/stripe-payment.ts": [
-70
 ],
 "courselit:packages/common-widgets/src/tagged-content/widget.tsx": [
 82

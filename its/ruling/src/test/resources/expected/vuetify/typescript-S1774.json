@@ -5,10 +5,6 @@
 "vuetify:packages/api-generator/src/helpers/text.ts": [
 10
 ],
-"vuetify:packages/api-generator/src/index.ts": [
-52,
-117
-],
 "vuetify:packages/api-generator/src/types.ts": [
 202,
 224,
@@ -26,11 +22,6 @@
 28,
 73,
 121
-],
-"vuetify:packages/api-generator/src/web-types.ts": [
-23,
-65,
-68
 ],
 "vuetify:packages/docs/build/examples-plugin.ts": [
 15

@@ -101,9 +101,6 @@
 "ant-design:components/alert/__tests__/image.test.ts": [
 0
 ],
-"ant-design:components/alert/__tests__/index.test.tsx": [
-0
-],
 "ant-design:components/alert/index.tsx": [
 0
 ],
@@ -114,12 +111,6 @@
 0
 ],
 "ant-design:components/anchor/AnchorLink.tsx": [
-0
-],
-"ant-design:components/anchor/__tests__/Anchor.test.tsx": [
-0
-],
-"ant-design:components/anchor/__tests__/cached-context.test.tsx": [
 0
 ],
 "ant-design:components/anchor/__tests__/demo-extend.test.ts": [
@@ -242,9 +233,6 @@
 "ant-design:components/button/LoadingIcon.tsx": [
 0
 ],
-"ant-design:components/button/__tests__/delay-timer.test.tsx": [
-0
-],
 "ant-design:components/button/__tests__/demo-extend.test.ts": [
 0
 ],
@@ -252,12 +240,6 @@
 0
 ],
 "ant-design:components/button/__tests__/image.test.ts": [
-0
-],
-"ant-design:components/button/__tests__/index.test.tsx": [
-0
-],
-"ant-design:components/button/__tests__/wave.test.tsx": [
 0
 ],
 "ant-design:components/button/button-group.tsx": [
@@ -489,9 +471,6 @@
 0
 ],
 "ant-design:components/card/__tests__/image.test.ts": [
-0
-],
-"ant-design:components/card/__tests__/index.test.tsx": [
 0
 ],
 "ant-design:components/card/__tests__/type.test.tsx": [
@@ -1070,13 +1049,7 @@
 "ant-design:components/input/__tests__/demo-extend.test.ts": [
 0
 ],
-"ant-design:components/input/__tests__/focus.test.tsx": [
-0
-],
 "ant-design:components/input/__tests__/image.test.ts": [
-0
-],
-"ant-design:components/input/__tests__/index.test.tsx": [
 0
 ],
 "ant-design:components/input/__tests__/type.test.tsx": [
@@ -1616,16 +1589,10 @@
 "ant-design:components/modal/Modal.tsx": [
 0
 ],
-"ant-design:components/modal/__tests__/Modal.test.tsx": [
-0
-],
 "ant-design:components/modal/__tests__/demo-extend.test.ts": [
 0
 ],
 "ant-design:components/modal/__tests__/demo.test.ts": [
-0
-],
-"ant-design:components/modal/__tests__/hook.test.tsx": [
 0
 ],
 "ant-design:components/modal/__tests__/image.test.ts": [
@@ -1838,9 +1805,6 @@
 "ant-design:components/segmented/__tests__/image.test.ts": [
 0
 ],
-"ant-design:components/segmented/__tests__/index.test.tsx": [
-0
-],
 "ant-design:components/segmented/index.tsx": [
 0
 ],
@@ -1953,9 +1917,6 @@
 0
 ],
 "ant-design:components/statistic/__tests__/image.test.ts": [
-0
-],
-"ant-design:components/statistic/__tests__/index.test.tsx": [
 0
 ],
 "ant-design:components/statistic/index.tsx": [
@@ -2324,9 +2285,6 @@
 "ant-design:components/transfer/__tests__/demo-extend.test.ts": [
 0
 ],
-"ant-design:components/transfer/__tests__/dropdown.test.tsx": [
-0
-],
 "ant-design:components/transfer/__tests__/image.test.ts": [
 0
 ],
@@ -2420,13 +2378,7 @@
 "ant-design:components/typography/Typography.tsx": [
 0
 ],
-"ant-design:components/typography/__tests__/copy.test.tsx": [
-0
-],
 "ant-design:components/typography/__tests__/demo-extend.test.ts": [
-0
-],
-"ant-design:components/typography/__tests__/enter-key-callback.test.tsx": [
 0
 ],
 "ant-design:components/typography/__tests__/image.test.ts": [

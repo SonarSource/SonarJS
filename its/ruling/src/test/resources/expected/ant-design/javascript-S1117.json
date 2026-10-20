@@ -2,12 +2,6 @@
 "ant-design:components/date-picker/__tests__/RangePicker.test.js": [
 53
 ],
-"ant-design:components/table/__tests__/Table.filter.test.js": [
-434
-],
-"ant-design:components/upload/__tests__/uploadlist.test.js": [
-1141
-],
 "ant-design:scripts/check-version-md.js": [
 7,
 9

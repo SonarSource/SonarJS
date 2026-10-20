@@ -14,9 +14,6 @@
 "courselit:apps/web/pages/_app.tsx": [
 88
 ],
-"courselit:apps/web/pages/api/payment/initiate.ts": [
-37
-],
 "courselit:apps/web/pages/api/payment/verify.ts": [
 31
 ]

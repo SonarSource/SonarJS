@@ -35,19 +35,10 @@
 "ant-design:components/auto-complete/__tests__/focus.test.js": [
 0
 ],
-"ant-design:components/auto-complete/__tests__/index.test.js": [
-0
-],
-"ant-design:components/avatar/__tests__/Avatar.test.js": [
-0
-],
 "ant-design:components/avatar/__tests__/demo.test.js": [
 0
 ],
 "ant-design:components/back-top/__tests__/demo.test.js": [
-0
-],
-"ant-design:components/back-top/__tests__/index.test.js": [
 0
 ],
 "ant-design:components/breadcrumb/__tests__/Breadcrumb.test.js": [
@@ -60,9 +51,6 @@
 0
 ],
 "ant-design:components/calendar/__tests__/demo.test.js": [
-0
-],
-"ant-design:components/calendar/__tests__/index.test.js": [
 0
 ],
 "ant-design:components/card/__tests__/demo.test.js": [
@@ -80,13 +68,7 @@
 "ant-design:components/cascader/__tests__/index.test.js": [
 0
 ],
-"ant-design:components/checkbox/__tests__/checkbox.test.js": [
-0
-],
 "ant-design:components/checkbox/__tests__/demo.test.js": [
-0
-],
-"ant-design:components/checkbox/__tests__/group.test.js": [
 0
 ],
 "ant-design:components/collapse/__tests__/demo.test.js": [
@@ -111,9 +93,6 @@
 0
 ],
 "ant-design:components/config-provider/__tests__/icon.test.js": [
-0
-],
-"ant-design:components/config-provider/__tests__/index.test.js": [
 0
 ],
 "ant-design:components/config-provider/__tests__/locale.test.js": [
@@ -146,9 +125,6 @@
 "ant-design:components/date-picker/__tests__/mount.test.js": [
 0
 ],
-"ant-design:components/date-picker/__tests__/other.test.js": [
-0
-],
 "ant-design:components/date-picker/__tests__/utils.js": [
 0
 ],
@@ -167,12 +143,6 @@
 "ant-design:components/drawer/__tests__/Drawer.test.js": [
 0
 ],
-"ant-design:components/drawer/__tests__/DrawerEvent.test.js": [
-0
-],
-"ant-design:components/drawer/__tests__/MultiDrawer.test.js": [
-0
-],
 "ant-design:components/drawer/__tests__/demo.test.js": [
 0
 ],
@@ -180,9 +150,6 @@
 0
 ],
 "ant-design:components/dropdown/__tests__/dropdown-button.test.js": [
-0
-],
-"ant-design:components/dropdown/__tests__/index.test.js": [
 0
 ],
 "ant-design:components/empty/__tests__/demo.test.js": [
@@ -194,16 +161,7 @@
 "ant-design:components/form/__tests__/demo.test.js": [
 0
 ],
-"ant-design:components/form/__tests__/index.test.js": [
-0
-],
-"ant-design:components/form/__tests__/list.test.js": [
-0
-],
 "ant-design:components/grid/__tests__/demo.test.js": [
-0
-],
-"ant-design:components/grid/__tests__/gap.test.js": [
 0
 ],
 "ant-design:components/grid/__tests__/index.test.js": [
@@ -215,9 +173,6 @@
 "ant-design:components/image/__tests__/demo.test.js": [
 0
 ],
-"ant-design:components/image/__tests__/index.test.js": [
-0
-],
 "ant-design:components/input-number/__tests__/demo.test.js": [
 0
 ],
@@ -227,16 +182,10 @@
 "ant-design:components/input-number/__tests__/prefix.test.js": [
 0
 ],
-"ant-design:components/input/__tests__/Password.test.js": [
-0
-],
 "ant-design:components/input/__tests__/Search.test.js": [
 0
 ],
 "ant-design:components/input/__tests__/demo.test.js": [
-0
-],
-"ant-design:components/input/__tests__/textarea.test.js": [
 0
 ],
 "ant-design:components/layout/__tests__/demo.test.js": [
@@ -260,9 +209,6 @@
 "ant-design:components/list/__tests__/loading.test.js": [
 0
 ],
-"ant-design:components/list/__tests__/pagination.test.js": [
-0
-],
 "ant-design:components/locale-provider/__tests__/config.test.js": [
 0
 ],
@@ -276,9 +222,6 @@
 0
 ],
 "ant-design:components/menu/__tests__/demo.test.js": [
-0
-],
-"ant-design:components/menu/__tests__/index.test.js": [
 0
 ],
 "ant-design:components/message/__tests__/config.test.js": [
@@ -320,13 +263,7 @@
 "ant-design:components/pagination/__tests__/demo.test.js": [
 0
 ],
-"ant-design:components/pagination/__tests__/index.test.js": [
-0
-],
 "ant-design:components/popconfirm/__tests__/demo.test.js": [
-0
-],
-"ant-design:components/popconfirm/__tests__/index.test.js": [
 0
 ],
 "ant-design:components/popover/__tests__/demo.test.js": [
@@ -362,9 +299,6 @@
 "ant-design:components/select/__tests__/demo.test.js": [
 0
 ],
-"ant-design:components/select/__tests__/index.test.js": [
-0
-],
 "ant-design:components/skeleton/__tests__/demo.test.js": [
 0
 ],
@@ -381,9 +315,6 @@
 0
 ],
 "ant-design:components/space/__tests__/gap.test.js": [
-0
-],
-"ant-design:components/space/__tests__/index.test.js": [
 0
 ],
 "ant-design:components/spin/__tests__/delay.test.js": [
@@ -410,25 +341,7 @@
 "ant-design:components/switch/__tests__/wave.test.js": [
 0
 ],
-"ant-design:components/table/__tests__/Table.expand.test.js": [
-0
-],
-"ant-design:components/table/__tests__/Table.filter.test.js": [
-0
-],
 "ant-design:components/table/__tests__/Table.order.test.js": [
-0
-],
-"ant-design:components/table/__tests__/Table.pagination.test.js": [
-0
-],
-"ant-design:components/table/__tests__/Table.rowSelection.test.js": [
-0
-],
-"ant-design:components/table/__tests__/Table.sorter.test.js": [
-0
-],
-"ant-design:components/table/__tests__/Table.test.js": [
 0
 ],
 "ant-design:components/table/__tests__/demo.test.js": [
@@ -438,9 +351,6 @@
 0
 ],
 "ant-design:components/tabs/__tests__/demo.test.js": [
-0
-],
-"ant-design:components/tabs/__tests__/index.test.js": [
 0
 ],
 "ant-design:components/tag/__tests__/demo.test.js": [
@@ -464,9 +374,6 @@
 "ant-design:components/tooltip/__tests__/demo.test.js": [
 0
 ],
-"ant-design:components/tooltip/__tests__/tooltip.test.js": [
-0
-],
 "ant-design:components/transfer/__tests__/customize.test.js": [
 0
 ],
@@ -479,9 +386,6 @@
 "ant-design:components/transfer/__tests__/list.test.js": [
 0
 ],
-"ant-design:components/transfer/__tests__/search.test.js": [
-0
-],
 "ant-design:components/tree-select/__tests__/demo.test.js": [
 0
 ],
@@ -489,9 +393,6 @@
 0
 ],
 "ant-design:components/tree/__tests__/demo.test.js": [
-0
-],
-"ant-design:components/tree/__tests__/directory.test.js": [
 0
 ],
 "ant-design:components/tree/__tests__/index.test.js": [
@@ -503,28 +404,13 @@
 "ant-design:components/typography/__tests__/demo.test.js": [
 0
 ],
-"ant-design:components/typography/__tests__/ellipsis.test.js": [
-0
-],
-"ant-design:components/typography/__tests__/index.test.js": [
-0
-],
 "ant-design:components/upload/__tests__/demo.test.js": [
-0
-],
-"ant-design:components/upload/__tests__/dragger.test.js": [
 0
 ],
 "ant-design:components/upload/__tests__/mock.js": [
 0
 ],
 "ant-design:components/upload/__tests__/requests.js": [
-0
-],
-"ant-design:components/upload/__tests__/upload.test.js": [
-0
-],
-"ant-design:components/upload/__tests__/uploadlist.test.js": [
 0
 ],
 "ant-design:index-style-only.js": [

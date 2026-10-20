@@ -1,10 +1,4 @@
 {
-"ant-design:components/anchor/__tests__/Anchor.test.tsx": [
-27
-],
-"ant-design:components/button/__tests__/index.test.tsx": [
-13
-],
 "ant-design:components/drawer/index.tsx": [
 108
 ],
@@ -17,19 +11,12 @@
 "ant-design:components/result/unauthorized.tsx": [
 3
 ],
-"ant-design:components/segmented/__tests__/index.test.tsx": [
-32
-],
 "ant-design:components/table/hooks/useSelection.tsx": [
 77,
 355
 ],
 "ant-design:components/typography/Base/index.tsx": [
 118
-],
-"ant-design:components/typography/__tests__/copy.test.tsx": [
-9,
-16
 ],
 "ant-design:components/upload/UploadList/ListItem.tsx": [
 74

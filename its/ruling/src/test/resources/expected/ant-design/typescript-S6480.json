@@ -15,15 +15,6 @@
 171,
 206
 ],
-"ant-design:components/anchor/__tests__/Anchor.test.tsx": [
-219,
-346,
-360,
-634,
-646,
-681,
-703
-],
 "ant-design:components/avatar/avatar.tsx": [
 197
 ],
@@ -99,11 +90,6 @@
 200,
 222
 ],
-"ant-design:components/input/__tests__/index.test.tsx": [
-324,
-338,
-395
-],
 "ant-design:components/mentions/index.tsx": [
 140,
 141
@@ -115,13 +101,6 @@
 158,
 164,
 216
-],
-"ant-design:components/modal/__tests__/Modal.test.tsx": [
-83
-],
-"ant-design:components/modal/__tests__/hook.test.tsx": [
-33,
-80
 ],
 "ant-design:components/modal/useModal/HookModal.tsx": [
 60
@@ -142,15 +121,6 @@
 "ant-design:components/rate/index.tsx": [
 28
 ],
-"ant-design:components/segmented/__tests__/index.test.tsx": [
-112,
-128,
-145,
-174,
-228,
-260,
-274
-],
 "ant-design:components/slider/__tests__/type.test.tsx": [
 9,
 9,
@@ -161,9 +131,6 @@
 ],
 "ant-design:components/slider/index.tsx": [
 158
-],
-"ant-design:components/statistic/__tests__/index.test.tsx": [
-149
 ],
 "ant-design:components/steps/index.tsx": [
 89,

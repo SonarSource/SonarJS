@@ -54,19 +54,11 @@
 "ant-design:components/input/Input.tsx": [
 188
 ],
-"ant-design:components/input/__tests__/index.test.tsx": [
-298,
-310,
-354
-],
 "ant-design:components/message/hooks/useMessage.tsx": [
 76
 ],
 "ant-design:components/message/index.tsx": [
 253
-],
-"ant-design:components/modal/__tests__/hook.test.tsx": [
-18
 ],
 "ant-design:components/modal/useModal/index.tsx": [
 39
@@ -81,13 +73,6 @@
 ],
 "ant-design:components/progress/Line.tsx": [
 26
-],
-"ant-design:components/segmented/__tests__/index.test.tsx": [
-25
-],
-"ant-design:components/statistic/__tests__/index.test.tsx": [
-62,
-94
 ],
 "ant-design:components/table/hooks/useFilter/index.tsx": [
 32,
@@ -120,10 +105,6 @@
 ],
 "ant-design:components/tooltip/index.tsx": [
 73
-],
-"ant-design:components/transfer/__tests__/dropdown.test.tsx": [
-98,
-121
 ],
 "ant-design:components/transfer/index.tsx": [
 331

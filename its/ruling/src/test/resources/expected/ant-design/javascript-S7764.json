@@ -13,25 +13,6 @@
 "ant-design:components/_util/__tests__/util.test.js": [
 224
 ],
-"ant-design:components/avatar/__tests__/Avatar.test.js": [
-46,
-47,
-56,
-63,
-64,
-94,
-101,
-102,
-122,
-166,
-185,
-186,
-197
-],
-"ant-design:components/back-top/__tests__/index.test.js": [
-13,
-29
-],
 "ant-design:components/carousel/__tests__/index.test.js": [
 81
 ],
@@ -41,11 +22,6 @@
 ],
 "ant-design:components/config-provider/__tests__/target.test.js": [
 10,
-27
-],
-"ant-design:components/input/__tests__/textarea.test.js": [
-12,
-14,
 27
 ],
 "ant-design:components/message/__tests__/config.test.js": [
@@ -58,48 +34,11 @@
 12,
 12
 ],
-"ant-design:components/table/__tests__/Table.filter.test.js": [
-17,
-17,
-18,
-18
-],
 "ant-design:components/table/__tests__/Table.order.test.js": [
 7,
 7,
 8,
 8
-],
-"ant-design:components/table/__tests__/Table.rowSelection.test.js": [
-9,
-9,
-10,
-10
-],
-"ant-design:components/typography/__tests__/index.test.js": [
-58,
-59,
-75
-],
-"ant-design:components/upload/__tests__/upload.test.js": [
-25,
-26,
-28,
-29,
-916
-],
-"ant-design:components/upload/__tests__/uploadlist.test.js": [
-30,
-31,
-33,
-34,
-38,
-39,
-67,
-85,
-305,
-323,
-1124
 ],
 "ant-design:scripts/previewEditor/template.html": [
 20

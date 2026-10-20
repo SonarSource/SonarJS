@@ -12,14 +12,6 @@
 162,
 182
 ],
-"ant-design:components/modal/__tests__/Modal.test.tsx": [
-80
-],
-"ant-design:components/modal/__tests__/hook.test.tsx": [
-121,
-156,
-185
-],
 "ant-design:components/table/hooks/useFilter/FilterWrapper.tsx": [
 9
 ],
@@ -31,9 +23,6 @@
 ],
 "ant-design:components/typography/Base/index.tsx": [
 371
-],
-"ant-design:components/typography/__tests__/copy.test.tsx": [
-214
 ],
 "ant-design:components/upload/UploadList/ListItem.tsx": [
 189

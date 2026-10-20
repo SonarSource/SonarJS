@@ -184,10 +184,6 @@
 83,
 126
 ],
-"courselit:apps/web/graphql/courses/helpers.ts": [
-21,
-37
-],
 "courselit:apps/web/graphql/courses/logic.ts": [
 56,
 219,
@@ -221,19 +217,6 @@
 "courselit:apps/web/graphql/menus/logic.ts": [
 12,
 57
-],
-"courselit:apps/web/graphql/settings/helpers.ts": [
-28,
-46,
-76
-],
-"courselit:apps/web/graphql/settings/logic.ts": [
-27,
-48,
-75,
-105,
-127,
-134
 ],
 "courselit:apps/web/graphql/settings/mutation.ts": [
 16,
@@ -317,14 +300,6 @@
 ],
 "courselit:apps/web/pages/api/media/presigned.ts": [
 40
-],
-"courselit:apps/web/pages/api/payment/initiate.ts": [
-65,
-77
-],
-"courselit:apps/web/pages/api/payment/webhook.ts": [
-45,
-65
 ],
 "courselit:apps/web/pages/course/[id]/[slug].tsx": [
 17,

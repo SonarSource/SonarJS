@@ -9,32 +9,12 @@
 "ant-design:components/drawer/__tests__/Drawer.test.js": [
 8
 ],
-"ant-design:components/drawer/__tests__/MultiDrawer.test.js": [
-43,
-43
-],
-"ant-design:components/form/__tests__/index.test.js": [
-748,
-793
-],
 "ant-design:components/locale-provider/__tests__/config.test.js": [
 13,
 19
 ],
 "ant-design:components/locale-provider/__tests__/index.test.js": [
 262
-],
-"ant-design:components/pagination/__tests__/index.test.js": [
-56
-],
-"ant-design:components/table/__tests__/Table.filter.test.js": [
-1119,
-1556
-],
-"ant-design:components/upload/__tests__/upload.test.js": [
-256,
-277,
-295
 ],
 "ant-design:site/theme/template/BrowserFrame.jsx": [
 3

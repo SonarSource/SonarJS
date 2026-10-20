@@ -5,16 +5,7 @@
 "vuetify:packages/vuetify/src/components/VCalendar/VCalendar.ts": [
 2
 ],
-"vuetify:packages/vuetify/src/components/VCalendar/VCalendarCategory.ts": [
-2
-],
-"vuetify:packages/vuetify/src/components/VCalendar/VCalendarDaily.ts": [
-2
-],
 "vuetify:packages/vuetify/src/components/VCalendar/VCalendarMonthly.ts": [
-2
-],
-"vuetify:packages/vuetify/src/components/VCalendar/VCalendarWeekly.ts": [
 2
 ],
 "vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-base.ts": [
@@ -54,15 +45,6 @@
 2
 ],
 "vuetify:packages/vuetify/src/components/VCalendar/util/timestamp.ts": [
-2
-],
-"vuetify:packages/vuetify/src/components/VData/VData.ts": [
-2
-],
-"vuetify:packages/vuetify/src/components/VDataIterator/VDataFooter.ts": [
-2
-],
-"vuetify:packages/vuetify/src/components/VDataIterator/VDataIterator.ts": [
 2
 ],
 "vuetify:packages/vuetify/src/components/VDatePicker/VDatePicker.ts": [
@@ -111,9 +93,6 @@
 2
 ],
 "vuetify:packages/vuetify/src/components/VPicker/VPicker.ts": [
-2
-],
-"vuetify:packages/vuetify/src/components/VSkeletonLoader/VSkeletonLoader.ts": [
 2
 ],
 "vuetify:packages/vuetify/src/components/VSparkline/VSparkline.ts": [
