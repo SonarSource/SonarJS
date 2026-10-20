@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@stencil/core": "^4.0.0",
+    "react": "^18.0.0"
+  }
+}

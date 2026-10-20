@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { ASTUtils } from '@angular-eslint/utils';
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
 import type estree from 'estree';
@@ -28,7 +29,7 @@ export interface AngularMetadataOutput {
 }
 
 /** Returns static text from `'refresh'` or `` `refresh` ``, e.g. `outputs: ['refresh']`. */
-function staticText(node: TSESTree.Node | undefined): string | undefined {
+export function staticText(node: TSESTree.Node | undefined): string | undefined {
   if (node && isStringLiteral(node as unknown as estree.Node)) {
     return (node as unknown as estree.Literal).value as string;
   }
@@ -156,6 +157,25 @@ function mappingNode(node: TSESTree.Node): TSESTree.Node {
     : node;
 }
 
+/** Finds the decorator containing a direct `outputs` metadata mapping. */
+function outputMetadataDecorator(node: TSESTree.Node): TSESTree.Decorator | undefined {
+  const array = mappingNode(node).parent;
+  const outputs = array?.parent;
+  const metadata = outputs?.parent;
+  const componentCall = metadata?.parent;
+  const decorator = componentCall?.parent;
+  return array?.type === 'ArrayExpression' &&
+    outputs?.type === 'Property' &&
+    outputs.value === array &&
+    (propertyName(outputs) ?? staticText(outputs.key)) === 'outputs' &&
+    metadata?.type === 'ObjectExpression' &&
+    componentCall?.type === 'CallExpression' &&
+    componentCall.arguments[0] === metadata &&
+    decorator?.type === 'Decorator'
+    ? decorator
+    : undefined;
+}
+
 /** Recognizes the direct metadata entry in `@Component({ outputs: ['onRefresh: refresh'] })`. */
 function isMetadataOutputMapping(context: Rule.RuleContext, node: TSESTree.Node): boolean {
   return getMetadataOutputClass(context, node) !== undefined;
@@ -166,19 +186,9 @@ function getMetadataOutputClass(
   context: Rule.RuleContext,
   node: TSESTree.Node,
 ): TSESTree.ClassDeclaration | undefined {
-  const mapping = mappingNode(node);
-  const array = mapping.parent;
-  const outputs = array?.parent;
-  const metadata = outputs?.parent;
-  const componentCall = metadata?.parent;
-  const decorator = componentCall?.parent;
+  const decorator = outputMetadataDecorator(node);
   const classNode = decorator?.parent;
-  return array?.type === 'ArrayExpression' &&
-    outputs?.type === 'Property' &&
-    propertyName(outputs) === 'outputs' &&
-    metadata?.type === 'ObjectExpression' &&
-    componentCall?.type === 'CallExpression' &&
-    isAngularCoreDecorator(context, decorator, 'Component', 'Directive') &&
+  return isAngularCoreDecorator(context, decorator, 'Component', 'Directive') &&
     classNode?.type === 'ClassDeclaration'
     ? classNode
     : undefined;
@@ -281,7 +291,18 @@ function overridingMemberOutputAlias(
     : null;
 }
 
-/** Reads `refresh` from `outputs: ['onRefresh: refresh']` or a direct `outputs: ['refresh']` entry. */
+/** Reads member and public names from a static output metadata entry. */
+function parseOutputMapping(mapping: string | undefined): [string, string] | undefined {
+  const separator = mapping?.indexOf(':') ?? -1;
+  if (separator === 0 || mapping?.indexOf(':', separator + 1) !== -1) {
+    return undefined;
+  }
+  const internalName = separator === -1 ? mapping?.trim() : mapping?.slice(0, separator).trim();
+  const alias = separator === -1 ? internalName : mapping?.slice(separator + 1).trim();
+  return internalName && alias ? [internalName, alias] : undefined;
+}
+
+/** Reads `refresh` from an already-recognized `onRefresh: refresh` metadata mapping. */
 function outputAliasFromMetadata(
   context: Rule.RuleContext,
   node: TSESTree.Node,
@@ -290,23 +311,70 @@ function outputAliasFromMetadata(
   if (!isMetadataMapping && !isHostDirectiveOutputMapping(context, node)) {
     return undefined;
   }
-  const mapping = staticText(node);
-  const separator = mapping?.indexOf(':') ?? -1;
-  if (separator === 0 || mapping?.indexOf(':', separator + 1) !== -1) {
+  const names = parseOutputMapping(staticText(node));
+  if (!names) {
     return undefined;
   }
-  const internalName = separator === -1 ? mapping?.trim() : mapping?.slice(0, separator).trim();
-  const alias = separator === -1 ? internalName : mapping?.slice(separator + 1).trim();
-  if (!internalName || !alias) {
-    return undefined;
-  }
+  const [internalName, alias] = names;
   const memberAlias = isMetadataMapping
     ? overridingMemberOutputAlias(context, node, internalName)
     : null;
-  return memberAlias === null ? alias : memberAlias;
+  if (memberAlias === undefined) {
+    return undefined;
+  }
+  return memberAlias ?? alias;
 }
 
-/** Returns `publicRefresh` from `refresh = output({ alias: 'publicRefresh' })` or metadata. */
+/** Reads static member and public names from an upstream output-alias report. */
+export function getAngularOutputNames(node: TSESTree.Node): [string, string] | undefined {
+  const text = staticText(node);
+  if (text === undefined) {
+    return undefined;
+  }
+  let alias = mappingNode(node);
+  while (alias.parent?.type === 'TSAsExpression' || alias.parent?.type === 'TSNonNullExpression') {
+    alias = alias.parent;
+  }
+  if (alias.parent?.type === 'ArrayExpression') {
+    const decorator = outputMetadataDecorator(alias);
+    const name = decorator && ASTUtils.getDecoratorName(decorator);
+    return name === 'Component' || name === 'Directive' ? parseOutputMapping(text) : undefined;
+  }
+  if (!isCompleteOutputAlias(alias)) {
+    return undefined;
+  }
+  const member = ASTUtils.getNearestNodeFrom(node, ASTUtils.isPropertyOrMethodDefinition);
+  return member && !member.computed && member.key.type === 'Identifier'
+    ? [member.key.name, text]
+    : undefined;
+}
+
+/** A literal inside a lookup or another expression is not the complete public alias. */
+function isCompleteOutputAlias(node: TSESTree.Node): boolean {
+  const alias = mappingNode(node);
+  const parent = alias.parent;
+  if (parent?.type === 'CallExpression') {
+    return parent.arguments[0] === alias && parent.parent.type === 'Decorator';
+  }
+  if (
+    parent?.type !== 'Property' ||
+    parent.value !== alias ||
+    optionPropertyName(parent) !== 'alias'
+  ) {
+    return false;
+  }
+  const options = parent.parent;
+  const call = options.parent;
+  return (
+    options.type === 'ObjectExpression' &&
+    call.type === 'CallExpression' &&
+    call.arguments[0] === options &&
+    call.parent.type === 'PropertyDefinition' &&
+    call.parent.value === call
+  );
+}
+
+/** Returns the explicit public alias for an Angular output declaration or metadata mapping. */
 export function getAngularOutputAlias(
   context: Rule.RuleContext,
   node: TSESTree.Node,

@@ -332,6 +332,17 @@ export const cssRulesMeta: CssRuleMeta[] = [
     'Comma-separated list of "at-rules" that are allowed to appear before "@import" rules.',
   ),
   simpleRule('S9423', 'sonar/declaration-no-important'),
+  simpleRule('S9424', 'sonar/declaration-property-value-no-unknown'),
+  singleListParamRule(
+    'S9440',
+    'sonar/motion-reduced',
+    listParam(
+      'ignoreSelectors',
+      'ignoreSelectors',
+      'Comma-separated selector strings or /regular-expression/ patterns with verified external reduced-motion safeguards or essential motion.',
+      '',
+    ),
+  ),
   singleListParamRule(
     'S9441',
     'sonar/font-display-non-blocking',
@@ -340,6 +351,17 @@ export const cssRulesMeta: CssRuleMeta[] = [
       'ignoreFontFamilies',
       'Comma-separated list of font families to ignore. Each value can be a string or a regular expression with the syntax /pattern/.',
       '',
+    ),
+  ),
+  simpleRule('S9442', 'sonar/named-grid-areas-no-invalid'),
+  singleListParamRule(
+    'S9448',
+    'sonar/function-no-unknown',
+    listParam(
+      'ignoreFunctions',
+      'ignoreFunctions',
+      'Comma-separated list of function names and/or regular expressions for functions to consider as valid.',
+      'theme',
     ),
   ),
 ];

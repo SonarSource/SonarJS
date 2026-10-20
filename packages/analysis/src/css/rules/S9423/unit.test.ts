@@ -164,6 +164,14 @@ a { color: pink !important; }
         '@-webkit-keyframes fade { from { opacity: 0 !important; } }',
     }));
 
+  it('preserves warnings from a separately configured upstream rule', async (): Promise<void> => {
+    const issues = await lint('@keyframes fade { from { opacity: 0 !important; } }', [
+      RULE,
+      'declaration-no-important',
+    ]);
+    expect(issues.map(({ rule }) => rule)).toEqual(['declaration-no-important']);
+  });
+
   it('leaves !important in keyframes to S4655 when it is enabled', async (): Promise<void> => {
     expect(
       await lint(
