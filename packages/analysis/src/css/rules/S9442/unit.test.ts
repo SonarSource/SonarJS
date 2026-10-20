@@ -110,6 +110,18 @@ describe('S9442 (sonar/named-grid-areas-no-invalid)', (): void => {
       code: 'a { grid-template-areas: "\\61  a" "a a"; }',
     }));
 
+  it('still reports when a row starts with a null cell', (): Promise<void> =>
+    ruleTester.invalid({
+      code: 'a { grid-template-areas: ". a" "a a"; }',
+      errors: [{ text: `${messages.rectangle('a')} (${RULE})`, line: 1, column: 26 }],
+    }));
+
+  it('ignores unsupported syntax inside comments of the value', (): Promise<void> =>
+    ruleTester.invalid({
+      code: 'a { grid-template-areas: "a a" /* "x.y" */ "a b"; }',
+      errors: [{ text: `${messages.rectangle('a')} (${RULE})`, line: 1, column: 26 }],
+    }));
+
   it('still reports area strings in a grid-template with fractional sizes', (): Promise<void> =>
     ruleTester.invalid({
       code: 'a { grid-template: "a a" 1.5fr "a b" 1fr / 1fr 1fr; }',

@@ -1,0 +1,18 @@
+.menu .item { /* Noncompliant: no-break space before ".item" */
+  padding: 8px 16px; /* Noncompliant: no-break space before "16px" */
+  margin:​0; /* Noncompliant: zero-width space */
+  grid-template-areas: "head head"; /* Noncompliant: grid area strings are checked */
+}
+
+.distance::after {
+  content: "10 km"; /* No FP: text inside a string */
+  background: url(a b.png); /* No FP: URL */
+}
+
+.price::before {
+  content: "\a0"; /* No FP: escape sequence */
+}
+
+.separator {
+  margin:0; /* No FP: form feed is CSS whitespace */
+} /* No FP: comment text */
