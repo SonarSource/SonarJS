@@ -333,6 +333,16 @@ export const cssRulesMeta: CssRuleMeta[] = [
   ),
   simpleRule('S9423', 'sonar/declaration-no-important'),
   simpleRule('S9424', 'sonar/declaration-property-value-no-unknown'),
+  singleListParamRule(
+    'S9440',
+    'sonar/motion-reduced',
+    listParam(
+      'ignoreSelectors',
+      'ignoreSelectors',
+      'Comma-separated selector strings or /regular-expression/ patterns with verified external reduced-motion safeguards or essential motion.',
+      '',
+    ),
+  ),
   simpleRule('S9442', 'sonar/named-grid-areas-no-invalid'),
 ];
 
