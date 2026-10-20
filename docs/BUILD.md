@@ -359,9 +359,28 @@ Explicit RSPEC refresh
 
 - compile Java sources
 - run unit tests
-- assemble plugin artifacts
-- run packaging checks
+- assemble plugin artifacts: a single `sonar-javascript-plugin-<version>.jar` (scanner code
+  and the bridge, no embedded Node.js runtime) plus a `sonar-javascript-plugin-<version>.zip`
+  containing that jar under `plugin/` and the per-platform Node.js runtime binaries under
+  `resources/<platform>/...`, built by `sonar-packaging-maven-plugin`'s `zip` goal
+- run packaging checks (jar and zip size enforcement)
 - install artifacts in the local Maven repository
+
+### On-demand resources ZIP (JS-2714 / SC-49784)
+
+`sonar-javascript-plugin` used to ship 6 classified jars (`win-x64`, `linux-x64`,
+`linux-x64-musl`, `darwin-arm64`, `darwin-x64`, `linux-arm64`) plus a `multi` jar bundling every
+platform's Node.js runtime, via `maven-shade-plugin`. Those are gone. The runtime binaries are
+now shipped once, for every platform, inside the `sonar-javascript-plugin-<version>.zip`
+artifact's `resources/` folder, fetched on demand at analysis time through the Plugin API's
+`ResourceFetcher` (see `EmbeddedNode` in the `bridge` module). SonarLint still reads the runtime
+off the classpath directly — `ResourceFetcher` isn't available there, and the `standalone`
+module never bundled the runtime anyway, so this is unchanged for SonarLint.
+
+This requires a local SNAPSHOT of `sonar-packaging-maven-plugin` (`2.1-SNAPSHOT`, the `zip` goal
+from PACKMP-64), installed to the local Maven repo until it's released. `ResourceFetcher`/
+`HostPlatform`/`Os`/`Arch` are already present in the released `sonar-plugin-api:14.2.0.5584`
+(the version this project already depends on), so no plugin-api SNAPSHOT is needed.
 
 ## Notes
 
