@@ -89,7 +89,7 @@
 
     <!-- sonar analysis -->
     <sonar.sources>packages/</sonar.sources>
-    <sonar.exclusions>packages/**/*.test.ts,packages/**/*.fixture.*,packages/**/fixtures/**/*,packages/**/fixtures-*/**/*,packages/grpc/src/proto/*,packages/analysis/src/jsts/parsers/estree.js,packages/analysis/src/jsts/parsers/estree.d.ts,packages/analysis/src/jsts/rules/**/generated-meta.ts,packages/analysis/src/jsts/rules/metas.ts,packages/analysis/src/jsts/rules/plugin-rules.ts,packages/analysis/src/jsts/rules/rules.ts</sonar.exclusions>
+    <sonar.exclusions>packages/analysis/src/jsts/frontend/vendor/**/*,packages/**/*.test.ts,packages/**/*.fixture.*,packages/**/fixtures/**/*,packages/**/fixtures-*/**/*,packages/grpc/src/proto/*,packages/analysis/src/jsts/parsers/estree.js,packages/analysis/src/jsts/parsers/estree.d.ts,packages/analysis/src/jsts/rules/**/generated-meta.ts,packages/analysis/src/jsts/rules/metas.ts,packages/analysis/src/jsts/rules/plugin-rules.ts,packages/analysis/src/jsts/rules/rules.ts</sonar.exclusions>
     <sonar.tests>packages/</sonar.tests>
     <sonar.test.inclusions>packages/**/*.test.ts</sonar.test.inclusions>
     <sonar.javascript.lcov.reportPaths>coverage/js/lcov.info</sonar.javascript.lcov.reportPaths>
@@ -296,6 +296,8 @@
                 <!-- Folders -->
                 <exclude>its/**/*</exclude>
                 <exclude>tsgolint/**/*</exclude>
+                <!-- Adopted sources retain their upstream MIT license. -->
+                <exclude>packages/analysis/src/jsts/frontend/vendor/**/*</exclude>
                 <!-- Generated -->
                 <exclude>**/bin/**/*</exclude>
                 <exclude>**/dist/**/*</exclude>

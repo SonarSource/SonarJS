@@ -1,0 +1,59 @@
+import type { TSESTree } from '../../types/index.js';
+
+import { AST_NODE_TYPES } from '../../types/index.js';
+
+import type { Reference } from '../referencer/Reference.js';
+import type { ScopeManager } from '../ScopeManager.js';
+import type { Variable } from '../variable/index.js';
+import type { Scope } from './Scope.js';
+
+import { ScopeBase } from './ScopeBase.js';
+import { ScopeType } from './ScopeType.js';
+
+export class FunctionScope extends ScopeBase<
+  ScopeType.function,
+  | TSESTree.ArrowFunctionExpression
+  | TSESTree.FunctionDeclaration
+  | TSESTree.FunctionExpression
+  | TSESTree.Program
+  | TSESTree.TSDeclareFunction
+  | TSESTree.TSEmptyBodyFunctionExpression,
+  Scope
+> {
+  constructor(
+    scopeManager: ScopeManager,
+    upperScope: FunctionScope['upper'],
+    block: FunctionScope['block'],
+    isMethodDefinition: boolean,
+  ) {
+    super(scopeManager, ScopeType.function, upperScope, block, isMethodDefinition);
+
+    // section 9.2.13, FunctionDeclarationInstantiation.
+    // NOTE Arrow functions never have an arguments objects.
+    if (this.block.type !== AST_NODE_TYPES.ArrowFunctionExpression) {
+      this.defineVariable('arguments', this.set, this.variables, null, null);
+    }
+  }
+
+  // References in default parameters isn't resolved to variables which are in their function body.
+  //     const x = 1
+  //     function f(a = x) { // This `x` is resolved to the `x` in the outer scope.
+  //         const x = 2
+  //         console.log(a)
+  //     }
+  protected override isValidResolution(ref: Reference, variable: Variable): boolean {
+    // If `options.globalReturn` is true, `this.block` becomes a Program node.
+    if (this.block.type === AST_NODE_TYPES.Program) {
+      return true;
+    }
+
+    const bodyStart = this.block.body?.range[0] ?? -1;
+
+    // It's invalid resolution in the following case:
+    return !(
+      variable.scope === this &&
+      ref.identifier.range[0] < bodyStart && // the reference is in the parameter part.
+      variable.defs.every(d => d.name.range[0] >= bodyStart) // the variable is in the body.
+    );
+  }
+}

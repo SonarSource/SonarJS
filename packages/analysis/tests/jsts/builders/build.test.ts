@@ -164,7 +164,7 @@ describe('buildSourceCode', () => {
     const analysisInput = await jsTsInput({ filePath });
     expect(() => build(analysisInput)).toThrow(new Error('Unexpected token (3:0)'));
 
-    const log = `DEBUG Failed to parse ${normalizeToAbsolutePath(filePath)} with typescript-eslint/parser: '}' expected.`;
+    const log = `DEBUG Failed to parse ${normalizeToAbsolutePath(filePath)} with sonarjs/typescript-parser: '}' expected.`;
     const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
       call => call.arguments[0],
     );

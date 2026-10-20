@@ -20,6 +20,7 @@ import { error, info } from '../../shared/src/helpers/logging.js';
 import { reportMissingExtendedTsConfig } from './common/analysis-warnings.js';
 import { tsConfigStore } from './file-stores/index.js';
 import ts from 'typescript';
+import { CompilerContractError } from 'typescript/errors';
 import type { ProgressReport } from './common/progress-report.js';
 import type { WsIncrementalResult } from './incremental-result.js';
 import { isAnalysisCancelled } from './analyzeProject.js';
@@ -350,6 +351,7 @@ async function analyzeFilesFromTsConfig(
       baseDir,
     );
   } catch (e) {
+    if (e instanceof CompilerContractError) throw e;
     telemetry.recordProgramCreationFailure();
     error(`Failed to parse tsconfig ${tsconfig}: ${e}`);
     results.meta.warnings.push(

@@ -1,5 +1,6 @@
 {
   "exclude": [
+    "**/frontend/vendor/**",
     "**/*.test.*",
     "*/jsts/src/rules/*/generated-meta.*",
     "**/tests/**/*",

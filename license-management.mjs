@@ -15,10 +15,12 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import licenseChecker from 'license-checker';
+import { createRequire } from 'node:module';
 import fs from 'node:fs/promises';
 import path from 'node:path/posix';
 
 // Configuration
+const require = createRequire(import.meta.url);
 const MAIN_LICENSE_FILE = path.resolve('LICENSE.txt');
 const OUTPUT_DIR = path.resolve('./licenses');
 const THIRD_PARTY_LICENSES_DIR = path.resolve('./licenses/THIRD_PARTY_LICENSES');
@@ -116,6 +118,15 @@ async function main() {
   try {
     await downloadLicenses();
     await copyMainLicense();
+    // license-checker omits the SDK alias behind the private local package.
+    await fs.copyFile(
+      require.resolve('typescript-classic/LICENSE.txt'),
+      path.join(THIRD_PARTY_LICENSES_DIR, 'typescript-LICENSE.txt'),
+    );
+    await fs.copyFile(
+      'packages/analysis/src/jsts/frontend/vendor/LICENSE',
+      path.join(THIRD_PARTY_LICENSES_DIR, 'typescript-eslint-frontend-LICENSE.txt'),
+    );
     console.log('=== License management completed successfully ===');
   } catch (error) {
     console.error('License management failed:', error);

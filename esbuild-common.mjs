@@ -20,7 +20,7 @@ import { copy } from 'esbuild-plugin-copy';
 import { readFileSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
-import { dirname } from 'node:path';
+import { dirname, resolve } from 'node:path';
 
 const stylelintPkgJson = readFileSync('node_modules/stylelint/package.json', 'utf8');
 const testingLibraryPkgJson = JSON.parse(
@@ -71,6 +71,26 @@ export async function buildBundle({ entryPoint, outfile, additionalAssets = [], 
     platform: 'node',
     minify: true,
     plugins: [
+      {
+        name: 'single-typescript-contract',
+        setup(build) {
+          // Resolve every dependency's compiler import from the owned package,
+          // including dependencies that would otherwise find a nested SDK copy.
+          build.onResolve({ filter: /^typescript(?:\/|$)/ }, args => {
+            if (args.pluginData?.ownedCompiler) return;
+            return build.resolve(args.path, {
+              resolveDir: process.cwd(),
+              kind: args.kind,
+              pluginData: { ownedCompiler: true },
+            });
+          });
+          build.onResolve({ filter: /^typescript-classic(?:\/|$)/ }, args => {
+            if (args.importer !== resolve('packages/typescript/providers/classic.cjs')) {
+              throw new Error(`Private compiler SDK import outside its provider: ${args.importer}`);
+            }
+          });
+        },
+      },
       {
         name: 'inline-package-imports',
         setup(build) {
@@ -268,7 +288,7 @@ export async function buildBundle({ entryPoint, outfile, additionalAssets = [], 
           // We need to copy all typescript declaration files for type-checking, as typescript will
           // look for those in the filesystem
           {
-            from: ['./node_modules/typescript/lib/*.d.ts'],
+            from: ['./node_modules/typescript-classic/lib/*.d.ts'],
             to: ['./bin'],
           },
           ...additionalAssets,

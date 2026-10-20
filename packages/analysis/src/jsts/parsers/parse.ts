@@ -17,6 +17,7 @@
 import { APIError } from '../../contracts/error.js';
 import { SourceCode } from 'eslint';
 import type { Parser } from './eslint.js';
+import { CompilerContractError } from 'typescript/errors';
 
 export type ParseResult = {
   sourceCode: SourceCode;
@@ -44,7 +45,9 @@ export function parse(code: string, parser: Parser, parserOptions: {}): ParseRes
         parserServices,
       } as SourceCode.Config),
     };
-  } catch ({ lineNumber, message }) {
+  } catch (error) {
+    if (error instanceof CompilerContractError) throw error;
+    const { lineNumber, message } = error;
     if (message.startsWith('Debug Failure')) {
       throw APIError.failingTypeScriptError(message);
     } else {
