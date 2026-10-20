@@ -20,8 +20,9 @@ import stylelint from 'stylelint';
 import { StylelintRuleTester } from '../../../../tests/css/tools/tester/tester.js';
 import { createStylelintConfig } from '../../linter/config.js';
 import { messages } from './rule.js';
+import { meta } from './meta.js';
 
-const RULE = 'sonar/declaration-block-no-duplicate-custom-properties';
+const RULE = meta.bindings[0].stylelintKey;
 const ruleTester = new StylelintRuleTester(RULE);
 
 function issue(

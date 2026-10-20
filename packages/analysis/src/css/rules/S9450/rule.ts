@@ -17,10 +17,10 @@
 // https://sonarsource.github.io/rspec/#/rspec/S9450/css
 import stylelint from 'stylelint';
 import type PostCSS from 'postcss';
+import { meta } from './meta.js';
 import { createDecoratedRule, type DecoratedMessage } from '../helpers/decorated-result.js';
 
-const SONAR_RULE = 'sonar/declaration-block-no-duplicate-custom-properties';
-const UPSTREAM_RULE = 'declaration-block-no-duplicate-custom-properties';
+const { stylelintKey: SONAR_RULE, upstreamRule: UPSTREAM_RULE } = meta.bindings[0];
 
 export const messages = {
   duplicate: (property: string): string =>

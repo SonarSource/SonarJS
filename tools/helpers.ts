@@ -31,6 +31,15 @@ const REPOSITORY_ROOT = join(DIRNAME, '..');
 export const TS_TEMPLATES_FOLDER = join(DIRNAME, 'templates', 'ts');
 export const JAVA_TEMPLATES_FOLDER = join(DIRNAME, 'templates', 'java');
 export const RULES_FOLDER = join(REPOSITORY_ROOT, 'packages', 'analysis', 'src', 'jsts', 'rules');
+export const CSS_RULES_FOLDER = join(
+  REPOSITORY_ROOT,
+  'packages',
+  'analysis',
+  'src',
+  'css',
+  'rules',
+);
+export const CSS_TEMPLATES_FOLDER = join(DIRNAME, 'templates', 'css');
 const JAVASCRIPT_METADATA_FOLDER = join(
   REPOSITORY_ROOT,
   'sonar-plugin',
@@ -201,8 +210,8 @@ export async function getRuleMetadata(sonarKey: string) {
 /**
  * List all rules in SonarJS
  */
-export async function listRulesDir() {
-  const files = await readdir(RULES_FOLDER, { withFileTypes: true });
+export async function listRulesDir(rulesFolder = RULES_FOLDER) {
+  const files = await readdir(rulesFolder, { withFileTypes: true });
   return files
     .filter(file => isRuleKey(file.name) && file.isDirectory())
     .map(file => file.name)
