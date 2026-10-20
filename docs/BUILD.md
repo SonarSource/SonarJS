@@ -359,8 +359,11 @@ Explicit RSPEC refresh
 
 - compile Java sources
 - run unit tests
-- assemble plugin artifacts
-- run packaging checks
+- assemble plugin artifacts: a single `sonar-javascript-plugin-<version>.jar` (scanner code
+  and the bridge, no embedded Node.js runtime) plus a `sonar-javascript-plugin-zip-<version>.zip`
+  containing that jar under `plugin/` and the per-platform Node.js runtime binaries under
+  `resources/<platform>/...`, built by the `sonar-javascript-plugin-zip` module (`sonar-plugin-zip` packaging)
+- run packaging checks (jar and zip size enforcement)
 - install artifacts in the local Maven repository
 
 ## Notes

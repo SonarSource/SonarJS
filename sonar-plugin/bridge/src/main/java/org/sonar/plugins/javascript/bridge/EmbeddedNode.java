@@ -21,7 +21,6 @@ import static java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE;
 import static java.nio.file.attribute.PosixFilePermission.OWNER_READ;
 import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
 import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.UNSUPPORTED;
-import static org.sonarsource.api.sonarlint.SonarLintSide.INSTANCE;
 
 import java.io.BufferedInputStream;
 import java.io.FileOutputStream;
@@ -34,18 +33,14 @@ import java.util.Locale;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.scanner.ScannerSide;
 import org.sonar.plugins.javascript.nodejs.NodeVersion;
 import org.sonar.plugins.javascript.nodejs.ProcessWrapper;
-import org.sonarsource.api.sonarlint.SonarLintSide;
 import org.tukaani.xz.XZInputStream;
 
 /**
  * Class handling the extraction of the embedded Node.JS runtime
  */
-@ScannerSide
-@SonarLintSide(lifespan = INSTANCE)
-public class EmbeddedNode {
+public abstract class EmbeddedNode {
 
   public static final String VERSION_FILENAME = "version.txt";
   private static final String DEPLOY_LOCATION = Path.of("js", "node-runtime").toString();
@@ -66,30 +61,36 @@ public class EmbeddedNode {
     DARWIN_X64,
     UNSUPPORTED;
 
-    private String pathInJar() {
+    /**
+     * Resource paths for {@link ScannerEmbeddedNode}, relative to the resources
+     * directory of the ZIP. The compressed binary (but not
+     * {@code version.txt}) sits under a {@code bin/} folder on every platform except Windows - that mirrors the
+     * layout of the unpacked {@code nodejs-runtime} artifact
+     * ({@code target/downloads/runtimes/<platform>/...}), which the ZIP's {@code resources/} folder copies
+     * verbatim.
+     */
+    String archiveResourcePath() {
       return switch (this) {
-        case WIN_X64 -> "/win-x64/";
-        case LINUX_ARM64 -> "/linux-arm64/";
-        case LINUX_X64 -> "/linux-x64/";
-        case LINUX_X64_MUSL -> "/linux-x64-musl/";
-        case DARWIN_ARM64 -> "/darwin-arm64/";
-        case DARWIN_X64 -> "/darwin-x64/";
+        case WIN_X64 -> "win-x64/node.exe.xz";
+        case LINUX_ARM64 -> "linux-arm64/bin/node.xz";
+        case LINUX_X64 -> "linux-x64/bin/node.xz";
+        case LINUX_X64_MUSL -> "linux-x64-musl/bin/node.xz";
+        case DARWIN_ARM64 -> "darwin-arm64/bin/node.xz";
+        case DARWIN_X64 -> "darwin-x64/bin/node.xz";
         default -> "";
       };
     }
 
-    /**
-     * @return the path of the node compressed node runtime in the JAR
-     */
-    String archivePathInJar() {
-      return pathInJar() + binary() + ".xz";
-    }
-
-    /**
-     * @return the path of the file storing the version of the node runtime in the JAR
-     */
-    String versionPathInJar() {
-      return pathInJar() + VERSION_FILENAME;
+    String versionResourcePath() {
+      return switch (this) {
+        case WIN_X64 -> "win-x64/" + VERSION_FILENAME;
+        case LINUX_ARM64 -> "linux-arm64/" + VERSION_FILENAME;
+        case LINUX_X64 -> "linux-x64/" + VERSION_FILENAME;
+        case LINUX_X64_MUSL -> "linux-x64-musl/" + VERSION_FILENAME;
+        case DARWIN_ARM64 -> "darwin-arm64/" + VERSION_FILENAME;
+        case DARWIN_X64 -> "darwin-x64/" + VERSION_FILENAME;
+        default -> "";
+      };
     }
 
     /**
@@ -132,12 +133,20 @@ public class EmbeddedNode {
     }
   }
 
-  public EmbeddedNode(ProcessWrapper processWrapper, Environment env) {
+  protected EmbeddedNode(ProcessWrapper processWrapper, Environment env) {
     this.platform = Platform.detect(env);
     this.deployLocation = runtimeCachePathFrom(env.getSonarUserHome());
     this.env = env;
     this.processWrapper = processWrapper;
   }
+
+  /**
+   * Opens the given resource, relative to the resources directory of the resources ZIP, as returned by
+   * {@link Platform#archiveResourcePath()} or {@link Platform#versionResourcePath()}. Returns {@code null} if the
+   * resource cannot be found, which {@link #deploy()} treats as "no embedded runtime available for this platform"
+   * and falls back to the host Node.js.
+   */
+  protected abstract InputStream openResource(String resourcePath) throws IOException;
 
   /**
    * @return a path to `DEPLOY_LOCATION` from the given `baseDir`
@@ -171,32 +180,29 @@ public class EmbeddedNode {
       return;
     }
     try {
-      var is = getClass().getResourceAsStream(platform.archivePathInJar());
-
-      if (is == null) {
-        if (LOG.isDebugEnabled()) {
-          LOG.debug("Embedded node not found for platform {}", platform.archivePathInJar());
+      try (var is = openResource(platform.archiveResourcePath())) {
+        if (is == null) {
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Embedded node not found for platform {}", platform);
+          }
+          return;
         }
-        return;
-      }
 
-      var targetRuntime = deployLocation.resolve(platform.binary());
+        var targetRuntime = deployLocation.resolve(platform.binary());
 
-      var targetDirectory = targetRuntime.getParent();
-      var targetVersion = targetDirectory.resolve(VERSION_FILENAME);
-      LOG.info(
-        "Deploy location {}, tagetRuntime: {},  version: {}",
-        deployLocation,
-        targetRuntime,
-        targetVersion
-      );
-      // we assume that since the archive exists, the version file must as well
-      var versionIs = getClass().getResourceAsStream(platform.versionPathInJar());
-
-      if (Files.exists(targetVersion) && !isDifferent(versionIs, targetVersion)) {
-        LOG.debug("Skipping node deploy. Deployed node has latest version.");
-      } else {
-        extractWithLocking(is, targetRuntime, targetDirectory);
+        var targetDirectory = targetRuntime.getParent();
+        var targetVersion = targetDirectory.resolve(VERSION_FILENAME);
+        LOG.info(
+          "Deploy location {}, tagetRuntime: {},  version: {}",
+          deployLocation,
+          targetRuntime,
+          targetVersion
+        );
+        if (Files.exists(targetVersion) && !isDifferent(targetVersion)) {
+          LOG.debug("Skipping node deploy. Deployed node has latest version.");
+        } else {
+          extractWithLocking(is, targetRuntime, targetDirectory);
+        }
       }
       // we try to run 'node -v' to test that node is working
       var detected = NodeVersion.getVersion(processWrapper, binary().toString());
@@ -230,9 +236,12 @@ public class EmbeddedNode {
     }
   }
 
-  private static boolean isDifferent(InputStream newVersionIs, Path currentVersionPath)
-    throws IOException {
-    var newVersionString = new String(newVersionIs.readAllBytes(), StandardCharsets.UTF_8);
+  private boolean isDifferent(Path currentVersionPath) throws IOException {
+    // we assume that since the archive exists, the version file must as well
+    String newVersionString;
+    try (var newVersionIs = openResource(platform.versionResourcePath())) {
+      newVersionString = new String(newVersionIs.readAllBytes(), StandardCharsets.UTF_8);
+    }
     var currentVersionString = Files.readString(currentVersionPath);
     LOG.debug(
       "Currently installed Node.js version: {}. Available version in analyzer: {}",
@@ -264,8 +273,9 @@ public class EmbeddedNode {
         try {
           LOG.debug("Lock acquired for extraction");
           extract(source, targetRuntime);
-          var versionIs = getClass().getResourceAsStream(platform.versionPathInJar());
-          Files.copy(versionIs, deployLocation.resolve(VERSION_FILENAME), REPLACE_EXISTING);
+          try (var versionIs = openResource(platform.versionResourcePath())) {
+            Files.copy(versionIs, deployLocation.resolve(VERSION_FILENAME), REPLACE_EXISTING);
+          }
         } finally {
           lock.release();
         }

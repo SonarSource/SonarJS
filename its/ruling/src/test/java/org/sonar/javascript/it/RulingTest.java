@@ -72,7 +72,7 @@ class RulingTest {
     .addPlugin(
       FileLocation.byWildcardMavenFilename(
         new File("../../sonar-plugin/sonar-javascript-plugin/target"),
-        "sonar-javascript-plugin-*-multi.jar"
+        "sonar-javascript-plugin-*.jar"
       )
     )
     .addPlugin(
@@ -279,7 +279,9 @@ class RulingTest {
       .setProperty("sonar.lits.dump.old", expectedDir.toAbsolutePath().toString())
       .setProperty(
         "sonar.lits.dump.new",
-        FileLocation.of("target/actual/" + projectKey).getFile().getAbsolutePath()
+        FileLocation.of("target/actual/" + projectKey)
+          .getFile()
+          .getAbsolutePath()
       )
       .setProperty("sonar.lits.differences", differencesPath.toString())
       .setProperty("sonar.exclusions", actualExclusions)
