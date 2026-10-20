@@ -18,6 +18,11 @@ from upstream alongside their analyzer. They are distinct from the compiler's
 `lib.*.d.ts` inputs. The parser's compiler-option-to-scope-option mapping is
 adopted into `scope-options.ts` by the same synchronization script.
 
+The complete adopted modules retain upstream exports and types, including unused
+ones, to keep synchronization reproducible. Knip excludes only unused-file, export
+and type reports within this directory. Dependency checks remain enabled; runtime
+imports must be declared directly in the root package manifest.
+
 ## Updating
 
 The SonarJS JavaScript/TypeScript maintainers own upgrades and fixes to this fork.

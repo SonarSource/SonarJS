@@ -17,6 +17,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import path from 'node:path';
+import { normalizeToAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import * as reference from '@typescript-eslint/parser';
 import plugin from '@typescript-eslint/eslint-plugin';
 import { Linter } from 'eslint';
@@ -117,7 +118,7 @@ describe('owned TypeScript front end', () => {
   });
 
   it('uses the supplied compiler AST and preserves typed findings and fixes', () => {
-    const filePath = path.join(import.meta.dirname, 'typed.ts');
+    const filePath = normalizeToAbsolutePath(path.join(import.meta.dirname, 'typed.ts'));
     const code = `class C { private value = 1; read() { return this.value; } }
       const value = 1 as number; const result = value + 'text'; Promise.resolve(1);`;
     const program = createProgramFromSingleFile(filePath, code, {
@@ -156,10 +157,32 @@ describe('owned TypeScript front end', () => {
     assert.deepEqual(findings, lint(reference));
   });
 
+  it('preserves a supplied program for Windows paths and relative paths', () => {
+    for (const [filePath, tsconfigRootDir] of [
+      ['C:/sonarjs/input.ts', undefined],
+      [String.raw`C:\sonarjs\input.ts`, undefined],
+      ['input.ts', process.cwd()],
+      ['input.ts', '.'],
+    ]) {
+      const normalized = normalizeToAbsolutePath(filePath!, normalizeToAbsolutePath(process.cwd()));
+      const program = createProgramFromSingleFile(normalized, 'const value: number = 1;');
+      const parsed = owned.parseForESLint('const value: number = 1;', {
+        filePath,
+        tsconfigRootDir,
+        programs: [program],
+      });
+      assert.equal(parsed.services.program, program);
+      assert.equal(
+        parsed.services.esTreeNodeToTSNodeMap.get(parsed.ast.body[0]),
+        program.getSourceFile(normalized)!.statements[0],
+      );
+    }
+  });
+
   it('rejects a program returning a declaration file for a source-file path', () => {
     for (const extension of ['ts', 'mts', 'cts']) {
-      const filePath = `/sonarjs/redirect.${extension}`;
-      const declarationPath = `/sonarjs/redirect.d.${extension}`;
+      const filePath = normalizeToAbsolutePath(`/sonarjs/redirect.${extension}`);
+      const declarationPath = normalizeToAbsolutePath(`/sonarjs/redirect.d.${extension}`);
       const code = 'declare const value: number;';
       const program = createProgramFromSingleFile(declarationPath, code);
       const redirected = new Proxy(program, {

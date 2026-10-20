@@ -27,21 +27,27 @@ import { visitorKeys } from './vendor/visitor-keys/index.js';
 import { getLib } from './vendor/scope-options.js';
 import { createProgramOptions } from '../program/tsconfig/options.js';
 import { createStandardProgram } from '../program/factory.js';
+import {
+  normalizeToAbsolutePath,
+  type NormalizedAbsolutePath,
+} from '../../../../shared/src/helpers/files.js';
 
 export const meta = { name: 'sonarjs/typescript-parser', version: '1.0.0' };
 
 /** SonarJS owns selection, conversion, lexical output, scopes and parser services. */
 export function parseForESLint(code: string, options: ParserOptions = {}) {
   const sourceType = options.sourceType === 'module' ? 'module' : 'script';
-  const filePath = path.resolve(
-    options.tsconfigRootDir ?? process.cwd(),
+  const cwd = normalizeToAbsolutePath(process.cwd());
+  const rootDir = normalizeToAbsolutePath(options.tsconfigRootDir ?? cwd, cwd);
+  const filePath = normalizeToAbsolutePath(
     options.filePath && options.filePath !== '<input>'
       ? options.filePath
       : options.ecmaFeatures?.jsx === true
         ? 'estree.tsx'
         : 'estree.ts',
+    rootDir,
   );
-  const program = selectProgram(filePath, code, options);
+  const program = selectProgram(filePath, code, options, rootDir);
   const sourceFile = program
     ? findSourceFile(program, filePath)!
     : createSourceFile(filePath, code, options, sourceType);
@@ -143,7 +149,12 @@ function findSourceFile(program: ts.Program, filePath: string) {
     : undefined;
 }
 
-function selectProgram(filePath: string, code: string, options: ParserOptions): ts.Program | null {
+function selectProgram(
+  filePath: string,
+  code: string,
+  options: ParserOptions,
+  rootDir: NormalizedAbsolutePath,
+): ts.Program | null {
   if (options.projectService || options.project === true) {
     throw new CompilerContractError(
       'The SonarJS parser requires explicit programs or project paths; automatic project discovery is not supported',
@@ -160,13 +171,13 @@ function selectProgram(filePath: string, code: string, options: ParserOptions): 
   const projects = typeof options.project === 'string' ? [options.project] : options.project;
   if (Array.isArray(projects) && projects.length > 0) {
     for (const project of projects) {
-      const configPath = path.resolve(options.tsconfigRootDir ?? process.cwd(), project);
+      const configPath = normalizeToAbsolutePath(project, rootDir);
       const settings = createProgramOptions(configPath, undefined, true);
-      if (!settings.rootNames.some(name => path.resolve(name) === filePath)) continue;
+      if (!settings.rootNames.some(name => normalizeToAbsolutePath(name) === filePath)) continue;
       const host = ts.createCompilerHost(settings.options, true);
       const original = host.getSourceFile.bind(host);
       host.getSourceFile = (name, version, onError, fresh) =>
-        path.resolve(name) === filePath
+        normalizeToAbsolutePath(name) === filePath
           ? ts.createSourceFile(
               name,
               code,

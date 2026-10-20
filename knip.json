@@ -20,5 +20,8 @@
     "esbuild-plugin-copy",
     "esbuild-plugin-text-replace"
   ],
-  "ignoreBinaries": ["mvn"]
+  "ignoreBinaries": ["mvn"],
+  "ignoreIssues": {
+    "packages/analysis/src/jsts/frontend/vendor/**": ["files", "exports", "types"]
+  }
 }

@@ -75,6 +75,7 @@ describe('single compiler boundary', () => {
 
   it('runs production parsing and Vue delegation without invoking upstream front-end entry points', () => {
     const parserUrl = new URL('../../../src/jsts/parsers/eslint.js', import.meta.url).href;
+    const helpersUrl = new URL('../../../../shared/src/helpers/files.js', import.meta.url).href;
     const factoryUrl = new URL('../../../src/jsts/program/factory.js', import.meta.url).href;
     // The same test runs against TS sources and against the compiled JS test tree.
     execFileSync(
@@ -103,7 +104,8 @@ describe('single compiler boundary', () => {
       };
       const {parsersMap} = await import(${JSON.stringify(parserUrl)});
       const {createProgramFromSingleFile} = await import(${JSON.stringify(factoryUrl)});
-      const filePath = '/sonarjs/compiler-boundary.ts';
+      const {normalizeToAbsolutePath} = await import(${JSON.stringify(helpersUrl)});
+      const filePath = normalizeToAbsolutePath('/sonarjs/compiler-boundary.ts');
       const code = 'const value: number = 1;';
       const program = createProgramFromSingleFile(filePath, code);
       const parsed = parsersMap.typescript.parseForESLint(code, {filePath, programs: [program]});
