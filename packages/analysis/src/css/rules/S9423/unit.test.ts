@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { describe, it } from 'node:test';
+import { meta } from './meta.js';
 import { expect } from 'expect';
 import stylelint from 'stylelint';
 import { StylelintRuleTester } from '../../../../tests/css/tools/tester/tester.js';
@@ -22,7 +23,7 @@ import { createStylelintConfig } from '../../linter/config.js';
 import { cssRulesMeta } from '../metadata.js';
 import { messages } from './rule.js';
 
-const RULE = 'sonar/declaration-no-important';
+const RULE = meta.bindings[0].stylelintKey;
 const KEYFRAMES_RULE = 'keyframe-declaration-no-important';
 const ANNOTATION_RULE = 'sonar/annotation-no-unknown';
 const text = `${messages.important} (${RULE})`;

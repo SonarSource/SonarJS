@@ -16,10 +16,11 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5362/css
 import stylelint, { type PostcssResult } from 'stylelint';
+import { meta } from './meta.js';
 import postcssValueParser from 'postcss-value-parser';
 import type PostCSS from 'postcss';
 
-const ruleName = 'sonar/function-calc-no-invalid';
+const ruleName = meta.bindings[0].stylelintKey;
 const operators = new Set(['+', '-', '*', '/']);
 
 // exported for testing purpose

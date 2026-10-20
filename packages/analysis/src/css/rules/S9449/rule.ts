@@ -19,8 +19,9 @@ import stylelint, { type PostcssResult } from 'stylelint';
 import type PostCSS from 'postcss';
 import { ident, parse, walk, type CssNode, type Lexer, type LexerMatchResult } from 'css-tree';
 import { knownFunctionsOf } from '../helpers/known-functions.js';
+import { meta } from './meta.js';
 
-const ruleName = 'sonar/transition-no-all';
+const ruleName = meta.bindings[0].stylelintKey;
 const message =
   'Specify which properties should transition so future style changes do not animate unexpectedly.';
 

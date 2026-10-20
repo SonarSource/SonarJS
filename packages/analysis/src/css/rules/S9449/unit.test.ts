@@ -17,11 +17,12 @@
 import path from 'node:path';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
+import { meta } from './meta.js';
 import { StylelintRuleTester } from '../../../../tests/css/tools/tester/tester.js';
 import { LinterWrapper } from '../../linter/wrapper.js';
 import { normalizeToAbsolutePath } from '../../../../../shared/src/helpers/files.js';
 
-const RULE = 'sonar/transition-no-all';
+const RULE = meta.bindings[0].stylelintKey;
 const MESSAGE =
   'Specify which properties should transition so future style changes do not animate unexpectedly.';
 const tester = new StylelintRuleTester(RULE);

@@ -1,0 +1,18 @@
+___HEADER___// https://sonarsource.github.io/rspec/#/rspec/___RULE_KEY___/css
+import stylelint from 'stylelint';
+import { createDecoratedRule } from '../helpers/decorated-result.js';
+import { meta } from './meta.js';
+
+const { stylelintKey, upstreamRule } = meta.bindings[0];
+
+export const messages = {
+  unexpected: 'Replace this declaration.', // TODO: use an actionable rule-specific message.
+};
+
+// TODO: filter or rewrite upstream reports as required by the specification.
+const ruleImpl = createDecoratedRule(stylelintKey, upstreamRule, () => messages.unexpected);
+
+export const rule = stylelint.createPlugin(stylelintKey, ruleImpl as stylelint.Rule) as {
+  ruleName: string;
+  rule: stylelint.Rule;
+};
