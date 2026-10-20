@@ -15,6 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { describe, it } from 'node:test';
+import assert from 'node:assert/strict';
+import { Linter } from 'eslint';
+import { Parser } from 'htmlparser2';
 import { rule } from './index.js';
 import {
   DefaultParserRuleTester,
@@ -23,6 +26,35 @@ import {
 
 const sidebar = 'import { SidebarMenuButton } from "@/components/ui/sidebar";';
 const button = 'import { Button } from "@base-ui/react/button";';
+
+describe('S6827 repeated HTML evaluation', () => {
+  for (const expression of [
+    'flag ? previous : previous',
+    'previous || previous',
+    'previous ?? previous',
+  ]) {
+    it(`parses shared HTML once through ${expression}`, t => {
+      const parse = t.mock.method(Parser.prototype, 'end');
+      const declarations = ["const html0 = '<span hidden>Hidden</span>';"];
+      for (let i = 1; i <= 20; i++) {
+        declarations.push(`const html${i} = ${expression.replaceAll('previous', `html${i - 1}`)};`);
+      }
+      const messages = new Linter().verify(
+        `${button}${declarations.join('\n')}<Button render={<a />} dangerouslySetInnerHTML={{__html: html20}} />;`,
+        {
+          languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } },
+          plugins: { sonarjs: { rules: { S6827: rule } } },
+          rules: { 'sonarjs/S6827': 'error' },
+        },
+      );
+      assert.deepEqual(
+        messages.map(message => message.ruleId),
+        ['sonarjs/S6827'],
+      );
+      assert.equal(parse.mock.callCount(), 1);
+    });
+  }
+});
 
 for (const [language, Tester] of [
   ['JSX', DefaultParserRuleTester],
@@ -454,6 +486,21 @@ for (const [language, Tester] of [
             ),
           },
           { code: code('html', "const html = flag ? html : '<span>Continue</span>'; ") },
+          {
+            code: code(
+              'html',
+              "const shared = flag ? '<span hidden>Hidden</span>' : '<span>Continue</span>'; const html = other ? shared : shared; ",
+            ),
+          },
+          {
+            code: code(
+              'html',
+              "const html = flag ? alias : '<span>Continue</span>'; const alias = other ? html : ''; ",
+            ),
+          },
+          {
+            code: `${button}const html = '<span hidden>Hidden</span>'; <Button render={<a />}><span dangerouslySetInnerHTML={{__html: html}} />{html}</Button>;`,
+          },
         ],
         invalid: [
           {
@@ -465,6 +512,10 @@ for (const [language, Tester] of [
           },
           { code: code('html', "const html = flag ? html : ''; "), errors: 1 },
           { code: code('html', 'const html = flag && html; '), errors: 1 },
+          {
+            code: code('html', "const html = flag ? alias : ''; const alias = other ? html : ''; "),
+            errors: 1,
+          },
         ],
       });
     });

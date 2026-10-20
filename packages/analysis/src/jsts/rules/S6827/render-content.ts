@@ -292,8 +292,14 @@ function hasHtmlContent(
   node: TSESTree.Node,
   context: Rule.RuleContext,
   seen: Set<TSESTree.Node>,
+  evaluated = new Set<TSESTree.Node>(),
 ): boolean {
   const value = resolveSingleWriteExpression(context, node);
+  // Successful checks short-circuit the traversal, so revisits cannot supply new content.
+  if (evaluated.has(value)) {
+    return false;
+  }
+  evaluated.add(value);
   if (
     value.type === 'ConditionalExpression' ||
     value.type === 'LogicalExpression' ||
@@ -304,14 +310,26 @@ function hasHtmlContent(
     }
     const branchSeen = new Set(seen);
     branchSeen.add(value);
+    /**
+     * Shares evaluated HTML nodes across branches while preserving their ancestor sets.
+     * @param node the HTML expression
+     * @param context the rule context
+     * @param seen the ancestor expressions
+     * @return whether the expression can supply accessible content
+     */
+    const checkContent = (
+      node: TSESTree.Node,
+      context: Rule.RuleContext,
+      seen: Set<TSESTree.Node>,
+    ): boolean => hasHtmlContent(node, context, seen, evaluated);
     if (value.type === 'ConditionalExpression') {
-      return hasConditionalContent(value, context, branchSeen, hasHtmlContent);
+      return hasConditionalContent(value, context, branchSeen, checkContent);
     }
     if (value.type === 'LogicalExpression') {
-      return hasLogicalContent(value, context, branchSeen, hasHtmlContent);
+      return hasLogicalContent(value, context, branchSeen, checkContent);
     }
     const last = value.expressions.at(-1);
-    return last !== undefined && hasHtmlContent(last, context, branchSeen);
+    return last !== undefined && checkContent(last, context, branchSeen);
   }
   const html = getStaticExpressionValue(value as unknown as estree.Expression);
   if (html === undefined) {
