@@ -144,10 +144,19 @@ describe('S9448 (sonar/function-no-unknown)', () => {
   it('ignores custom property values, which are opaque until used', () =>
     ruleTester.valid({ code: 'a { --gradient: linaer-gradient(red, blue); }' }));
 
+  it('ignores custom property values when the property name is escaped', () =>
+    ruleTester.valid({ code: String.raw`a { \2d\2dshadow: elevation(2); }` }));
+
   it('checks the result values of if() but not its conditions', () =>
     ruleTester.invalid({
       code: 'a { color: if(style(--x: fooo(1)): barr(1); supports(color: bazz(1)): red; else: blue); }',
       errors: [{ text: message('barr'), column: 36 }],
+    }));
+
+  it('checks the result values of if() when its conditions contain braces', () =>
+    ruleTester.invalid({
+      code: 'a { color: if(style(--theme: {accent: blue}): rgx(1); else: red); }',
+      errors: [{ text: message('rgx'), column: 47, endColumn: 50 }],
     }));
 
   it('ignores legacy Internet Explorer filters', () =>

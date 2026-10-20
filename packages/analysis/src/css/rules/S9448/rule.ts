@@ -18,7 +18,7 @@
 import stylelint, { type PostcssResult } from 'stylelint';
 import type PostCSS from 'postcss';
 import type { Lexer } from 'css-tree';
-import { isTokenOpenCurly, tokenize, type CSSToken } from '@csstools/css-tokenizer';
+import { isTokenIdent, isTokenOpenCurly, tokenize, type CSSToken } from '@csstools/css-tokenizer';
 import {
   isFunctionNode,
   isSimpleBlockNode,
@@ -92,13 +92,11 @@ const ruleImpl: stylelint.RuleBase = (primary: unknown, secondaryOptions: unknow
         return;
       }
       const value = decl.raws.value?.raw ?? decl.value;
-      const tokens = tokenize({ css: value });
-      // braces outside strings and URLs are template or preprocessor interpolation
-      if (tokens.some(isTokenOpenCurly)) {
+      const nodes = parseListOfComponentValues(tokenize({ css: value }));
+      if (hasInterpolation(nodes)) {
         return;
       }
       const valueIndex = declarationValueIndex(decl);
-      const nodes = parseListOfComponentValues(tokens);
       for (const { name, nameToken } of unknownFunctions(nodes, lexerFunctions, isIgnored)) {
         // the function token ends on its opening parenthesis, which the exclusive end leaves out
         const [, , start, end] = nameToken;
@@ -118,8 +116,32 @@ const ruleImpl: stylelint.RuleBase = (primary: unknown, secondaryOptions: unknow
 function isSkippedDeclaration(decl: PostCSS.Declaration, lexer: Lexer): boolean {
   return (
     // custom property values are opaque until substituted with `var()`
-    decl.prop.startsWith(DASHED_PREFIX) || isLegacyIeFilter(decl) || isDescriptor(decl, lexer)
+    isCustomProperty(decl.prop) || isLegacyIeFilter(decl) || isDescriptor(decl, lexer)
   );
+}
+
+/**
+ * Compares the decoded property name, so that escaped spellings such as `\2d\2dx` are recognized.
+ */
+function isCustomProperty(prop: string): boolean {
+  const [token] = tokenize({ css: prop });
+  return isTokenIdent(token) && token[4].value.startsWith(DASHED_PREFIX);
+}
+
+/**
+ * Braces outside strings and URLs are template or preprocessor interpolation, except in condition
+ * functions, where they are custom property values as in `if(style(--x: {a}): ...)`.
+ */
+function hasInterpolation(nodes: ComponentValue[]): boolean {
+  return nodes.some((node: ComponentValue) => {
+    if (isFunctionNode(node)) {
+      return !CONDITION_FUNCTIONS.has(node.getName().toLowerCase()) && hasInterpolation(node.value);
+    }
+    if (isSimpleBlockNode(node)) {
+      return isTokenOpenCurly(node.startToken) || hasInterpolation(node.value);
+    }
+    return false;
+  });
 }
 
 /**
