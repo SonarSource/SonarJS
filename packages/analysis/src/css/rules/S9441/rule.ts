@@ -60,8 +60,7 @@ const ruleImpl: stylelint.RuleBase = (
     root.walkAtRules(/^font-face$/i, (atRule: PostCSS.AtRule): void => {
       const descriptors = collectDescriptors(atRule);
       if (
-        descriptors === undefined ||
-        descriptors.source === undefined ||
+        descriptors?.source === undefined ||
         !isDownloadableSource(descriptors.source) ||
         isIgnoredFamily(descriptors.family, ignoredFamilies)
       ) {
