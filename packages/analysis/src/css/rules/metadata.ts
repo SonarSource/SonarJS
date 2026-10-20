@@ -354,6 +354,16 @@ export const cssRulesMeta: CssRuleMeta[] = [
       'theme',
     ),
   ),
+  singleListParamRule(
+    'S9450',
+    'sonar/declaration-block-no-duplicate-custom-properties',
+    listParam(
+      'ignoreProperties',
+      'ignoreProperties',
+      'Comma-separated list of case-sensitive custom property names or slash-delimited regular expressions whose duplicates are ignored.',
+      '',
+    ),
+  ),
 ];
 
 /** Reverse map: Stylelint rule key -> SonarQube rule key */

@@ -1,0 +1,24 @@
+{
+  "title": "Custom properties should not be duplicated within a declaration block",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-9450",
+  "sqKey": "S9450",
+  "scope": "Main",
+  "quickfix": "infeasible",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "LOW"
+    },
+    "attribute": "CLEAR"
+  },
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}
