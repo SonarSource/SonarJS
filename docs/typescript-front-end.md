@@ -39,8 +39,11 @@ that list. Reference object types remain compatible with TypeScript declarations
 unsupported runtime operations are not declared or silently forwarded. Unknown
 operations and missing provider operations fail explicitly.
 
-Only `packages/typescript/providers/classic.cjs` loads the compiler SDK. It supplies
-the operations with an in-process TS6 implementation. Its server support is lazy
+`packages/typescript/providers/classic.cjs` is the only module loading the TS6 SDK.
+The default provider now uses Vercel's TS7 port for parsing, binding and checking.
+Set `SONARJS_TYPESCRIPT_BACKEND=ts6` before process startup to select the reference
+provider for comparisons. The facade retains TS6 enums, utilities and declaration
+libraries so existing consumers keep one compatible contract. Its server support is lazy
 and preserves published-plugin compatibility tests using upstream project service.
 The bridge itself owns program selection. Build-time `tsc` is a separate explicit
 entry point into the reference compiler. The facade's peer-compatibility version
@@ -65,9 +68,8 @@ findings/messages/locations/fixes and selected programs. Exercise successive IDE
 updates and the packaged bridge. A provider upgrade can change type semantics even
 when object shapes match, so differences need explicit investigation.
 
-This stage retains TS6 as its only provider. It does not establish TS6-free analysis
-or build tooling, TS7 parity, Vercel-port compatibility or a performance improvement.
-Those require a replacement provider and the corresponding acceptance evidence.
+The Vercel provider and its validation are described in [vercel-ts7-provider.md](vercel-ts7-provider.md).
+This does not establish TS6-free analysis or build tooling, or exact TS7 parity.
 Performance comparisons must account separately for compiler work, conversion,
 scope analysis, rule execution and unassigned/GC time; an in-process implementation
 removes a transport boundary but does not guarantee a faster complete analysis.

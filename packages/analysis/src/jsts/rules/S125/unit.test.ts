@@ -17,10 +17,32 @@
 import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { rule } from './rule.js';
 import { describe, it } from 'node:test';
+import { execFileSync } from 'node:child_process';
+import upstreamParser from '@typescript-eslint/parser';
 
 describe('S125', () => {
   it('detects commented-out code with TypeScript project service', () => {
+    // Project service belongs to the published ESLint plugin, not SonarJS's
+    // explicit-program frontend. Keep this compatibility check on its TS6 SDK
+    // in an isolated process while the analysis tests exercise the TS7 provider.
+    if (process.env.SONARJS_TYPESCRIPT_BACKEND !== 'ts6') {
+      execFileSync(
+        process.execPath,
+        [
+          ...process.execArgv,
+          '--test',
+          '--test-name-pattern=detects commented-out code with TypeScript project service',
+          import.meta.filename,
+        ],
+        {
+          env: { ...process.env, SONARJS_TYPESCRIPT_BACKEND: 'ts6' },
+          stdio: 'pipe',
+        },
+      );
+      return;
+    }
     const ruleTester = new NoTypeCheckingRuleTester({
+      parser: upstreamParser,
       parserOptions: {
         projectService: true,
       },

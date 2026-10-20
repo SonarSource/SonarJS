@@ -10,18 +10,29 @@
     "**/fixtures-*/**",
     "its/**",
     "tools/header.ts",
-    "tools/new-plugin.ts"
+    "tools/new-plugin.ts",
+    "packages/typescript/providers/vercel/runtime.cjs"
   ],
-  "project": ["packages/**/*.ts", "tools/**/*.ts"],
+  "project": ["packages/**/*.ts", "tools/**/*.ts", "packages/typescript/**/*.mjs"],
   "ignoreDependencies": [
     "nyc",
     "@istanbuljs/esm-loader-hook",
     "esbuild",
     "esbuild-plugin-copy",
-    "esbuild-plugin-text-replace"
+    "esbuild-plugin-text-replace",
+    "@scriptc/threads"
   ],
   "ignoreBinaries": ["mvn"],
   "ignoreIssues": {
-    "packages/analysis/src/jsts/frontend/vendor/**": ["files", "exports", "types"]
-  }
+    "packages/analysis/src/jsts/frontend/vendor/**": ["files", "exports", "types"],
+    "packages/typescript/index.mjs": ["exports", "types"]
+  },
+  "entry": [
+    "packages/typescript/index.cjs",
+    "tools/build-vercel-typescript.mjs",
+    "tools/compiler-comparison/compare.mjs",
+    "tools/compiler-comparison/worker.mts",
+    "packages/typescript/providers/vercel/index.mjs",
+    "packages/typescript/providers/vercel/legacyResolution.mjs"
+  ]
 }

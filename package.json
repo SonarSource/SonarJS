@@ -28,7 +28,7 @@
     "proto:copy": "tsx tools/generate-proto.ts --copy",
     "prepare": "husky",
     "precommit": "pretty-quick --staged",
-    "postinstall": "patch-package",
+    "postinstall": "patch-package && npm run compiler:build",
     "count-rules": "tsx tools/count-rules.ts",
     "_:bridge:clear": "rimraf --glob lib/*",
     "eslint-plugin:build": "npm install --no-save builtin-modules@3.3.0 && npm run eslint-plugin:compile && cd lib && npm pack",
@@ -42,7 +42,8 @@
     "deploy-rule-data": "tsx tools/deploy-rule-data.ts",
     "license-regeneration": "node license-management.mjs",
     "cyclonedx:npm": "cyclonedx-npm --omit dev --spec-version 1.6 --validate --output-file target/bom-npm.json",
-    "compiler:check": "node tools/generate-typescript-exports.mjs --check"
+    "compiler:check": "npm run compiler:build && node tools/generate-typescript-exports.mjs --check",
+    "compiler:build": "node tools/build-vercel-typescript.mjs"
   },
   "repository": {
     "type": "git",
@@ -110,6 +111,7 @@
     "@eslint-community/regexpp": "4.12.2",
     "@grpc/grpc-js": "1.14.6",
     "@protobufjs/base64": "1.1.2",
+    "@scriptc/threads": "0.3.6",
     "@sonarsource/analyzer-commons-configurations": "2.31.0-5284",
     "@stylistic/eslint-plugin": "5.10.0",
     "@stylistic/stylelint-plugin": "5.3.1",
@@ -153,6 +155,7 @@
     "stylelint": "17.16.0",
     "stylelint-config-html": "2.0.0",
     "ts-api-utils": "2.5.0",
+    "tsc-ts-source": "https://codeload.github.com/vercel-labs/tsc-ts/tar.gz/085c71ef7d10dcbe9f67fc38e5f1a778153f7151",
     "typescript": "file:packages/typescript",
     "typescript-classic": "npm:typescript@6.0.3",
     "vue-eslint-parser": "10.4.1",

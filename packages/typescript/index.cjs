@@ -17,8 +17,14 @@
 // Every consumer, including upstream rules and helpers, resolves this same contract.
 // A provider supplies the supported operations; it does not determine the public export surface.
 const supported = require('./supported-exports.json');
-const provider = require('./providers/classic.cjs');
 const { CompilerContractError } = require('./errors.cjs');
+const backend = process.env.SONARJS_TYPESCRIPT_BACKEND ?? 'vercel';
+if (!['ts6', 'vercel'].includes(backend))
+  throw new CompilerContractError(`Unknown compiler provider: ${backend}`);
+const provider =
+  backend === 'ts6'
+    ? require('./providers/classic.cjs')
+    : require('./providers/vercel/runtime.cjs').default;
 const compiler = Object.create(null);
 for (const name of supported) {
   Object.defineProperty(compiler, name, {

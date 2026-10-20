@@ -127,6 +127,19 @@ async function main() {
       'packages/analysis/src/jsts/frontend/vendor/LICENSE',
       path.join(THIRD_PARTY_LICENSES_DIR, 'typescript-eslint-frontend-LICENSE.txt'),
     );
+    for (const [source, name] of [
+      ['node_modules/tsc-ts-source/LICENSE', 'vercel-tsc-ts-LICENSE.txt'],
+      ['node_modules/tsc-ts-source/THIRD_PARTY_NOTICES.md', 'vercel-tsc-ts-NOTICES.txt'],
+      [
+        'packages/typescript/providers/vercel/LICENSE',
+        'typescript-eslint-native-adapters-LICENSE.txt',
+      ],
+      [
+        'packages/typescript/providers/vercel/NOTICE.md',
+        'typescript-eslint-native-adapters-NOTICE.txt',
+      ],
+    ])
+      await fs.copyFile(source, path.join(THIRD_PARTY_LICENSES_DIR, name));
     console.log('=== License management completed successfully ===');
   } catch (error) {
     console.error('License management failed:', error);

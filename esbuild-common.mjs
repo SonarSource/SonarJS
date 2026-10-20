@@ -298,6 +298,10 @@ export async function buildBundle({ entryPoint, outfile, additionalAssets = [], 
   });
 
   if (metafilePath !== undefined) {
+    // The generated provider is itself a bundle. Retain its source inputs so
+    // the existing SBOM coverage check can see every compiler dependency.
+    const provider = JSON.parse(readFileSync('target/vercel-typescript-metafile.json', 'utf8'));
+    Object.assign(result.metafile.inputs, provider.inputs);
     await mkdir(dirname(metafilePath), { recursive: true });
     await writeFile(metafilePath, JSON.stringify(result.metafile));
   }
