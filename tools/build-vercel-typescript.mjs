@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { build } from 'esbuild';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 // The source archive's workspace root omits package metadata. Give SBOM tooling
@@ -28,19 +28,29 @@ const compiler = JSON.parse(
 const dependency = JSON.parse(readFileSync('package.json', 'utf8')).dependencies['tsc-ts-source'];
 const revision = /\/([a-f0-9]{40})$/.exec(dependency)?.[1];
 if (!revision) throw new Error('The Vercel compiler must be pinned to a source revision');
+const identity = { version: `${compiler.version}-git.${revision}`, license: compiler.license };
 await writeFile(
   manifestPath,
   JSON.stringify(
     {
       ...root,
-      version: `${compiler.version}-git.${revision}`,
-      license: compiler.license,
+      ...identity,
       repository: compiler.repository,
     },
     null,
     2,
   ),
 );
+// npm ls (and CycloneDX) prefers npm's generated installation inventory over
+// package.json. Normalize both installed views from the same upstream identity.
+const inventoryPath = 'node_modules/.package-lock.json';
+if (existsSync(inventoryPath)) {
+  const inventory = JSON.parse(readFileSync(inventoryPath, 'utf8'));
+  const installed = inventory.packages?.['node_modules/tsc-ts-source'];
+  if (!installed) throw new Error('Missing Vercel source installation inventory');
+  Object.assign(installed, identity);
+  await writeFile(inventoryPath, JSON.stringify(inventory, null, 2));
+}
 const result = await build({
   entryPoints: ['packages/typescript/providers/vercel/index.mjs'],
   outfile: 'packages/typescript/providers/vercel/runtime.cjs',

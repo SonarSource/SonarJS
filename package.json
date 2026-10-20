@@ -41,7 +41,7 @@
     "eslint-docs": "rimraf --glob lib/docs/*.md && eslint-doc-generator lib --init-rule-docs && tsx tools/generate-external-rules-docs.ts",
     "deploy-rule-data": "tsx tools/deploy-rule-data.ts",
     "license-regeneration": "node license-management.mjs",
-    "cyclonedx:npm": "cyclonedx-npm --omit dev --spec-version 1.6 --validate --output-file target/bom-npm.json",
+    "cyclonedx:npm": "npm run compiler:build && cyclonedx-npm --omit dev --spec-version 1.6 --validate --output-file target/bom-npm.json",
     "compiler:check": "npm run compiler:build && node tools/generate-typescript-exports.mjs --check",
     "compiler:build": "node tools/build-vercel-typescript.mjs"
   },

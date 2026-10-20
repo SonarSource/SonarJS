@@ -17,8 +17,10 @@ archive. `npm ci` builds the private provider with esbuild during postinstall.
 are excluded from Git. No Go compiler, scriptc executable or native binary is needed.
 
 The source archive is a monorepo whose root lacks version/license metadata. The build
-copies the compiler workspace's identity into its installed root manifest and appends
-the immutable revision to its version for SBOM attribution. The provider build's
+copies the compiler workspace's identity into its installed root manifest and npm's
+generated installation inventory, and appends
+the immutable revision to its version for SBOM attribution. The SBOM command rebuilds
+the provider first so restored npm caches also receive this normalization. The provider build's
 esbuild input metadata is retained in the bridge metafile so the normal bundled
 dependency coverage check also covers the compiler and its publication library.
 License regeneration copies the upstream license/notices and the adapters' MIT

@@ -40,6 +40,9 @@ it('uses Vercel in process, preserves host overlays and denies implicit disk rea
     const ts = require('./packages/typescript/index.cjs');
     const {CompilerContractError} = require('./packages/typescript/errors.cjs');
     assert.equal(ts.createSourceFile('test.ts', 'const x = 1;', ts.ScriptTarget.Latest).statements.length, 1);
+    const compilerHost = ts.createCompilerHost({noLib: true});
+    compilerHost.readFile = () => 'const fromHost = 1;';
+    assert.equal(compilerHost.getSourceFile('host.ts', ts.ScriptTarget.Latest).text, 'const fromHost = 1;');
     assert.equal(ts.createProgram([], {noLib:true}).getSourceFiles().length, 0);
     assert.throws(() => ts.createWatchProgram({}), CompilerContractError);
     assert.throws(() => ts.server.toNormalizedPath('test'), CompilerContractError);

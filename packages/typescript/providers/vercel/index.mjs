@@ -71,9 +71,22 @@ export function createSourceFile(fileName, text, languageVersion, setParents, sc
   return source;
 }
 
+function createCompilerHost(options, setParents) {
+  const host = ts.createCompilerHost(options, setParents);
+  // Retain filesystem/configuration helpers, but never the SDK host's parser.
+  host.getSourceFile = (fileName, languageVersion) =>
+    compilerCall('CompilerHost.getSourceFile', () => {
+      const text = host.readFile(fileName);
+      return text === undefined
+        ? undefined
+        : createSourceFile(fileName, text, languageVersion, setParents);
+    });
+  return host;
+}
+
 export function createProgram(input, options, host) {
   if (Array.isArray(input)) input = { rootNames: input, options, host };
-  const callbacks = input.host ?? ts.createCompilerHost(input.options, true);
+  const callbacks = input.host ?? createCompilerHost(input.options, true);
   const raw = api.createProgram({
     rootNames: input.rootNames,
     options: input.options,
@@ -159,6 +172,7 @@ const unsupportedServer = new Proxy(Object.create(null), {
 export default new Proxy(ts, {
   get(target, name) {
     if (name === 'server') return unsupportedServer;
+    if (name === 'createCompilerHost') return createCompilerHost;
     if (name === 'createSourceFile')
       return (...args) => compilerCall('createSourceFile', () => createSourceFile(...args));
     if (name === 'createProgram')
