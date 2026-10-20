@@ -13,7 +13,8 @@ The `tsc-ts-source` dependency in package.json is the sole source of the immutab
 revision. The npm release available when implementing this change contained enums
 and types but no program/checker runtime, so this draft uses a pinned public source
 archive. `npm ci` builds the private provider with esbuild during postinstall.
-`npm run compiler:check` also rebuilds it. Generated runtime and dependency metadata
+`npm run generate-meta` and `npm run compiler:check` also rebuild it, including after
+CI restores only `node_modules` from cache. Generated runtime and dependency metadata
 are excluded from Git. No Go compiler, scriptc executable or native binary is needed.
 
 The source archive is a monorepo whose root lacks version/license metadata. The build
