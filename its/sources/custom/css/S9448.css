@@ -1,0 +1,16 @@
+a {
+  transform: rotat(10deg); /* Noncompliant */
+  background: linaer-gradient(red, blue); /* Noncompliant */
+  width: calc(100% - spacng(2)); /* Noncompliant */
+  color: theme(colors.red); /* No FP: Tailwind theme() is ignored by default */
+  height: --my-fn(1px); /* No FP: custom function */
+  --gradient: linaer-gradient(red, blue); /* No FP: custom property values are opaque */
+  padding-top: constant(safe-area-inset-top); /* No FP: iOS 11.0 fallback for env() */
+  filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='a.png'); /* No FP */
+  content: "{page}" countr(chapter); /* Noncompliant */
+}
+
+@font-face {
+  font-family: Foo;
+  src: url(foo.woff2) format("woff2") tech(variations); /* No FP: descriptor values belong to S8775 */
+}

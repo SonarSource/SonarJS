@@ -59,6 +59,8 @@ describe('CSS rule registry', () => {
 
   it('routes local and upstream CSS-only rules without restricting other rules', () => {
     assert.ok(cssOnlyRuleKeys.has('sonar/declaration-property-value-no-unknown'));
+    assert.ok(cssOnlyRuleKeys.has('sonar/function-no-unknown'));
+    assert.ok(!cssOnlyRuleKeys.has('sonar/motion-reduced'));
     assert.ok(cssOnlyRuleKeys.has('at-rule-no-unknown'));
     assert.ok(!cssOnlyRuleKeys.has('sonar/no-commented-code'));
     assert.ok(!cssOnlyRuleKeys.has('color-no-invalid-hex'));

@@ -29,7 +29,8 @@ import {
   type SyntaxMatchError,
 } from 'css-tree';
 import { calc, ParseErrorMessage, type ParseError } from '@csstools/css-calc';
-import { knownFunctionsOf } from './known-functions.js';
+import { knownFunctionsOf } from '../helpers/known-functions.js';
+import { isLegacyIeFilter, VENDOR_PREFIX } from '../helpers/legacy-syntax.js';
 import { collectRegisteredSyntaxes, UNIVERSAL_SYNTAX } from './registrations.js';
 
 const ruleName = meta.bindings[0].stylelintKey;
@@ -102,9 +103,6 @@ const NESTING_AT_RULES = new Set([
 
 const CSS_WIDE_KEYWORDS = new Set(['inherit', 'initial', 'revert', 'revert-layer', 'unset']);
 
-const VENDOR_PREFIX = /^-(?:webkit|moz|ms|o|khtml)-/i;
-const LEGACY_IE_FILTER_FUNCTION = /^\s*(?:progid:|alpha\()/i;
-const LEGACY_IE_FILTER_KEYWORDS = new Set(['fliph', 'flipv', 'gray', 'invert', 'xray']);
 // Value suffixes targeting old Internet Explorer versions, such as `1px \9` or `10px\0/`
 const IE_HACK_SUFFIX = /\\[09]$/;
 const IE8_HACK_SUFFIX = String.raw`\0/`;
@@ -241,20 +239,9 @@ function isSkippedDeclaration(decl: PostCSS.Declaration, syntax: string | undefi
   return (
     // custom properties are checked only against a restricted registered syntax
     (property.startsWith('--') && (syntax === undefined || syntax === UNIVERSAL_SYNTAX)) ||
-    property === '-ms-filter' ||
-    (property === 'filter' && isLegacyIeFilter(decl.value)) ||
+    isLegacyIeFilter(decl) ||
     decl.value.trimEnd().endsWith(IE8_HACK_SUFFIX) ||
     isDescriptor(decl)
-  );
-}
-
-function isLegacyIeFilter(value: string): boolean {
-  return (
-    LEGACY_IE_FILTER_FUNCTION.test(value) ||
-    value
-      .trim()
-      .split(/\s+/)
-      .every((keyword: string) => LEGACY_IE_FILTER_KEYWORDS.has(keyword.toLowerCase()))
   );
 }
 
