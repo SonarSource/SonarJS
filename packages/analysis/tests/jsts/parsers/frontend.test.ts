@@ -28,6 +28,7 @@ import * as owned from '../../../src/jsts/frontend/parser.js';
 import { createProgramFromSingleFile } from '../../../src/jsts/program/factory.js';
 
 const cases = [
+  ['jsdoc', '/** @jsx jsx */\nimport { jsx } from "any"; /** docs */ const value = 1;'],
   [
     'typescript',
     'type Box<T> = { value: T }; interface Box<T> { other?: T }; const box: Box<number> = { value: 1 };',
