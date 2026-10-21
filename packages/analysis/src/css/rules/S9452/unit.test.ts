@@ -193,6 +193,24 @@ describe('S9452 (sonar/media-feature-name-value-no-unknown)', () => {
         ]),
       ).toEqual([UNIT_RULE, RULE]);
     });
+
+    it('reports standard units that S4653 does not know', () =>
+      ruleTester.invalid({
+        code: `@media (width: 10db) {}
+@media (width: 10st) {}
+@media (width: 10Hz) {}`,
+        errors: [
+          { text: text('10db', 'width'), line: 1 },
+          { text: text('10st', 'width'), line: 2 },
+          { text: text('10Hz', 'width'), line: 3 },
+        ],
+      }));
+
+    it('leaves obsolete units to S4653', () =>
+      ruleTester.valid({
+        code: `@media (color: 10vm) {}
+@media (color: 10mozmm) {}`,
+      }));
   });
 
   describe('known limitations', () => {
