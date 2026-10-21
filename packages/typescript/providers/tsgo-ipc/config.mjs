@@ -21,6 +21,8 @@ export function createConfiguration(runtime) {
   const diagnostic = value =>
     value && {
       ...value,
+      file: undefined,
+      relatedInformation: value.relatedInformation?.map(diagnostic),
       messageText: value.text,
       start: value.pos,
       length: value.end - value.pos,
