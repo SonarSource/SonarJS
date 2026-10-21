@@ -276,6 +276,10 @@ jobs:
         name: Configure Maven
         id: config-maven
         uses: SonarSource/ci-github-actions/config-maven@v2
+        # config-npm exports package.json versions; Maven must derive its version from pom.xml.
+        env:
+          CURRENT_VERSION: ''
+          PROJECT_VERSION: ''
         with:
           repox-url: https://repox-internal.dev.sonar.build
           artifactory-reader-role: private-reader
