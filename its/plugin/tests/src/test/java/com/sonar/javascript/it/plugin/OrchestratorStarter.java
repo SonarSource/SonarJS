@@ -50,33 +50,24 @@ public final class OrchestratorStarter
 {
 
   static final String SCANNER_VERSION = "5.0.1.3006";
+
+  private static final Pattern PLUGIN_FILENAME_PATTERN = Pattern.compile(
+    "sonar-javascript-plugin-[0-9.]*(?:-SNAPSHOT)?\\.jar"
+  );
+
   static final URLLocation JAVASCRIPT_PLUGIN_LOCATION = artifact();
 
-  /**
-   * This is used to test artifact with and without embedded runtime during plugin QA integration tests
-   *
-   */
   private static URLLocation artifact() {
     var target = Path.of("../../../sonar-plugin/sonar-javascript-plugin/target");
     try (var stream = Files.walk(target, 1)) {
       var plugin = stream
-        .filter(p -> pluginFilenameMatcher().matcher(p.getFileName().toString()).matches())
+        .filter(p -> PLUGIN_FILENAME_PATTERN.matcher(p.getFileName().toString()).matches())
         .findAny()
         .orElseThrow();
       return URLLocation.create(plugin.toUri().toURL());
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
-  }
-
-  private static Pattern pluginFilenameMatcher() {
-    if (System.getenv("SONARJS_ARTIFACT") != null) {
-      return Pattern.compile(
-        String.format("sonar-javascript-plugin-.*-%s\\.jar", System.getenv("SONARJS_ARTIFACT"))
-      );
-    }
-
-    return Pattern.compile("sonar-javascript-plugin-[0-9.]*(?:-SNAPSHOT)?\\.jar");
   }
 
   public static final OrchestratorExtension ORCHESTRATOR = OrchestratorExtension.builderEnv()
@@ -207,7 +198,7 @@ public final class OrchestratorStarter
   @CheckForNull
   static Integer getMeasureAsInt(String componentKey, String metricKey) {
     Measure measure = getMeasure(componentKey, metricKey);
-    return (measure == null) ? null : Integer.parseInt(measure.getValue());
+    return measure == null ? null : Integer.parseInt(measure.getValue());
   }
 
   @CheckForNull
@@ -224,7 +215,7 @@ public final class OrchestratorStarter
     String pullRequest
   ) {
     var measure = getMeasure(orchestrator, componentKey, metricKey, branch, pullRequest);
-    return (measure == null) ? null : Double.parseDouble(measure.getValue());
+    return measure == null ? null : Double.parseDouble(measure.getValue());
   }
 
   static WsClient newWsClient(Orchestrator orchestrator) {

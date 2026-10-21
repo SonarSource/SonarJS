@@ -18,17 +18,13 @@ package com.sonar.javascript.it.plugin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.sonar.orchestrator.locator.FileLocation;
 import com.sonarsource.scanner.integrationtester.dsl.Log;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
 import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
 import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
 import com.sonarsource.scanner.integrationtester.runner.ScannerRunnerConfig;
-import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Locale;
 import org.junit.jupiter.api.Test;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 
@@ -36,12 +32,7 @@ class EmbeddedNodeTest {
 
   private static final SonarServerContext SERVER_CONTEXT = SonarScannerIntegrationHelper.getContext(
     List.of(JavaScriptLanguage.KEY),
-    List.of(
-      FileLocation.byWildcardMavenFilename(
-        new File("../../../sonar-plugin/sonar-javascript-plugin/target"),
-        "sonar-javascript-plugin-*" + classifier() + ".jar"
-      )
-    ),
+    List.of(SonarScannerIntegrationHelper.getJavascriptPlugin()),
     List.of(Path.of("src", "test", "resources", "eslint-based-rules.xml"))
   );
 
@@ -64,24 +55,5 @@ class EmbeddedNodeTest {
     assertThat(result.logOutput())
       .filteredOn(l -> l.level().equals(Log.Level.ERROR))
       .isEmpty();
-  }
-
-  private static String classifier() {
-    var os = System.getProperty("os.name").toLowerCase(Locale.ROOT);
-    var arch = System.getProperty("os.arch");
-    if (os.contains("linux") && arch.contains("64")) {
-      if (isAlpine()) {
-        return "-linux-x64-musl";
-      }
-      return "-linux-x64";
-    } else if (os.contains("windows")) {
-      return "-win-x64";
-    } else {
-      return "-multi";
-    }
-  }
-
-  private static boolean isAlpine() {
-    return Files.exists(Path.of("/etc/alpine-release"));
   }
 }

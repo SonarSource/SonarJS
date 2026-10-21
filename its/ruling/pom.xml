@@ -96,7 +96,6 @@
                       <groupId>${project.groupId}</groupId>
                       <artifactId>sonar-javascript-plugin</artifactId>
                       <type>sonar-plugin</type>
-                      <classifier>multi</classifier>
                       <overWrite>true</overWrite>
                     </artifactItem>
                   </artifactItems>

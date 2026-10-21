@@ -258,12 +258,13 @@ After building the plugin locally, run:
 mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false verify
 ```
 
-Local runs discover the built JAR in `sonar-plugin/sonar-javascript-plugin/target`; set
-`SONARJS_ARTIFACT=<classifier>` (for example, `multi`) to select a plugin with an embedded Node
-runtime rather than the classifier-less JAR. In CI,
+Local runs discover the built JAR in `sonar-plugin/sonar-javascript-plugin/target`. In CI,
 `SONARSOURCE_QA=true` activates the existing Maven copy step, which uses the inherited project
-version to populate that directory from the downloaded Maven artifacts. The without-Node CI jobs
-set `SONARJS_ARTIFACT` to `multi` (or `linux-x64-musl` on Alpine) to select the artifact under test.
+version to populate that directory from the downloaded Maven artifacts. The plugin ships a
+single classifier-less JAR; its embedded Node.js runtime is fetched on demand from the
+`sonar-javascript-plugin-<version>.zip` resources artifact (see
+[`On-demand resources ZIP`](BUILD.md#on-demand-resources-zip-js-2714--sc-49784) in `BUILD.md`),
+so the without-Node CI jobs no longer need to select a classifier to test that path.
 
 ## Job Index
 
