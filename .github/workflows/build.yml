@@ -190,7 +190,7 @@ jobs:
       - if: steps.cache.outputs.cache-hit != 'true'
         uses: SonarSource/ci-github-actions/config-npm@v2
         env: *config_npm_github_auth
-        with:
+        with: &config_npm_edge_options
           repox-url: https://repox-internal.dev.sonar.build
           artifactory-reader-role: private-reader
           disable-caching: 'true'
@@ -255,6 +255,11 @@ jobs:
         with:
           name: rspec-rule-data-${{ github.sha }}
           path: sonar-plugin
+      # Bundling also fetches native compiler packages for the other platforms.
+      - &config_npm_edge
+        uses: SonarSource/ci-github-actions/config-npm@v2
+        env: *config_npm_github_auth
+        with: *config_npm_edge_options
       - name: Restore and save Maven cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -430,13 +435,7 @@ jobs:
       - *checkout
       - *mise
       - *npm_cache
-      - &config_npm_edge
-        uses: SonarSource/ci-github-actions/config-npm@v2
-        env: *config_npm_github_auth
-        with:
-          repox-url: https://repox-internal.dev.sonar.build
-          artifactory-reader-role: private-reader
-          disable-caching: 'true'
+      - *config_npm_edge
       - *download_rspec_rule_data
       - name: Build ESLint plugin
         run: npm run eslint-plugin:build
