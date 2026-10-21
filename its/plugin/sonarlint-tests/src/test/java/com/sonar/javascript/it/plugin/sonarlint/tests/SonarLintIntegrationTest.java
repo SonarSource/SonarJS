@@ -16,7 +16,6 @@
  */
 package com.sonar.javascript.it.plugin.sonarlint.tests;
 
-import static com.sonar.javascript.it.plugin.sonarlint.tests.TestUtils.usingEmbeddedNode;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
@@ -71,16 +70,14 @@ class SonarLintIntegrationTest {
     });
 
     assertThat(client.getLogMessages()).contains("The bridge server is up, no need to start.");
-    if (!usingEmbeddedNode()) {
-      assertThat(
-        client
-          .getLogMessages()
-          .stream()
-          .anyMatch(s ->
-            s.matches("Using Node\\.js executable .* from property sonar\\.nodejs\\.executable\\.")
-          )
-      ).isTrue();
-    }
+    assertThat(
+      client
+        .getLogMessages()
+        .stream()
+        .anyMatch(s ->
+          s.matches("Using Node\\.js executable .* from property sonar\\.nodejs\\.executable\\.")
+        )
+    ).isTrue();
   }
 
   @SonarLintTest

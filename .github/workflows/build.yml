@@ -1034,7 +1034,6 @@ jobs:
           mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
-          SONARJS_ARTIFACT: multi
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
       - *clean_sonarjs_m2
 
@@ -1068,7 +1067,6 @@ jobs:
           mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=DEV -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
-          SONARJS_ARTIFACT: multi
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
       - *clean_sonarjs_m2
 
@@ -1168,7 +1166,6 @@ jobs:
           setpriv --reuid=sonar --regid=sonar --init-groups -- mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
-          SONARJS_ARTIFACT: linux-x64-musl
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
       - *clean_sonarjs_m2
 
@@ -1200,7 +1197,6 @@ jobs:
           mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dtest=!EslintCustomRulesTest -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
-          SONARJS_ARTIFACT: multi
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
       - *clean_sonarjs_m2
 
@@ -1233,7 +1229,6 @@ jobs:
           mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=DEV -Dtest=!EslintCustomRulesTest -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
-          SONARJS_ARTIFACT: multi
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
       - *clean_sonarjs_m2
 
@@ -1267,7 +1262,6 @@ jobs:
           mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dtest=!EslintCustomRulesTest -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
-          SONARJS_ARTIFACT: linux-x64-musl
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
       - *clean_sonarjs_m2
 

@@ -107,14 +107,9 @@ public final class SonarScannerIntegrationHelper {
   }
 
   public static FileLocation getJavascriptPlugin() {
-    var artifact = System.getenv("SONARJS_ARTIFACT");
-    var pattern =
-      artifact != null
-        ? String.format("sonar-javascript-plugin-*-%s.jar", artifact)
-        : "sonar-javascript-plugin-*-multi.jar";
     return FileLocation.byWildcardMavenFilename(
       new File("../../../sonar-plugin/sonar-javascript-plugin/target"),
-      pattern
+      "sonar-javascript-plugin-*.jar"
     );
   }
 
