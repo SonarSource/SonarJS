@@ -1,0 +1,234 @@
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) SonarSource Sàrl
+ * mailto:info AT sonarsource DOT com
+ *
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the Sonar Source-Available License for more details.
+ *
+ * You should have received a copy of the Sonar Source-Available License
+ * along with this program; if not, see https://sonarsource.com/license/ssal/
+ */
+import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { it } from 'node:test';
+
+function probe(script: string) {
+  execFileSync(process.execPath, ['--import', 'tsx', '--input-type=module', '-e', script], {
+    encoding: 'utf8',
+    stdio: 'pipe',
+    timeout: 30_000,
+    env: { ...process.env, SONARJS_TYPESCRIPT_BACKEND: 'tsgo-ipc' },
+  });
+}
+
+it('TSGo preserves virtual POSIX, Windows and UNC path namespaces on every host', async () => {
+  const { normalize, nativePaths, restorePaths, nativeFileSystem } = await import(
+    pathToFileURL(path.resolve('packages/typescript/providers/tsgo-ipc/filesystem.mjs')).href
+  );
+  for (const [file, cwd, expected] of [
+    ['/virtual/main.ts', 'C:/analyzer', '/virtual/main.ts'],
+    ['../dist', '/project/src', '/project/dist'],
+    ['../dist', 'C:/project/src', 'C:/project/dist'],
+    ['../dist', '//server/share/project/src', '//server/share/project/dist'],
+  ]) {
+    assert.equal(normalize(file, cwd), expected);
+  }
+  const reversed = new Map();
+  const options = { paths: { alias: ['//server/share/library.ts'] } };
+  const encoded = nativePaths(options, reversed);
+  assert.deepEqual(encoded, { paths: { alias: ['/server/share/library.ts'] } });
+  assert.deepEqual(restorePaths(encoded, reversed), options);
+  assert.equal(
+    restorePaths('/server/share/other/main.ts', reversed),
+    '//server/share/other/main.ts',
+  );
+  assert.equal(
+    restorePaths('/server/share-other/main.ts', reversed),
+    '/server/share-other/main.ts',
+  );
+  const host = {
+    readFile(file: string) {
+      assert.equal(this, host);
+      assert.equal(file, '//server/share/project/main.ts');
+      return '// source comment';
+    },
+    directoryExists: (file: string) => file === '//server/share/project',
+    realpath: (file: string) => file,
+    readDirectory: (file: string) => [file + '/main.ts'],
+    getCurrentDirectory: () => '//server/share/project',
+  };
+  const callbacks = nativeFileSystem(host, reversed);
+  assert.equal(callbacks.readFile('/server/share/project/main.ts'), '// source comment');
+  assert.equal(callbacks.directoryExists('/server/share/project'), true);
+  assert.equal(callbacks.realpath('/server/share/project'), '/server/share/project');
+  assert.deepEqual(callbacks.readDirectory('/server/share/project'), [
+    '/server/share/project/main.ts',
+  ]);
+  assert.equal(callbacks.getCurrentDirectory(), '/server/share/project');
+});
+
+it('TSGo keeps external typed rules on the facade with the TS6 runtime blocked', () => {
+  const parser = new URL('../../analysis/src/jsts/frontend/parser.js', import.meta.url).href;
+  const factory = new URL('../../analysis/src/jsts/program/factory.js', import.meta.url).href;
+  probe(`
+    import assert from 'node:assert/strict';
+    import Module from 'node:module';
+    const load=Module._load;
+    Module._load=function(name,...args){
+      if(name==='typescript-classic'||name.startsWith('typescript-classic/')) throw new Error('TS6 runtime was loaded');
+      return load.call(this,name,...args);
+    };
+    const {Linter}=await import('eslint');
+    const {default:plugin}=await import('@typescript-eslint/eslint-plugin');
+    const parser=await import(${JSON.stringify(parser)});
+    const {createProgramFromSingleFile}=await import(${JSON.stringify(factory)});
+    const name=process.cwd()+'/virtual-external-rule.ts',code='Promise.resolve(1);';
+    const program=createProgramFromSingleFile(name,code,{strict:true,target:99});
+    const findings=new Linter().verify(code,{
+      files:['**/*.ts'],languageOptions:{parser,parserOptions:{filePath:name,programs:[program]}},
+      plugins:{ts:plugin},rules:{'ts/no-floating-promises':'error'}
+    },{filename:name});
+    assert.equal(findings.length,1);assert.equal(findings[0].ruleId,'ts/no-floating-promises');
+    assert.equal(findings[0].fatal,undefined);
+    const {createRequire}=await import('node:module');createRequire(process.cwd()+'/package.json')('./packages/typescript/providers/tsgo-ipc/index.mjs').close();
+  `);
+});
+
+it('TSGo token traversal terminates for JSDoc links containing a bare hash', () => {
+  const parser = new URL('../../analysis/src/jsts/frontend/parser.js', import.meta.url).href;
+  probe(`
+    import assert from 'node:assert/strict';
+    import * as native from 'typescript-go/ast';
+    for (const text of ['#', '#-member', '# member']) {
+      const scanner = native.createScanner(true, native.LanguageVariant.Standard, text);
+      let end = 0;
+      while (scanner.scan() !== native.SyntaxKind.EndOfFile) {
+        assert.ok(scanner.getTokenEnd() > end, 'each native token advances the scanner');
+        end = scanner.getTokenEnd();
+      }
+    }
+    const {parseForESLint}=await import(${JSON.stringify(parser)});
+    const text='/** See {@link $compile#-bindtocontroller- bindings}. */\\nfunction f() {}';
+    try {
+      const {ast}=parseForESLint(text,{filePath:process.cwd()+'/virtual-jsdoc-link.js'});
+      assert.equal(ast.body.length,1);
+      assert.equal(ast.body[0].type,'FunctionDeclaration');
+      assert.equal(ast.comments.length,1);
+      assert.equal(ast.comments[0].value,'* See {@link $compile#-bindtocontroller- bindings}. ');
+      assert.deepEqual(ast.comments[0].range,[0,text.indexOf('\\n')]);
+    } finally {
+      (await import('./packages/typescript/providers/tsgo-ipc/index.mjs')).close();
+    }
+  `);
+});
+
+it('TSGo scopes queries to snapshots, releases programs and starts a fresh session', () => {
+  probe(`
+    import assert from 'node:assert/strict';
+    import ts from 'typescript';
+    import {createRequire} from 'node:module';const {close}=createRequire(process.cwd()+'/package.json')('./packages/typescript/providers/tsgo-ipc/index.mjs');
+    const name='/virtual/overlays/main.ts',dependency='/virtual/overlays/imported.ts';
+    const files=new Map([[name,"import { value } from './imported'; export const result=value;"],[dependency,'export const value=42;']]);
+    const host={...ts.createCompilerHost({noLib:true}),readFile:file=>files.get(file),fileExists:file=>files.has(file),
+      directoryExists:()=>true,getDirectories:()=>[],getCurrentDirectory:()=>'/virtual/overlays',readDirectory:()=>[]};
+    const create=()=>ts.createProgram({rootNames:[name],options:{noLib:true},host});
+    const value=p=>{const c=p.getTypeChecker();return c.typeToString(c.getTypeAtLocation(p.getSourceFile(name).statements[1].declarationList.declarations[0].initializer));};
+    const original=create();assert.equal(value(original),'42');
+    assert.equal(original.getSourceFile(dependency).text,'export const value=42;');
+    assert.equal(original.getSourceFile('/etc/passwd'),undefined,'denied source never reads server disk');
+    files.set(dependency,'export const value="edited";');const edited=create();
+    assert.equal(value(edited),'"edited"');assert.equal(value(original),'42');
+    original.dispose();original.dispose();assert.throws(()=>value(original),/disposed/);
+    close();assert.throws(()=>value(edited),/session was closed/);
+    const restarted=create();assert.equal(value(restarted),'"edited"');restarted.dispose();close();close();
+  `);
+});
+
+it('TSGo invalidates a failed transport without retrying stale program operations', async () => {
+  const runtimeModule = pathToFileURL(
+    path.resolve('packages/typescript/providers/tsgo-ipc/runtime.mjs'),
+  ).href;
+  const { createRuntime } = await import(runtimeModule);
+  let opened = 0,
+    closed = 0;
+  class FakeAPI {
+    constructor() {
+      opened++;
+    }
+    close() {
+      closed++;
+    }
+  }
+  const runtime = createRuntime(FakeAPI, {}, process.execPath);
+  const stale = runtime.bind({});
+  stale(() => undefined);
+  assert.throws(
+    () =>
+      stale(() => {
+        throw new Error('Unexpected EOF');
+      }),
+    /Unexpected EOF/,
+  );
+  assert.equal(closed, 1);
+  assert.throws(() => stale(() => undefined), /session was closed/);
+  runtime.bind({})(() => undefined);
+  assert.equal(opened, 2);
+  runtime.close();
+  assert.equal(closed, 2);
+});
+
+it('TSGo recovers after its native child exits', { skip: process.platform === 'win32' }, () => {
+  probe(`
+    import assert from 'node:assert/strict';
+    import ts from 'typescript';
+    import {execFileSync} from 'node:child_process';
+    import {createRequire} from 'node:module';
+    const provider=createRequire(process.cwd()+'/package.json')('./packages/typescript/providers/tsgo-ipc/index.mjs');
+    const name='/virtual/native-exit.ts',text='export const value=42;';
+    const host={...ts.createCompilerHost({noLib:true}),readFile:file=>file===name?text:undefined,fileExists:file=>file===name,directoryExists:()=>true};
+    const create=()=>ts.createProgram({rootNames:[name],options:{noLib:true},host});
+    const original=create();
+    const rows=execFileSync('ps',['-eo','pid=,ppid=,args='],{encoding:'utf8'}).split('\\n');
+    const match=rows.map(row=>/^\\s*(\\d+)\\s+(\\d+)\\s+(.+)$/.exec(row)).find(row=>row&&Number(row[2])===process.pid&&row[3].includes('/target/tsgo-ipc/native/tsc-'));
+    assert.ok(match,'native child belongs to this test process');
+    process.kill(Number(match[1]),'SIGKILL');
+    await new Promise(resolve=>setTimeout(resolve,30));
+    assert.throws(()=>original.getSemanticDiagnostics(),/EOF|EPIPE|EBADF|closed|reset/i);
+    assert.throws(()=>original.getSourceFile(name),/session was closed/);
+    const restarted=create();assert.equal(restarted.getSourceFile(name).text,text);restarted.dispose();provider.close();
+  `);
+});
+
+it('reads signature documentation through the public AST API', () => {
+  execFileSync(
+    process.execPath,
+    [
+      '--input-type=commonjs',
+      '-e',
+      String.raw`
+    const assert = require('node:assert/strict');
+    const ts = require('typescript'), lifecycle = require('typescript/lifecycle');
+    const name = '/virtual/documented.ts';
+    const text = '/** Identity documentation. */ export function identity(value: number): number { return value; }';
+    const host = {...ts.createCompilerHost({noLib:true}),
+      getSourceFile: file => file === name ? {text} : undefined,
+      readFile: file => file === name ? text : undefined,
+      fileExists: file => file === name, directoryExists: () => true};
+    const program = ts.createProgram({rootNames:[name], options:{noLib:true}, host});
+    const checker = program.getTypeChecker();
+    const signature = checker.getSignatureFromDeclaration(program.getSourceFile(name).statements[0]);
+    assert.equal(ts.displayPartsToString(signature.getDocumentationComment(checker)), 'Identity documentation.');
+    lifecycle.disposeProgram(program); lifecycle.close();
+  `,
+    ],
+    { env: { ...process.env, SONARJS_TYPESCRIPT_BACKEND: 'tsgo-ipc' }, stdio: 'pipe' },
+  );
+});

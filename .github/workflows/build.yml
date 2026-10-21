@@ -143,6 +143,9 @@ jobs:
           version: 2026.9.18
           cache: false
       - uses: SonarSource/ci-github-actions/config-npm@v2
+        # Authenticate the nested mise self-update when it fetches GitHub release metadata.
+        env: &config_npm_github_auth
+          GITHUB_TOKEN: ${{ github.token }}
         with:
           repox-url: https://repox.jfrog.io
           artifactory-reader-role: private-reader
@@ -186,7 +189,8 @@ jobs:
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
       - if: steps.cache.outputs.cache-hit != 'true'
         uses: SonarSource/ci-github-actions/config-npm@v2
-        with:
+        env: *config_npm_github_auth
+        with: &config_npm_edge_options
           repox-url: https://repox-internal.dev.sonar.build
           artifactory-reader-role: private-reader
           disable-caching: 'true'
@@ -206,7 +210,7 @@ jobs:
       - *npm_cache_probe
       - *npm_cache_checkout
       - *npm_cache_mise
-      - if: steps.cache.outputs.cache-hit != 'true'
+      - &config_npm_windows_secrets
         id: secrets
         name: Access vault secrets
         uses: SonarSource/vault-action-wrapper@v3
@@ -214,7 +218,7 @@ jobs:
           url: https://vault.dev.sonar.build
           secrets: |
             development/artifactory-edge-dev/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
-      - if: steps.cache.outputs.cache-hit != 'true'
+      - &config_npm_windows_registry
         name: Configure npm registry
         shell: bash
         env:
@@ -251,6 +255,11 @@ jobs:
         with:
           name: rspec-rule-data-${{ github.sha }}
           path: sonar-plugin
+      # Bundling also fetches native compiler packages for the other platforms.
+      - &config_npm_edge
+        uses: SonarSource/ci-github-actions/config-npm@v2
+        env: *config_npm_github_auth
+        with: *config_npm_edge_options
       - name: Restore and save Maven cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -267,6 +276,10 @@ jobs:
         name: Configure Maven
         id: config-maven
         uses: SonarSource/ci-github-actions/config-maven@v2
+        # config-npm exports package.json versions; Maven must derive its version from pom.xml.
+        env:
+          CURRENT_VERSION: ''
+          PROJECT_VERSION: ''
         with:
           repox-url: https://repox-internal.dev.sonar.build
           artifactory-reader-role: private-reader
@@ -346,6 +359,8 @@ jobs:
       - *checkout
       - *mise
       - *npm_cache
+      - *config_npm_windows_secrets
+      - *config_npm_windows_registry
       - *download_rspec_rule_data
       - name: Restore Maven cache
         if: github.ref_name != github.event.repository.default_branch
@@ -426,12 +441,7 @@ jobs:
       - *checkout
       - *mise
       - *npm_cache
-      - &config_npm_edge
-        uses: SonarSource/ci-github-actions/config-npm@v2
-        with:
-          repox-url: https://repox-internal.dev.sonar.build
-          artifactory-reader-role: private-reader
-          disable-caching: 'true'
+      - *config_npm_edge
       - *download_rspec_rule_data
       - name: Build ESLint plugin
         run: npm run eslint-plugin:build
