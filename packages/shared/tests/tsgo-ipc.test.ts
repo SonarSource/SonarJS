@@ -29,6 +29,20 @@ function probe(script: string) {
   });
 }
 
+it('TSGo preserves virtual POSIX, Windows and UNC path namespaces on every host', async () => {
+  const { normalize } = await import(
+    pathToFileURL(path.resolve('packages/typescript/providers/tsgo-ipc/filesystem.mjs')).href
+  );
+  for (const [file, cwd, expected] of [
+    ['/virtual/main.ts', 'C:/analyzer', '/virtual/main.ts'],
+    ['../dist', '/project/src', '/project/dist'],
+    ['../dist', 'C:/project/src', 'C:/project/dist'],
+    ['../dist', '//server/share/project/src', '//server/share/project/dist'],
+  ]) {
+    assert.equal(normalize(file, cwd), expected);
+  }
+});
+
 it('TSGo keeps external typed rules on the facade with the TS6 runtime blocked', () => {
   const parser = new URL('../../analysis/src/jsts/frontend/parser.js', import.meta.url).href;
   const factory = new URL('../../analysis/src/jsts/program/factory.js', import.meta.url).href;

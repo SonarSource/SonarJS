@@ -80,6 +80,12 @@ and Windows, each on ARM64 and x64. The native executable requires adjacent stan
 library declarations, which are copied together with license/notice files. The Java
 bundle extractor preserves executable archive modes for scanner deployment.
 
+All Maven plugin classifiers share this universal bridge archive, including those
+that embed only one Node.js runtime. The native executables increase the packaged
+plugin sizes; the Maven size checks include that overhead. Distributing only the
+host compiler in each platform classifier would require splitting the shared bridge
+archive and is not implemented in this draft.
+
 Off-host platform packages are fetched with the configured npm registry and checked
 against the committed package-lock integrity before extraction. SDK/package versions
 must match. The bundle contains one selected provider plus its native assets and
@@ -113,10 +119,11 @@ and existing baseUrl projects.
 Final local checks on macOS ARM64: compilation and compiler-contract checks passed;
 the compiled bridge suite passed 2,960 tests with one skipped; Knip
 (`--no-gitignore`), formatting, the bundled smoke test, 75 TS6 configuration tests,
-and all four Java bundle deployment tests passed. Linux/Windows CI is still needed.
+and all four Java bundle deployment tests passed. Linux CI also passed the full
+coverage suite with 2,960 passing tests. Windows CI exposed pipe detection and
+virtual-path normalization differences; fixes require a fresh Windows run.
 
 The benchmark summary JSON is the canonical measurement artifact. Its Markdown
-report is generated with `tools/compiler-comparison/report.mjs`. The additional
-Redux finding concerns unresolved JSDoc type `Store`; the other nine added findings
-are S4325 assertion warnings that still need deeper semantic triage before production
-use. Rules are not suppressed to match the baseline.
+report is generated with `tools/compiler-comparison/report.mjs`. The nine added
+findings are S4325 assertion warnings that still need deeper semantic triage before
+production use. Rules are not suppressed to match the baseline.

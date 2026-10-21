@@ -522,16 +522,18 @@
             <phase>verify</phase>
             <configuration>
               <rules>
+                <!-- The shared bridge now includes six native TSGo executables. Observed sizes
+                     are 181 MB (multi), 98 MB (platform), and 74 MB (without Node.js). -->
                 <requireFilesSize>
                   <minsize>100000000</minsize>
-                  <maxsize>140000000</maxsize>
+                  <maxsize>200000000</maxsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}-multi.jar</file>
                   </files>
                 </requireFilesSize>
                 <requireFilesSize>
                   <minsize>25000000</minsize>
-                  <maxsize>55000000</maxsize>
+                  <maxsize>115000000</maxsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}-linux-x64.jar</file>
                     <file>${project.build.directory}/${project.build.finalName}-linux-x64-musl.jar</file>
@@ -541,7 +543,7 @@
                 </requireFilesSize>
                 <requireFilesSize>
                   <minsize>8000000</minsize>
-                  <maxsize>24000000</maxsize>
+                  <maxsize>90000000</maxsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}.jar</file>
                   </files>

@@ -27,9 +27,12 @@ const attempt = (operation, fallback) => {
 };
 export const normalize = (file, cwd = process.cwd()) => {
   const normalized = file.replaceAll('\\', '/');
-  return /^(?:[a-z]:\/|\/\/)/i.test(normalized)
-    ? (normalized.startsWith('//') ? '/' : '') + path.posix.normalize(normalized)
-    : path.resolve(cwd, normalized).replaceAll('\\', '/');
+  if (normalized.startsWith('/'))
+    return (normalized.startsWith('//') ? '/' : '') + path.posix.normalize(normalized);
+  if (/^[a-z]:\//i.test(normalized)) return path.posix.normalize(normalized);
+  const base = cwd.replaceAll('\\', '/');
+  const paths = /^(?:[a-z]:\/|\/\/)/i.test(base) ? path.win32 : path.posix;
+  return paths.resolve(base, normalized).replaceAll('\\', '/');
 };
 export const entries = directory => {
   const files = [],

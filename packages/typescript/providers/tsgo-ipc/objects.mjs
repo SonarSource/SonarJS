@@ -171,6 +171,9 @@ export function createObjects({ native, sdk, checker: remote, call, diagnostics 
         raw.typeParameters.every(parameter => parameter.end <= raw.getStart())
       )
         return undefined;
+      // JSDoc parameter/return types participate in native checking but must not
+      // become TypeScript annotations in the JavaScript syntax tree.
+      if (property === 'type' && raw.type && raw.type.end <= raw.getStart()) return undefined;
       if (property === 'parseDiagnostics')
         return raw.kind === native.SyntaxKind.SourceFile ? diagnostics(raw) : undefined;
       if (property === 'escapedText')

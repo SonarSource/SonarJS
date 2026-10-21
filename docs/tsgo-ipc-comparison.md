@@ -1,7 +1,7 @@
 # Compiler provider comparison
 
 Candidate: tsgo-ipc. Node: v24.16.0. Repetitions: 3.
-Measured: 2026-10-21. Host: macOS-26.5.2-arm64-arm-64bit-Mach-O.
+Measured: 2026-10-21. Host: Darwin 25.5.0 arm64.
 Corpus commit: 81a52e2c0180fc6e555b2c3efc44729fb46539d9.
 Versions: ts6 6.0.3, tsgo-ipc 7.1.0-beta.
 
@@ -13,14 +13,14 @@ messages, locations, secondaries and fixes. Project sources/configs are unchange
 
 | Project    | Files | TS6 findings | Native findings | Exact matches | TS6 ms | Native ms | Ratio |
 | ---------- | ----: | -----------: | --------------: | ------------: | -----: | --------: | ----: |
-| backbone   |    23 |          648 |             648 |           648 |   1508 |      2463 | 1.63× |
-| underscore |    17 |          348 |             348 |           348 |   1332 |      2084 | 1.56× |
-| redux      |   132 |         1801 |            1802 |          1801 |   2378 |      2835 | 1.19× |
-| ag-grid    |   163 |         6594 |            6595 |          6594 |   6680 |     10536 | 1.58× |
-| rxjs       |   730 |         6249 |            6257 |          6249 |  12732 |     21838 | 1.72× |
+| backbone   |    23 |          648 |             648 |           648 |   1501 |      2405 | 1.60× |
+| underscore |    17 |          348 |             348 |           348 |   1304 |      2037 | 1.56× |
+| redux      |   132 |         1801 |            1801 |          1801 |   2363 |      2785 | 1.18× |
+| ag-grid    |   163 |         6594 |            6595 |          6594 |   6519 |     10199 | 1.56× |
+| rxjs       |   730 |         6249 |            6257 |          6249 |  12537 |     20977 | 1.67× |
 
-Across 1065 files: 15640/15640 exact TS6 matches, 0 missing and 10 added findings.
-Sum of project medians: 24.63s TS6, 39.76s native (1.61×).
+Across 1065 files: 15640/15640 exact TS6 matches, 0 missing and 9 added findings.
+Sum of project medians: 24.23s TS6, 38.40s native (1.59×).
 This sample does not establish performance parity or incremental performance.
 
 ## Memory and IPC
@@ -31,11 +31,11 @@ uses POSIX `ps` and is unavailable on Windows.
 
 | Project    | TS6 tree MiB | Native tree MiB | Native Go child MiB | Native requests |
 | ---------- | -----------: | --------------: | ------------------: | --------------: |
-| backbone   |          759 |            1006 |                 110 |            6127 |
-| underscore |          731 |             945 |                 107 |            6295 |
-| redux      |          929 |            1041 |                 106 |            7022 |
-| ag-grid    |         1188 |            1597 |                 166 |           63151 |
-| rxjs       |         2197 |            3119 |                 226 |           60067 |
+| backbone   |          752 |            1009 |                 113 |            6127 |
+| underscore |          731 |             935 |                 108 |            6295 |
+| redux      |          910 |            1031 |                 108 |            7027 |
+| ag-grid    |         1222 |            1641 |                 168 |           63151 |
+| rxjs       |         2208 |            3014 |                 232 |           60067 |
 
 ## Differences
 
@@ -43,7 +43,6 @@ Full finding messages, secondary locations and fixes remain in the JSON.
 
 | Project | Direction | File                                    | Line | Rule  |
 | ------- | --------- | --------------------------------------- | ---: | ----- |
-| redux   | added     | src/createStore.js                      |   30 | S3827 |
 | ag-grid | added     | src/ts/headerRendering/headerRowComp.ts |  238 | S4325 |
 | rxjs    | added     | src/Subscriber.ts                       |   81 | S4325 |
 | rxjs    | added     | src/util/toSubscriber.ts                |   12 | S4325 |

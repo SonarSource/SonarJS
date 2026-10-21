@@ -1,5 +1,12 @@
 {
   "candidateProvider": "tsgo-ipc",
+  "date": "2026-10-21",
+  "host": "Darwin 25.5.0 arm64",
+  "corpusCommit": "81a52e2c0180fc6e555b2c3efc44729fb46539d9",
+  "versions": {
+    "ts6": "6.0.3",
+    "tsgo-ipc": "7.1.0-beta"
+  },
   "node": "v24.16.0",
   "repetitions": 3,
   "projects": [
@@ -11,29 +18,29 @@
       "identicalIssues": 648,
       "missingIssues": 0,
       "addedIssues": 0,
-      "timeRatio": 1.6331956729142294,
+      "timeRatio": 1.6019550282425994,
       "timings": {
         "ts6": {
-          "analysisMs": [1508.2565829999994, 1510.668667, 1491.2661669999998],
-          "medianMs": 1508.2565829999994,
-          "nodePeakRssBytes": [764755968, 736116736, 738377728],
+          "analysisMs": [1512.27, 1501.4193330000003, 1487.0945000000002],
+          "medianMs": 1501.4193330000003,
+          "nodePeakRssBytes": [738328576, 743587840, 739524608],
           "processTreeMemory": [
             {
               "sampleIntervalMs": 100,
-              "samples": 15,
-              "peakRssBytes": 833880064,
+              "samples": 14,
+              "peakRssBytes": 785268736,
               "peakGoRssBytes": 0
             },
             {
               "sampleIntervalMs": 100,
               "samples": 15,
-              "peakRssBytes": 787251200,
+              "peakRssBytes": 793739264,
               "peakGoRssBytes": 0
             },
             {
               "sampleIntervalMs": 100,
               "samples": 15,
-              "peakRssBytes": 796033024,
+              "peakRssBytes": 788430848,
               "peakGoRssBytes": 0
             }
           ],
@@ -42,59 +49,59 @@
           "deterministic": true
         },
         "candidate": {
-          "analysisMs": [2414.9801249999996, 2463.2781250000003, 2491.136209],
-          "medianMs": 2463.2781250000003,
-          "nodePeakRssBytes": [883163136, 884359168, 889241600],
+          "analysisMs": [2405.20625, 2456.799167, 2391.3186669999996],
+          "medianMs": 2405.20625,
+          "nodePeakRssBytes": [885555200, 878788608, 886276096],
           "processTreeMemory": [
             {
               "sampleIntervalMs": 100,
               "samples": 24,
-              "peakRssBytes": 1055899648,
-              "peakGoRssBytes": 115228672
-            },
-            {
-              "sampleIntervalMs": 100,
-              "samples": 24,
-              "peakRssBytes": 1046839296,
-              "peakGoRssBytes": 112771072
+              "peakRssBytes": 1058521088,
+              "peakGoRssBytes": 118161408
             },
             {
               "sampleIntervalMs": 100,
               "samples": 25,
-              "peakRssBytes": 1055096832,
-              "peakGoRssBytes": 114933760
+              "peakRssBytes": 1049755648,
+              "peakGoRssBytes": 114802688
+            },
+            {
+              "sampleIntervalMs": 100,
+              "samples": 24,
+              "peakRssBytes": 1059913728,
+              "peakGoRssBytes": 118652928
             }
           ],
           "ipc": [
             {
               "requestCount": 6127,
-              "roundTripMs": 252.2742689999959,
-              "bytesSent": 701131,
-              "bytesReceived": 12943194,
-              "serverTimeMs": 156.27891899999878,
-              "transportOverheadMs": 95.99534999999713,
+              "roundTripMs": 251.34819400000924,
+              "bytesSent": 701129,
+              "bytesReceived": 12943119,
+              "serverTimeMs": 156.58439499999957,
+              "transportOverheadMs": 94.76379900000967,
               "nodesMaterialized": 61187,
               "sourceFilesFetched": 49,
               "nodesFetched": 240836
             },
             {
               "requestCount": 6127,
-              "roundTripMs": 254.8170610000402,
-              "bytesSent": 701131,
-              "bytesReceived": 12943199,
-              "serverTimeMs": 155.15076999999914,
-              "transportOverheadMs": 99.66629100004107,
-              "nodesMaterialized": 61187,
-              "sourceFilesFetched": 49,
-              "nodesFetched": 240836
-            },
-            {
-              "requestCount": 6127,
-              "roundTripMs": 263.3318819999695,
+              "roundTripMs": 247.39096499999596,
               "bytesSent": 701130,
-              "bytesReceived": 12943188,
-              "serverTimeMs": 162.19291899999843,
-              "transportOverheadMs": 101.13896299997106,
+              "bytesReceived": 12943189,
+              "serverTimeMs": 151.57250699999864,
+              "transportOverheadMs": 95.81845799999732,
+              "nodesMaterialized": 61187,
+              "sourceFilesFetched": 49,
+              "nodesFetched": 240836
+            },
+            {
+              "requestCount": 6127,
+              "roundTripMs": 248.49145500000213,
+              "bytesSent": 701133,
+              "bytesReceived": 12943180,
+              "serverTimeMs": 153.82367199999857,
+              "transportOverheadMs": 94.66778300000357,
               "nodesMaterialized": 61187,
               "sourceFilesFetched": 49,
               "nodesFetched": 240836
@@ -113,29 +120,29 @@
       "identicalIssues": 348,
       "missingIssues": 0,
       "addedIssues": 0,
-      "timeRatio": 1.564810755593933,
+      "timeRatio": 1.5613616583681058,
       "timings": {
         "ts6": {
-          "analysisMs": [1364.230583, 1323.543458, 1331.9879580000002],
-          "medianMs": 1331.9879580000002,
-          "nodePeakRssBytes": [708689920, 710901760, 720814080],
+          "analysisMs": [1309.257083, 1304.4553329999999, 1299.028792],
+          "medianMs": 1304.4553329999999,
+          "nodePeakRssBytes": [720863232, 718979072, 707903488],
           "processTreeMemory": [
             {
               "sampleIntervalMs": 100,
-              "samples": 14,
-              "peakRssBytes": 759644160,
+              "samples": 13,
+              "peakRssBytes": 766541824,
               "peakGoRssBytes": 0
             },
             {
               "sampleIntervalMs": 100,
               "samples": 13,
-              "peakRssBytes": 766902272,
+              "peakRssBytes": 772177920,
               "peakGoRssBytes": 0
             },
             {
               "sampleIntervalMs": 100,
               "samples": 13,
-              "peakRssBytes": 769671168,
+              "peakRssBytes": 754696192,
               "peakGoRssBytes": 0
             }
           ],
@@ -144,59 +151,59 @@
           "deterministic": true
         },
         "candidate": {
-          "analysisMs": [2231.9835829999997, 2084.309083, 2063.4097080000006],
-          "medianMs": 2084.309083,
-          "nodePeakRssBytes": [831946752, 830341120, 819232768],
+          "analysisMs": [2026.862916, 2075.300875, 2036.7265419999994],
+          "medianMs": 2036.7265419999994,
+          "nodePeakRssBytes": [819691520, 817184768, 810270720],
           "processTreeMemory": [
             {
               "sampleIntervalMs": 100,
-              "samples": 22,
-              "peakRssBytes": 998965248,
-              "peakGoRssBytes": 110821376
+              "samples": 20,
+              "peakRssBytes": 980140032,
+              "peakGoRssBytes": 113590272
             },
             {
               "sampleIntervalMs": 100,
-              "samples": 20,
-              "peakRssBytes": 990642176,
-              "peakGoRssBytes": 114950144
+              "samples": 21,
+              "peakRssBytes": 978206720,
+              "peakGoRssBytes": 111083520
             },
             {
               "sampleIntervalMs": 100,
-              "samples": 20,
-              "peakRssBytes": 980205568,
-              "peakGoRssBytes": 112082944
+              "samples": 21,
+              "peakRssBytes": 982368256,
+              "peakGoRssBytes": 115638272
             }
           ],
           "ipc": [
             {
               "requestCount": 6295,
-              "roundTripMs": 325.71431399999847,
-              "bytesSent": 713946,
-              "bytesReceived": 12825673,
-              "serverTimeMs": 151.65305999999862,
-              "transportOverheadMs": 174.06125399999985,
+              "roundTripMs": 233.35880200001657,
+              "bytesSent": 713944,
+              "bytesReceived": 12825687,
+              "serverTimeMs": 136.1603859999988,
+              "transportOverheadMs": 97.19841600001777,
               "nodesMaterialized": 51100,
               "sourceFilesFetched": 36,
               "nodesFetched": 229799
             },
             {
               "requestCount": 6295,
-              "roundTripMs": 241.89198499998884,
-              "bytesSent": 713946,
-              "bytesReceived": 12825715,
-              "serverTimeMs": 144.6502499999993,
-              "transportOverheadMs": 97.24173499998955,
+              "roundTripMs": 241.95701699997244,
+              "bytesSent": 713944,
+              "bytesReceived": 12825686,
+              "serverTimeMs": 143.63158699999863,
+              "transportOverheadMs": 98.3254299999738,
               "nodesMaterialized": 51100,
               "sourceFilesFetched": 36,
               "nodesFetched": 229799
             },
             {
               "requestCount": 6295,
-              "roundTripMs": 242.36671599997362,
+              "roundTripMs": 237.12947600000098,
               "bytesSent": 713946,
-              "bytesReceived": 12825699,
-              "serverTimeMs": 144.40944199999845,
-              "transportOverheadMs": 97.95727399997517,
+              "bytesReceived": 12825709,
+              "serverTimeMs": 142.82574299999825,
+              "transportOverheadMs": 94.30373300000272,
               "nodesMaterialized": 51100,
               "sourceFilesFetched": 36,
               "nodesFetched": 229799
@@ -211,33 +218,33 @@
       "project": "redux",
       "files": 132,
       "ts6Issues": 1801,
-      "candidateIssues": 1802,
+      "candidateIssues": 1801,
       "identicalIssues": 1801,
       "missingIssues": 0,
-      "addedIssues": 1,
-      "timeRatio": 1.1925528242848258,
+      "addedIssues": 0,
+      "timeRatio": 1.1786214916754676,
       "timings": {
         "ts6": {
-          "analysisMs": [2421.462959, 2376.957208, 2377.5490839999998],
-          "medianMs": 2377.5490839999998,
-          "nodePeakRssBytes": [923418624, 926728192, 927580160],
+          "analysisMs": [2351.384041, 2397.017834, 2362.6274590000003],
+          "medianMs": 2362.6274590000003,
+          "nodePeakRssBytes": [916078592, 923369472, 811253760],
           "processTreeMemory": [
             {
               "sampleIntervalMs": 100,
-              "samples": 24,
-              "peakRssBytes": 960069632,
+              "samples": 23,
+              "peakRssBytes": 954368000,
               "peakGoRssBytes": 0
             },
             {
               "sampleIntervalMs": 100,
               "samples": 24,
-              "peakRssBytes": 973963264,
+              "peakRssBytes": 970539008,
               "peakGoRssBytes": 0
             },
             {
               "sampleIntervalMs": 100,
-              "samples": 24,
-              "peakRssBytes": 974553088,
+              "samples": 23,
+              "peakRssBytes": 869040128,
               "peakGoRssBytes": 0
             }
           ],
@@ -246,60 +253,60 @@
           "deterministic": true
         },
         "candidate": {
-          "analysisMs": [2829.204541, 2853.506167, 2835.352875],
-          "medianMs": 2835.352875,
-          "nodePeakRssBytes": [935231488, 942489600, 940179456],
+          "analysisMs": [2784.6435, 2766.375083, 2788.1895000000004],
+          "medianMs": 2784.6435,
+          "nodePeakRssBytes": [938688512, 944979968, 936394752],
           "processTreeMemory": [
             {
               "sampleIntervalMs": 100,
-              "samples": 28,
-              "peakRssBytes": 1091895296,
-              "peakGoRssBytes": 111198208
+              "samples": 27,
+              "peakRssBytes": 1081491456,
+              "peakGoRssBytes": 113508352
             },
             {
               "sampleIntervalMs": 100,
               "samples": 28,
-              "peakRssBytes": 1084194816,
-              "peakGoRssBytes": 111280128
+              "peakRssBytes": 1107623936,
+              "peakGoRssBytes": 115736576
             },
             {
               "sampleIntervalMs": 100,
               "samples": 28,
-              "peakRssBytes": 1095417856,
-              "peakGoRssBytes": 116047872
+              "peakRssBytes": 1080475648,
+              "peakGoRssBytes": 113328128
             }
           ],
           "ipc": [
             {
-              "requestCount": 7022,
-              "roundTripMs": 361.9281120000046,
-              "bytesSent": 887347,
-              "bytesReceived": 12989531,
-              "serverTimeMs": 238.21888299999773,
-              "transportOverheadMs": 123.70922900000687,
-              "nodesMaterialized": 29607,
+              "requestCount": 7027,
+              "roundTripMs": 361.87217699999655,
+              "bytesSent": 888043,
+              "bytesReceived": 12990170,
+              "serverTimeMs": 242.49631399999953,
+              "transportOverheadMs": 119.37586299999703,
+              "nodesMaterialized": 29575,
               "sourceFilesFetched": 165,
               "nodesFetched": 209297
             },
             {
-              "requestCount": 7022,
-              "roundTripMs": 378.61736899996777,
-              "bytesSent": 887347,
-              "bytesReceived": 12989563,
-              "serverTimeMs": 248.86082999999735,
-              "transportOverheadMs": 129.75653899997042,
-              "nodesMaterialized": 29607,
+              "requestCount": 7027,
+              "roundTripMs": 355.6845210000297,
+              "bytesSent": 888043,
+              "bytesReceived": 12990110,
+              "serverTimeMs": 234.7318609999989,
+              "transportOverheadMs": 120.95266000003079,
+              "nodesMaterialized": 29575,
               "sourceFilesFetched": 165,
               "nodesFetched": 209297
             },
             {
-              "requestCount": 7022,
-              "roundTripMs": 366.0495240000346,
-              "bytesSent": 887347,
-              "bytesReceived": 12989568,
-              "serverTimeMs": 243.45742299999986,
-              "transportOverheadMs": 122.59210100003472,
-              "nodesMaterialized": 29607,
+              "requestCount": 7027,
+              "roundTripMs": 363.993827000023,
+              "bytesSent": 888042,
+              "bytesReceived": 12990094,
+              "serverTimeMs": 243.31659399999947,
+              "transportOverheadMs": 120.6772330000235,
+              "nodesMaterialized": 29575,
               "sourceFilesFetched": 165,
               "nodesFetched": 209297
             }
@@ -317,29 +324,29 @@
       "identicalIssues": 6594,
       "missingIssues": 0,
       "addedIssues": 1,
-      "timeRatio": 1.5772734182074812,
+      "timeRatio": 1.564430221153559,
       "timings": {
         "ts6": {
-          "analysisMs": [6635.223333000001, 6680.1202920000005, 6680.1615409999995],
-          "medianMs": 6680.1202920000005,
-          "nodePeakRssBytes": [1261223936, 1125842944, 1217167360],
+          "analysisMs": [6565.818208000001, 6519.463250000001, 6519.267792],
+          "medianMs": 6519.463250000001,
+          "nodePeakRssBytes": [1127972864, 1232797696, 1237237760],
           "processTreeMemory": [
             {
               "sampleIntervalMs": 100,
-              "samples": 66,
-              "peakRssBytes": 1309147136,
+              "samples": 65,
+              "peakRssBytes": 1185808384,
               "peakGoRssBytes": 0
             },
             {
               "sampleIntervalMs": 100,
-              "samples": 66,
-              "peakRssBytes": 1170440192,
+              "samples": 64,
+              "peakRssBytes": 1281605632,
               "peakGoRssBytes": 0
             },
             {
               "sampleIntervalMs": 100,
-              "samples": 66,
-              "peakRssBytes": 1245675520,
+              "samples": 64,
+              "peakRssBytes": 1281753088,
               "peakGoRssBytes": 0
             }
           ],
@@ -348,59 +355,59 @@
           "deterministic": true
         },
         "candidate": {
-          "analysisMs": [10536.376166999999, 10392.519875, 10722.009625],
-          "medianMs": 10536.376166999999,
-          "nodePeakRssBytes": [1453293568, 1441316864, 1498759168],
+          "analysisMs": [10414.535125, 10199.245334000001, 10173.146041],
+          "medianMs": 10199.245334000001,
+          "nodePeakRssBytes": [1489256448, 1479737344, 1558102016],
           "processTreeMemory": [
             {
               "sampleIntervalMs": 100,
-              "samples": 105,
-              "peakRssBytes": 1674919936,
-              "peakGoRssBytes": 174227456
-            },
-            {
-              "sampleIntervalMs": 100,
               "samples": 103,
-              "peakRssBytes": 1662746624,
-              "peakGoRssBytes": 168951808
+              "peakRssBytes": 1721040896,
+              "peakGoRssBytes": 185188352
             },
             {
               "sampleIntervalMs": 100,
-              "samples": 106,
-              "peakRssBytes": 1730150400,
-              "peakGoRssBytes": 183730176
+              "samples": 101,
+              "peakRssBytes": 1702084608,
+              "peakGoRssBytes": 175751168
+            },
+            {
+              "sampleIntervalMs": 100,
+              "samples": 100,
+              "peakRssBytes": 1780826112,
+              "peakGoRssBytes": 174768128
             }
           ],
           "ipc": [
             {
               "requestCount": 63151,
-              "roundTripMs": 1498.7817029999978,
-              "bytesSent": 8160775,
-              "bytesReceived": 32780154,
-              "serverTimeMs": 672.3020789999738,
-              "transportOverheadMs": 826.479624000024,
+              "roundTripMs": 1478.3175569999944,
+              "bytesSent": 8160772,
+              "bytesReceived": 32780194,
+              "serverTimeMs": 659.46011599998,
+              "transportOverheadMs": 818.8574410000144,
               "nodesMaterialized": 159535,
               "sourceFilesFetched": 315,
               "nodesFetched": 369827
             },
             {
               "requestCount": 63151,
-              "roundTripMs": 1488.7993500000011,
-              "bytesSent": 8160774,
-              "bytesReceived": 32780097,
-              "serverTimeMs": 671.7081849999726,
-              "transportOverheadMs": 817.0911650000286,
+              "roundTripMs": 1461.3066010000298,
+              "bytesSent": 8160777,
+              "bytesReceived": 32780122,
+              "serverTimeMs": 654.4274349999703,
+              "transportOverheadMs": 806.8791660000595,
               "nodesMaterialized": 159535,
               "sourceFilesFetched": 315,
               "nodesFetched": 369827
             },
             {
               "requestCount": 63151,
-              "roundTripMs": 1567.3398130000005,
-              "bytesSent": 8160776,
-              "bytesReceived": 32780251,
-              "serverTimeMs": 684.99248699997,
-              "transportOverheadMs": 882.3473260000305,
+              "roundTripMs": 1460.527180000126,
+              "bytesSent": 8160773,
+              "bytesReceived": 32780260,
+              "serverTimeMs": 653.8182109999731,
+              "transportOverheadMs": 806.7089690001529,
               "nodesMaterialized": 159535,
               "sourceFilesFetched": 315,
               "nodesFetched": 369827
@@ -419,29 +426,29 @@
       "identicalIssues": 6249,
       "missingIssues": 0,
       "addedIssues": 8,
-      "timeRatio": 1.7152472298752157,
+      "timeRatio": 1.6731281913972476,
       "timings": {
         "ts6": {
-          "analysisMs": [12578.636958, 13315.8275, 12731.932042],
-          "medianMs": 12731.932042,
-          "nodePeakRssBytes": [2256142336, 2329165824, 2258960384],
+          "analysisMs": [12537.486333, 13593.870792, 12476.369499999999],
+          "medianMs": 12537.486333,
+          "nodePeakRssBytes": [2271821824, 2329264128, 2166964224],
           "processTreeMemory": [
             {
               "sampleIntervalMs": 100,
-              "samples": 125,
-              "peakRssBytes": 2298462208,
+              "samples": 124,
+              "peakRssBytes": 2314780672,
               "peakGoRssBytes": 0
             },
             {
               "sampleIntervalMs": 100,
-              "samples": 132,
-              "peakRssBytes": 2387230720,
+              "samples": 135,
+              "peakRssBytes": 2387132416,
               "peakGoRssBytes": 0
             },
             {
               "sampleIntervalMs": 100,
-              "samples": 126,
-              "peakRssBytes": 2303950848,
+              "samples": 124,
+              "peakRssBytes": 2225274880,
               "peakGoRssBytes": 0
             }
           ],
@@ -450,59 +457,59 @@
           "deterministic": true
         },
         "candidate": {
-          "analysisMs": [21176.570874999998, 21838.411165999998, 22207.502],
-          "medianMs": 21838.411165999998,
-          "nodePeakRssBytes": [2973876224, 3125379072, 2953920512],
+          "analysisMs": [20618.839292, 21035.193165999997, 20976.821833],
+          "medianMs": 20976.821833,
+          "nodePeakRssBytes": [2895118336, 2860040192, 2855092224],
           "processTreeMemory": [
             {
               "sampleIntervalMs": 100,
-              "samples": 210,
-              "peakRssBytes": 3270819840,
-              "peakGoRssBytes": 240533504
+              "samples": 203,
+              "peakRssBytes": 3197976576,
+              "peakGoRssBytes": 247480320
             },
             {
               "sampleIntervalMs": 100,
-              "samples": 217,
-              "peakRssBytes": 3420520448,
-              "peakGoRssBytes": 237060096
+              "samples": 209,
+              "peakRssBytes": 3160047616,
+              "peakGoRssBytes": 243318784
             },
             {
               "sampleIntervalMs": 100,
-              "samples": 220,
-              "peakRssBytes": 3253157888,
-              "peakGoRssBytes": 235716608
+              "samples": 209,
+              "peakRssBytes": 3148546048,
+              "peakGoRssBytes": 235487232
             }
           ],
           "ipc": [
             {
               "requestCount": 60067,
-              "roundTripMs": 2802.564549000232,
-              "bytesSent": 8355787,
-              "bytesReceived": 73132069,
-              "serverTimeMs": 1850.6273930000505,
-              "transportOverheadMs": 951.9371560001816,
+              "roundTripMs": 2595.4066600000456,
+              "bytesSent": 8355793,
+              "bytesReceived": 73132165,
+              "serverTimeMs": 1701.7329810000317,
+              "transportOverheadMs": 893.6736790000139,
               "nodesMaterialized": 421375,
               "sourceFilesFetched": 1351,
               "nodesFetched": 941710
             },
             {
               "requestCount": 60067,
-              "roundTripMs": 2832.3085939999783,
-              "bytesSent": 8355793,
-              "bytesReceived": 73132188,
-              "serverTimeMs": 1876.7003060000484,
-              "transportOverheadMs": 955.6082879999299,
+              "roundTripMs": 2700.9820740001114,
+              "bytesSent": 8355792,
+              "bytesReceived": 73132240,
+              "serverTimeMs": 1765.0706670000548,
+              "transportOverheadMs": 935.9114070000567,
               "nodesMaterialized": 421375,
               "sourceFilesFetched": 1351,
               "nodesFetched": 941710
             },
             {
               "requestCount": 60067,
-              "roundTripMs": 3025.9213309994416,
-              "bytesSent": 8355793,
-              "bytesReceived": 73132209,
-              "serverTimeMs": 1925.062669000019,
-              "transportOverheadMs": 1100.8586619994226,
+              "roundTripMs": 2727.213729000059,
+              "bytesSent": 8355790,
+              "bytesReceived": 73132037,
+              "serverTimeMs": 1826.2459470000554,
+              "transportOverheadMs": 900.9677820000038,
               "nodesMaterialized": 421375,
               "sourceFilesFetched": 1351,
               "nodesFetched": 941710
@@ -514,31 +521,18 @@
       }
     }
   ],
-  "date": "2026-10-21",
-  "host": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
-  "corpus": "SonarSource/jsts-test-sources",
-  "corpusCommit": "81a52e2c0180fc6e555b2c3efc44729fb46539d9",
   "differences": {
+    "backbone": {
+      "missing": [],
+      "added": []
+    },
+    "underscore": {
+      "missing": [],
+      "added": []
+    },
     "redux": {
       "missing": [],
-      "added": [
-        [
-          "src/createStore.js",
-          {
-            "column": 13,
-            "endColumn": 18,
-            "endLine": 30,
-            "filePath": "<project>/src/createStore.js",
-            "language": "js",
-            "line": 30,
-            "message": "\"Store\" does not exist. Change its name or declare it so that its usage doesn't result in a \"ReferenceError\".",
-            "quickFixes": [],
-            "ruleESLintKeys": ["no-reference-error"],
-            "ruleId": "S3827",
-            "secondaryLocations": []
-          }
-        ]
-      ]
+      "added": []
     },
     "ag-grid": {
       "missing": [],
@@ -829,9 +823,5 @@
         ]
       ]
     }
-  },
-  "versions": {
-    "ts6": "6.0.3",
-    "tsgo-ipc": "7.1.0-beta"
   }
 }

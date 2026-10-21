@@ -185,9 +185,9 @@ export function createProgram(input, options, host) {
     isSourceFileFromExternalLibrary: file =>
       checked(() => raw.isSourceFileFromExternalLibrary(objects.unwrap(file))),
     getModeForUsageLocation: (file, usage) =>
-      checked(() => raw.getModeForUsageLocation(file.fileName, objects.unwrap(usage))),
+      checked(() => raw.getModeForUsageLocation(nativePath(file.fileName), objects.unwrap(usage))),
     getModeForResolutionAtIndex: (file, index) =>
-      checked(() => raw.getModeForResolutionAtIndex(file.fileName, index)),
+      checked(() => raw.getModeForResolutionAtIndex(nativePath(file.fileName), index)),
     getResolvedModule: (file, name, mode) =>
       checked(() => raw.getResolvedModule(file.fileName, name, mode)),
     sourceFileToPackageName: {
@@ -209,7 +209,7 @@ export function createProgram(input, options, host) {
     getDeclarationDiagnostics: 'getDeclarationDiagnostics',
   }))
     program[name] = file => {
-      const values = checked(() => raw[target](file?.fileName));
+      const values = checked(() => raw[target](file && nativePath(file.fileName)));
       return (name === 'getSyntacticDiagnostics' ? supportedSyntax(values) : values).map(value =>
         diagnostic(value, getSourceFile),
       );
@@ -302,14 +302,18 @@ export default {
     };
   },
   resolveModuleName: (name, file, options, host) =>
-    runtime.invoke(host, api => {
-      const resolver = api.createModuleResolver(options);
-      try {
-        return resolver.resolveModuleName(name, path.dirname(file));
-      } finally {
-        resolver.dispose();
-      }
-    }),
+    // The public native resolver rejects empty specifiers instead of reporting
+    // an unresolved module, as callers of the compiler contract expect.
+    name === ''
+      ? { resolvedModule: undefined }
+      : runtime.invoke(host, api => {
+          const resolver = api.createModuleResolver(options);
+          try {
+            return resolver.resolveModuleName(name, path.dirname(file));
+          } finally {
+            resolver.dispose();
+          }
+        }),
   getShebang: native.getShebang,
   identifierToKeywordKind: node => {
     const value = native.stringToToken(node.text);
