@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import path from 'node:path/posix';
+import selectProvider from 'typescript/selection';
 import { Linter as ESLintLinter } from 'eslint';
 import { describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
@@ -574,9 +575,10 @@ describe('await analyzeJSTS', () => {
     const classicProgramOptions = createProgramOptions(classicTsConfig, undefined, true);
     const classicProgram = createStandardProgram(classicProgramOptions);
     const classicFiles = classicProgram.getSourceFiles().map(file => file.fileName);
-    expect(classicFiles).not.toContain(normalizePath(nodeDependencyPath));
+    const legacyResolution = selectProvider().legacyModuleResolution !== false;
+    expect(classicFiles.includes(normalizePath(nodeDependencyPath))).toBe(!legacyResolution);
     expect(classicFiles).not.toContain(normalizePath(nodenextDependencyPath));
-    expect(classicFiles).toContain(normalizePath(classicDependencyPath));
+    expect(classicFiles.includes(normalizePath(classicDependencyPath))).toBe(legacyResolution);
     const {
       issues: [classicIssue],
     } = await analyzeJSTS(await jsTsInput({ filePath, program: classicProgram, language }));
