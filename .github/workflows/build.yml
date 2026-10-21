@@ -143,6 +143,9 @@ jobs:
           version: 2026.9.18
           cache: false
       - uses: SonarSource/ci-github-actions/config-npm@v2
+        # Authenticate the nested mise self-update when it fetches GitHub release metadata.
+        env: &config_npm_github_auth
+          GITHUB_TOKEN: ${{ github.token }}
         with:
           repox-url: https://repox.jfrog.io
           artifactory-reader-role: private-reader
@@ -186,6 +189,7 @@ jobs:
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
       - if: steps.cache.outputs.cache-hit != 'true'
         uses: SonarSource/ci-github-actions/config-npm@v2
+        env: *config_npm_github_auth
         with:
           repox-url: https://repox-internal.dev.sonar.build
           artifactory-reader-role: private-reader
@@ -428,6 +432,7 @@ jobs:
       - *npm_cache
       - &config_npm_edge
         uses: SonarSource/ci-github-actions/config-npm@v2
+        env: *config_npm_github_auth
         with:
           repox-url: https://repox-internal.dev.sonar.build
           artifactory-reader-role: private-reader
