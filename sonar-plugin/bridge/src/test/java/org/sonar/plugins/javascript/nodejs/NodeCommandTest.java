@@ -49,8 +49,8 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.plugins.javascript.bridge.EmbeddedNode;
 import org.sonar.plugins.javascript.bridge.Environment;
+import org.sonar.plugins.javascript.bridge.SonarLintEmbeddedNode;
 import org.sonar.scanner.plugin.api.impl.config.MapSettings;
 
 class NodeCommandTest {
@@ -431,7 +431,7 @@ class NodeCommandTest {
    */
   //  @Test
   void test_embedded_runtime() throws Exception {
-    var en = new EmbeddedNode(new ProcessWrapperImpl(), createTestEnvironment());
+    var en = new SonarLintEmbeddedNode(new ProcessWrapperImpl(), createTestEnvironment());
     en.deploy();
     NodeCommand nodeCommand = builder()
       .script(PATH_TO_SCRIPT)
@@ -455,7 +455,7 @@ class NodeCommandTest {
     mapSettings.setProperty(NODE_FORCE_HOST_PROPERTY, true);
     Configuration configuration = mapSettings.asConfig();
 
-    var en = new EmbeddedNode(mockProcessWrapper, createTestEnvironment());
+    var en = new SonarLintEmbeddedNode(mockProcessWrapper, createTestEnvironment());
     en.deploy();
     NodeCommand nodeCommand = builder()
       .script(PATH_TO_SCRIPT)
@@ -531,7 +531,7 @@ class NodeCommandTest {
     var config = new MapSettings().asConfig();
     var env = new Environment(config);
     return new NodeCommandBuilderImpl(processWrapper)
-      .embeddedNode(new EmbeddedNode(wrapper, env))
+      .embeddedNode(new SonarLintEmbeddedNode(wrapper, env))
       .configuration(config);
   }
 }

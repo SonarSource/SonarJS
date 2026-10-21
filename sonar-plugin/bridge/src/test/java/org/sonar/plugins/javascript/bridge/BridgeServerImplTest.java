@@ -157,7 +157,7 @@ class BridgeServerImplTest {
     context.fileSystem().setWorkDir(workDir);
     serverConfig = BridgeServerConfig.fromSensorContext(context);
     tempFolder = new DefaultTempFolder(tempDir, true);
-    unsupportedEmbeddedRuntime = new EmbeddedNode(
+    unsupportedEmbeddedRuntime = new SonarLintEmbeddedNode(
       mock(ProcessWrapper.class),
       createUnsupportedEnvironment()
     );
