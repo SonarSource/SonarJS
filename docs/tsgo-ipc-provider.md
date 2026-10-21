@@ -66,9 +66,12 @@ parity is not established.
 Cross-version changes live in the existing shared tsconfig option policy. Removed
 `baseUrl` behavior is represented through paths. Removed Classic/Node10 resolution
 is approximated with Bundler/Preserve, retaining legacy package entry points by
-defaulting package exports/imports resolution to false. Classic's bare local-name
-lookup is not reproduced exactly. The analyzed fixtures, project tsconfigs and
-ruling snapshots are unchanged.
+defaulting package exports/imports resolution to false. Reference source redirects
+default to disabled, matching the classic compiler host: referenced project sources
+are analyzed under their own configs rather than another project's settings.
+Explicit redirect overrides are preserved. Classic's bare local-name lookup is
+not reproduced exactly. The analyzed fixtures, project tsconfigs and ruling
+snapshots are unchanged.
 
 ## Packaging and use
 
