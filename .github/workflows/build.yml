@@ -210,7 +210,7 @@ jobs:
       - *npm_cache_probe
       - *npm_cache_checkout
       - *npm_cache_mise
-      - if: steps.cache.outputs.cache-hit != 'true'
+      - &config_npm_windows_secrets
         id: secrets
         name: Access vault secrets
         uses: SonarSource/vault-action-wrapper@v3
@@ -218,7 +218,7 @@ jobs:
           url: https://vault.dev.sonar.build
           secrets: |
             development/artifactory-edge-dev/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
-      - if: steps.cache.outputs.cache-hit != 'true'
+      - &config_npm_windows_registry
         name: Configure npm registry
         shell: bash
         env:
@@ -355,6 +355,8 @@ jobs:
       - *checkout
       - *mise
       - *npm_cache
+      - *config_npm_windows_secrets
+      - *config_npm_windows_registry
       - *download_rspec_rule_data
       - name: Restore Maven cache
         if: github.ref_name != github.event.repository.default_branch
