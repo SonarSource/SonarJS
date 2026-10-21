@@ -55,7 +55,8 @@ export const sys = {
   newLine: '\n',
   getCurrentDirectory: () => process.cwd().replaceAll('\\', '/'),
   getExecutingFilePath: () => __filename,
-  getDirectories: directory => disk.getAccessibleEntries(directory).directories,
+  getDirectories: directory => Array.from(disk.getAccessibleEntries(directory).directories),
+  /** @type {import('typescript').System['readDirectory']} */
   readDirectory: (
     directory,
     extensions = ['.ts', '.tsx', '.d.ts'],

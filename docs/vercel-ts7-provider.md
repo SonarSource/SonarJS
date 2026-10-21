@@ -132,3 +132,19 @@ This provider declares `tools/build-vercel-typescript.mjs` as its preparation sc
 and retains legacy module resolution. The shared policy therefore preserves its
 Classic/Node10 resolver. Existing project sources and recorded ruling expectations
 are unchanged by the rebase.
+
+## Shared provider contract and lifetime
+
+The adapter exports `{compiler, compilerVersion, ownsProgramResources, disposeProgram, close}`. Its actual
+version comes from the normalized pinned source-package identity, separately from
+the facade's peer-compatibility version. The registry identifies the source module
+for type checking because the runtime entry is generated. Configuration diagnostics
+normalize required diagnostic fields, including related information; filesystem and
+configuration signatures accept the readonly inputs of the shared contract.
+
+Watch programs and project service are explicitly unavailable capabilities. The
+shared facade supplies their errors; there are no backend placeholder exports.
+Batch program scopes and IDE cache replacement/eviction/clearing release native
+programs through `typescript/lifecycle`. Session close is a no-op for this entirely
+in-process implementation. Shape validation and type checking complement the existing
+semantic comparisons; they do not establish complete TypeScript API parity.

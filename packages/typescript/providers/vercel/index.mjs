@@ -24,7 +24,7 @@ import {
   parseJsonConfigFileContent,
 } from './config.mjs';
 import { sys, getDefaultLibFilePath } from './filesystem.mjs';
-import { CompilerContractError } from '../../errors.cjs';
+import metadata from 'tsc-ts-source/package.json' with { type: 'json' };
 import * as api from './api.mjs';
 import { createNativeNodeAdapter, toClassicDiagnostic } from './nativeNodeAdapter.mjs';
 import { createNativeTypeAdapter } from './nativeTypeAdapter.mjs';
@@ -99,14 +99,14 @@ function createCompilerHost(options, setParents) {
     getCanonicalFileName: name => (sys.useCaseSensitiveFileNames ? name : name.toLowerCase()),
     getNewLine: () => sys.newLine,
     writeFile: () => {},
+    getSourceFile: (fileName, languageVersion) =>
+      compilerCall('CompilerHost.getSourceFile', () => {
+        const text = host.readFile(fileName);
+        return text === undefined
+          ? undefined
+          : createSourceFile(fileName, text, languageVersion, setParents);
+      }),
   };
-  host.getSourceFile = (fileName, languageVersion) =>
-    compilerCall('CompilerHost.getSourceFile', () => {
-      const text = host.readFile(fileName);
-      return text === undefined
-        ? undefined
-        : createSourceFile(fileName, text, languageVersion, setParents);
-    });
   return host;
 }
 
@@ -201,22 +201,13 @@ export function createSemanticDiagnosticsBuilderProgram(rootNames, options, host
     getCompilerOptions: program.getCompilerOptions,
   };
 }
-const unsupported = name => () => {
-  throw new CompilerContractError(`Vercel TS7 provider does not implement ${name}`);
-};
-const unsupportedServer = new Proxy(Object.create(null), {
-  get(_target, name) {
-    return unsupported(`server.${String(name)}`)();
-  },
-});
 // Providers explicitly supply every supported operation. No SDK acts as a fallback.
-export default {
+const compiler = {
   ...ts,
   parseConfigFileTextToJson,
   readConfigFile,
   convertCompilerOptionsFromJson,
   parseJsonConfigFileContent,
-  server: unsupportedServer,
   createCompilerHost,
   createSourceFile: (...args) => compilerCall('createSourceFile', () => createSourceFile(...args)),
   createProgram: (...args) => compilerCall('createProgram', () => createProgram(...args)),
@@ -224,7 +215,11 @@ export default {
     compilerCall('createSemanticDiagnosticsBuilderProgram', () =>
       createSemanticDiagnosticsBuilderProgram(...args),
     ),
-  createAbstractBuilder: unsupported('createAbstractBuilder'),
-  createWatchCompilerHost: unsupported('createWatchCompilerHost'),
-  createWatchProgram: unsupported('createWatchProgram'),
+};
+export default {
+  compiler,
+  compilerVersion: metadata.version,
+  ownsProgramResources: true,
+  disposeProgram: program => program.dispose(),
+  close() {},
 };

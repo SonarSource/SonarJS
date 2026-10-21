@@ -37,9 +37,13 @@ function plain(value) {
   return value;
 }
 function diagnostic(d) {
-  const converted = diagnosticOf(d);
+  return normalizeDiagnostic(diagnosticOf(d));
+}
+function normalizeDiagnostic(converted) {
   return {
     ...converted,
+    file: undefined,
+    relatedInformation: converted.relatedInformation?.map(normalizeDiagnostic),
     messageText: converted.text,
     start: converted.pos,
     length: converted.end - converted.pos,
@@ -70,7 +74,14 @@ export function readConfigFile(file, readFile) {
   if (text === undefined)
     return {
       config: {},
-      error: { code: 5083, messageText: `Cannot read file '${file}'.`, category: 1 },
+      error: {
+        code: 5083,
+        messageText: `Cannot read file '${file}'.`,
+        category: 1,
+        file: undefined,
+        start: undefined,
+        length: undefined,
+      },
     };
   return parseConfigFileTextToJson(file, text);
 }
@@ -88,6 +99,7 @@ export function convertCompilerOptionsFromJson(json, basePath, configFileName = 
   converter.convertRoot();
   return { options: effective(converter.options), errors: errors.map(diagnostic) };
 }
+/** @type {import('../../contract.cjs').CompilerBindings['parseJsonConfigFileContent']} */
 export function parseJsonConfigFileContent(
   json,
   host,
