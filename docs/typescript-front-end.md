@@ -3,7 +3,7 @@
 This implements the front-end ownership stage of the
 [JS-2643 study](https://docs.google.com/document/d/18Qrl6y-29kRqc6NjZgKorSASN514QmoR_m0gndUb-7w/edit).
 The compiler boundary supports direct JavaScript implementations and native compilers
-accessed through an API. TS6 is the default reference provider in this PR. A provider
+accessed through an API. TS6 is the reference provider; this draft selects Vercel by default. A provider
 keeps its transport, remote handles, snapshots and lifecycle behind the same synchronous
 interface consumed by the converter and rules.
 
@@ -130,10 +130,11 @@ CommonJS/ESM/legacy resolution. Packaging tests verify the artifact default, rej
 of unavailable providers and private SDK isolation. Existing frontend comparisons and
 packaged bridge tests cover upstream typed rules and successive IDE requests.
 
-This PR registers TS6 only. The [Vercel draft](https://github.com/SonarSource/SonarJS/pull/8209)
-provides a second implementation and comparison evidence; its source imports, patches,
-adapters remain outside this PR. The [TSGo IPC draft](https://github.com/SonarSource/SonarJS/pull/8219)
-implements the same contract; see [the provider plan](tsgo-ipc-provider-plan.md).
+The shared infrastructure PR [#8206](https://github.com/SonarSource/SonarJS/pull/8206)
+registers TS6 only. This Vercel draft registers a second implementation and selects
+it by default. Its source imports, patches, adapters and comparison evidence are
+documented in [vercel-ts7-provider.md](vercel-ts7-provider.md). The
+[TSGo IPC draft](https://github.com/SonarSource/SonarJS/pull/8219) uses the same contract.
 Performance comparisons must account separately for compiler work, conversion,
 scope analysis, rule execution and unassigned/GC time; an in-process implementation
 removes a transport boundary but does not guarantee a faster complete analysis.

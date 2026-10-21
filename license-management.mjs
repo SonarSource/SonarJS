@@ -81,7 +81,11 @@ async function downloadLicenses() {
     let failedCount = 0;
 
     for (const [packageName, info] of Object.entries(packages)) {
-      if (platformPackages.has(packageName.substring(0, packageName.lastIndexOf('@')))) continue;
+      if (
+        platformPackages.has(packageName.substring(0, packageName.lastIndexOf('@'))) ||
+        packageName.startsWith('@typescript/native-preview')
+      )
+        continue;
       // Download and save license file
       try {
         if (info.licenseFile) {
@@ -157,6 +161,33 @@ async function main() {
       'packages/typescript/compat/NOTICE.md',
       path.join(THIRD_PARTY_LICENSES_DIR, 'sonarjs-compiler-syntax-NOTICE.txt'),
     );
+    for (const [source, name] of [
+      [
+        path.join(
+          path.dirname(require.resolve('@typescript/native-preview/package.json')),
+          'LICENSE',
+        ),
+        'typescript-native-LICENSE.txt',
+      ],
+      [
+        path.join(
+          path.dirname(require.resolve('@typescript/native-preview/package.json')),
+          'NOTICE.txt',
+        ),
+        'typescript-native-NOTICES.txt',
+      ],
+      ['node_modules/tsc-ts-source/LICENSE', 'vercel-tsc-ts-LICENSE.txt'],
+      ['node_modules/tsc-ts-source/THIRD_PARTY_NOTICES.md', 'vercel-tsc-ts-NOTICES.txt'],
+      [
+        'packages/typescript/providers/vercel/LICENSE',
+        'typescript-eslint-native-adapters-LICENSE.txt',
+      ],
+      [
+        'packages/typescript/providers/vercel/NOTICE.md',
+        'typescript-eslint-native-adapters-NOTICE.txt',
+      ],
+    ])
+      await fs.copyFile(source, path.join(THIRD_PARTY_LICENSES_DIR, name));
     console.log('=== License management completed successfully ===');
   } catch (error) {
     console.error('License management failed:', error);
