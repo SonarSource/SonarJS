@@ -23,7 +23,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from '../../compat/index.cjs';
 import { CompilerContractError } from '../../errors.cjs';
-import { sys, normalize, nativePaths } from './filesystem.mjs';
+import { sys, normalize, nativePaths, restorePaths, nativeFileSystem } from './filesystem.mjs';
 import { createRuntime } from './runtime.mjs';
 import { createObjects } from './objects.mjs';
 import { createConfiguration } from './config.mjs';
@@ -103,12 +103,11 @@ export function createProgram(input, options, host) {
   if (Array.isArray(input)) input = { rootNames: input, options, host };
   const callbacks = input.host ?? createCompilerHost(input.options);
   const cwd = callbacks.getCurrentDirectory?.() ?? sys.getCurrentDirectory();
-  const nativePath = file => nativePaths(normalize(file, cwd));
+  const reversed = new Map();
+  const nativePath = file => nativePaths(normalize(file, cwd), reversed);
   const rootPaths = new Map(input.rootNames.map(file => [nativePath(file), file]));
   const roots = [...rootPaths.keys()];
-  const hostPath = file =>
-    rootPaths.get(file) ??
-    (cwd.startsWith('//') && file.startsWith(cwd.slice(1)) ? '/' + file : file);
+  const hostPath = file => rootPaths.get(file) ?? restorePaths(file, reversed);
   const overlays = new Map();
   const readSource = file =>
     typeof callbacks.getSourceFileText === 'function'
@@ -121,7 +120,7 @@ export function createProgram(input, options, host) {
     const text = readSource(rootPaths.get(file));
     if (text !== undefined) overlays.set(file, text);
   }
-  const callbacksWithOverlays = Object.assign(Object.create(callbacks), {
+  const callbacksWithOverlays = Object.assign(nativeFileSystem(callbacks, reversed), {
     // getSourceFile can itself invoke the native parser. Never call it from a
     // native filesystem callback: synchronous RPCs cannot be re-entered.
     readFile: file =>
@@ -136,8 +135,8 @@ export function createProgram(input, options, host) {
       createPrograms: [
         {
           rootFiles: roots,
-          compilerOptions: nativePaths(input.options ?? {}),
-          options: { projectReferences: input.projectReferences },
+          compilerOptions: nativePaths(input.options ?? {}, reversed),
+          options: { projectReferences: nativePaths(input.projectReferences, reversed) },
         },
       ],
     }),

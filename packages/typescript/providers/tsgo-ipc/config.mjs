@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import path from 'node:path';
-import { sys, normalize, nativePaths, restorePaths } from './filesystem.mjs';
+import { sys, normalize, nativePaths, restorePaths, nativeFileSystem } from './filesystem.mjs';
 
 export function createConfiguration(runtime) {
   const diagnostic = value =>
@@ -62,25 +62,14 @@ export function createConfiguration(runtime) {
       normalize(configFileName || normalize('tsconfig.json', basePath)),
       reversed,
     );
-    const callbacks = {
-      ...host,
+    const callbacks = Object.assign(nativeFileSystem(host, reversed), {
       readFile: file => {
         file = restorePaths(file, reversed);
         const text = read(file);
         if (text !== undefined && /\.json$/i.test(file)) observed.set(file, text);
         return text;
       },
-    };
-    for (const method of [
-      'fileExists',
-      'directoryExists',
-      'getDirectories',
-      'realpath',
-      'readDirectory',
-    ])
-      if (host[method])
-        callbacks[method] = (...args) =>
-          nativePaths(host[method](...args.map(arg => restorePaths(arg, reversed))), reversed);
+    });
     const result = restorePaths(
       runtime.invoke(callbacks, api =>
         api.parseJsonConfigFileContent(encoded, { configFileName: name }),

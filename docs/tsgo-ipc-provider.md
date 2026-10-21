@@ -42,6 +42,9 @@ Native filesystem callbacks use the analyzer's host, including request overlays 
 its node_modules access policy. They do not fall back to arbitrary server disk reads
 when the host denies access. `getSourceFileText` supplies overlays without invoking
 another native parse from inside a synchronous callback. Reentry is rejected.
+One shared path mapping translates UNC names in config/program requests, every
+path-bearing filesystem callback and returned paths; analyzer and archive names
+stay in their original namespace regardless of the process working directory.
 The recording/replay filesystem hook passes transport pipes through without treating
 the protocol as project data; ordinary unknown descriptors still fail.
 

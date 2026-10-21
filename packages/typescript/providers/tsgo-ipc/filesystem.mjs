@@ -128,3 +128,22 @@ export function restorePaths(value, reversed) {
     );
   return value;
 }
+
+// Every path-bearing callback uses the same namespace as the corresponding
+// request and result. Keep file contents untouched, including leading // comments.
+export function nativeFileSystem(host, reversed) {
+  const callbacks = Object.create(host);
+  callbacks.readFile = file => host.readFile(restorePaths(file, reversed));
+  for (const method of [
+    'fileExists',
+    'directoryExists',
+    'getDirectories',
+    'realpath',
+    'readDirectory',
+    'getCurrentDirectory',
+  ])
+    if (host[method])
+      callbacks[method] = (...args) =>
+        nativePaths(host[method](...args.map(arg => restorePaths(arg, reversed))), reversed);
+  return callbacks;
+}

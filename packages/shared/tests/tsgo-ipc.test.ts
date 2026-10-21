@@ -30,7 +30,7 @@ function probe(script: string) {
 }
 
 it('TSGo preserves virtual POSIX, Windows and UNC path namespaces on every host', async () => {
-  const { normalize, nativePaths, restorePaths } = await import(
+  const { normalize, nativePaths, restorePaths, nativeFileSystem } = await import(
     pathToFileURL(path.resolve('packages/typescript/providers/tsgo-ipc/filesystem.mjs')).href
   );
   for (const [file, cwd, expected] of [
@@ -54,6 +54,25 @@ it('TSGo preserves virtual POSIX, Windows and UNC path namespaces on every host'
     restorePaths('/server/share-other/main.ts', reversed),
     '/server/share-other/main.ts',
   );
+  const host = {
+    readFile(file: string) {
+      assert.equal(this, host);
+      assert.equal(file, '//server/share/project/main.ts');
+      return '// source comment';
+    },
+    directoryExists: (file: string) => file === '//server/share/project',
+    realpath: (file: string) => file,
+    readDirectory: (file: string) => [file + '/main.ts'],
+    getCurrentDirectory: () => '//server/share/project',
+  };
+  const callbacks = nativeFileSystem(host, reversed);
+  assert.equal(callbacks.readFile('/server/share/project/main.ts'), '// source comment');
+  assert.equal(callbacks.directoryExists('/server/share/project'), true);
+  assert.equal(callbacks.realpath('/server/share/project'), '/server/share/project');
+  assert.deepEqual(callbacks.readDirectory('/server/share/project'), [
+    '/server/share/project/main.ts',
+  ]);
+  assert.equal(callbacks.getCurrentDirectory(), '/server/share/project');
 });
 
 it('TSGo keeps external typed rules on the facade with the TS6 runtime blocked', () => {
