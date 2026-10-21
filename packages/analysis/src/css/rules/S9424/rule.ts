@@ -32,6 +32,7 @@ import { calc, ParseErrorMessage, type ParseError } from '@csstools/css-calc';
 import { knownFunctionsOf } from '../helpers/known-functions.js';
 import { isLegacyIeFilter, VENDOR_PREFIX } from '../helpers/legacy-syntax.js';
 import { collectRegisteredSyntaxes, UNIVERSAL_SYNTAX } from './registrations.js';
+import { replaceInvisibleCharacters } from '../../helpers/invisible-characters.js';
 
 const ruleName = meta.bindings[0].stylelintKey;
 
@@ -154,7 +155,8 @@ function findProblem(
   if (isSkippedDeclaration(decl, syntax)) {
     return undefined;
   }
-  const value = decl.raws.value?.raw ?? decl.value;
+  // invisible characters such as U+200B are validated as spaces, leaving their report to S9451
+  const value = replaceInvisibleCharacters(decl.raws.value?.raw ?? decl.value);
   const cacheKey = syntax === undefined ? `${decl.prop}:${value}` : undefined;
   if (cacheKey !== undefined && validValues.has(cacheKey)) {
     return undefined;
@@ -240,7 +242,7 @@ function isSkippedDeclaration(decl: PostCSS.Declaration, syntax: string | undefi
     // custom properties are checked only against a restricted registered syntax
     (property.startsWith('--') && (syntax === undefined || syntax === UNIVERSAL_SYNTAX)) ||
     isLegacyIeFilter(decl) ||
-    decl.value.trimEnd().endsWith(IE8_HACK_SUFFIX) ||
+    replaceInvisibleCharacters(decl.value).trimEnd().endsWith(IE8_HACK_SUFFIX) ||
     isDescriptor(decl)
   );
 }

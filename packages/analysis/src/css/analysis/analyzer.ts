@@ -27,10 +27,10 @@ import { warn } from '../../../../shared/src/helpers/logging.js';
 import type { CssIssue } from '../linter/issues/issue.js';
 import { extractSonarResolveCommentsFromCssRoot } from '../../common/sonar-resolve.js';
 import type { FileType } from '../../contracts/file.js';
-
-// Invisible characters from U+2000 to U+200F, such as U+200B ZERO WIDTH SPACE
-const INVISIBLE_CHARACTER = /[\u2000-\u200F]/;
-const INVISIBLE_CHARACTERS = new RegExp(INVISIBLE_CHARACTER.source, 'g');
+import {
+  hasInvisibleCharacters,
+  replaceInvisibleCharacters,
+} from '../helpers/invisible-characters.js';
 
 /**
  * Analyzes a CSS analysis input
@@ -160,10 +160,10 @@ async function lintWithInvisibleCharactersFallback(
   ruleFileType: FileType | undefined,
 ): Promise<Awaited<ReturnType<typeof linter.lint>> & { code: string }> {
   const result = await linter.lint(filePath, code, ruleFileType);
-  if (!findParsingError(result.issues) || !INVISIBLE_CHARACTER.test(code)) {
+  if (!findParsingError(result.issues) || !hasInvisibleCharacters(code)) {
     return { ...result, code };
   }
-  const sanitizedCode = code.replaceAll(INVISIBLE_CHARACTERS, ' ');
+  const sanitizedCode = replaceInvisibleCharacters(code);
   return { ...(await linter.lint(filePath, sanitizedCode, ruleFileType)), code: sanitizedCode };
 }
 

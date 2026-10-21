@@ -32,6 +32,7 @@ const RELATED_RULES = [
   'string-no-newline',
   'unit-no-unknown',
   'sonar/annotation-no-unknown',
+  'sonar/no-irregular-whitespace',
 ];
 
 /** Lints each code snippet as a separate file, with S9424 and the related rules covering the parts it does not check */
@@ -59,6 +60,20 @@ describe('S9424 (sonar/declaration-property-value-no-unknown)', () => {
   color: rgb(1 2 3);
   text-decoration: underline overline double;
 }`,
+    }));
+
+  it('still reports the rest of a value containing invisible characters', () =>
+    ruleTester.invalid({
+      code: 'a { color: red\u200B foo; }',
+      errors: [
+        {
+          text: `Unknown value "foo" for property "color" (${RULE})`,
+          line: 1,
+          column: 17,
+          endLine: 1,
+          endColumn: 20,
+        },
+      ],
     }));
 
   it('reports a keyword that the property does not accept', () =>
@@ -597,6 +612,16 @@ a { top: red; }
           'a { color: green !imprtant; }',
         ),
       ).toEqual([['string-no-newline'], ['sonar/annotation-no-unknown']]);
+    });
+
+    it('does not check invisible characters, which are validated as spaces', async () => {
+      expect(
+        await lintWithRelatedRules(
+          'a { margin:\u200B0; }',
+          'a { padding: 8px\u20091px; }',
+          'a { margin:\u200C0; }',
+        ),
+      ).toEqual([['sonar/no-irregular-whitespace'], ['sonar/no-irregular-whitespace'], []]);
     });
 
     it('checks the other parts of the same value', async () => {
