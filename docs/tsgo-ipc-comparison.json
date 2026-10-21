@@ -1,0 +1,835 @@
+{
+  "candidateProvider": "tsgo-ipc",
+  "node": "v24.16.0",
+  "repetitions": 3,
+  "projects": [
+    {
+      "project": "backbone",
+      "files": 23,
+      "ts6Issues": 648,
+      "candidateIssues": 648,
+      "identicalIssues": 648,
+      "missingIssues": 0,
+      "addedIssues": 0,
+      "timeRatio": 1.6331956729142294,
+      "timings": {
+        "ts6": {
+          "analysisMs": [1508.2565829999994, 1510.668667, 1491.2661669999998],
+          "medianMs": 1508.2565829999994,
+          "nodePeakRssBytes": [764755968, 736116736, 738377728],
+          "processTreeMemory": [
+            {
+              "sampleIntervalMs": 100,
+              "samples": 15,
+              "peakRssBytes": 833880064,
+              "peakGoRssBytes": 0
+            },
+            {
+              "sampleIntervalMs": 100,
+              "samples": 15,
+              "peakRssBytes": 787251200,
+              "peakGoRssBytes": 0
+            },
+            {
+              "sampleIntervalMs": 100,
+              "samples": 15,
+              "peakRssBytes": 796033024,
+              "peakGoRssBytes": 0
+            }
+          ],
+          "ipc": [null, null, null],
+          "errors": [],
+          "deterministic": true
+        },
+        "candidate": {
+          "analysisMs": [2414.9801249999996, 2463.2781250000003, 2491.136209],
+          "medianMs": 2463.2781250000003,
+          "nodePeakRssBytes": [883163136, 884359168, 889241600],
+          "processTreeMemory": [
+            {
+              "sampleIntervalMs": 100,
+              "samples": 24,
+              "peakRssBytes": 1055899648,
+              "peakGoRssBytes": 115228672
+            },
+            {
+              "sampleIntervalMs": 100,
+              "samples": 24,
+              "peakRssBytes": 1046839296,
+              "peakGoRssBytes": 112771072
+            },
+            {
+              "sampleIntervalMs": 100,
+              "samples": 25,
+              "peakRssBytes": 1055096832,
+              "peakGoRssBytes": 114933760
+            }
+          ],
+          "ipc": [
+            {
+              "requestCount": 6127,
+              "roundTripMs": 252.2742689999959,
+              "bytesSent": 701131,
+              "bytesReceived": 12943194,
+              "serverTimeMs": 156.27891899999878,
+              "transportOverheadMs": 95.99534999999713,
+              "nodesMaterialized": 61187,
+              "sourceFilesFetched": 49,
+              "nodesFetched": 240836
+            },
+            {
+              "requestCount": 6127,
+              "roundTripMs": 254.8170610000402,
+              "bytesSent": 701131,
+              "bytesReceived": 12943199,
+              "serverTimeMs": 155.15076999999914,
+              "transportOverheadMs": 99.66629100004107,
+              "nodesMaterialized": 61187,
+              "sourceFilesFetched": 49,
+              "nodesFetched": 240836
+            },
+            {
+              "requestCount": 6127,
+              "roundTripMs": 263.3318819999695,
+              "bytesSent": 701130,
+              "bytesReceived": 12943188,
+              "serverTimeMs": 162.19291899999843,
+              "transportOverheadMs": 101.13896299997106,
+              "nodesMaterialized": 61187,
+              "sourceFilesFetched": 49,
+              "nodesFetched": 240836
+            }
+          ],
+          "errors": [],
+          "deterministic": true
+        }
+      }
+    },
+    {
+      "project": "underscore",
+      "files": 17,
+      "ts6Issues": 348,
+      "candidateIssues": 348,
+      "identicalIssues": 348,
+      "missingIssues": 0,
+      "addedIssues": 0,
+      "timeRatio": 1.564810755593933,
+      "timings": {
+        "ts6": {
+          "analysisMs": [1364.230583, 1323.543458, 1331.9879580000002],
+          "medianMs": 1331.9879580000002,
+          "nodePeakRssBytes": [708689920, 710901760, 720814080],
+          "processTreeMemory": [
+            {
+              "sampleIntervalMs": 100,
+              "samples": 14,
+              "peakRssBytes": 759644160,
+              "peakGoRssBytes": 0
+            },
+            {
+              "sampleIntervalMs": 100,
+              "samples": 13,
+              "peakRssBytes": 766902272,
+              "peakGoRssBytes": 0
+            },
+            {
+              "sampleIntervalMs": 100,
+              "samples": 13,
+              "peakRssBytes": 769671168,
+              "peakGoRssBytes": 0
+            }
+          ],
+          "ipc": [null, null, null],
+          "errors": [],
+          "deterministic": true
+        },
+        "candidate": {
+          "analysisMs": [2231.9835829999997, 2084.309083, 2063.4097080000006],
+          "medianMs": 2084.309083,
+          "nodePeakRssBytes": [831946752, 830341120, 819232768],
+          "processTreeMemory": [
+            {
+              "sampleIntervalMs": 100,
+              "samples": 22,
+              "peakRssBytes": 998965248,
+              "peakGoRssBytes": 110821376
+            },
+            {
+              "sampleIntervalMs": 100,
+              "samples": 20,
+              "peakRssBytes": 990642176,
+              "peakGoRssBytes": 114950144
+            },
+            {
+              "sampleIntervalMs": 100,
+              "samples": 20,
+              "peakRssBytes": 980205568,
+              "peakGoRssBytes": 112082944
+            }
+          ],
+          "ipc": [
+            {
+              "requestCount": 6295,
+              "roundTripMs": 325.71431399999847,
+              "bytesSent": 713946,
+              "bytesReceived": 12825673,
+              "serverTimeMs": 151.65305999999862,
+              "transportOverheadMs": 174.06125399999985,
+              "nodesMaterialized": 51100,
+              "sourceFilesFetched": 36,
+              "nodesFetched": 229799
+            },
+            {
+              "requestCount": 6295,
+              "roundTripMs": 241.89198499998884,
+              "bytesSent": 713946,
+              "bytesReceived": 12825715,
+              "serverTimeMs": 144.6502499999993,
+              "transportOverheadMs": 97.24173499998955,
+              "nodesMaterialized": 51100,
+              "sourceFilesFetched": 36,
+              "nodesFetched": 229799
+            },
+            {
+              "requestCount": 6295,
+              "roundTripMs": 242.36671599997362,
+              "bytesSent": 713946,
+              "bytesReceived": 12825699,
+              "serverTimeMs": 144.40944199999845,
+              "transportOverheadMs": 97.95727399997517,
+              "nodesMaterialized": 51100,
+              "sourceFilesFetched": 36,
+              "nodesFetched": 229799
+            }
+          ],
+          "errors": [],
+          "deterministic": true
+        }
+      }
+    },
+    {
+      "project": "redux",
+      "files": 132,
+      "ts6Issues": 1801,
+      "candidateIssues": 1802,
+      "identicalIssues": 1801,
+      "missingIssues": 0,
+      "addedIssues": 1,
+      "timeRatio": 1.1925528242848258,
+      "timings": {
+        "ts6": {
+          "analysisMs": [2421.462959, 2376.957208, 2377.5490839999998],
+          "medianMs": 2377.5490839999998,
+          "nodePeakRssBytes": [923418624, 926728192, 927580160],
+          "processTreeMemory": [
+            {
+              "sampleIntervalMs": 100,
+              "samples": 24,
+              "peakRssBytes": 960069632,
+              "peakGoRssBytes": 0
+            },
+            {
+              "sampleIntervalMs": 100,
+              "samples": 24,
+              "peakRssBytes": 973963264,
+              "peakGoRssBytes": 0
+            },
+            {
+              "sampleIntervalMs": 100,
+              "samples": 24,
+              "peakRssBytes": 974553088,
+              "peakGoRssBytes": 0
+            }
+          ],
+          "ipc": [null, null, null],
+          "errors": [],
+          "deterministic": true
+        },
+        "candidate": {
+          "analysisMs": [2829.204541, 2853.506167, 2835.352875],
+          "medianMs": 2835.352875,
+          "nodePeakRssBytes": [935231488, 942489600, 940179456],
+          "processTreeMemory": [
+            {
+              "sampleIntervalMs": 100,
+              "samples": 28,
+              "peakRssBytes": 1091895296,
+              "peakGoRssBytes": 111198208
+            },
+            {
+              "sampleIntervalMs": 100,
+              "samples": 28,
+              "peakRssBytes": 1084194816,
+              "peakGoRssBytes": 111280128
+            },
+            {
+              "sampleIntervalMs": 100,
+              "samples": 28,
+              "peakRssBytes": 1095417856,
+              "peakGoRssBytes": 116047872
+            }
+          ],
+          "ipc": [
+            {
+              "requestCount": 7022,
+              "roundTripMs": 361.9281120000046,
+              "bytesSent": 887347,
+              "bytesReceived": 12989531,
+              "serverTimeMs": 238.21888299999773,
+              "transportOverheadMs": 123.70922900000687,
+              "nodesMaterialized": 29607,
+              "sourceFilesFetched": 165,
+              "nodesFetched": 209297
+            },
+            {
+              "requestCount": 7022,
+              "roundTripMs": 378.61736899996777,
+              "bytesSent": 887347,
+              "bytesReceived": 12989563,
+              "serverTimeMs": 248.86082999999735,
+              "transportOverheadMs": 129.75653899997042,
+              "nodesMaterialized": 29607,
+              "sourceFilesFetched": 165,
+              "nodesFetched": 209297
+            },
+            {
+              "requestCount": 7022,
+              "roundTripMs": 366.0495240000346,
+              "bytesSent": 887347,
+              "bytesReceived": 12989568,
+              "serverTimeMs": 243.45742299999986,
+              "transportOverheadMs": 122.59210100003472,
+              "nodesMaterialized": 29607,
+              "sourceFilesFetched": 165,
+              "nodesFetched": 209297
+            }
+          ],
+          "errors": [],
+          "deterministic": true
+        }
+      }
+    },
+    {
+      "project": "ag-grid",
+      "files": 163,
+      "ts6Issues": 6594,
+      "candidateIssues": 6595,
+      "identicalIssues": 6594,
+      "missingIssues": 0,
+      "addedIssues": 1,
+      "timeRatio": 1.5772734182074812,
+      "timings": {
+        "ts6": {
+          "analysisMs": [6635.223333000001, 6680.1202920000005, 6680.1615409999995],
+          "medianMs": 6680.1202920000005,
+          "nodePeakRssBytes": [1261223936, 1125842944, 1217167360],
+          "processTreeMemory": [
+            {
+              "sampleIntervalMs": 100,
+              "samples": 66,
+              "peakRssBytes": 1309147136,
+              "peakGoRssBytes": 0
+            },
+            {
+              "sampleIntervalMs": 100,
+              "samples": 66,
+              "peakRssBytes": 1170440192,
+              "peakGoRssBytes": 0
+            },
+            {
+              "sampleIntervalMs": 100,
+              "samples": 66,
+              "peakRssBytes": 1245675520,
+              "peakGoRssBytes": 0
+            }
+          ],
+          "ipc": [null, null, null],
+          "errors": [],
+          "deterministic": true
+        },
+        "candidate": {
+          "analysisMs": [10536.376166999999, 10392.519875, 10722.009625],
+          "medianMs": 10536.376166999999,
+          "nodePeakRssBytes": [1453293568, 1441316864, 1498759168],
+          "processTreeMemory": [
+            {
+              "sampleIntervalMs": 100,
+              "samples": 105,
+              "peakRssBytes": 1674919936,
+              "peakGoRssBytes": 174227456
+            },
+            {
+              "sampleIntervalMs": 100,
+              "samples": 103,
+              "peakRssBytes": 1662746624,
+              "peakGoRssBytes": 168951808
+            },
+            {
+              "sampleIntervalMs": 100,
+              "samples": 106,
+              "peakRssBytes": 1730150400,
+              "peakGoRssBytes": 183730176
+            }
+          ],
+          "ipc": [
+            {
+              "requestCount": 63151,
+              "roundTripMs": 1498.7817029999978,
+              "bytesSent": 8160775,
+              "bytesReceived": 32780154,
+              "serverTimeMs": 672.3020789999738,
+              "transportOverheadMs": 826.479624000024,
+              "nodesMaterialized": 159535,
+              "sourceFilesFetched": 315,
+              "nodesFetched": 369827
+            },
+            {
+              "requestCount": 63151,
+              "roundTripMs": 1488.7993500000011,
+              "bytesSent": 8160774,
+              "bytesReceived": 32780097,
+              "serverTimeMs": 671.7081849999726,
+              "transportOverheadMs": 817.0911650000286,
+              "nodesMaterialized": 159535,
+              "sourceFilesFetched": 315,
+              "nodesFetched": 369827
+            },
+            {
+              "requestCount": 63151,
+              "roundTripMs": 1567.3398130000005,
+              "bytesSent": 8160776,
+              "bytesReceived": 32780251,
+              "serverTimeMs": 684.99248699997,
+              "transportOverheadMs": 882.3473260000305,
+              "nodesMaterialized": 159535,
+              "sourceFilesFetched": 315,
+              "nodesFetched": 369827
+            }
+          ],
+          "errors": [],
+          "deterministic": true
+        }
+      }
+    },
+    {
+      "project": "rxjs",
+      "files": 730,
+      "ts6Issues": 6249,
+      "candidateIssues": 6257,
+      "identicalIssues": 6249,
+      "missingIssues": 0,
+      "addedIssues": 8,
+      "timeRatio": 1.7152472298752157,
+      "timings": {
+        "ts6": {
+          "analysisMs": [12578.636958, 13315.8275, 12731.932042],
+          "medianMs": 12731.932042,
+          "nodePeakRssBytes": [2256142336, 2329165824, 2258960384],
+          "processTreeMemory": [
+            {
+              "sampleIntervalMs": 100,
+              "samples": 125,
+              "peakRssBytes": 2298462208,
+              "peakGoRssBytes": 0
+            },
+            {
+              "sampleIntervalMs": 100,
+              "samples": 132,
+              "peakRssBytes": 2387230720,
+              "peakGoRssBytes": 0
+            },
+            {
+              "sampleIntervalMs": 100,
+              "samples": 126,
+              "peakRssBytes": 2303950848,
+              "peakGoRssBytes": 0
+            }
+          ],
+          "ipc": [null, null, null],
+          "errors": [],
+          "deterministic": true
+        },
+        "candidate": {
+          "analysisMs": [21176.570874999998, 21838.411165999998, 22207.502],
+          "medianMs": 21838.411165999998,
+          "nodePeakRssBytes": [2973876224, 3125379072, 2953920512],
+          "processTreeMemory": [
+            {
+              "sampleIntervalMs": 100,
+              "samples": 210,
+              "peakRssBytes": 3270819840,
+              "peakGoRssBytes": 240533504
+            },
+            {
+              "sampleIntervalMs": 100,
+              "samples": 217,
+              "peakRssBytes": 3420520448,
+              "peakGoRssBytes": 237060096
+            },
+            {
+              "sampleIntervalMs": 100,
+              "samples": 220,
+              "peakRssBytes": 3253157888,
+              "peakGoRssBytes": 235716608
+            }
+          ],
+          "ipc": [
+            {
+              "requestCount": 60067,
+              "roundTripMs": 2802.564549000232,
+              "bytesSent": 8355787,
+              "bytesReceived": 73132069,
+              "serverTimeMs": 1850.6273930000505,
+              "transportOverheadMs": 951.9371560001816,
+              "nodesMaterialized": 421375,
+              "sourceFilesFetched": 1351,
+              "nodesFetched": 941710
+            },
+            {
+              "requestCount": 60067,
+              "roundTripMs": 2832.3085939999783,
+              "bytesSent": 8355793,
+              "bytesReceived": 73132188,
+              "serverTimeMs": 1876.7003060000484,
+              "transportOverheadMs": 955.6082879999299,
+              "nodesMaterialized": 421375,
+              "sourceFilesFetched": 1351,
+              "nodesFetched": 941710
+            },
+            {
+              "requestCount": 60067,
+              "roundTripMs": 3025.9213309994416,
+              "bytesSent": 8355793,
+              "bytesReceived": 73132209,
+              "serverTimeMs": 1925.062669000019,
+              "transportOverheadMs": 1100.8586619994226,
+              "nodesMaterialized": 421375,
+              "sourceFilesFetched": 1351,
+              "nodesFetched": 941710
+            }
+          ],
+          "errors": [],
+          "deterministic": true
+        }
+      }
+    }
+  ],
+  "typescriptClassic": "6.0.3",
+  "typescriptGo": "7.1.0-beta",
+  "date": "2026-10-21",
+  "host": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+  "corpus": "SonarSource/jsts-test-sources",
+  "corpusCommit": "81a52e2c0180fc6e555b2c3efc44729fb46539d9",
+  "differences": {
+    "redux": {
+      "missing": [],
+      "added": [
+        [
+          "src/createStore.js",
+          {
+            "column": 13,
+            "endColumn": 18,
+            "endLine": 30,
+            "filePath": "<project>/src/createStore.js",
+            "language": "js",
+            "line": 30,
+            "message": "\"Store\" does not exist. Change its name or declare it so that its usage doesn't result in a \"ReferenceError\".",
+            "quickFixes": [],
+            "ruleESLintKeys": ["no-reference-error"],
+            "ruleId": "S3827",
+            "secondaryLocations": []
+          }
+        ]
+      ]
+    },
+    "ag-grid": {
+      "missing": [],
+      "added": [
+        [
+          "src/ts/headerRendering/headerRowComp.ts",
+          {
+            "column": 12,
+            "endColumn": 38,
+            "endLine": 238,
+            "filePath": "<project>/src/ts/headerRendering/headerRowComp.ts",
+            "language": "ts",
+            "line": 238,
+            "message": "This assertion is unnecessary since the receiver accepts the original type of the expression.",
+            "quickFixes": [
+              {
+                "edits": [
+                  {
+                    "loc": {
+                      "column": 12,
+                      "endColumn": 18,
+                      "endLine": 238,
+                      "line": 238
+                    },
+                    "text": ""
+                  }
+                ],
+                "message": "Remove type assertion"
+              }
+            ],
+            "ruleESLintKeys": ["no-unnecessary-type-assertion"],
+            "ruleId": "S4325",
+            "secondaryLocations": []
+          }
+        ]
+      ]
+    },
+    "rxjs": {
+      "missing": [],
+      "added": [
+        [
+          "src/Subscriber.ts",
+          {
+            "column": 55,
+            "endColumn": 95,
+            "endLine": 81,
+            "filePath": "<project>/src/Subscriber.ts",
+            "language": "ts",
+            "line": 81,
+            "message": "This assertion is unnecessary since the receiver accepts the original type of the expression.",
+            "quickFixes": [
+              {
+                "edits": [
+                  {
+                    "loc": {
+                      "column": 55,
+                      "endColumn": 77,
+                      "endLine": 81,
+                      "line": 81
+                    },
+                    "text": ""
+                  }
+                ],
+                "message": "Remove type assertion"
+              }
+            ],
+            "ruleESLintKeys": ["no-unnecessary-type-assertion"],
+            "ruleId": "S4325",
+            "secondaryLocations": []
+          }
+        ],
+        [
+          "src/util/toSubscriber.ts",
+          {
+            "column": 14,
+            "endColumn": 44,
+            "endLine": 12,
+            "filePath": "<project>/src/util/toSubscriber.ts",
+            "language": "ts",
+            "line": 12,
+            "message": "This assertion is unnecessary since it does not change the type of the expression.",
+            "quickFixes": [
+              {
+                "edits": [
+                  {
+                    "loc": {
+                      "column": 14,
+                      "endColumn": 29,
+                      "endLine": 12,
+                      "line": 12
+                    },
+                    "text": ""
+                  }
+                ],
+                "message": "Remove type assertion"
+              }
+            ],
+            "ruleESLintKeys": ["no-unnecessary-type-assertion"],
+            "ruleId": "S4325",
+            "secondaryLocations": []
+          }
+        ],
+        [
+          "src/observable/combineLatest.ts",
+          {
+            "column": 18,
+            "endColumn": 56,
+            "endLine": 157,
+            "filePath": "<project>/src/observable/combineLatest.ts",
+            "language": "ts",
+            "line": 157,
+            "message": "This assertion is unnecessary since it does not change the type of the expression.",
+            "quickFixes": [
+              {
+                "edits": [
+                  {
+                    "loc": {
+                      "column": 18,
+                      "endColumn": 42,
+                      "endLine": 157,
+                      "line": 157
+                    },
+                    "text": ""
+                  }
+                ],
+                "message": "Remove type assertion"
+              }
+            ],
+            "ruleESLintKeys": ["no-unnecessary-type-assertion"],
+            "ruleId": "S4325",
+            "secondaryLocations": []
+          }
+        ],
+        [
+          "src/operator/concat.ts",
+          {
+            "column": 13,
+            "endColumn": 31,
+            "endLine": 176,
+            "filePath": "<project>/src/operator/concat.ts",
+            "language": "ts",
+            "line": 176,
+            "message": "This assertion is unnecessary since it does not change the type of the expression.",
+            "quickFixes": [
+              {
+                "edits": [
+                  {
+                    "loc": {
+                      "column": 13,
+                      "endColumn": 20,
+                      "endLine": 176,
+                      "line": 176
+                    },
+                    "text": ""
+                  }
+                ],
+                "message": "Remove type assertion"
+              }
+            ],
+            "ruleESLintKeys": ["no-unnecessary-type-assertion"],
+            "ruleId": "S4325",
+            "secondaryLocations": []
+          }
+        ],
+        [
+          "src/operator/concat.ts",
+          {
+            "column": 11,
+            "endColumn": 40,
+            "endLine": 182,
+            "filePath": "<project>/src/operator/concat.ts",
+            "language": "ts",
+            "line": 182,
+            "message": "This assertion is unnecessary since it does not change the type of the expression.",
+            "quickFixes": [
+              {
+                "edits": [
+                  {
+                    "loc": {
+                      "column": 11,
+                      "endColumn": 26,
+                      "endLine": 182,
+                      "line": 182
+                    },
+                    "text": ""
+                  }
+                ],
+                "message": "Remove type assertion"
+              }
+            ],
+            "ruleESLintKeys": ["no-unnecessary-type-assertion"],
+            "ruleId": "S4325",
+            "secondaryLocations": []
+          }
+        ],
+        [
+          "src/operator/merge.ts",
+          {
+            "column": 11,
+            "endColumn": 40,
+            "endLine": 164,
+            "filePath": "<project>/src/operator/merge.ts",
+            "language": "ts",
+            "line": 164,
+            "message": "This assertion is unnecessary since it does not change the type of the expression.",
+            "quickFixes": [
+              {
+                "edits": [
+                  {
+                    "loc": {
+                      "column": 11,
+                      "endColumn": 26,
+                      "endLine": 164,
+                      "line": 164
+                    },
+                    "text": ""
+                  }
+                ],
+                "message": "Remove type assertion"
+              }
+            ],
+            "ruleESLintKeys": ["no-unnecessary-type-assertion"],
+            "ruleId": "S4325",
+            "secondaryLocations": []
+          }
+        ],
+        [
+          "src/operator/onErrorResumeNext.ts",
+          {
+            "column": 18,
+            "endColumn": 61,
+            "endLine": 109,
+            "filePath": "<project>/src/operator/onErrorResumeNext.ts",
+            "language": "ts",
+            "line": 109,
+            "message": "This assertion is unnecessary since it does not change the type of the expression.",
+            "quickFixes": [
+              {
+                "edits": [
+                  {
+                    "loc": {
+                      "column": 18,
+                      "endColumn": 47,
+                      "endLine": 109,
+                      "line": 109
+                    },
+                    "text": ""
+                  }
+                ],
+                "message": "Remove type assertion"
+              }
+            ],
+            "ruleESLintKeys": ["no-unnecessary-type-assertion"],
+            "ruleId": "S4325",
+            "secondaryLocations": []
+          }
+        ],
+        [
+          "src/observable/dom/WebSocketSubject.ts",
+          {
+            "column": 26,
+            "endColumn": 49,
+            "endLine": 215,
+            "filePath": "<project>/src/observable/dom/WebSocketSubject.ts",
+            "language": "ts",
+            "line": 215,
+            "message": "This assertion is unnecessary since it does not change the type of the expression.",
+            "quickFixes": [
+              {
+                "edits": [
+                  {
+                    "loc": {
+                      "column": 26,
+                      "endColumn": 44,
+                      "endLine": 215,
+                      "line": 215
+                    },
+                    "text": ""
+                  }
+                ],
+                "message": "Remove type assertion"
+              }
+            ],
+            "ruleESLintKeys": ["no-unnecessary-type-assertion"],
+            "ruleId": "S4325",
+            "secondaryLocations": []
+          }
+        ]
+      ]
+    }
+  }
+}

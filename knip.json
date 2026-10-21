@@ -28,6 +28,7 @@
     "packages/typescript/index.cjs",
     "packages/typescript/compat/index.cjs",
     "tools/compiler-provider-plugin.mjs",
-    "packages/typescript/providers/classic.cjs"
+    "packages/typescript/providers/classic.cjs",
+    "packages/typescript/providers/tsgo-ipc/index.mjs"
   ]
 }

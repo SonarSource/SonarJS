@@ -2,7 +2,7 @@
   "name": "typescript",
   "version": "6.0.3",
   "private": true,
-  "description": "SonarJS compiler contract for in-process providers",
+  "description": "SonarJS synchronous compiler provider contract",
   "type": "commonjs",
   "main": "./index.cjs",
   "types": "./index.d.cts",

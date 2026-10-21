@@ -1,5 +1,9 @@
 # Planned TSGo IPC provider
 
+An experimental implementation using TypeScript 7.1 beta is described in
+[tsgo-ipc-provider.md](tsgo-ipc-provider.md). The items below remain the design and
+production-readiness checklist; the implementation documents remaining gaps.
+
 Add a draft PR based on the shared compiler infrastructure in #8206. Register a
 `tsgo-ipc` provider alongside TS6; Vercel's implementation in #8209 remains a
 separate provider. Keep TS6 as the default in the shared infrastructure PR.
