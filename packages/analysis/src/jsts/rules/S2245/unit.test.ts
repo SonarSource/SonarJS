@@ -14,7 +14,10 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { DefaultParserRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
+import {
+  DefaultParserRuleTester,
+  NoTypeCheckingRuleTester,
+} from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { rule } from './rule.js';
 import { describe, it } from 'node:test';
 
@@ -23,6 +26,13 @@ describe('S2245', () => {
     const ruleTester = new DefaultParserRuleTester();
     ruleTester.run('Using pseudorandom number generators (PRNGs) is security-sensitive', rule, {
       valid: [
+        {
+          code: `class A { shuffle(xs) { return xs.map(() => Math.random()); } }`,
+        },
+        {
+          // anonymous module wrapper must not pull unrelated identifiers of the whole file into scope
+          code: `(function () { function tokenize() { var token; } var f = function () { return Math.random(); }; })();`,
+        },
         {
           code: `foo(x)`,
         },
@@ -62,6 +72,34 @@ function pickColor() { return Math.random(); }`,
         },
       ],
       invalid: [
+        {
+          code: `class A { generateToken() { return [1].map(() => Math.random()); } }`,
+          errors: 1,
+        },
+        {
+          code: `function generatePassword(n) { return Array.from({ length: n }, () => chars[Math.floor(Math.random() * chars.length)]).join(''); }`,
+          errors: 1,
+        },
+        {
+          code: `function generateToken() { return [...Array(16)].map(() => Math.random().toString(36)[2]).join(''); }`,
+          errors: 1,
+        },
+        {
+          code: `const f = () => [1].map(() => Math.random()); const g = { makeSecret() { return [1].map(() => Math.random()); } };`,
+          errors: 1,
+        },
+        {
+          code: `const h = require('crypto').createHash('sha256'); foo(Math.random());`,
+          errors: 1,
+        },
+        {
+          code: `require('crypto').randomBytes(8); foo(Math.random());`,
+          errors: 1,
+        },
+        {
+          code: `export * from 'crypto'; foo(Math.random());`,
+          errors: 1,
+        },
         {
           code: `import { createCipheriv } from 'node:crypto';
 export function pickColor() { return Math.random(); }`,
@@ -117,6 +155,19 @@ export function pickColor() { return Math.random(); }`,
         },
         {
           code: `function f() { const AES_KEY = Math.random(); }`,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('S2245 TypeScript import forms', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+    ruleTester.run('crypto import via import-equals', rule, {
+      valid: [{ code: `import lodash = require('lodash'); foo(Math.random());` }],
+      invalid: [
+        {
+          code: `import crypto = require('crypto'); foo(Math.random());`,
           errors: 1,
         },
       ],

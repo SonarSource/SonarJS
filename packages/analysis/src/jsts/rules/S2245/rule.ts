@@ -19,10 +19,10 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { findFirstMatchingAncestor } from '../helpers/ancestor.js';
+import { ancestorsChain } from '../helpers/ancestor.js';
 import { functionLike } from '../helpers/ast.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { getCurrentFileImports, getFullyQualifiedName } from '../helpers/module.js';
+import { getCurrentFileModuleReferences, getFullyQualifiedName } from '../helpers/module.js';
 import * as meta from './generated-meta.js';
 
 const CRYPTO_MODULES = new Set([
@@ -106,7 +106,7 @@ export const rule: Rule.RuleModule = {
     let hasCryptoImport: boolean | undefined;
 
     function importsCrypto() {
-      hasCryptoImport ??= [...getCurrentFileImports(sourceCode)].some(
+      hasCryptoImport ??= [...getCurrentFileModuleReferences(sourceCode)].some(
         name => CRYPTO_MODULES.has(name) || CRYPTO_PREFIXES.some(prefix => name.startsWith(prefix)),
       );
       return hasCryptoImport;
@@ -114,9 +114,8 @@ export const rule: Rule.RuleModule = {
 
     // Splits camelCase/snake_case names into lowercase words and also tries adjacent words joined,
     // so that `sessionId` matches `sessionid` and `randomBytes` matches `randombytes`.
-    // ponytail: nested functions' identifiers count toward the outer scope; restrict to the local scope if FPs remain
-    function hasSecurityKeyword(scopeNode: Rule.Node) {
-      for (const token of sourceCode.getTokens(scopeNode)) {
+    function scanForSecurityKeyword(range: [number, number]) {
+      for (const token of sourceCode.getTokens({ range } as Rule.Node)) {
         if (token.type !== 'Identifier' && token.type !== 'PrivateIdentifier') {
           continue;
         }
@@ -137,15 +136,55 @@ export const rule: Rule.RuleModule = {
       return false;
     }
 
+    // one scan per function: Math.random() is often called many times in the same scope
+    const bodyCache = new Map<Rule.Node, boolean>();
+    const headerCache = new Map<Rule.Node, boolean>();
+
+    function cached(cache: Map<Rule.Node, boolean>, key: Rule.Node, scan: () => boolean) {
+      let result = cache.get(key);
+      if (result === undefined) {
+        result = scan();
+        cache.set(key, result);
+      }
+      return result;
+    }
+
+    // the function itself, plus the name it is given (`const generateToken = () => ...`)
+    function namedRangeStart(fn: Rule.Node) {
+      return fn.parent && NAMING_PARENTS.has(fn.parent.type)
+        ? sourceCode.getRange(fn.parent)[0]
+        : sourceCode.getRange(fn)[0];
+    }
+
+    // ponytail: nested functions' identifiers count toward the outer scope; restrict to the local scope if FPs remain
+    function bodyHasKeyword(fn: Rule.Node) {
+      return cached(bodyCache, fn, () =>
+        scanForSecurityKeyword([namedRangeStart(fn), sourceCode.getRange(fn)[1]]),
+      );
+    }
+
+    // name and parameters only, so that an anonymous module wrapper (IIFE/AMD) does not drag the whole file in
+    function headerHasKeyword(fn: Rule.Node) {
+      const body = (fn as unknown as estree.Function).body as Rule.Node;
+      return cached(headerCache, fn, () =>
+        scanForSecurityKeyword([namedRangeStart(fn), sourceCode.getRange(body)[0]]),
+      );
+    }
+
     function isSecurityContext(node: Rule.Node) {
       if (importsCrypto()) {
         return true;
       }
-      const fn = findFirstMatchingAncestor(node as TSESTree.Node, n => functionLike.has(n.type)) as
-        Rule.Node | undefined;
-      const scope =
-        fn?.parent && NAMING_PARENTS.has(fn.parent.type) ? fn.parent : (fn ?? sourceCode.ast);
-      return hasSecurityKeyword(scope as Rule.Node);
+      // innermost function first; callbacks inside `generatePassword` are still reported via its header
+      const [inner, ...outer] = ancestorsChain(node as TSESTree.Node, new Set()).filter(
+        n => functionLike.has(n.type) && n.type !== 'MethodDefinition', // its `value` is already in the chain
+      ) as Rule.Node[];
+      if (inner === undefined) {
+        return cached(bodyCache, sourceCode.ast as Rule.Node, () =>
+          scanForSecurityKeyword(sourceCode.getRange(sourceCode.ast)),
+        );
+      }
+      return bodyHasKeyword(inner) || outer.some(headerHasKeyword);
     }
 
     return {
