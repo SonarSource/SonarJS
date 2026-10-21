@@ -56,26 +56,41 @@ export function createConfiguration(runtime) {
     // expansion. Its callbacks retain the analyzer's request filesystem policy.
     const read = host.readFile.bind(host),
       observed = new Map();
+    const reversed = new Map();
+    const encoded = nativePaths(json, reversed);
+    const name = nativePaths(
+      normalize(configFileName || normalize('tsconfig.json', basePath)),
+      reversed,
+    );
     const callbacks = {
       ...host,
       readFile: file => {
+        file = restorePaths(file, reversed);
         const text = read(file);
         if (text !== undefined && /\.json$/i.test(file)) observed.set(file, text);
         return text;
       },
     };
-    const reversed = new Map();
-    const encoded = nativePaths(json, reversed);
-    const result = runtime.invoke(callbacks, api =>
-      api.parseJsonConfigFileContent(encoded, {
-        configFileName: configFileName || normalize(path.join(basePath, 'tsconfig.json')),
-      }),
+    for (const method of [
+      'fileExists',
+      'directoryExists',
+      'getDirectories',
+      'realpath',
+      'readDirectory',
+    ])
+      if (host[method])
+        callbacks[method] = (...args) =>
+          nativePaths(host[method](...args.map(arg => restorePaths(arg, reversed))), reversed);
+    const result = restorePaths(
+      runtime.invoke(callbacks, api =>
+        api.parseJsonConfigFileContent(encoded, { configFileName: name }),
+      ),
+      reversed,
     );
     for (const [file, text] of observed) {
       const raw = parseConfigFileTextToJson(file, text).config;
       extendedCache?.set(file, { extendedConfig: { raw } });
     }
-    result.options = restorePaths(result.options, reversed);
     // Extra analyzer extensions are explicit roots; the public API's config
     // parser otherwise only includes TS/JS extensions.
     for (const { extension } of json.files && !json.include ? [] : extraExtensions) {
@@ -98,9 +113,7 @@ export function createConfiguration(runtime) {
       .map(value =>
         diagnostic({
           ...value,
-          text: configFileName
-            ? value.text.replaceAll(normalize(configFileName), configFileName)
-            : value.text,
+          text: value.text.replaceAll(name, configFileName || restorePaths(name, reversed)),
         }),
       );
     return { ...result, options: { ...result.options, ...existingOptions }, errors, raw: json };

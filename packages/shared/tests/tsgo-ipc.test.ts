@@ -46,6 +46,14 @@ it('TSGo preserves virtual POSIX, Windows and UNC path namespaces on every host'
   const encoded = nativePaths(options, reversed);
   assert.deepEqual(encoded, { paths: { alias: ['/server/share/library.ts'] } });
   assert.deepEqual(restorePaths(encoded, reversed), options);
+  assert.equal(
+    restorePaths('/server/share/other/main.ts', reversed),
+    '//server/share/other/main.ts',
+  );
+  assert.equal(
+    restorePaths('/server/share-other/main.ts', reversed),
+    '/server/share-other/main.ts',
+  );
 });
 
 it('TSGo keeps external typed rules on the facade with the TS6 runtime blocked', () => {

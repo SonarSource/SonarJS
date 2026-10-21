@@ -102,7 +102,8 @@ export const sys = {
 // Translate them at the transport boundary while the analyzer keeps its portable names.
 export function nativePaths(value, reversed = new Map()) {
   if (typeof value === 'string' && value.startsWith('//')) {
-    reversed.set(value.slice(1), value);
+    const root = /^\/\/[^/]+\/[^/]+/.exec(value)?.[0] ?? value;
+    reversed.set(root.slice(1), root);
     return value.slice(1);
   }
   if (Array.isArray(value)) return value.map(item => nativePaths(item, reversed));
@@ -114,7 +115,12 @@ export function nativePaths(value, reversed = new Map()) {
 }
 
 export function restorePaths(value, reversed) {
-  if (typeof value === 'string') return reversed.get(value) ?? value;
+  if (typeof value === 'string') {
+    for (const [encoded, original] of reversed)
+      if (value === encoded || value.startsWith(encoded + '/'))
+        return original + value.slice(encoded.length);
+    return value;
+  }
   if (Array.isArray(value)) return value.map(item => restorePaths(item, reversed));
   if (value && typeof value === 'object')
     return Object.fromEntries(

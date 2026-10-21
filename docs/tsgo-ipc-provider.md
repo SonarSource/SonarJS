@@ -123,12 +123,12 @@ compiler in that test: it checks frontend behavior, not independent TS6/native A
 parity. Packaged smoke tests cover typed/syntax findings, fixes, successive IDE edits
 and existing baseUrl projects.
 
-Final local checks on macOS ARM64: compilation and compiler-contract checks passed;
-the compiled bridge suite passed 2,960 tests with one skipped; Knip
-(`--no-gitignore`), formatting, the bundled smoke test, 75 TS6 configuration tests,
-and all four Java bundle deployment tests passed. Linux CI also passed the full
-coverage suite with 2,960 passing tests. Windows CI exposed pipe detection and
-virtual-path normalization differences; fixes require a fresh Windows run.
+Validation covers compilation, compiler contracts, the compiled bridge suite,
+Knip (`--no-gitignore`), formatting, bundled smoke tests, TS6 configuration tests
+and Java bundle deployment. Provider regressions exercise virtual POSIX, Windows
+and UNC paths, config inheritance and resolved-path restoration, native JSDoc
+syntax adaptation, external typed rules, overlays, snapshot disposal and recovery
+after compiler failure. Current CI results are recorded in the pull request.
 
 The benchmark summary JSON is the canonical measurement artifact. Its Markdown
 report is generated with `tools/compiler-comparison/report.mjs`. The nine added
