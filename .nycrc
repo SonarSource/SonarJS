@@ -1,6 +1,7 @@
 {
   "exclude": [
     "**/frontend/vendor/**",
+    "**/typescript/compat/syntax.cjs",
     "**/*.test.*",
     "*/jsts/src/rules/*/generated-meta.*",
     "**/tests/**/*",

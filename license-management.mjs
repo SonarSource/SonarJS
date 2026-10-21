@@ -127,6 +127,10 @@ async function main() {
       'packages/analysis/src/jsts/frontend/vendor/LICENSE',
       path.join(THIRD_PARTY_LICENSES_DIR, 'typescript-eslint-frontend-LICENSE.txt'),
     );
+    await fs.copyFile(
+      'packages/typescript/compat/NOTICE.md',
+      path.join(THIRD_PARTY_LICENSES_DIR, 'sonarjs-compiler-syntax-NOTICE.txt'),
+    );
     console.log('=== License management completed successfully ===');
   } catch (error) {
     console.error('License management failed:', error);

@@ -17,10 +17,16 @@
 // Every consumer, including upstream rules and helpers, resolves this same contract.
 // A provider supplies the supported operations; it does not determine the public export surface.
 const supported = require('./supported-exports.json');
-const provider = require('./providers/classic.cjs');
 const { CompilerContractError } = require('./errors.cjs');
+const { name: backend } = require('./selection.cjs')();
+const provider = require('./registry.cjs')(backend);
 const compiler = Object.create(null);
 for (const name of supported) {
+  if (provider[name] === undefined) {
+    throw new CompilerContractError(
+      `Compiler provider ${backend} does not implement typescript.${name}`,
+    );
+  }
   Object.defineProperty(compiler, name, {
     enumerable: true,
     get() {

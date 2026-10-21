@@ -49,7 +49,14 @@ describe('bundled dependency SBOM validation', () => {
       return execFileSync(
         process.execPath,
         [validator, 'npm.json', 'merged.json', 'esbuild.json'],
-        { cwd: directory, encoding: 'utf8', stdio: 'pipe' },
+        {
+          cwd: directory,
+          encoding: 'utf8',
+          stdio: 'pipe',
+          // The tools CLI is excluded from coverage. Its fixture cwd cannot resolve
+          // the repository-relative NYC loader inherited from bridge:test:cov.
+          env: { ...process.env, NODE_OPTIONS: undefined },
+        },
       );
     } finally {
       rmSync(directory, { recursive: true, force: true });

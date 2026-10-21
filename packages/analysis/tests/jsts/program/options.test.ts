@@ -15,6 +15,8 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import path from 'node:path/posix';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { describe, it, beforeEach } from 'node:test';
 import { expect } from 'expect';
 import ts from 'typescript';
@@ -23,6 +25,7 @@ import {
   computeLibJson,
   createProgramOptions,
   createProgramOptionsFromJson,
+  createProgramOptionsFromEffectiveOptions,
   defaultCompilerOptions,
   esLibToYear,
   nodeVersionToEs,
@@ -102,6 +105,34 @@ describe('createProgramOptions', () => {
         projectReferences: [expect.objectContaining({ path: 'foo' })],
       });
     });
+  });
+
+  it('retains project settings when configs contain removed compiler options', context => {
+    const directory = normalizePath(mkdtempSync(path.join(tmpdir(), 'sonarjs-legacy-options-')));
+    context.after(() => rmSync(directory, { recursive: true, force: true }));
+    writeFileSync(path.join(directory, 'main.ts'), 'export const value = 1;');
+    writeFileSync(
+      path.join(directory, 'base.json'),
+      JSON.stringify({
+        compilerOptions: { target: 'es6', suppressImplicitAnyIndexErrors: true, charset: 'utf8' },
+      }),
+    );
+    const config = path.join(directory, 'tsconfig.json');
+    writeFileSync(config, JSON.stringify({ extends: './base.json', files: ['main.ts'] }));
+    const result = createProgramOptions(config, undefined, true);
+    expect(result.options.target).toBe(ts.ScriptTarget.ES2015);
+    expect(result.rootNames).toEqual([path.join(directory, 'main.ts')]);
+    const fromJson = createProgramOptionsFromJson(
+      { target: 'es6', suppressImplicitAnyIndexErrors: true },
+      [],
+      directory,
+    );
+    expect(fromJson.options.target).toBe(ts.ScriptTarget.ES2015);
+    expect(fromJson.configFileParsingDiagnostics).toEqual([]);
+    expect(
+      createProgramOptionsFromJson({ misspelledOption: true }, [], directory)
+        .configFileParsingDiagnostics,
+    ).not.toEqual([]);
   });
 
   describe('error handling', () => {
@@ -391,6 +422,198 @@ describe('createProgramOptionsFromJson', () => {
 
     expect(result.rootNames).toEqual(rootNames);
     expect(result.missingTsConfig).toBe(false);
+  });
+});
+
+describe('cross-version compiler options', () => {
+  for (const moduleResolution of [undefined, 'Node10', 'Classic', 'Bundler', 'NodeNext']) {
+    it(`preserves baseUrl resolution and alias priority with ${moduleResolution ?? 'default'} resolution`, () => {
+      const root = normalizeToAbsolutePath('/virtual');
+      const external = normalizeToAbsolutePath('/external');
+      const main = normalizeToAbsolutePath('main.ts', root);
+      const imports = [
+        'alias',
+        'feature/fallback',
+        'exact',
+        'other',
+        'absolute',
+        './relative',
+        'dependency',
+      ];
+      const files = new Map([
+        [
+          main,
+          imports
+            .map(
+              (name, i) => `import { value as v${i} } from '${name}'; export const r${i} = v${i};`,
+            )
+            .join('\n'),
+        ],
+        [`${root}/src/mapped/alias.ts`, 'export const value = "alias";'],
+        [`${root}/src/alias.ts`, 'export const value = "wrong priority";'],
+        [`${root}/src/feature/fallback.ts`, 'export const value = "pattern fallback";'],
+        [`${root}/src/exact.ts`, 'export const value = "exact fallback";'],
+        [`${root}/src/other.ts`, 'export const value = "base fallback";'],
+        [`${external}/absolute.ts`, 'export const value = "absolute";'],
+        [`${root}/relative.ts`, 'export const value = "relative";'],
+        [`${root}/node_modules/dependency/index.d.ts`, 'export const value: "package";'],
+      ]);
+      const options = createProgramOptionsFromJson(
+        {
+          noLib: true,
+          module: 'CommonJS',
+          moduleResolution,
+          baseUrl: './src',
+          paths: {
+            '*': ['mapped/*'],
+            'feature/*': ['missing/*'],
+            exact: ['missing'],
+            absolute: [`${external}/absolute`],
+          },
+        },
+        [main],
+        root,
+      );
+      const host: ts.CompilerHost = {
+        ...ts.createCompilerHost(options.options),
+        getCurrentDirectory: () => root,
+        readFile: file => files.get(file),
+        getSourceFile: (file, languageVersion) => {
+          const text = files.get(file);
+          return text === undefined
+            ? undefined
+            : ts.createSourceFile(file, text, languageVersion, true);
+        },
+        fileExists: file => files.has(file),
+        directoryExists: () => true,
+        realpath: file => file,
+        getDirectories: () => [],
+        readDirectory: () => [],
+      };
+      const program = ts.createProgram({ ...options, host });
+      const checker = program.getTypeChecker();
+      const types = program
+        .getSourceFile(main)!
+        .statements.filter(ts.isVariableStatement)
+        .map(statement =>
+          checker.typeToString(
+            checker.getTypeAtLocation(statement.declarationList.declarations[0].initializer!),
+          ),
+        );
+      // Classic does not search node_modules; the other modes must still fall back to it.
+      expect(types).toEqual([
+        '"alias"',
+        '"pattern fallback"',
+        '"exact fallback"',
+        '"base fallback"',
+        '"absolute"',
+        '"relative"',
+        moduleResolution === 'Classic' ? 'any' : '"package"',
+      ]);
+    });
+  }
+
+  it('resolves imports when baseUrl is a filesystem root', () => {
+    for (const root of ['/', 'C:/', '//server/share/'].map(value =>
+      normalizeToAbsolutePath(value),
+    )) {
+      const main = normalizeToAbsolutePath(root + 'main.ts');
+      const library = normalizeToAbsolutePath(root + 'library.ts');
+      const files = new Map<string, string>([
+        [main, "import { value } from 'library'; export const result = value;"],
+        [library, 'export const value = "root";'],
+      ]);
+      const options = createProgramOptionsFromJson({ baseUrl: root, noLib: true }, [main], root);
+      const host: ts.CompilerHost = {
+        ...ts.createCompilerHost(options.options),
+        getCurrentDirectory: () => root,
+        getSourceFile: (file, languageVersion) => {
+          const text = files.get(file);
+          return text === undefined
+            ? undefined
+            : ts.createSourceFile(file, text, languageVersion, true);
+        },
+        readFile: file => files.get(file),
+        fileExists: file => files.has(file),
+        directoryExists: () => true,
+        realpath: file => file,
+        getDirectories: () => [],
+        readDirectory: () => [],
+      };
+      const program = ts.createProgram({ ...options, host });
+      const checker = program.getTypeChecker();
+      const declaration = (program.getSourceFile(main)!.statements[1] as ts.VariableStatement)
+        .declarationList.declarations[0];
+      expect(checker.typeToString(checker.getTypeAtLocation(declaration.initializer!))).toBe(
+        '"root"',
+      );
+    }
+  });
+
+  it('anchors inherited baseUrl and paths to the declaring config', context => {
+    const root = normalizeToAbsolutePath(
+      mkdtempSync(path.join(normalizePath(tmpdir()), 'sonarjs-options-')),
+    );
+    context.after(() => rmSync(root, { recursive: true, force: true }));
+    mkdirSync(path.join(root, 'child'));
+    mkdirSync(path.join(root, 'src'));
+    writeFileSync(
+      path.join(root, 'tsconfig.json'),
+      JSON.stringify({ compilerOptions: { baseUrl: './src', paths: { alias: ['./dependency'] } } }),
+    );
+    writeFileSync(
+      path.join(root, 'child/tsconfig.json'),
+      JSON.stringify({ extends: '../tsconfig.json', files: ['main.ts'] }),
+    );
+    writeFileSync(
+      path.join(root, 'child/main.ts'),
+      "import { value } from 'alias'; export const result = value;",
+    );
+    writeFileSync(path.join(root, 'src/dependency.ts'), 'export const value = "inherited";');
+    const options = createProgramOptions(path.join(root, 'child/tsconfig.json'), undefined, true);
+    const program = ts.createProgram(options);
+    const checker = program.getTypeChecker();
+    const declaration = (
+      program.getSourceFile(path.join(root, 'child/main.ts'))!.statements[1] as ts.VariableStatement
+    ).declarationList.declarations[0];
+    expect(checker.typeToString(checker.getTypeAtLocation(declaration.initializer!))).toBe(
+      '"inherited"',
+    );
+  });
+
+  it('keeps Windows absolute substitutions and wildcard parent segments intact', () => {
+    const { options } = createProgramOptionsFromJson(
+      {
+        baseUrl: './src',
+        paths: {
+          'parent/*': ['*/../target'],
+          'drive/*': ['D:/types/*'],
+          'unc/*': ['//server/share/*'],
+        },
+      },
+      [],
+      'C:/project',
+    );
+    expect(options.baseUrl).toBeUndefined();
+    expect(options.paths).toMatchObject({
+      'parent/*': ['C:/project/src/*/../target', 'C:/project/src/parent/*'],
+      'drive/*': ['D:/types/*', 'C:/project/src/drive/*'],
+      'unc/*': ['//server/share/*', 'C:/project/src/unc/*'],
+    });
+  });
+
+  it('normalizes restored options once without mutating the saved configuration', () => {
+    const saved = { baseUrl: '/project', paths: { alias: ['src/alias'] } };
+    const first = createProgramOptionsFromEffectiveOptions(saved, []);
+    const restored = createProgramOptionsFromEffectiveOptions(first.options, []);
+    expect(saved).toEqual({ baseUrl: '/project', paths: { alias: ['src/alias'] } });
+    expect(restored.options).toBe(first.options);
+    expect(restored.options.paths?.alias).toEqual(['/project/src/alias', '/project/alias']);
+  });
+
+  it('preserves paths without baseUrl', () => {
+    const saved = { paths: { alias: ['/project/alias'] } };
+    expect(createProgramOptionsFromEffectiveOptions(saved, []).options).toBe(saved);
   });
 });
 

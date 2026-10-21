@@ -16,12 +16,18 @@
   "ignoreDependencies": [
     "nyc",
     "@istanbuljs/esm-loader-hook",
-    "esbuild",
     "esbuild-plugin-copy",
     "esbuild-plugin-text-replace"
   ],
   "ignoreBinaries": ["mvn"],
   "ignoreIssues": {
-    "packages/analysis/src/jsts/frontend/vendor/**": ["files", "exports", "types"]
-  }
+    "packages/analysis/src/jsts/frontend/vendor/**": ["files", "exports", "types"],
+    "packages/typescript/index.mjs": ["exports", "types"]
+  },
+  "entry": [
+    "packages/typescript/index.cjs",
+    "packages/typescript/compat/index.cjs",
+    "tools/compiler-provider-plugin.mjs",
+    "packages/typescript/providers/classic.cjs"
+  ]
 }

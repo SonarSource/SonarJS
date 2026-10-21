@@ -298,6 +298,8 @@
                 <exclude>tsgolint/**/*</exclude>
                 <!-- Adopted sources retain their upstream MIT license. -->
                 <exclude>packages/analysis/src/jsts/frontend/vendor/**/*</exclude>
+                <!-- Apache-licensed stateless syntax adoption; provenance is adjacent. -->
+                <exclude>packages/typescript/compat/syntax.cjs</exclude>
                 <!-- Generated -->
                 <exclude>**/bin/**/*</exclude>
                 <exclude>**/dist/**/*</exclude>

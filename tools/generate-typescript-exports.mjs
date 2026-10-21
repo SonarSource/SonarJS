@@ -76,10 +76,9 @@ const packageJson = JSON.parse(await readFile(new URL('package.json', directory)
 const referenceVersion = JSON.parse(
   await readFile(require.resolve('typescript-classic/package.json'), 'utf8'),
 ).version;
-if (
-  root.dependencies?.['typescript-classic'] &&
-  root.dependencies['typescript-classic'] !== `npm:typescript@${referenceVersion}`
-) {
+const referenceDependency =
+  root.dependencies?.['typescript-classic'] ?? root.devDependencies?.['typescript-classic'];
+if (referenceDependency !== `npm:typescript@${referenceVersion}`) {
   throw new Error('The installed reference compiler does not match package.json');
 }
 if (packageJson.version !== referenceVersion) {

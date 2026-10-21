@@ -56,6 +56,20 @@ try {
     });
   });
   client = new Client(address, credentials.createInsecure());
+  async function requestAnalysis(request: InstanceType<typeof proto.AnalyzeProjectRequest>) {
+    return await new Promise<InstanceType<typeof proto.AnalyzeProjectUnaryResponse>>(
+      (resolve, reject) => {
+        client!.makeUnaryRequest(
+          '/sonarjs.analyzeproject.v1.AnalyzeProjectService/AnalyzeProjectUnary',
+          request => Buffer.from(proto.AnalyzeProjectRequest.encode(request).finish()),
+          buffer => proto.AnalyzeProjectUnaryResponse.decode(buffer),
+          request,
+          { deadline: Date.now() + 30_000 },
+          (error, result) => (error ? reject(error) : resolve(result!)),
+        );
+      },
+    );
+  }
   const filePath = '/sonarjs/bundle-check/main.ts';
   async function analyze(fileContent: string) {
     const request = proto.AnalyzeProjectRequest.create({
@@ -74,18 +88,7 @@ try {
       })),
       bundles: [],
     });
-    const response = await new Promise<InstanceType<typeof proto.AnalyzeProjectUnaryResponse>>(
-      (resolve, reject) => {
-        client!.makeUnaryRequest(
-          '/sonarjs.analyzeproject.v1.AnalyzeProjectService/AnalyzeProjectUnary',
-          request => Buffer.from(proto.AnalyzeProjectRequest.encode(request).finish()),
-          buffer => proto.AnalyzeProjectUnaryResponse.decode(buffer),
-          request,
-          { deadline: Date.now() + 30_000 },
-          (error, result) => (error ? reject(error) : resolve(result!)),
-        );
-      },
-    );
+    const response = await requestAnalysis(request);
     const result = response.files[filePath];
     assert.ok(result, `Missing file result: ${JSON.stringify(response)}`);
     assert.equal(result.error, null);
@@ -103,8 +106,40 @@ try {
     await analyze('const values: number[] = [2, 1]; values.sort((a, b) => a - b);'),
     [],
   );
+  for (const [project, config, source] of [
+    ['typechecker-config/multiple-targets', 'tsconfig.es6.json', 'src/main.es6.ts'],
+    ['typechecker-config/multiple-targets', 'tsconfig.json', 'src/main.ts'],
+    ['websensor-multi-module', 'tsconfig.shared.json', 'moduleA/src/main.ts'],
+    ['websensor-multi-module', 'tsconfig.moduleA.json', 'moduleA/src/main.ts'],
+    ['websensor-multi-module', 'tsconfig.moduleB.json', 'moduleB/src/main.ts'],
+  ]) {
+    const baseDir = fileURLToPath(new URL(`../its/plugin/projects/${project}/`, import.meta.url));
+    const response = await requestAnalysis(
+      proto.AnalyzeProjectRequest.create({
+        configuration: { baseDir, canAccessFileSystem: true, tsConfigPaths: [baseDir + config] },
+        rules: [
+          {
+            key: 'S3003',
+            configurations: [],
+            fileTypeTargets: [proto.FileType.FILE_TYPE_MAIN],
+            language: proto.JsTsLanguage.JS_TS_LANGUAGE_TS,
+            analysisModes: [proto.AnalysisMode.ANALYSIS_MODE_DEFAULT],
+          },
+        ],
+      }),
+    );
+    const result = response.files[baseDir + source];
+    assert.ok(result, `Missing ${project}/${source}: ${JSON.stringify(response)}`);
+    assert.equal(result.error, null);
+    assert.deepEqual(result.parsingErrors, []);
+    assert.equal(
+      result.issues.filter(issue => issue.ruleId === 'S3003').length,
+      1,
+      `${project}/${config} must retain imported constant types`,
+    );
+  }
   console.log(
-    'Packaged bridge: typed and syntax findings, fixes, and successive IDE content updates passed.',
+    'Packaged bridge: typed and syntax findings, fixes, successive IDE updates, and unchanged baseUrl QA projects passed.',
   );
 } catch (error) {
   console.error(output);
