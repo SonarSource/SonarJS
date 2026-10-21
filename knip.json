@@ -12,12 +12,13 @@
     "tools/header.ts",
     "tools/new-plugin.ts"
   ],
-  "project": ["packages/**/*.ts", "tools/**/*.ts"],
+  "project": ["packages/**/*.ts", "tools/**/*.ts", "packages/typescript/**/*.mjs"],
   "ignoreDependencies": [
     "nyc",
     "@istanbuljs/esm-loader-hook",
     "esbuild-plugin-copy",
-    "esbuild-plugin-text-replace"
+    "esbuild-plugin-text-replace",
+    "@scriptc/threads"
   ],
   "ignoreBinaries": ["mvn"],
   "ignoreIssues": {
@@ -28,6 +29,10 @@
     "packages/typescript/index.cjs",
     "packages/typescript/compat/index.cjs",
     "tools/compiler-provider-plugin.mjs",
-    "packages/typescript/providers/classic.cjs"
+    "packages/typescript/providers/classic.cjs",
+    "tools/compiler-comparison/compare.mjs",
+    "tools/compiler-comparison/worker.mts",
+    "packages/typescript/providers/vercel/index.mjs",
+    "packages/typescript/providers/vercel/legacyResolution.mjs"
   ]
 }

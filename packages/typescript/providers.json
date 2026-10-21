@@ -1,11 +1,18 @@
 {
-  "defaultProvider": "ts6",
+  "defaultProvider": "vercel",
   "providers": {
     "ts6": {
       "module": "./providers/classic.cjs",
       "libraries": "../../node_modules/typescript-classic/lib",
       "sdk": "typescript-classic",
       "capabilities": { "watchPrograms": true, "projectService": true },
+      "legacyModuleResolution": true
+    },
+    "vercel": {
+      "module": "./providers/vercel/runtime.cjs",
+      "libraries": "./providers/vercel/lib",
+      "metafile": "target/vercel-typescript-metafile.json",
+      "prepare": "tools/build-vercel-typescript.mjs",
       "legacyModuleResolution": true
     }
   }

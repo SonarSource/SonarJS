@@ -95,3 +95,7 @@ lcov.info
 !.codex/skills/
 .mcp.json
 packages/ruling/filesystem-cache/
+packages/typescript/providers/vercel/runtime.cjs
+tools/compiler-comparison/results/
+
+packages/typescript/providers/vercel/lib/

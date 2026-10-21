@@ -2,6 +2,7 @@
   "exclude": [
     "**/frontend/vendor/**",
     "**/typescript/compat/syntax.cjs",
+    "**/typescript/providers/vercel/runtime.cjs",
     "**/*.test.*",
     "*/jsts/src/rules/*/generated-meta.*",
     "**/tests/**/*",
