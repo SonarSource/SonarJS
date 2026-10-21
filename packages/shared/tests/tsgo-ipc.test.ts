@@ -30,7 +30,7 @@ function probe(script: string) {
 }
 
 it('TSGo preserves virtual POSIX, Windows and UNC path namespaces on every host', async () => {
-  const { normalize } = await import(
+  const { normalize, nativePaths, restorePaths } = await import(
     pathToFileURL(path.resolve('packages/typescript/providers/tsgo-ipc/filesystem.mjs')).href
   );
   for (const [file, cwd, expected] of [
@@ -41,6 +41,11 @@ it('TSGo preserves virtual POSIX, Windows and UNC path namespaces on every host'
   ]) {
     assert.equal(normalize(file, cwd), expected);
   }
+  const reversed = new Map();
+  const options = { paths: { alias: ['//server/share/library.ts'] } };
+  const encoded = nativePaths(options, reversed);
+  assert.deepEqual(encoded, { paths: { alias: ['/server/share/library.ts'] } });
+  assert.deepEqual(restorePaths(encoded, reversed), options);
 });
 
 it('TSGo keeps external typed rules on the facade with the TS6 runtime blocked', () => {

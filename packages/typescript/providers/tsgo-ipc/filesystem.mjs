@@ -98,10 +98,10 @@ export const sys = {
   },
 };
 
-// The native POSIX path model collapses UNC prefixes. Translate path-shaped
-// strings at the transport boundary while the analyzer keeps its portable names.
+// The native compiler rejects UNC network paths on every host (diagnostic 5116).
+// Translate them at the transport boundary while the analyzer keeps its portable names.
 export function nativePaths(value, reversed = new Map()) {
-  if (process.platform !== 'win32' && typeof value === 'string' && value.startsWith('//')) {
+  if (typeof value === 'string' && value.startsWith('//')) {
     reversed.set(value.slice(1), value);
     return value.slice(1);
   }

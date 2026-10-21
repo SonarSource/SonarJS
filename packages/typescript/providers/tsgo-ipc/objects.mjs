@@ -64,6 +64,29 @@ export function createObjects({ native, sdk, checker: remote, call, diagnostics 
     while (node.parent?.kind === native.SyntaxKind.QualifiedName) node = node.parent;
     return isHeritage(node.parent ?? {});
   };
+  const isJSDocDeclaration = node =>
+    node.kind === native.SyntaxKind.JSTypeAliasDeclaration ||
+    node.kind === native.SyntaxKind.JSImportDeclaration;
+  const isSyntaxChild = (parent, node) =>
+    !isJSDocDeclaration(node) &&
+    !(
+      (node === parent.type || parent.typeParameters?.includes(node)) &&
+      node.end <= parent.getStart()
+    );
+  const copyArrayProperties = (source, target) => {
+    for (const key of ['pos', 'end', 'hasTrailingComma', 'transformFlags'])
+      if (source[key] !== undefined) target[key] = source[key];
+    return target;
+  };
+  const syntaxChildren = (parent, nodes) => {
+    const result = wrap(nodes);
+    return nodes?.some(node => !isSyntaxChild(parent, node))
+      ? copyArrayProperties(
+          nodes,
+          result.filter((_node, index) => isSyntaxChild(parent, nodes[index])),
+        )
+      : result;
+  };
   function wrap(value) {
     if (value == null || typeof value !== 'object') return value;
     if (views.has(value)) return views.get(value);
@@ -71,9 +94,7 @@ export function createObjects({ native, sdk, checker: remote, call, diagnostics 
       const result = [];
       views.set(value, result);
       for (const item of value) result.push(wrap(item));
-      for (const key of ['pos', 'end', 'hasTrailingComma', 'transformFlags'])
-        if (value[key] !== undefined) result[key] = value[key];
-      return result;
+      return copyArrayProperties(value, result);
     }
     if (value instanceof Map) {
       const result = new Map();
@@ -174,6 +195,8 @@ export function createObjects({ native, sdk, checker: remote, call, diagnostics 
       // JSDoc parameter/return types participate in native checking but must not
       // become TypeScript annotations in the JavaScript syntax tree.
       if (property === 'type' && raw.type && raw.type.end <= raw.getStart()) return undefined;
+      // Native JSDoc typedef/import declarations are checker inputs, not JS statements.
+      if (property === 'statements') return syntaxChildren(raw, raw.statements);
       if (property === 'parseDiagnostics')
         return raw.kind === native.SyntaxKind.SourceFile ? diagnostics(raw) : undefined;
       if (property === 'escapedText')
@@ -194,8 +217,12 @@ export function createObjects({ native, sdk, checker: remote, call, diagnostics 
       if (property === 'forEachChild')
         return (visitor, visitArray) =>
           raw.forEachChild(
-            node => visitor(wrap(node)),
-            visitArray && (nodes => visitArray(wrap(nodes))),
+            node => (isSyntaxChild(raw, node) ? visitor(wrap(node)) : undefined),
+            visitArray &&
+              (nodes => {
+                const children = syntaxChildren(raw, nodes);
+                return children.length ? visitArray(children) : undefined;
+              }),
           );
       if (['operator', 'keywordToken', 'phaseModifier', 'token'].includes(property))
         return typeof raw[property] === 'number' ? kind(raw[property]) : wrap(raw[property]);

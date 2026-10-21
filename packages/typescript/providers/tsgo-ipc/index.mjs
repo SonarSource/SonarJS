@@ -103,12 +103,7 @@ export function createProgram(input, options, host) {
   if (Array.isArray(input)) input = { rootNames: input, options, host };
   const callbacks = input.host ?? createCompilerHost(input.options);
   const cwd = callbacks.getCurrentDirectory?.() ?? sys.getCurrentDirectory();
-  const nativePath = file => {
-    const normalized = normalize(file, cwd);
-    return normalized.startsWith('//') && process.platform !== 'win32'
-      ? normalized.slice(1)
-      : normalized;
-  };
+  const nativePath = file => nativePaths(normalize(file, cwd));
   const rootPaths = new Map(input.rootNames.map(file => [nativePath(file), file]));
   const roots = [...rootPaths.keys()];
   const hostPath = file =>
@@ -234,10 +229,7 @@ export function createSourceFile(file, text, version, _setParents, scriptKind) {
     [ts.ScriptKind.JSX]: '.jsx',
   };
   const originalName = normalize(file);
-  const nativeName =
-    originalName.startsWith('//') && process.platform !== 'win32'
-      ? originalName.slice(1)
-      : originalName;
+  const nativeName = nativePaths(originalName);
   const inferred = /\.tsx$/i.test(file)
     ? ts.ScriptKind.TSX
     : /\.jsx$/i.test(file)
