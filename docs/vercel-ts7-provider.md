@@ -125,3 +125,10 @@ The packaged bridge check exercises typed/syntax findings, a fix and IDE updates
 npm run bridge:bundle
 npx tsx --tsconfig packages/tsconfig.test.json tools/check-typescript-bundle.mts
 ```
+
+The base PR also owns rule-test parser routing, virtual-directory hosts, common
+conformance regressions, comparison tooling and provider preparation/asset hooks.
+This provider declares `tools/build-vercel-typescript.mjs` as its preparation script
+and retains legacy module resolution. The shared policy therefore preserves its
+Classic/Node10 resolver. Existing project sources and recorded ruling expectations
+are unchanged by the rebase.
