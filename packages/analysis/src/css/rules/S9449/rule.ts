@@ -95,9 +95,30 @@ function checkBlock(block: PostCSS.Container, result: PostcssResult): void {
   for (const node of block.nodes ?? []) {
     if (node.type === 'decl') {
       updateTransitions(transitions, node, lexer);
+    } else if (isMixinCall(node)) {
+      forgetTransitions(transitions);
     }
   }
   reportTransition(transitions.targets, transitions.durations, result);
+}
+
+/** SCSS `@include` and Less mixin calls, which may set transitions that the rule cannot see. */
+function isMixinCall(node: PostCSS.ChildNode): boolean {
+  // postcss-less marks mixin calls such as `.no-transition();` with `mixin: true`.
+  return (
+    node.type === 'atrule' &&
+    (node.name.toLowerCase() === 'include' || (node as { mixin?: boolean }).mixin === true)
+  );
+}
+
+/** A mixin call may override earlier transitions unless they are `!important`. */
+function forgetTransitions(transitions: Transitions): void {
+  if (!transitions.targets?.important) {
+    transitions.targets = { values: undefined, important: false };
+  }
+  if (!transitions.durations?.important) {
+    transitions.durations = { values: undefined, important: false };
+  }
 }
 
 function updateTransitions(

@@ -156,6 +156,26 @@ const valid: Sample[] = [
   },
   { name: 'vendor prefix deferred', code: 'a { -webkit-transition: all 1s; }' },
   {
+    name: 'scss include after transition',
+    code: 'a { transition: all 1s; @include no-transition; }',
+    codeFilename: 'test.scss',
+  },
+  {
+    name: 'scss include with content block after transition',
+    code: 'a { transition: all 1s; @include hover { color: red; } }',
+    codeFilename: 'test.scss',
+  },
+  {
+    name: 'less mixin call after transition',
+    code: 'a { transition: all 1s; .no-transition(); }',
+    codeFilename: 'test.less',
+  },
+  {
+    name: 'less namespaced mixin call after transition',
+    code: 'a { transition-property: all; #motion > .reset(); transition-duration: 1s; }',
+    codeFilename: 'test.less',
+  },
+  {
     name: 'scss mixin body deferred',
     code: '@mixin fade { transition: all 1s; }',
     codeFilename: 'test.scss',
@@ -436,6 +456,32 @@ b {
   transition: all 1s; /* Noncompliant */
 /*            ^^^ */
 } }`,
+  },
+  {
+    name: 'scss include before transition',
+    code: `a {
+  @include no-transition;
+  transition: all 1s; /* Noncompliant */
+/*            ^^^ */
+}`,
+    codeFilename: 'test.scss',
+  },
+  {
+    name: 'important transition before scss include',
+    code: `a {
+  transition: all 1s !important; /* Noncompliant */
+/*            ^^^ */
+  @include no-transition;
+}`,
+    codeFilename: 'test.scss',
+  },
+  {
+    name: 'less mixin definition',
+    code: `.fade() {
+  transition: all 1s; /* Noncompliant */
+/*            ^^^ */
+}`,
+    codeFilename: 'test.less',
   },
   {
     name: 'scss literal',

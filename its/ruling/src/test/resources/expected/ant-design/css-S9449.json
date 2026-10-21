@@ -24,14 +24,12 @@
 ],
 "ant-design:components/input-number/style/index.less": [
 44,
-66,
-107
+66
 ],
 "ant-design:components/input/style/index.less": [
 31
 ],
 "ant-design:components/input/style/mixin.less": [
-70,
 110,
 197
 ],
@@ -87,7 +85,6 @@
 147
 ],
 "ant-design:components/tag/style/index.less": [
-20,
 39
 ],
 "ant-design:components/transfer/style/index.less": [
