@@ -171,6 +171,11 @@ const valid: Sample[] = [
     codeFilename: 'test.less',
   },
   {
+    name: 'less detached ruleset call after transition',
+    code: 'a { transition: all 1s; @motion(); }',
+    codeFilename: 'test.less',
+  },
+  {
     name: 'less namespaced mixin call after transition',
     code: 'a { transition-property: all; #motion > .reset(); transition-duration: 1s; }',
     codeFilename: 'test.less',
@@ -474,6 +479,15 @@ b {
   @include no-transition;
 }`,
     codeFilename: 'test.scss',
+  },
+  {
+    name: 'sass mixin call after transition, dropped by postcss-sass',
+    code: `a
+  transition: all 1s /* Noncompliant */
+/*            ^^^ */
+  +no-transition
+`,
+    codeFilename: 'test.sass',
   },
   {
     name: 'less mixin definition',

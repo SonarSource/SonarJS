@@ -102,13 +102,20 @@ function checkBlock(block: PostCSS.Container, result: PostcssResult): void {
   reportTransition(transitions.targets, transitions.durations, result);
 }
 
-/** SCSS `@include` and Less mixin calls, which may set transitions that the rule cannot see. */
+/**
+ * SCSS `@include`, Less mixin calls, and Less detached ruleset calls, which may set transitions
+ * that the rule cannot see.
+ */
 function isMixinCall(node: PostCSS.ChildNode): boolean {
+  if (node.type !== 'atrule') {
+    return false;
+  }
   // postcss-less marks mixin calls such as `.no-transition();` with `mixin: true`.
-  return (
-    node.type === 'atrule' &&
-    (node.name.toLowerCase() === 'include' || (node as { mixin?: boolean }).mixin === true)
-  );
+  if (node.name.toLowerCase() === 'include' || (node as { mixin?: boolean }).mixin === true) {
+    return true;
+  }
+  // Less detached ruleset calls such as `@motion();` have empty parameters and no body.
+  return node.params.trim() === '()' && node.nodes === undefined;
 }
 
 /** A mixin call may override earlier transitions unless they are `!important`. */
