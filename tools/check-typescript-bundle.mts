@@ -112,11 +112,16 @@ try {
     ['websensor-multi-module', 'tsconfig.shared.json', 'moduleA/src/main.ts'],
     ['websensor-multi-module', 'tsconfig.moduleA.json', 'moduleA/src/main.ts'],
     ['websensor-multi-module', 'tsconfig.moduleB.json', 'moduleB/src/main.ts'],
+    ['typechecker-config/solution-tsconfig', undefined, 'library/index.ts'],
   ]) {
     const baseDir = fileURLToPath(new URL(`../its/plugin/projects/${project}/`, import.meta.url));
     const response = await requestAnalysis(
       proto.AnalyzeProjectRequest.create({
-        configuration: { baseDir, canAccessFileSystem: true, tsConfigPaths: [baseDir + config] },
+        configuration: {
+          baseDir,
+          canAccessFileSystem: true,
+          ...(config ? { tsConfigPaths: [baseDir + config] } : {}),
+        },
         rules: [
           {
             key: 'S3003',

@@ -20,9 +20,11 @@ import { tmpdir } from 'node:os';
 import { describe, it, beforeEach } from 'node:test';
 import { expect } from 'expect';
 import ts from 'typescript';
+import selectProvider from 'typescript/selection';
 import { normalizePath, normalizeToAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import {
   computeLibJson,
+  applyCrossVersionCompilerOptions,
   createProgramOptions,
   createProgramOptionsFromJson,
   createProgramOptionsFromEffectiveOptions,
@@ -34,6 +36,8 @@ import {
 } from '../../../src/jsts/program/tsconfig/options.js';
 import { clearProgramOptionsCache } from '../../../src/jsts/program/cache/programOptionsCache.js';
 import { clearTsConfigContentCache } from '../../../src/jsts/program/cache/tsconfigCache.js';
+
+const legacyModuleResolution = selectProvider().legacyModuleResolution !== false;
 
 const fixtures = normalizeToAbsolutePath(path.join(normalizePath(import.meta.dirname), 'fixtures'));
 
@@ -71,7 +75,13 @@ describe('createProgramOptions', () => {
       expect(missingTsConfig).toBe(false);
       expect(options).toBeDefined();
       expect(options.target).toBe(ts.ScriptTarget.ES2020);
-      expect(options.module).toBe(ts.ModuleKind.CommonJS);
+      expect(options.module).toBe(
+        legacyModuleResolution ? ts.ModuleKind.CommonJS : ts.ModuleKind.Preserve,
+      );
+      if (!legacyModuleResolution) {
+        expect(options.moduleResolution).toBe(ts.ModuleResolutionKind.Bundler);
+        expect(options.resolvePackageJsonExports).toBe(false);
+      }
     });
 
     it('should include Vue files', () => {
@@ -226,6 +236,7 @@ describe('createProgramOptions', () => {
         configFilePath: path.join(fixtures, 'tsconfig_missing.json'),
         noEmit: true,
         allowNonTsExtensions: true,
+        disableSourceOfProjectReferenceRedirect: true,
       });
       expect(programOptions.missingTsConfig).toBe(true);
     });
@@ -508,7 +519,7 @@ describe('cross-version compiler options', () => {
         '"base fallback"',
         '"absolute"',
         '"relative"',
-        moduleResolution === 'Classic' ? 'any' : '"package"',
+        moduleResolution === 'Classic' && legacyModuleResolution ? 'any' : '"package"',
       ]);
     });
   }
@@ -612,8 +623,20 @@ describe('cross-version compiler options', () => {
   });
 
   it('preserves paths without baseUrl', () => {
-    const saved = { paths: { alias: ['/project/alias'] } };
+    const saved = {
+      disableSourceOfProjectReferenceRedirect: true,
+      paths: { alias: ['/project/alias'] },
+    };
     expect(createProgramOptionsFromEffectiveOptions(saved, []).options).toBe(saved);
+  });
+
+  it('matches compiler-host reference redirects while preserving explicit overrides', () => {
+    for (const disabled of [undefined, true, false]) {
+      const saved = { disableSourceOfProjectReferenceRedirect: disabled };
+      const { options } = createProgramOptionsFromEffectiveOptions(saved, []);
+      expect(options.disableSourceOfProjectReferenceRedirect).toBe(disabled ?? true);
+      expect(saved.disableSourceOfProjectReferenceRedirect).toBe(disabled);
+    }
   });
 });
 
@@ -858,4 +881,31 @@ describe('tsTargetToEsYear', () => {
     expect(tsTargetToEsYear(ts.ScriptTarget.ESNext)).toBeNull();
     expect(tsTargetToEsYear(undefined)).toBeNull();
   });
+});
+
+describe('cross-version resolution policy', () => {
+  for (const moduleResolution of [
+    ts.ModuleResolutionKind.Classic,
+    ts.ModuleResolutionKind.Node10,
+  ]) {
+    it(`preserves supported legacy resolution ${moduleResolution}`, () => {
+      const options = { moduleResolution };
+      expect(applyCrossVersionCompilerOptions(options, true).moduleResolution).toBe(
+        moduleResolution,
+      );
+    });
+    it(`adapts unsupported legacy resolution ${moduleResolution}`, () => {
+      const options = { moduleResolution };
+      const adapted = applyCrossVersionCompilerOptions(options, false);
+      expect(adapted).toEqual({
+        moduleResolution: ts.ModuleResolutionKind.Bundler,
+        module: ts.ModuleKind.Preserve,
+        resolvePackageJsonExports: false,
+        resolvePackageJsonImports: false,
+        disableSourceOfProjectReferenceRedirect: true,
+      });
+      expect(applyCrossVersionCompilerOptions(adapted, false)).toBe(adapted);
+      expect(options).toEqual({ moduleResolution });
+    });
+  }
 });

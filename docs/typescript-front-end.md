@@ -117,3 +117,32 @@ The upstream corpus command and upgrade procedure are documented in
 `packages/analysis/src/jsts/frontend/vendor/README.md`. The bridge test suite and
 ruling cover the existing SonarJS project/configuration/IDE paths; the corpus
 check supplies a pinned converter and scope baseline.
+
+## Shared host and provider tooling
+
+Rule tests use the owned parser and selected provider, including direct parser
+imports in individual rule tests. Hosts expose source text without constructing a
+second AST and enumerate directories represented by submitted files. Recording and
+replay preserve pipe traffic as transport rather than project filesystem data.
+The common conformance suite also checks UNC config inheritance and dependencies,
+JSDoc syntax/checker separation and empty module specifiers.
+
+The provider registry declares optional `prepare`, `libraryDestination`,
+`bundleLibraries` and `legacyModuleResolution` fields. `compiler:prepare` runs the
+selected preparation script without loading an unprepared runtime; bundle builds
+pass `--all` for cross-platform assets. Recursive assets retain their declared
+layout, and Java deployment preserves executable archive permissions. SDK license
+collection and isolation tests discover registered private SDKs rather than naming
+a specific implementation.
+
+Set `legacyModuleResolution` to false only when the compiler lacks Classic/Node10.
+The shared tsconfig policy then approximates them with Bundler/Preserve and legacy
+package entry points. Providers supporting those modes keep their resolver. Source
+redirects for project references default to disabled, preserving explicit overrides.
+Projects and fixtures are unchanged.
+
+`tools/compiler-comparison/compare.mjs` compares any registered candidate selected
+through `SONARJS_TYPESCRIPT_BACKEND` with TS6, in sequential fresh processes with
+alternating order. It records exact findings, analysis time and sampled process-tree
+memory, including optional provider timing. JSON is canonical; `report.mjs` generates
+the Markdown report. Provider measurements remain in the provider PRs.

@@ -45,6 +45,8 @@ const RULING_FILESYSTEM_CACHE_CONDITION = '--conditions=sonarjs-ruling-fs-cache'
 
 export type TestProjectOptions = {
   filesystemCacheArchive?: string;
+  baseDir?: string;
+  onAnalysis?: (results: ProjectAnalysisOutput, analysisMs: number) => void;
 };
 
 type ProjectsData = {
@@ -77,7 +79,9 @@ export async function testProject(projectName: string, options: TestProjectOptio
     .map(applyRulingConfig);
   const actualPath = join(actualBase, name);
 
-  const baseDir = normalizeToAbsolutePath(join(sourcesPath, folder ?? join('projects', name)));
+  const baseDir = normalizeToAbsolutePath(
+    options.baseDir ?? join(sourcesPath, folder ?? join('projects', name)),
+  );
   const defaultTestExclusions = testDir ? DEFAULT_EXCLUSIONS : undefined;
 
   const configuration = createConfiguration({
@@ -98,6 +102,7 @@ export async function testProject(projectName: string, options: TestProjectOptio
   try {
     await initFileStores(configuration);
 
+    const started = performance.now();
     results = await analyzeProject(
       {
         rules,
@@ -106,6 +111,7 @@ export async function testProject(projectName: string, options: TestProjectOptio
       },
       configuration,
     );
+    options.onAnalysis?.(results, performance.now() - started);
   } finally {
     filesystemCacheSession?.end();
   }

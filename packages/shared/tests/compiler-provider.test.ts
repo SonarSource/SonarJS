@@ -31,6 +31,60 @@ function probe(script: string, backend?: string) {
 }
 
 for (const backend of Object.keys(providers)) {
+  it(`compiler contract: ${backend} resolves UNC dependencies outside its working directory`, () => {
+    probe(
+      String.raw`
+      const assert = require('node:assert/strict');
+      const ts = require('typescript');
+      const root = '//server/share/project', main = root + '/main.ts', dependency = root + '/shared/value.ts';
+      const files = new Map([[main,"import {value} from '@shared/value'; export const result=value;"],[dependency,'export const value=42;']]);
+      const options = {noLib:true, module:ts.ModuleKind.Preserve, moduleResolution:ts.ModuleResolutionKind.Bundler, paths:{'@shared/*':[root+'/shared/*']}};
+      const reads = [];
+      const host = {...ts.createCompilerHost(options), getCurrentDirectory:()=>process.cwd(),
+        getSourceFile(file,version) {const text=files.get(file);return text === undefined ? undefined : ts.createSourceFile(file,text,version,true);},
+        readFile(file) {reads.push(file);return files.get(file);}, fileExists:file=>files.has(file),
+        directoryExists:dir=>[...files.keys()].some(file=>file.startsWith(dir+'/')),
+        readDirectory:dir=>[...files.keys()].filter(file=>file.startsWith(dir+'/')),
+        getDirectories:()=>[], realpath:file=>file};
+      const program = ts.createProgram({rootNames:[main], options, host});
+      const file = program.getSourceFile(main), checker = program.getTypeChecker();
+      const expression = file.statements[1].declarationList.declarations[0].initializer;
+      assert.equal(checker.typeToString(checker.getTypeAtLocation(expression)), '42');
+      assert.equal(program.getSourceFile(dependency).fileName, dependency);
+      program.dispose?.();
+      `,
+      backend,
+    );
+  });
+
+  it(`compiler contract: ${backend} parses UNC configs and restores resolved paths`, () => {
+    probe(
+      String.raw`
+      const assert = require('node:assert/strict');
+      const ts = require('typescript');
+      const root = '//server/share/project';
+      const config = {extends:'./base.json', compilerOptions:{baseUrl:'.',outDir:'./dist'}, files:['src/main.ts'], references:[{path:'../library'}]};
+      const reads = [];
+      const host = {...ts.sys, readFile(file) {
+        reads.push(file);
+        return file === root + '/base.json' ? '{"compilerOptions":{"strict":true}}' : undefined;
+      }, fileExists:file=>file === root + '/base.json', readDirectory:()=>[]};
+      const result = ts.parseJsonConfigFileContent(config, host, root, {}, root + '/tsconfig.json');
+      assert.deepEqual(result.errors, []);
+      assert.deepEqual(result.fileNames, [root + '/src/main.ts']);
+      assert.equal(result.options.baseUrl, root);
+      assert.equal(result.options.outDir, root + '/dist');
+      assert.equal(result.options.configFilePath, root + '/tsconfig.json');
+      assert.equal(result.options.strict, true);
+      assert.equal(result.projectReferences[0].path, '//server/share/library');
+      assert.ok(reads.includes(root + '/base.json'), 'filesystem callbacks retain the UNC namespace');
+      const empty = ts.parseJsonConfigFileContent({files:[]}, host, root, {}, root + '/tsconfig.json');
+      assert.ok(empty.errors.some(error => String(error.messageText).includes(root + '/tsconfig.json')), 'diagnostics retain the UNC config path');
+      `,
+      backend,
+    );
+  });
+
   it(`compiler contract: ${backend} preserves configuration, typed objects, overlays and edits`, () => {
     probe(
       String.raw`
@@ -62,6 +116,36 @@ for (const backend of Object.keys(providers)) {
         directoryExists: dir => dir === '/virtual',
         getDirectories: () => [], readDirectory: () => [], realpath: file => file,
       };
+      assert.equal(ts.resolveModuleName('', name, {}, host).resolvedModule, undefined, 'empty imports are unresolved');
+      const js = ts.createSourceFile('/virtual/doc.js', '/** @param {String} value @returns {Boolean} */\nfunction f(value) { return true; }', ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+      assert.equal(js.statements[0].parameters[0].type, undefined, 'JSDoc parameter types are not syntax annotations');
+      assert.equal(js.statements[0].type, undefined, 'JSDoc return types are not syntax annotations');
+      for (const annotation of ['@this', '@this {Object}']) {
+        const thisFile = ts.createSourceFile('/virtual/this.js', '/** ' + annotation + ' */\nfunction f(value) { return value; }', ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+        assert.equal(thisFile.statements[0].parameters.length, 1, 'JSDoc this parameters are not syntax parameters');
+        assert.equal(thisFile.statements[0].parameters[0].name.text, 'value');
+      }
+      const aliasText = '/** @typedef {Object} Pagination\n * @property {number} page\n */\n/** @import {Thing} from "./types" */\n/** @param {Pagination} input */\nfunction f(input) { return input.page; }';
+      const aliasName = '/virtual/typedef.js';
+      const aliasFile = ts.createSourceFile(aliasName, aliasText, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+      assert.equal(aliasFile.statements.length, 1, 'JSDoc typedefs are not JS statements');
+      const syntax = [];
+      function visit(node) { syntax.push(node); ts.forEachChild(node, visit); }
+      visit(aliasFile);
+      assert.ok(syntax.every(node => node.kind !== ts.SyntaxKind.TypeReference), 'JSDoc types are excluded from syntax traversal');
+      const genericFile = ts.createSourceFile('/virtual/generic.js', '/** @template T @param {T} value */\nfunction generic(value) { return value; }', ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+      const genericSyntax = [];
+      function visitGeneric(node) { genericSyntax.push(node); ts.forEachChild(node, visitGeneric, nodes => { nodes.forEach(visitGeneric); }); }
+      visitGeneric(genericFile);
+      assert.ok(genericSyntax.every(node => ![ts.SyntaxKind.TypeReference, ts.SyntaxKind.TypeParameter].includes(node.kind)), 'array traversal excludes JSDoc types and templates');
+      const aliasProgram = ts.createProgram({rootNames:[aliasName], options:{allowJs:true, noLib:true}, host:{...host,
+        getSourceFile: file => file === aliasName ? aliasFile : undefined,
+        fileExists: file => file === aliasName,
+      }});
+      const aliasChecker = aliasProgram.getTypeChecker();
+      const returned = aliasProgram.getSourceFile(aliasName).statements[0].body.statements[0].expression;
+      assert.equal(aliasChecker.typeToString(aliasChecker.getTypeAtLocation(returned)), 'number', 'JSDoc typedefs remain available to the checker');
+      aliasProgram.dispose?.();
       function program() { return ts.createProgram({rootNames:[name], options:{noLib:true}, host}); }
       function value(p) {
         const file = p.getSourceFile(name), checker = p.getTypeChecker();
@@ -122,8 +206,9 @@ it('loads the owned syntax contract without any compiler SDK', () => {
   probe(String.raw`
     const assert = require('node:assert/strict'), Module = require('node:module');
     const load = Module._load;
+    const privateProviders=Object.values(require('./packages/typescript/providers.json').providers);
     Module._load = function(name, ...args) {
-      if (/typescript-classic|native-preview|tsc-ts-source/.test(name))
+      if (privateProviders.some(p=>p.sdk&&(name===p.sdk||name.startsWith(p.sdk+'/'))))
         throw new Error('Syntax helpers loaded a compiler SDK: ' + name);
       return load.call(this, name, ...args);
     };

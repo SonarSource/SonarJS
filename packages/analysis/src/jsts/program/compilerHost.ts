@@ -172,6 +172,11 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     return content;
   }
 
+  /** Native providers can consume authoritative overlays without decoding a second AST. */
+  getSourceFileText(fileName: string): string | undefined {
+    return this.readFile(fileName);
+  }
+
   fileExists(fileName: string): boolean {
     const normalized = path.normalize(fileName);
     if (this.shouldSkipNodeModulesOutsideBaseDir(normalized)) {
@@ -317,6 +322,38 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
 
   getCurrentDirectory(): string {
     return this.baseDir;
+  }
+
+  directoryExists(directory: string): boolean {
+    if (
+      this.shouldSkipNodeModulesOutsideBaseDir(normalizeToAbsolutePath(directory, this.baseDir))
+    ) {
+      return false;
+    }
+    const root = normalizeToAbsolutePath(directory, this.baseDir).replace(/\/$/, '');
+    return (
+      this.knownFiles().some(file => file.startsWith(`${root}/`)) ||
+      (this.baseHost.directoryExists?.(directory) ?? false)
+    );
+  }
+
+  getDirectories(directory: string): string[] {
+    if (
+      this.shouldSkipNodeModulesOutsideBaseDir(normalizeToAbsolutePath(directory, this.baseDir))
+    ) {
+      return [];
+    }
+    const root = normalizeToAbsolutePath(directory, this.baseDir).replace(/\/$/, '');
+    const virtual = this.knownFiles()
+      .filter(file => file.startsWith(`${root}/`))
+      .map(file => file.slice(root.length + 1).split('/'))
+      .filter(parts => parts.length > 1)
+      .map(parts => `${root}/${parts[0]}`);
+    return [...new Set([...(this.baseHost.getDirectories?.(directory) ?? []), ...virtual])];
+  }
+
+  private knownFiles(): string[] {
+    return [...getSourceFileContentCache().keys(), ...Object.keys(getCurrentFilesContext() ?? {})];
   }
 
   readDirectory(

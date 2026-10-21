@@ -16,7 +16,15 @@
  */
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, rmSync } from 'node:fs';
+import {
+  mkdtempSync,
+  rmSync,
+  mkdirSync,
+  writeFileSync,
+  readFileSync,
+  chmodSync,
+  statSync,
+} from 'node:fs';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -77,19 +85,51 @@ for (const backend of Object.keys(providers)) {
   });
 }
 
-it('rejects compiler SDK imports outside their owning provider', async () => {
-  await assert.rejects(
-    build({
-      stdin: {
-        contents: "require('typescript-classic');",
-        resolveDir: process.cwd(),
-      },
+for (const backend of Object.keys(providers).filter(name => providers[name].sdk))
+  it(`rejects ${backend} SDK imports outside their owning provider`, async () => {
+    await assert.rejects(
+      build({
+        stdin: {
+          contents: `require(${JSON.stringify(providers[backend].sdk)});`,
+          resolveDir: process.cwd(),
+        },
+        bundle: true,
+        platform: 'node',
+        write: false,
+        plugins: [compilerProviderPlugin(selectProvider(backend))],
+        logLevel: 'silent',
+      }),
+      /Private compiler SDK import outside its provider/,
+    );
+  });
+
+it('preserves nested provider assets and executable modes in the declared destination', async () => {
+  const directory = mkdtempSync(path.join(tmpdir(), 'sonarjs-compiler-assets-'));
+  const assets = path.join(directory, 'assets');
+  const executable = path.join(assets, 'nested', 'compiler');
+  try {
+    mkdirSync(path.dirname(executable), { recursive: true });
+    writeFileSync(executable, 'provider asset');
+    chmodSync(executable, 0o755);
+    const outfile = path.join(directory, 'bundle', 'compiler.cjs');
+    await build({
+      stdin: { contents: 'module.exports = 1;', resolveDir: process.cwd() },
+      outfile,
       bundle: true,
       platform: 'node',
-      write: false,
-      plugins: [compilerProviderPlugin(selectProvider('ts6'))],
-      logLevel: 'silent',
-    }),
-    /Private compiler SDK import outside its provider/,
-  );
+      plugins: [
+        compilerProviderPlugin({
+          ...selectProvider('ts6'),
+          libraries: assets,
+          bundleLibraries: true,
+          libraryDestination: 'runtime',
+        }),
+      ],
+    });
+    const copied = path.join(directory, 'bundle', 'runtime', 'nested', 'compiler');
+    assert.equal(readFileSync(copied, 'utf8'), 'provider asset');
+    if (process.platform !== 'win32') assert.equal(statSync(copied).mode & 0o111, 0o111);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
 });

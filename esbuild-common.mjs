@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { prepareCompiler } from './tools/prepare-compiler.mjs';
 import esbuild from 'esbuild';
 import textReplace from 'esbuild-plugin-text-replace';
 import { copy } from 'esbuild-plugin-copy';
@@ -59,6 +60,7 @@ const babelParserFromCore = JSON.stringify(
  * @param {string} options.metafilePath - Path for esbuild dependency metadata (optional)
  */
 export async function buildBundle({ entryPoint, outfile, additionalAssets = [], metafilePath }) {
+  prepareCompiler(true);
   const entryPointName = entryPoint.replace('./', '').replaceAll('.', String.raw`\.`);
   const entryPointRegex = new RegExp(`${entryPointName}$`);
 
@@ -274,7 +276,7 @@ export async function buildBundle({ entryPoint, outfile, additionalAssets = [], 
           // look for those in the filesystem
           {
             from: [resolve('packages/typescript', compilerDescriptor.libraries, '*.d.ts')],
-            to: ['./bin'],
+            to: [resolve('bin', compilerDescriptor.libraryDestination ?? '')],
           },
           ...additionalAssets,
         ],

@@ -35,6 +35,10 @@
       "types": "./index.d.cts",
       "default": "./index.cjs"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./selection": {
+      "types": "./selection.d.cts",
+      "default": "./selection.cjs"
+    }
   }
 }

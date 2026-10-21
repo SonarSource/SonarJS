@@ -18,7 +18,7 @@ import { rule } from './index.js';
 import { RuleTester as ESLintRuleTester } from 'eslint';
 import { describe, it } from 'node:test';
 import parser from 'vue-eslint-parser';
-import tsParser from '@typescript-eslint/parser';
+import { ruleTestParser as tsParser } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 
 const ruleTesterVue = new ESLintRuleTester({
   files: ['**/*.vue'],

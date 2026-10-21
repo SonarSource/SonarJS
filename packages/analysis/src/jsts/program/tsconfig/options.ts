@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import ts from 'typescript';
+import selectProvider from 'typescript/selection';
 import { debug, error } from '../../../../../shared/src/helpers/logging.js';
 import {
   getNodeVersionSignal,
@@ -24,7 +25,7 @@ import { getClosestDependencyManifestDir } from '../../rules/helpers/dependency-
 import { dirnamePath } from '../../rules/helpers/files.js';
 import { dirname } from 'node:path/posix';
 import { getTsConfigContentCache } from '../cache/tsconfigCache.js';
-import { isLastTsConfigCheck } from './utils.js';
+import { isLastTsConfigCheck, isRootNodeModules } from './utils.js';
 import { getCachedProgramOptions, setCachedProgramOptions } from '../cache/programOptionsCache.js';
 import { sourceFileStore } from '../../../file-stores/index.js';
 import {
@@ -241,7 +242,30 @@ function retainCrossVersionConfigDiagnostic(diagnostic: ts.Diagnostic): boolean 
 }
 
 /** Keep project resolution semantics across compilers which no longer support baseUrl. */
-function applyCrossVersionCompilerOptions(options: ts.CompilerOptions): ts.CompilerOptions {
+export function applyCrossVersionCompilerOptions(
+  options: ts.CompilerOptions,
+  legacyModuleResolution = selectProvider().legacyModuleResolution !== false,
+): ts.CompilerOptions {
+  // The classic CompilerHost does not redirect referenced declaration outputs to
+  // source files. Match that default in native programs so each referenced source
+  // is analyzed with its own config, including our cross-version option policy.
+  if (options.disableSourceOfProjectReferenceRedirect === undefined)
+    options = { ...options, disableSourceOfProjectReferenceRedirect: true };
+  if (
+    !legacyModuleResolution &&
+    (options.moduleResolution === ts.ModuleResolutionKind.Classic ||
+      options.moduleResolution === ts.ModuleResolutionKind.Node10)
+  ) {
+    // TS7 removed both legacy resolvers. Bundler + Preserve supports extension
+    // probing and the old package entry-point policy without enabling exports.
+    options = {
+      ...options,
+      module: ts.ModuleKind.Preserve,
+      moduleResolution: ts.ModuleResolutionKind.Bundler,
+      resolvePackageJsonExports: options.resolvePackageJsonExports ?? false,
+      resolvePackageJsonImports: options.resolvePackageJsonImports ?? false,
+    };
+  }
   const { baseUrl, ...rest } = options;
   if (baseUrl === undefined) {
     return options;
@@ -483,6 +507,28 @@ export function groupFilesByResolvedLib(
 function createBaseParseConfigHost(canAccessFileSystem: boolean): CustomParseConfigHost {
   return {
     useCaseSensitiveFileNames: true,
+    directoryExists(directory: string): boolean {
+      return canAccessFileSystem
+        ? ts.sys.directoryExists(directory)
+        : Object.keys(sourceFileStore.getFiles()).some(file =>
+            file.startsWith(`${normalizeToAbsolutePath(directory)}/`),
+          );
+    },
+    getDirectories(directory: string): string[] {
+      if (canAccessFileSystem) return ts.sys.getDirectories(directory);
+      const root = normalizeToAbsolutePath(directory);
+      const files = Object.keys(sourceFileStore.getFiles()).filter(file =>
+        file.startsWith(`${root}/`),
+      );
+      return [
+        ...new Set(
+          files
+            .map(file => file.slice(root.length + 1).split('/'))
+            .filter(parts => parts.length > 1)
+            .map(parts => `${root}/${parts[0]}`),
+        ),
+      ];
+    },
     readDirectory(
       rootDir: string,
       extensions: readonly string[],
@@ -495,7 +541,9 @@ function createBaseParseConfigHost(canAccessFileSystem: boolean): CustomParseCon
       } else {
         const normalizedDir = normalizeToAbsolutePath(rootDir);
         const entries = sourceFileStore.getFilesInDirectory(normalizedDir) ?? [];
-        return [...entries].filter(f => extensions.some(ext => f.endsWith(ext)));
+        return [...entries]
+          .filter(f => !extensions || extensions.some(ext => f.endsWith(ext)))
+          .map(file => `${normalizedDir}/${file}`);
       }
     },
     fileExists(path: string): boolean {
@@ -581,6 +629,11 @@ export function createProgramOptions(
   // Set up parseConfigHost with tsconfig-specific logic (caching, missing file handling)
   const parseConfigHost: CustomParseConfigHost = {
     useCaseSensitiveFileNames: true,
+    directoryExists: directory =>
+      directory.includes('/node_modules') ||
+      isRootNodeModules(directory) ||
+      baseParseConfigHost.directoryExists!(directory),
+    getDirectories: baseParseConfigHost.getDirectories,
     readDirectory: baseParseConfigHost.readDirectory,
     fileExists: file => {
       debug(`TSConfig lookup while parsing ${tsConfig}: checking ${file}`);

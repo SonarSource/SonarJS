@@ -6,7 +6,7 @@
     "format": "prettier --write .",
     "check-format": "prettier --list-different .",
     "new-rule": "tsx tools/new-rule.mts",
-    "generate-meta": "tsx tools/generate-meta.ts",
+    "generate-meta": "npm run compiler:prepare && tsx tools/generate-meta.ts",
     "rspec:refresh": "mvn -q -ntp -N -P rspec-refresh -DskipTests process-resources",
     "validate-quickfix": "tsx tools/validate-quickfix.ts",
     "generate-java-rule-classes": "tsx tools/generate-java-rule-classes-cli.ts",
@@ -42,7 +42,8 @@
     "deploy-rule-data": "tsx tools/deploy-rule-data.ts",
     "license-regeneration": "node license-management.mjs",
     "cyclonedx:npm": "cyclonedx-npm --omit dev --spec-version 1.6 --validate --output-file target/bom-npm.json",
-    "compiler:check": "node tools/generate-typescript-exports.mjs --check && node tools/sync-typescript-compat.mjs --check"
+    "compiler:check": "npm run compiler:prepare && node tools/generate-typescript-exports.mjs --check && node tools/sync-typescript-compat.mjs --check",
+    "compiler:prepare": "node tools/prepare-compiler.mjs"
   },
   "repository": {
     "type": "git",

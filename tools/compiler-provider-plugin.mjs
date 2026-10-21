@@ -14,9 +14,9 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { readFileSync } from 'node:fs';
+import { readFileSync, cpSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { resolve } from 'node:path';
+import { resolve, dirname } from 'node:path';
 import configuration from '../packages/typescript/providers.json' with { type: 'json' };
 import selectProvider from '../packages/typescript/selection.cjs';
 
@@ -30,6 +30,10 @@ export function compilerProviderPlugin(provider = selectProvider()) {
   return {
     name: 'single-typescript-contract',
     setup(build) {
+      build.initialOptions.define = {
+        ...build.initialOptions.define,
+        __SONARJS_COMPILER_BUNDLE__: 'true',
+      };
       // Dependencies must not resolve nested copies of the compiler SDK.
       build.onResolve({ filter: /^typescript(?:\/|$)/ }, args => {
         if (args.pluginData?.ownedCompiler) return;
@@ -63,6 +67,23 @@ export function compilerProviderPlugin(provider = selectProvider()) {
           }
         });
       }
+      build.onEnd(result => {
+        if (
+          result.errors.length ||
+          !build.initialOptions.outfile ||
+          (!build.initialOptions.write && build.initialOptions.write !== undefined)
+        )
+          return;
+        const destination = dirname(resolve(build.initialOptions.outfile));
+        if (provider.bundleLibraries) {
+          mkdirSync(destination, { recursive: true });
+          cpSync(
+            resolve(packageRoot, provider.libraries),
+            resolve(destination, provider.libraryDestination ?? ''),
+            { recursive: true },
+          );
+        }
+      });
     },
   };
 }
