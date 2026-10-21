@@ -62,7 +62,7 @@ describe('S9424 (sonar/declaration-property-value-no-unknown)', () => {
 }`,
     }));
 
-  it('still reports the rest of a value containing invisible characters', () =>
+  it('still reports the rest of a value containing irregular whitespaces', () =>
     ruleTester.invalid({
       code: 'a { color: red\u200B foo; }',
       errors: [
@@ -72,6 +72,20 @@ describe('S9424 (sonar/declaration-property-value-no-unknown)', () => {
           column: 17,
           endLine: 1,
           endColumn: 20,
+        },
+      ],
+    }));
+
+  it('still reports the rest of a value containing a no-break space', () =>
+    ruleTester.invalid({
+      code: 'a { color: red\u00A0foo; }',
+      errors: [
+        {
+          text: `Unknown value "foo" for property "color" (${RULE})`,
+          line: 1,
+          column: 16,
+          endLine: 1,
+          endColumn: 19,
         },
       ],
     }));
@@ -614,14 +628,29 @@ a { top: red; }
       ).toEqual([['string-no-newline'], ['sonar/annotation-no-unknown']]);
     });
 
-    it('does not check invisible characters, which are validated as spaces', async () => {
+    it('does not check irregular whitespaces, which are validated as spaces', async () => {
       expect(
         await lintWithRelatedRules(
           'a { margin:\u200B0; }',
           'a { padding: 8px\u20091px; }',
-          'a { margin:\u200C0; }',
+          'a { color:\u00A0red; }',
+          'a { margin:\u16800; }',
+          'a { margin:\u202F0; }',
+          'a { margin:\u30000; }',
+          'a { margin:\uFEFF0; }',
         ),
-      ).toEqual([['sonar/no-irregular-whitespace'], ['sonar/no-irregular-whitespace'], []]);
+      ).toEqual(Array(7).fill(['sonar/no-irregular-whitespace']));
+    });
+
+    it('does not check other invisible characters, which are validated as spaces', async () => {
+      expect(
+        await lintWithRelatedRules(
+          'a { margin:\u200C0; }',
+          'a { margin:\u200D0; }',
+          'a { margin:\u200E0; }',
+          'a { margin:\u200F0; }',
+        ),
+      ).toEqual([[], [], [], []]);
     });
 
     it('checks the other parts of the same value', async () => {

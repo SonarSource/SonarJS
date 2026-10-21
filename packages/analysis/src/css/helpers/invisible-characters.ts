@@ -29,3 +29,39 @@ export function hasInvisibleCharacters(code: string): boolean {
 export function replaceInvisibleCharacters(code: string): string {
   return code.replaceAll(INVISIBLE_CHARACTERS, ' ');
 }
+
+/**
+ * The code as written of the files being linted with their invisible characters replaced, by
+ * their code as linted
+ */
+const codesAsWritten = new Map<string, string>();
+
+/**
+ * Lints the code with its invisible characters replaced, while rules can still read the code as
+ * written with `sourceAsWritten()`.
+ */
+export async function lintWithInvisibleCharactersReplaced<T>(
+  code: string,
+  lint: (sanitizedCode: string) => Promise<T>,
+): Promise<T> {
+  const sanitizedCode = replaceInvisibleCharacters(code);
+  codesAsWritten.set(sanitizedCode, code);
+  try {
+    return await lint(sanitizedCode);
+  } finally {
+    codesAsWritten.delete(sanitizedCode);
+  }
+}
+
+/**
+ * The source text of a root as written, which differs from its input when its invisible
+ * characters were replaced. Embedded blocks of HTML and Vue files start at `offset` in the file.
+ */
+export function sourceAsWritten(css: string, offset: number): string {
+  for (const [sanitizedCode, code] of codesAsWritten) {
+    if (sanitizedCode.startsWith(css, offset)) {
+      return code.slice(offset, offset + css.length);
+    }
+  }
+  return css;
+}

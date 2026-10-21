@@ -29,7 +29,7 @@ import { extractSonarResolveCommentsFromCssRoot } from '../../common/sonar-resol
 import type { FileType } from '../../contracts/file.js';
 import {
   hasInvisibleCharacters,
-  replaceInvisibleCharacters,
+  lintWithInvisibleCharactersReplaced,
 } from '../helpers/invisible-characters.js';
 
 /**
@@ -152,7 +152,8 @@ export async function analyzeCSSProject(
 /**
  * Lints the code as written, so that rules see invisible characters such as U+200B. PostCSS rejects
  * them where it expects no word, for example before a closing brace. Code that fails to parse and
- * contains them is linted again with a space in place of each, which keeps every location.
+ * contains them is linted again with a space in place of each, which keeps every location, while
+ * S9451 still reads the code as written.
  */
 async function lintWithInvisibleCharactersFallback(
   filePath: CssAnalysisInput['filePath'],
@@ -163,8 +164,10 @@ async function lintWithInvisibleCharactersFallback(
   if (!findParsingError(result.issues) || !hasInvisibleCharacters(code)) {
     return { ...result, code };
   }
-  const sanitizedCode = replaceInvisibleCharacters(code);
-  return { ...(await linter.lint(filePath, sanitizedCode, ruleFileType)), code: sanitizedCode };
+  return lintWithInvisibleCharactersReplaced(code, async sanitizedCode => ({
+    ...(await linter.lint(filePath, sanitizedCode, ruleFileType)),
+    code: sanitizedCode,
+  }));
 }
 
 function findParsingError(issues: CssIssue[]): CssIssue | undefined {

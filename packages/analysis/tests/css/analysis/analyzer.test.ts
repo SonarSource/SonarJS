@@ -304,7 +304,28 @@ describe('invisible characters in code that parses', () => {
       sonarlint: false,
     });
     expect(issues).toEqual([
+      expect.objectContaining({ ruleId: 'sonar/no-irregular-whitespace', line: 2, column: 16 }),
       expect.objectContaining({ ruleId: 'block-no-empty', line: 1, column: 2 }),
+    ]);
+  });
+
+  it('should still report every invisible character when they prevent parsing', async () => {
+    linter.initialize(invisibleCharacterRules);
+    const { issues } = await analyzeCSS({
+      fileContent: [
+        `a${zeroWidthSpace} { color: red; }`,
+        `b { color: red;${zeroWidthSpace} }`,
+        `c { grid-template-areas: "a${zeroWidthSpace}a"; }`,
+        `d { content: "${zeroWidthSpace}"; /* ${zeroWidthSpace} */ }`,
+        `e\\${zeroWidthSpace} { grid-template-areas: "a\\${zeroWidthSpace}a"; }`,
+      ].join('\n'),
+      filePath: normalizeToAbsolutePath('foo.css'),
+      sonarlint: false,
+    });
+    expect(issues).toEqual([
+      expect.objectContaining({ ruleId: 'sonar/no-irregular-whitespace', line: 1, column: 1 }),
+      expect.objectContaining({ ruleId: 'sonar/no-irregular-whitespace', line: 2, column: 15 }),
+      expect.objectContaining({ ruleId: 'sonar/no-irregular-whitespace', line: 3, column: 27 }),
     ]);
   });
 });
