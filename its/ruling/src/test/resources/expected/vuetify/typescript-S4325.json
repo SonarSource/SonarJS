@@ -26,6 +26,9 @@
 "vuetify:packages/vuetify/src/components/VBtnToggle/VBtnToggle.tsx": [
 49
 ],
+"vuetify:packages/vuetify/src/components/VDialog/VDialog.tsx": [
+64
+],
 "vuetify:packages/vuetify/src/components/VGrid/VCol.ts": [
 114,
 116
@@ -38,7 +41,8 @@
 155
 ],
 "vuetify:packages/vuetify/src/components/VList/VList.tsx": [
-172
+172,
+197
 ],
 "vuetify:packages/vuetify/src/components/VList/VListChildren.tsx": [
 61
@@ -54,7 +58,8 @@
 251
 ],
 "vuetify:packages/vuetify/src/components/VSlideGroup/VSlideGroup.tsx": [
-221
+221,
+253
 ],
 "vuetify:packages/vuetify/src/components/VSlider/slider.ts": [
 235

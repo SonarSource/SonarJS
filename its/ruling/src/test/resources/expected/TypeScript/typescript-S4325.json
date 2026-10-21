@@ -182,6 +182,9 @@
 804,
 917,
 985,
+1138,
+1151,
+1161,
 1362,
 1366
 ],
@@ -251,6 +254,7 @@
 6763
 ],
 "TypeScript:src/compiler/program.ts": [
+673,
 1404,
 1438
 ],
@@ -342,6 +346,9 @@
 1123
 ],
 "TypeScript:src/server/scriptVersionCache.ts": [
+114,
+615,
+882,
 887,
 893,
 907
@@ -369,6 +376,9 @@
 ],
 "TypeScript:src/services/codefixes/helpers.ts": [
 64
+],
+"TypeScript:src/services/codefixes/importFixes.ts": [
+572
 ],
 "TypeScript:src/services/completions.ts": [
 634,

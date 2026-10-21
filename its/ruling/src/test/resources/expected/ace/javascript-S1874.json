@@ -42,18 +42,11 @@
 9862
 ],
 "ace:lib/ace/mode/javascript/jshint.js": [
-11609,
-12276,
-12302,
 12948,
 18670
 ],
 "ace:lib/ace/mode/xml/dom-parser.js": [
 203
-],
-"ace:src/editor.js": [
-1723,
-1723
 ],
 "ace:src/ext/beautify.js": [
 76,

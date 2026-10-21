@@ -175,7 +175,8 @@
 "ace:src/editor.js": [
 504,
 865,
-1696
+1696,
+2643
 ],
 "ace:src/ext/code_lens.js": [
 11,
@@ -358,6 +359,7 @@
 126
 ],
 "ace:src/multi_select.js": [
+219,
 727,
 746
 ],
@@ -368,6 +370,9 @@
 "ace:src/range_list_test.js": [
 14
 ],
+"ace:src/search.js": [
+80
+],
 "ace:src/snippets.js": [
 374,
 404,
@@ -376,6 +381,7 @@
 657,
 659,
 683,
+760,
 895,
 938,
 945
@@ -383,7 +389,8 @@
 "ace:src/split.js": [
 138,
 151,
-165
+165,
+178
 ],
 "ace:src/test/all_browser.js": [
 129
