@@ -87,7 +87,7 @@ class EmbeddedNodeTest {
       copyTestResource("/linux-x64/version.txt", "version.txt")
     );
 
-    var embeddedNode = new EmbeddedNode(successfulProcessWrapper(), env, resourceFetcher);
+    var embeddedNode = new ScannerEmbeddedNode(successfulProcessWrapper(), env, resourceFetcher);
     embeddedNode.deploy();
 
     assertThat(embeddedNode.isAvailable()).isTrue();
@@ -97,25 +97,44 @@ class EmbeddedNodeTest {
   }
 
   @Test
-  void should_fall_back_to_classpath_when_resource_fetcher_is_unavailable() throws Exception {
+  void should_look_up_runtime_on_local_filesystem_when_resources_root_is_found() throws Exception {
     seedUpToDateRuntime(tempDir);
     var env = linuxX64Environment(tempDir);
 
-    // No ResourceFetcher (SonarLint-side constructor): must read the runtime off the classpath, as before.
-    var embeddedNode = new EmbeddedNode(successfulProcessWrapper(), env);
+    // SonarLint doesn't implement ResourceFetcher yet: it looks up the on-demand resources ZIP's content
+    // directly on disk, next to the plugin jar.
+    var resourcesRoot = tempDir.resolve("resources");
+    copyTestResourceTo("/linux-x64/node.xz", resourcesRoot.resolve("linux-x64/bin/node.xz"));
+    copyTestResourceTo("/linux-x64/version.txt", resourcesRoot.resolve("linux-x64/version.txt"));
+
+    var embeddedNode = new SonarLintEmbeddedNode(successfulProcessWrapper(), env, resourcesRoot);
     embeddedNode.deploy();
 
     assertThat(embeddedNode.isAvailable()).isTrue();
     assertThat(Files.exists(embeddedNode.binary())).isTrue();
   }
 
+  @Test
+  void should_fall_back_to_host_node_when_resources_root_is_not_found() throws Exception {
+    var env = linuxX64Environment(tempDir);
+
+    var embeddedNode = new SonarLintEmbeddedNode(successfulProcessWrapper(), env, null);
+    embeddedNode.deploy();
+
+    assertThat(embeddedNode.isAvailable()).isFalse();
+  }
+
   private Path copyTestResource(String classpathResource, String fileName) throws Exception {
     var target = tempDir.resolve("resource-fetcher-downloads").resolve(fileName);
+    copyTestResourceTo(classpathResource, target);
+    return target;
+  }
+
+  private void copyTestResourceTo(String classpathResource, Path target) throws Exception {
     Files.createDirectories(target.getParent());
     try (var is = getClass().getResourceAsStream(classpathResource)) {
       assertThat(is).isNotNull();
       Files.copy(is, target);
     }
-    return target;
   }
 }

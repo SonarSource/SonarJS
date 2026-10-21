@@ -21,7 +21,6 @@ import static java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE;
 import static java.nio.file.attribute.PosixFilePermission.OWNER_READ;
 import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
 import static org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform.UNSUPPORTED;
-import static org.sonarsource.api.sonarlint.SonarLintSide.INSTANCE;
 
 import java.io.BufferedInputStream;
 import java.io.FileOutputStream;
@@ -34,22 +33,25 @@ import java.util.Locale;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.scanner.ResourceFetcher;
-import org.sonar.api.scanner.ScannerSide;
 import org.sonar.plugins.javascript.nodejs.NodeVersion;
 import org.sonar.plugins.javascript.nodejs.ProcessWrapper;
-import org.sonarsource.api.sonarlint.SonarLintSide;
 import org.tukaani.xz.XZInputStream;
 
 /**
- * Class handling the extraction of the embedded Node.JS runtime
+ * Base class handling the extraction of the embedded Node.JS runtime.
+ * <p>
+ * The runtime binaries are shipped once, for every platform, inside the on-demand resources ZIP
+ * (JS-2714 / SC-49784), under a {@code resources/} folder. Subclasses only differ in how they obtain an
+ * {@link InputStream} for a given resource path in that folder:
+ * <ul>
+ *   <li>{@link ScannerEmbeddedNode} fetches it through the Plugin API's {@code ResourceFetcher}.</li>
+ *   <li>{@link SonarLintEmbeddedNode} looks for it on disk next to the plugin jar, since SonarLint doesn't
+ *   implement {@code ResourceFetcher} yet.</li>
+ * </ul>
  */
-@ScannerSide
-@SonarLintSide(lifespan = INSTANCE)
-public class EmbeddedNode {
+public abstract class EmbeddedNode {
 
   public static final String VERSION_FILENAME = "version.txt";
-  private static final String PLUGIN_KEY = "javascript";
   private static final String DEPLOY_LOCATION = Path.of("js", "node-runtime").toString();
   private static final long EXTRACTION_LOCK_WAIT_TIME_MILLIS = 10000;
   private static final Logger LOG = LoggerFactory.getLogger(EmbeddedNode.class);
@@ -57,7 +59,6 @@ public class EmbeddedNode {
   private final Platform platform;
   private final Environment env;
   private final ProcessWrapper processWrapper;
-  private final ResourceFetcher resourceFetcher;
   private boolean isAvailable;
 
   enum Platform {
@@ -69,37 +70,11 @@ public class EmbeddedNode {
     DARWIN_X64,
     UNSUPPORTED;
 
-    private String pathInJar() {
-      return switch (this) {
-        case WIN_X64 -> "/win-x64/";
-        case LINUX_ARM64 -> "/linux-arm64/";
-        case LINUX_X64 -> "/linux-x64/";
-        case LINUX_X64_MUSL -> "/linux-x64-musl/";
-        case DARWIN_ARM64 -> "/darwin-arm64/";
-        case DARWIN_X64 -> "/darwin-x64/";
-        default -> "";
-      };
-    }
-
     /**
-     * @return the path of the node compressed node runtime in the JAR
-     */
-    String archivePathInJar() {
-      return pathInJar() + binary() + ".xz";
-    }
-
-    /**
-     * @return the path of the file storing the version of the node runtime in the JAR
-     */
-    String versionPathInJar() {
-      return pathInJar() + VERSION_FILENAME;
-    }
-
-    /**
-     * Resource paths for {@link ResourceFetcher#fetch}, relative to the resources directory of the on-demand
-     * resources ZIP (JS-2714 / SC-49784). Unlike {@link #archivePathInJar()}/{@link #versionPathInJar()}, the
-     * compressed binary (but not {@code version.txt}) sits under a {@code bin/} folder on every platform except
-     * Windows - that mirrors the layout of the unpacked {@code nodejs-runtime} artifact
+     * Resource paths for {@link ScannerEmbeddedNode}/{@link SonarLintEmbeddedNode}, relative to the resources
+     * directory of the on-demand resources ZIP (JS-2714 / SC-49784). The compressed binary (but not
+     * {@code version.txt}) sits under a {@code bin/} folder on every platform except Windows - that mirrors the
+     * layout of the unpacked {@code nodejs-runtime} artifact
      * ({@code target/downloads/runtimes/<platform>/...}), which the ZIP's {@code resources/} folder copies
      * verbatim.
      */
@@ -167,45 +142,20 @@ public class EmbeddedNode {
     }
   }
 
-  /**
-   * Used on the SonarLint side, where {@link ResourceFetcher} isn't available: the embedded runtime is only ever
-   * looked up on the classpath there, exactly as before.
-   */
-  public EmbeddedNode(ProcessWrapper processWrapper, Environment env) {
-    this(processWrapper, env, null);
-  }
-
-  /**
-   * Used on the scanner side: the embedded runtime is fetched on demand through {@code resourceFetcher} instead of
-   * being read off the classpath, since it is no longer bundled in the plugin JAR (JS-2714 / SC-49784).
-   */
-  public EmbeddedNode(
-    ProcessWrapper processWrapper,
-    Environment env,
-    ResourceFetcher resourceFetcher
-  ) {
+  protected EmbeddedNode(ProcessWrapper processWrapper, Environment env) {
     this.platform = Platform.detect(env);
     this.deployLocation = runtimeCachePathFrom(env.getSonarUserHome());
     this.env = env;
     this.processWrapper = processWrapper;
-    this.resourceFetcher = resourceFetcher;
   }
 
   /**
-   * Opens a resource, either fetched on demand through {@link #resourceFetcher} (scanner side) or read directly
-   * off the classpath (SonarLint side, or any legacy plugin JAR that still bundles the runtime).
-   *
-   * @param pathInJar classpath form, as returned by {@link Platform#archivePathInJar()} or
-   *          {@link Platform#versionPathInJar()} - used only when {@link #resourceFetcher} is {@code null}
-   * @param resourcePath on-demand-resources form, as returned by {@link Platform#archiveResourcePath()} or
-   *          {@link Platform#versionResourcePath()} - used only when {@link #resourceFetcher} is set
+   * Opens the given resource, relative to the resources directory of the on-demand resources ZIP, as returned by
+   * {@link Platform#archiveResourcePath()} or {@link Platform#versionResourcePath()}. Returns {@code null} if the
+   * resource cannot be found, which {@link #deploy()} treats as "no embedded runtime available for this platform"
+   * and falls back to the host Node.js.
    */
-  private InputStream openResource(String pathInJar, String resourcePath) throws IOException {
-    if (resourceFetcher != null) {
-      return Files.newInputStream(resourceFetcher.fetch(PLUGIN_KEY, resourcePath));
-    }
-    return getClass().getResourceAsStream(pathInJar);
-  }
+  protected abstract InputStream openResource(String resourcePath) throws IOException;
 
   /**
    * @return a path to `DEPLOY_LOCATION` from the given `baseDir`
@@ -239,11 +189,11 @@ public class EmbeddedNode {
       return;
     }
     try {
-      var is = openResource(platform.archivePathInJar(), platform.archiveResourcePath());
+      var is = openResource(platform.archiveResourcePath());
 
       if (is == null) {
         if (LOG.isDebugEnabled()) {
-          LOG.debug("Embedded node not found for platform {}", platform.archivePathInJar());
+          LOG.debug("Embedded node not found for platform {}", platform);
         }
         return;
       }
@@ -259,7 +209,7 @@ public class EmbeddedNode {
         targetVersion
       );
       // we assume that since the archive exists, the version file must as well
-      var versionIs = openResource(platform.versionPathInJar(), platform.versionResourcePath());
+      var versionIs = openResource(platform.versionResourcePath());
 
       if (Files.exists(targetVersion) && !isDifferent(versionIs, targetVersion)) {
         LOG.debug("Skipping node deploy. Deployed node has latest version.");
@@ -332,7 +282,7 @@ public class EmbeddedNode {
         try {
           LOG.debug("Lock acquired for extraction");
           extract(source, targetRuntime);
-          var versionIs = openResource(platform.versionPathInJar(), platform.versionResourcePath());
+          var versionIs = openResource(platform.versionResourcePath());
           Files.copy(versionIs, deployLocation.resolve(VERSION_FILENAME), REPLACE_EXISTING);
         } finally {
           lock.release();

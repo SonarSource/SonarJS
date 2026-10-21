@@ -40,10 +40,11 @@ import org.sonar.plugins.javascript.analysis.WebSensorModuleConfigurationSensor;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.BridgeServerImpl;
 import org.sonar.plugins.javascript.bridge.BundleImpl;
-import org.sonar.plugins.javascript.bridge.EmbeddedNode;
 import org.sonar.plugins.javascript.bridge.Environment;
 import org.sonar.plugins.javascript.bridge.NodeDeprecationWarning;
 import org.sonar.plugins.javascript.bridge.RulesBundles;
+import org.sonar.plugins.javascript.bridge.ScannerEmbeddedNode;
+import org.sonar.plugins.javascript.bridge.SonarLintEmbeddedNode;
 import org.sonar.plugins.javascript.external.TslintReportSensor;
 import org.sonar.plugins.javascript.lcov.CoverageSensor;
 import org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl;
@@ -178,7 +179,8 @@ public class JavaScriptPlugin implements Plugin {
       JsTsChecks.class,
       AnalysisWarningsWrapper.class,
       AnalysisProcessor.class,
-      EmbeddedNode.class,
+      ScannerEmbeddedNode.class,
+      SonarLintEmbeddedNode.class,
       Environment.class
     );
 

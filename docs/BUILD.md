@@ -373,9 +373,13 @@ Explicit RSPEC refresh
 platform's Node.js runtime, via `maven-shade-plugin`. Those are gone. The runtime binaries are
 now shipped once, for every platform, inside the `sonar-javascript-plugin-<version>.zip`
 artifact's `resources/` folder, fetched on demand at analysis time through the Plugin API's
-`ResourceFetcher` (see `EmbeddedNode` in the `bridge` module). SonarLint still reads the runtime
-off the classpath directly — `ResourceFetcher` isn't available there, and the `standalone`
-module never bundled the runtime anyway, so this is unchanged for SonarLint.
+`ResourceFetcher`. `EmbeddedNode` (in the `bridge` module) is split into two concrete
+subclasses so that a constructor referencing `ResourceFetcher` never has to be reflected on in a
+context lacking that type: `ScannerEmbeddedNode` (`@ScannerSide`) fetches resources through
+`ResourceFetcher`; `SonarLintEmbeddedNode` (`@SonarLintSide`) doesn't implement
+`ResourceFetcher` yet, so as an interim measure it looks the runtime up directly on disk, next
+to the plugin jar it was loaded from, mirroring the ZIP's own `plugin/`+`resources/` layout.
+Replace that filesystem lookup once SonarLint supports `ResourceFetcher`.
 
 This requires a local SNAPSHOT of `sonar-packaging-maven-plugin` (`2.1-SNAPSHOT`, the `zip` goal
 from PACKMP-64), installed to the local Maven repo until it's released. `ResourceFetcher`/

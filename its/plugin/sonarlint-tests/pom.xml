@@ -117,21 +117,28 @@
             <artifactId>maven-dependency-plugin</artifactId>
             <executions>
               <execution>
+                <!--
+                  Unpacks the on-demand resources ZIP (JS-2714 / SC-49784) instead of just copying the plain jar:
+                  SonarLint doesn't implement ResourceFetcher yet, so SonarLintEmbeddedNode looks up the embedded
+                  Node.js runtime on disk, next to the plugin jar it loads - which only exists if the whole ZIP
+                  (plugin/<jar> and resources/<platform>/...) is extracted together, as production SonarLint
+                  distributions are expected to do.
+                -->
                 <id>copy-plugin</id>
                 <phase>generate-test-resources</phase>
                 <goals>
-                  <goal>copy</goal>
+                  <goal>unpack</goal>
                 </goals>
                 <configuration>
                   <artifactItems>
                     <artifactItem>
                       <groupId>${project.groupId}</groupId>
                       <artifactId>sonar-javascript-plugin</artifactId>
-                      <type>sonar-plugin</type>
+                      <type>zip</type>
                       <overWrite>true</overWrite>
+                      <outputDirectory>${project.build.directory}/sonar-javascript-plugin</outputDirectory>
                     </artifactItem>
                   </artifactItems>
-                  <outputDirectory>../../../sonar-plugin/sonar-javascript-plugin/target</outputDirectory>
                   <overWriteReleases>true</overWriteReleases>
                   <overWriteSnapshots>true</overWriteSnapshots>
                 </configuration>
