@@ -832,6 +832,25 @@ jobs:
         with:
           secrets: |
             development/github/token/licenses-ro token | licenses_token;
+            development/artifactory-edge-prod/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ORCHESTRATOR_ACCESS_TOKEN;
+      - &configure_orchestrator
+        name: Configure production Orchestrator
+        shell: bash
+        env:
+          ORCHESTRATOR_ACCESS_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).ORCHESTRATOR_ACCESS_TOKEN }}
+        run: |
+          umask 077
+          config_dir="$RUNNER_TEMP/orchestrator-production-config"
+          mkdir -p "$config_dir"
+          printf '%s\n' \
+            'orchestrator.artifactory.url=https://repox-internal.sonar.build/artifactory' \
+            "orchestrator.artifactory.accessToken=$ORCHESTRATOR_ACCESS_TOKEN" > "$config_dir/orchestrator.properties"
+          config_path="$config_dir/orchestrator.properties"
+          if [[ "$RUNNER_OS" == Windows ]]; then
+            config_path="/$(cygpath -m "$config_path")"
+          fi
+          config_path="${config_path// /%20}"
+          echo "ORCHESTRATOR_CONFIG_URL=file://$config_path" >> "$GITHUB_ENV"
       - &orchestrator_cache_restore
         uses: ./.github/actions/orchestrator-cache
         with:
@@ -840,7 +859,7 @@ jobs:
         run: |
           mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
           mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
-          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
@@ -864,15 +883,16 @@ jobs:
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
+      - *configure_orchestrator
       - &orchestrator_fast_cache_restore
         uses: ./.github/actions/orchestrator-cache
         with:
-          key-prefix: orchestrator-fast
+          key-prefix: orchestrator-production-fast
           save: 'false'
       - name: Run Fast Plugin QA
         run: |
           mvn package -f its/plugin/plugins/pom.xml
-          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
@@ -897,6 +917,7 @@ jobs:
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
+      - *configure_orchestrator
       - &remove_node_from_path
         name: Disable existing node
         shell: bash
@@ -915,7 +936,7 @@ jobs:
         run: |
           mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
           mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
-          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: multi
@@ -936,13 +957,16 @@ jobs:
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
+      - *configure_orchestrator
       - *remove_node_from_path
-      # No orchestrator cache for DEV - version changes too frequently
+      - uses: ./.github/actions/orchestrator-cache
+        with:
+          enabled: 'false'
       - name: Run Plugin QA without Node (DEV)
         run: |
           mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
           mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=DEV -B -e -V verify surefire-report:report
-          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=DEV -B -e -V verify surefire-report:report
+          mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=DEV -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: multi
@@ -985,18 +1009,20 @@ jobs:
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
+      - *configure_orchestrator
       - *orchestrator_cache_restore
       - name: Fix permissions for non-root user
         run: |
           # Ensure the sonar user can access all necessary directories after cache restores
           chown -R sonar:sonar "$GITHUB_WORKSPACE"
+          chown -R sonar:sonar "$RUNNER_TEMP/orchestrator-production-config"
           chown -R sonar:sonar /github/home
       - name: Run Plugin QA without Node
         shell: bash
         run: |
           setpriv --reuid=sonar --regid=sonar --init-groups -- mvn package -f its/plugin/plugins/consumer-plugin/pom.xml -B
           setpriv --reuid=sonar --regid=sonar --init-groups -- mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
-          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: linux-x64-musl
@@ -1016,14 +1042,15 @@ jobs:
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
+      - *configure_orchestrator
       - *remove_node_from_path
       - uses: ./.github/actions/orchestrator-cache
         with:
-          key-prefix: orchestrator-fast
+          key-prefix: orchestrator-production-fast
       - name: Run Fast Plugin QA without Node
         run: |
           mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin
-          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dtest=!EslintCustomRulesTest -B -e -V verify surefire-report:report
+          mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dtest=!EslintCustomRulesTest -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: multi
@@ -1044,12 +1071,15 @@ jobs:
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
+      - *configure_orchestrator
       - *remove_node_from_path
-      # No orchestrator cache for DEV - version changes too frequently
+      - uses: ./.github/actions/orchestrator-cache
+        with:
+          enabled: 'false'
       - name: Run Fast Plugin QA without Node (DEV)
         run: |
           mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin
-          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=DEV -Dtest=!EslintCustomRulesTest -B -e -V verify surefire-report:report
+          mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=DEV -Dtest=!EslintCustomRulesTest -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: multi
@@ -1073,12 +1103,13 @@ jobs:
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
+      - *configure_orchestrator
       - *orchestrator_fast_cache_restore
       - name: Run Fast Plugin QA without Node
         shell: bash
         run: |
           mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin -B
-          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dtest=!EslintCustomRulesTest -B -e -V verify surefire-report:report
+          mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dtest=!EslintCustomRulesTest -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: linux-x64-musl
@@ -1106,6 +1137,7 @@ jobs:
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
+      - *configure_orchestrator
       - uses: ./.github/actions/orchestrator-cache
         with:
           save: ${{ matrix.group == 1 }}
@@ -1123,7 +1155,7 @@ jobs:
           fi
 
           mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
-          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dtest="$TEST_PATTERN" -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" -f its/plugin/tests/pom.xml -DskipTests=false -Dtest="$TEST_PATTERN" -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
@@ -1170,9 +1202,10 @@ jobs:
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
+      - *configure_orchestrator
       - uses: ./.github/actions/orchestrator-cache
         with:
-          key-prefix: orchestrator-fast
+          key-prefix: orchestrator-production-fast
           save: ${{ matrix.group == 1 }}
       - name: Run Fast Plugin QA on Windows
         shell: bash
@@ -1188,7 +1221,7 @@ jobs:
           fi
 
           mvn package -f its/plugin/plugins/pom.xml
-          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dtest="$TEST_PATTERN" -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dtest="$TEST_PATTERN" -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
@@ -1348,13 +1381,14 @@ jobs:
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
+      - *configure_orchestrator
       - *orchestrator_cache_restore
       - name: Run Ruling Tests
         run: |
           cd its/ruling
           # Cap ruling parallelism explicitly: using all CPUs on sonar-xl can
           # overwhelm the shared SonarQube/Node workload and make the runner drop.
-          mvn test -Dtest=RulingTest -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -Djunit.jupiter.execution.parallel.config.strategy=fixed -Djunit.jupiter.execution.parallel.config.fixed.parallelism=8 -B -e -V
+          mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" test -Dtest=RulingTest -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -Djunit.jupiter.execution.parallel.config.strategy=fixed -Djunit.jupiter.execution.parallel.config.fixed.parallelism=8 -B -e -V
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
