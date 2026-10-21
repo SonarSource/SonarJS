@@ -6,6 +6,11 @@ The npm alias `typescript-go` pins the JavaScript client and matching Go executa
 The shared infrastructure PR keeps TS6 as its default; this provider PR selects
 `tsgo-ipc` so ordinary analyzer tests exercise it. Vercel's provider is independent.
 
+Shared rule-test routing, virtual hosts, compiler-option policy, conformance,
+asset packaging, executable extraction and comparison tooling are supplied by the
+base PR. This provider declares its preparation script and unsupported legacy
+resolution in the registry; the shared preparation entry point dispatches to it.
+
 ## Execution and compatibility
 
 Analyzer code and dependencies importing `typescript` receive SonarJS's owned
