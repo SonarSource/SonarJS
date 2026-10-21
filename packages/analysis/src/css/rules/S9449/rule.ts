@@ -64,7 +64,10 @@ function checkFile(root: PostCSS.Root, result: PostcssResult): void {
   }
 }
 
-/** Match S9424's conservative descriptor filtering, also excluding non-animatable keyframe content. */
+/**
+ * Match S9424's conservative descriptor filtering, also excluding non-animatable keyframe content.
+ * Preprocessor at-rules such as `@mixin`, `@include`, and `@if` are deliberately skipped too.
+ */
 function isStyle(declaration: PostCSS.Declaration): boolean {
   let hasRule = false;
   for (

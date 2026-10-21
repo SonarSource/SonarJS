@@ -38,8 +38,8 @@ export function knownFunctionsOf(lexer: Lexer): Set<string> {
   const { properties, types } = lexer as unknown as LexerDefinitions;
   const functions = new Set<string>(
     Object.keys(types)
-      .filter((type: string): boolean => type.endsWith(FUNCTION_TYPE_SUFFIX))
-      .map((type: string): string => type.slice(0, -FUNCTION_TYPE_SUFFIX.length).toLowerCase()),
+      .filter((type: string) => type.endsWith(FUNCTION_TYPE_SUFFIX))
+      .map((type: string) => type.slice(0, -FUNCTION_TYPE_SUFFIX.length).toLowerCase()),
   );
   for (const { syntax } of [...Object.values(properties), ...Object.values(types)]) {
     if (syntax) {
@@ -51,7 +51,7 @@ export function knownFunctionsOf(lexer: Lexer): Set<string> {
 }
 
 function addFunctionNames(syntax: DSNode, names: Set<string>): void {
-  definitionSyntax.walk(syntax, (node: DSNode): void => {
+  definitionSyntax.walk(syntax, (node: DSNode) => {
     if (node.type === 'Function') {
       names.add(node.name.toLowerCase());
     }

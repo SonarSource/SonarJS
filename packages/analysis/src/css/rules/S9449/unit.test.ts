@@ -155,6 +155,21 @@ const valid: Sample[] = [
     code: '/* stylelint-disable sonar/transition-no-all */ a { transition: all 1s; }',
   },
   { name: 'vendor prefix deferred', code: 'a { -webkit-transition: all 1s; }' },
+  {
+    name: 'scss mixin body deferred',
+    code: '@mixin fade { transition: all 1s; }',
+    codeFilename: 'test.scss',
+  },
+  {
+    name: 'scss include content block deferred',
+    code: 'a { @include hover { transition: all 1s; } }',
+    codeFilename: 'test.scss',
+  },
+  {
+    name: 'scss control directive deferred',
+    code: 'a { @if $animated { transition: all 1s; } }',
+    codeFilename: 'test.scss',
+  },
   { name: 'scss variable', code: 'a { transition: all $time; }', codeFilename: 'test.scss' },
   { name: 'scss interpolation', code: 'a { transition: #{$motion}; }', codeFilename: 'test.scss' },
   { name: 'less interpolation', code: 'a { transition: @{motion}; }', codeFilename: 'test.less' },
