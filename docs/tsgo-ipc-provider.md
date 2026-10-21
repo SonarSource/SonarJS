@@ -91,6 +91,13 @@ against the committed package-lock integrity before extraction. SDK/package vers
 must match. The bundle contains one selected provider plus its native assets and
 excludes the TS6 SDK. The source tree retains the TS6 reference provider.
 
+The pinned beta's JavaScript scanner does not advance past a bare `#` followed by
+a non-identifier character. Native token traversal encounters this in JSDoc links
+such as `{@link $compile#-bindtocontroller-}`, causing an unbounded token array.
+`patches/typescript-go+7.1.0-beta.patch` advances that branch by one character;
+the provider regression test covers scanner progress and parsing the full comment.
+Remove this patch when an SDK upgrade includes the upstream correction.
+
 ```sh
 npm ci
 npm run bridge:compile

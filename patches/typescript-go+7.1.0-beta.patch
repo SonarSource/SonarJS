@@ -1,0 +1,11 @@
+diff --git a/node_modules/typescript-go/dist/ast/scanner.js b/node_modules/typescript-go/dist/ast/scanner.js
+--- a/node_modules/typescript-go/dist/ast/scanner.js
++++ b/node_modules/typescript-go/dist/ast/scanner.js
+@@ -1736,6 +1736,7 @@ export function createScanner(skipTrivia, languageVariant = LanguageVariant.Standar
+                             scanIdentifier(charAfterHash);
+                         }
+                         else {
++                            pos++;
+                             tokenValue = "#";
+                         }
+                         return token = SyntaxKind.PrivateIdentifier;

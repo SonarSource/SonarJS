@@ -70,7 +70,9 @@ export function createObjects({ native, sdk, checker: remote, call, diagnostics 
   const isSyntaxChild = (parent, node) =>
     !isJSDocDeclaration(node) &&
     !(
-      (node === parent.type || parent.typeParameters?.includes(node)) &&
+      (node === parent.type ||
+        parent.typeParameters?.includes(node) ||
+        parent.parameters?.includes(node)) &&
       node.end <= parent.getStart()
     );
   const copyArrayProperties = (source, target) => {
@@ -197,6 +199,8 @@ export function createObjects({ native, sdk, checker: remote, call, diagnostics 
       if (property === 'type' && raw.type && raw.type.end <= raw.getStart()) return undefined;
       // Native JSDoc typedef/import declarations are checker inputs, not JS statements.
       if (property === 'statements') return syntaxChildren(raw, raw.statements);
+      // @this supplies a native checker parameter located inside the comment.
+      if (property === 'parameters') return syntaxChildren(raw, raw.parameters);
       if (property === 'parseDiagnostics')
         return raw.kind === native.SyntaxKind.SourceFile ? diagnostics(raw) : undefined;
       if (property === 'escapedText')

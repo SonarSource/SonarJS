@@ -75,6 +75,34 @@ it('TSGo keeps external typed rules on the facade with the TS6 runtime blocked',
   `);
 });
 
+it('TSGo token traversal terminates for JSDoc links containing a bare hash', () => {
+  const parser = new URL('../../analysis/src/jsts/frontend/parser.js', import.meta.url).href;
+  probe(`
+    import assert from 'node:assert/strict';
+    import * as native from 'typescript-go/ast';
+    for (const text of ['#', '#-member', '# member']) {
+      const scanner = native.createScanner(true, native.LanguageVariant.Standard, text);
+      let end = 0;
+      while (scanner.scan() !== native.SyntaxKind.EndOfFile) {
+        assert.ok(scanner.getTokenEnd() > end, 'each native token advances the scanner');
+        end = scanner.getTokenEnd();
+      }
+    }
+    const {parseForESLint}=await import(${JSON.stringify(parser)});
+    const text='/** See {@link $compile#-bindtocontroller- bindings}. */\\nfunction f() {}';
+    try {
+      const {ast}=parseForESLint(text,{filePath:process.cwd()+'/virtual-jsdoc-link.js'});
+      assert.equal(ast.body.length,1);
+      assert.equal(ast.body[0].type,'FunctionDeclaration');
+      assert.equal(ast.comments.length,1);
+      assert.equal(ast.comments[0].value,'* See {@link $compile#-bindtocontroller- bindings}. ');
+      assert.deepEqual(ast.comments[0].range,[0,text.indexOf('\\n')]);
+    } finally {
+      (await import('./packages/typescript/providers/tsgo-ipc/index.mjs')).close();
+    }
+  `);
+});
+
 it('TSGo scopes queries to snapshots, releases programs and starts a fresh session', () => {
   probe(`
     import assert from 'node:assert/strict';
