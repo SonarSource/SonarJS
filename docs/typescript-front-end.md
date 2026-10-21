@@ -34,11 +34,23 @@ CommonJS, ESM and supported legacy subpaths resolve to the same interface. The
 bridge bundler resolves compiler imports from this canonical package even if a
 dependency could otherwise find another SDK copy.
 
-`packages/typescript/supported-exports.json` defines supported runtime exports.
-`tools/generate-typescript-exports.mjs` derives ESM exports and declarations from
-that list. Reference object types remain compatible with TypeScript declarations;
-unsupported runtime operations are not declared or silently forwarded. Unknown
-operations and missing provider operations fail explicitly.
+`packages/typescript/contract.json` is the single definition of runtime exports,
+operation ownership, optional capabilities and supported nested methods.
+`tools/generate-typescript-exports.mjs` generates ESM exports and declarations from it.
+`Program`, `TypeChecker`, builder programs and the factory expose only the supported
+subset. Structural AST, type and symbol declarations retain reference compatibility
+for existing rule dependencies; they are not a promise of the complete SDK API.
+Conformance tests check their required methods on representative real objects.
+Unknown top-level operations and missing required operations fail explicitly.
+The facade validates and captures selected exports once; program and checker method
+validation is cached by object identity and does not wrap individual checker queries.
+
+`typescript/contract` exposes the generated `Provider` type and nested validation.
+`compiler:check` assigns the selected implementation to that type using the reference
+compiler at build time and validates generated declarations without `skipLibCheck`.
+Private APIs absent from the reference declarations are explicitly marked at the
+adapter boundary; their dynamic signatures still require runtime conformance tests.
+This check does not prove semantic parity with the reference compiler.
 
 `packages/typescript/providers/classic.cjs` alone loads the TS6 SDK. It supplies
 the operations with an in-process TS6 implementation. Its server support is lazy
@@ -69,12 +81,32 @@ artifact that can switch among several providers is a separate packaging extensi
 
 The shared `compat/index.cjs` supplies versioned constants and stateless syntax helpers
 for normalized objects. Its Apache provenance and reproducible sync/check command
-are in `compat/NOTICE.md`. `compat/provider-operations.json` records operations owned
-by providers, such as configuration parsing, filesystem access, scanners, module
-resolution and program creation. The generator and conformance tests use this
+are in `compat/NOTICE.md`. `contract.json` records operations owned by providers, such as configuration parsing,
+filesystem access, scanners, module resolution and program creation. The generator and conformance tests use this
 ownership boundary without importing any particular provider implementation.
 The TS6 reference retains the SDK's syntax implementations; other providers can use
 the shared adoption generated from the same pinned source. This layer loads no SDK.
+
+## Capabilities and resource ownership
+
+Every provider exports `{compiler, compilerVersion, ownsProgramResources, disposeProgram, close}` and may
+supply diagnostic `timing()`. The registry explicitly declares `watchPrograms` and
+`projectService` capabilities. These are optional compatibility paths for upstream
+consumers; normal analysis uses SonarJS program selection. Disabled capabilities
+need no provider stubs: the shared facade reports an explicit contract error if used.
+Enabling a capability requires its exports to be present.
+
+`typescript/lifecycle` exposes immutable provider metadata, including the actual
+compiler version independently of the facade's npm/peer compatibility version.
+It also owns program disposal and session shutdown. Providers declare whether they
+own resources requiring explicit program release. TS6 leaves this false so batch
+scopes neither retain its programs nor change their garbage-collection behavior.
+Resource-owning providers use an async batch program scope, releasing created programs after linting and source-cache cleanup,
+on success, cancellation and failure. Disposal attempts every program and preserves
+the primary analysis error. IDE caches retain their programs until replacement,
+eviction or clearing. Shared disposal is idempotent; a failed release may be retried.
+Worker shutdown closes the selected compiler session before closing its parent port.
+Providers must not use objects after release or carry them into another session.
 
 ## Adding another provider
 
@@ -100,8 +132,8 @@ packaged bridge tests cover upstream typed rules and successive IDE requests.
 
 This PR registers TS6 only. The [Vercel draft](https://github.com/SonarSource/SonarJS/pull/8209)
 provides a second implementation and comparison evidence; its source imports, patches,
-adapters and changed ruling expectations remain outside this PR. A planned TSGo IPC
-provider will use the same contract; see [the follow-up plan](tsgo-ipc-provider-plan.md).
+adapters remain outside this PR. The [TSGo IPC draft](https://github.com/SonarSource/SonarJS/pull/8219)
+implements the same contract; see [the provider plan](tsgo-ipc-provider-plan.md).
 Performance comparisons must account separately for compiler work, conversion,
 scope analysis, rule execution and unassigned/GC time; an in-process implementation
 removes a transport boundary but does not guarantee a faster complete analysis.
@@ -128,7 +160,8 @@ The common conformance suite also checks UNC config inheritance and dependencies
 JSDoc syntax/checker separation and empty module specifiers.
 
 The provider registry declares optional `prepare`, `libraryDestination`,
-`bundleLibraries` and `legacyModuleResolution` fields. `compiler:prepare` runs the
+`bundleLibraries`, `source` and `legacyModuleResolution` fields. `source` identifies
+the module to validate when the runtime entry is generated. `compiler:prepare` runs the
 selected preparation script without loading an unprepared runtime; bundle builds
 pass `--all` for cross-platform assets. Recursive assets retain their declared
 layout, and Java deployment preserves executable archive permissions. SDK license

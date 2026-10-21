@@ -51,7 +51,7 @@ for (const backend of Object.keys(providers)) {
       const expression = file.statements[1].declarationList.declarations[0].initializer;
       assert.equal(checker.typeToString(checker.getTypeAtLocation(expression)), '42');
       assert.equal(program.getSourceFile(dependency).fileName, dependency);
-      program.dispose?.();
+      require('typescript/lifecycle').disposeProgram(program);
       `,
       backend,
     );
@@ -101,9 +101,19 @@ for (const backend of Object.keys(providers)) {
         return load.call(this, name, ...args);
       };
       const ts = require('./packages/typescript/index.cjs');
+      const {assertMembers} = require('typescript/contract');
+      const {metadata, disposeProgram, close} = require('typescript/lifecycle');
+      assert.equal(metadata.name, process.env.SONARJS_TYPESCRIPT_BACKEND);
+      assert.ok(metadata.compilerVersion);
       const constants = require('./packages/typescript/compat/constants.json');
       for (const [name, value] of Object.entries(constants)) assert.deepEqual(ts[name], value);
       assert.equal(ts.convertCompilerOptionsFromJson({target:'ES2020'}, '/virtual').options.target, ts.ScriptTarget.ES2020);
+      const invalidOptions = ts.convertCompilerOptionsFromJson({target:'not-a-target'}, '/virtual');
+      assert.ok(invalidOptions.errors.length);
+      for (const error of invalidOptions.errors) {
+        assert.ok(Object.hasOwn(error, 'file'), 'diagnostics include their optional source field');
+        assert.equal(typeof error.messageText, 'string');
+      }
       assert.deepEqual(ts.parseConfigFileTextToJson('tsconfig.json', '{/*comment*/"compilerOptions":{"strict":true,},}').config, {compilerOptions:{strict:true}});
       const name = '/virtual/main.ts';
       let text = 'export const value = 42;';
@@ -145,21 +155,32 @@ for (const backend of Object.keys(providers)) {
       const aliasChecker = aliasProgram.getTypeChecker();
       const returned = aliasProgram.getSourceFile(aliasName).statements[0].body.statements[0].expression;
       assert.equal(aliasChecker.typeToString(aliasChecker.getTypeAtLocation(returned)), 'number', 'JSDoc typedefs remain available to the checker');
-      aliasProgram.dispose?.();
+      require('typescript/lifecycle').disposeProgram(aliasProgram);
       function program() { return ts.createProgram({rootNames:[name], options:{noLib:true}, host}); }
       function value(p) {
-        const file = p.getSourceFile(name), checker = p.getTypeChecker();
+        assertMembers(p, 'Program');
+        const file = assertMembers(p.getSourceFile(name), 'SourceFile'), checker = assertMembers(p.getTypeChecker(), 'TypeChecker');
         const declaration = file.statements[0].declarationList.declarations[0];
         assert.equal(p.getSourceFile(name), file, 'source identity');
         assert.ok(ts.isIdentifier(declaration.name));
         assert.equal(declaration.name.parent, declaration, 'parent relationships');
-        const type = checker.getTypeAtLocation(declaration.name);
+        const type = assertMembers(checker.getTypeAtLocation(declaration.name), 'Type');
+        assertMembers(checker.getSymbolAtLocation(declaration.name), 'Symbol');
         assert.equal(checker.getTypeAtLocation(declaration.name), type, 'type identity');
         assert.equal(checker.getSymbolAtLocation(declaration.name), checker.getSymbolAtLocation(declaration.name), 'symbol identity');
         assert.deepEqual(file.parseDiagnostics, []);
         assert.equal(p.getSourceFile('/virtual/missing.ts'), undefined, 'denied source');
         return checker.typeToString(type);
       }
+      text = 'export function identity(value: number): number { return value; }';
+      const functionProgram = program();
+      const functionChecker = functionProgram.getTypeChecker();
+      const signature = functionChecker.getSignatureFromDeclaration(functionProgram.getSourceFile(name).statements[0]);
+      assertMembers(signature, 'Signature');
+      assert.ok(Array.isArray(signature.getDocumentationComment(functionChecker)));
+      assert.ok(Array.isArray(signature.getJsDocTags(functionChecker)));
+      disposeProgram(functionProgram);
+      text = 'export const value = 42;';
       const original = program();
       assert.equal(value(original), '42', 'host overlay supplies source content');
       text = 'export const value = "edited";';
@@ -173,6 +194,8 @@ for (const backend of Object.keys(providers)) {
         assert.equal(require('typescript/lib/tsserverlibrary.js'), ts);
         const esm = await import(require('node:url').pathToFileURL(require.resolve('./packages/typescript/index.mjs')).href);
         assert.equal(esm.createProgram, ts.createProgram, 'ESM and CommonJS share the selected provider');
+        disposeProgram(original);
+        close();
       })().catch(error => { console.error(error); process.exitCode = 1; });
       `,
       backend,
@@ -194,7 +217,7 @@ it('rejects unknown providers and incomplete implementations without falling bac
       const {defaultProvider, providers} = require('./packages/typescript/providers.json');
       const providerModule = providers[defaultProvider].module;
       Module._load = function(name, ...args) {
-        return name === providerModule ? {} : load.call(this, name, ...args);
+        return name === providerModule ? { compiler: {}, compilerVersion: 'test', ownsProgramResources: false, disposeProgram() {}, close() {} } : load.call(this, name, ...args);
       };
       require('./packages/typescript/index.cjs');
       `),
@@ -213,8 +236,7 @@ it('loads the owned syntax contract without any compiler SDK', () => {
       return load.call(this, name, ...args);
     };
     const shared = require('./packages/typescript/compat/index.cjs');
-    const supported = require('./packages/typescript/supported-exports.json');
-    const operations = require('./packages/typescript/compat/provider-operations.json');
+    const {names: supported, operations} = require('./packages/typescript/contract.cjs');
     assert.deepEqual(supported.filter(name => !Object.hasOwn(shared, name)), operations);
     assert.ok(operations.every(name => !Object.hasOwn(shared, name)), 'operation ownership is disjoint');
     const identifier = shared.factory.createIdentifier('value');
@@ -222,4 +244,209 @@ it('loads the owned syntax contract without any compiler SDK', () => {
     assert.equal(shared.isStringLiteral(identifier), false);
     assert.equal(shared.escapeLeadingUnderscores('__value'), '___value');
   `);
+});
+
+// Each probe has a fresh module graph; mutate only the selected provider boundary.
+const injectedProvider = String.raw`
+  const assert = require('node:assert/strict'), Module = require('node:module');
+  const registry = require('./packages/typescript/providers.json');
+  const descriptor = registry.providers[registry.defaultProvider];
+  const loaded = require('./packages/typescript/' + descriptor.module);
+  const actual = loaded.default ?? loaded;
+  const implementation = {...actual, ownsProgramResources: true, compiler: {...actual.compiler}};
+  const load = Module._load;
+  Module._load = function(name, ...args) {
+    return name === descriptor.module ? implementation : load.call(this, name, ...args);
+  };
+`;
+
+it('validates nested members and captures immutable facade bindings', () => {
+  probe(
+    injectedProvider +
+      String.raw`
+    const ts = require('typescript');
+    const captured = ts.createSourceFile;
+    implementation.compiler.createSourceFile = () => { throw new Error('replaced'); };
+    assert.equal(ts.createSourceFile, captured);
+    assert.ok(Object.isFrozen(ts));
+    assert.throws(() => ts.notAnOperation, /Unsupported SonarJS compiler operation/);
+    const {assertMembers, specification, defineProvider} = require('typescript/contract');
+    assert.throws(() => defineProvider(null), /must supply its compiler bindings/);
+    for (const category of Object.keys(specification.members)) {
+      assert.throws(() => assertMembers({}, category), new RegExp(category + '[.]'));
+    }
+    assert.throws(() => assertMembers(null, 'Program'), /did not return Program/);
+  `,
+  );
+  assert.throws(
+    () =>
+      probe(
+        injectedProvider +
+          String.raw`
+    implementation.compiler.factory = {};
+    require('typescript');
+  `,
+      ),
+    /factory.createIdentifier/,
+  );
+  assert.throws(
+    () =>
+      probe(
+        injectedProvider +
+          String.raw`
+    implementation.compiler.sys = {};
+    require('typescript');
+  `,
+      ),
+    /sys.fileExists/,
+  );
+});
+
+it('declares optional capabilities independently of throwing backend stubs', () => {
+  probe(
+    injectedProvider +
+      String.raw`
+    descriptor.capabilities = {watchPrograms:false, projectService:false};
+    for (const name of ['createAbstractBuilder','createWatchCompilerHost','createWatchProgram','server'])
+      delete implementation.compiler[name];
+    implementation.compilerVersion = 'native-test-version';
+    const ts = require('typescript'), {metadata} = require('typescript/lifecycle');
+    assert.equal(metadata.compilerVersion, 'native-test-version');
+    assert.deepEqual(metadata.capabilities, {watchPrograms:false, projectService:false});
+    assert.throws(() => ts.createWatchProgram(), /does not support watchPrograms/);
+    assert.throws(() => ts.server.ProjectService, /does not support projectService/);
+  `,
+  );
+  assert.throws(
+    () =>
+      probe(
+        injectedProvider +
+          String.raw`
+    descriptor.capabilities = {};
+    require('typescript');
+  `,
+      ),
+    /must declare capability/,
+  );
+  assert.throws(
+    () =>
+      probe(
+        injectedProvider +
+          String.raw`
+    descriptor.capabilities = {watchPrograms:true, projectService:true};
+    implementation.compiler.createAbstractBuilder = () => {};
+    implementation.compiler.createWatchCompilerHost = () => {};
+    implementation.compiler.server = {};
+    delete implementation.compiler.createWatchProgram;
+    require('typescript');
+  `,
+      ),
+    /does not implement typescript.createWatchProgram/,
+  );
+  assert.throws(
+    () =>
+      probe(
+        injectedProvider +
+          String.raw`
+    delete implementation.close;
+    require('typescript');
+  `,
+      ),
+    /lifecycle.close/,
+  );
+});
+
+it('releases scoped programs on success, cancellation and errors, preserving the primary error', () => {
+  probe(
+    injectedProvider +
+      String.raw`
+    const released = [], source = implementation.compiler.createProgram;
+    let fail;
+    implementation.disposeProgram = program => {
+      released.push(program);
+      if (program === fail) throw new Error('release failed');
+    };
+    const ts = require('typescript'), lifecycle = require('typescript/lifecycle');
+    const create = () => ts.createProgram({rootNames:[], options:{noLib:true}});
+    (async () => {
+      let first, second;
+      await lifecycle.withProgramScope(async () => { first=create(); second=create(); });
+      assert.deepEqual(released, [first, second]);
+      lifecycle.disposeProgram(first);
+      assert.equal(released.length, 2, 'release is idempotent');
+      const primary = new Error('analysis cancelled');
+      let other;
+      await assert.rejects(lifecycle.withProgramScope(async () => {
+        fail=create(); other=create(); throw primary;
+      }), error => error === primary);
+      assert.deepEqual(released.slice(-2), [fail, other], 'all releases attempted');
+      await assert.rejects(lifecycle.withProgramScope(async () => { fail=create(); create(); }), AggregateError);
+      const outside = create();
+      await lifecycle.withProgramScope(async () => {});
+      assert.ok(!released.includes(outside), 'IDE cache retains ownership');
+      const order=[];
+      await Promise.all([1,2].map(id=>lifecycle.withProgramScope(async () => {
+        const p=create(); await new Promise(r=>setImmediate(r));
+        assert.ok(!released.includes(p), 'concurrent scopes retain their own programs');
+        order.push(id);
+      })));
+      assert.equal(order.length, 2);
+      lifecycle.close();
+    })().catch(error=>{ console.error(error); process.exitCode=1; });
+  `,
+  );
+});
+
+it('leaves garbage-collected backend programs unretained by batch scopes', () => {
+  probe(
+    injectedProvider +
+      String.raw`
+    implementation.ownsProgramResources = false;
+    let releases = 0;
+    implementation.disposeProgram = () => { releases++; };
+    const ts = require('typescript'), lifecycle = require('typescript/lifecycle');
+    (async () => {
+      let program;
+      await lifecycle.withProgramScope(async () => {
+        program = ts.createProgram({rootNames:[], options:{noLib:true}});
+      });
+      assert.equal(releases, 0);
+      lifecycle.disposeProgram(program);
+      assert.equal(releases, 1);
+      lifecycle.close();
+    })().catch(error => { console.error(error); process.exitCode=1; });
+  `,
+  );
+});
+
+it('releases replaced, evicted and cleared IDE cache programs', () => {
+  probe(
+    injectedProvider +
+      String.raw`
+    const released=[];
+    let failing;
+    implementation.disposeProgram = p => { released.push(p); if(p === failing) throw new Error('release'); };
+    (async () => {
+      const {ProgramCacheManager} = await import('./lib/analysis/src/jsts/program/cache/programCache.js');
+      const cache = new ProgramCacheManager(2);
+      const p = id => ({ getSourceFiles:()=>[{fileName:'/' + id + '.ts'}] });
+      const a=p('a'), b=p('b'), c=p('c'), d=p('d');
+      const builder = program => ({getProgram:()=>program});
+      const store = program => cache.storeProgram({rootNames:[]}, builder(program), {});
+      store(a); store(b); store(c);
+      assert.deepEqual(released, [a]);
+      const key=cache.findProgramForFile('/b.ts').cacheKey;
+      cache.updateProgramInCache(key, builder(b));
+      assert.deepEqual(released, [a], 'same identity retained');
+      cache.updateProgramInCache(key, builder(d));
+      assert.deepEqual(released, [a,b]);
+      failing=c;
+      assert.throws(()=>cache.clear(), AggregateError);
+      assert.deepEqual(new Set(released), new Set([a,b,c,d]));
+      assert.equal(cache.getCacheStats().size, 0);
+      cache.clear();
+      require('typescript/lifecycle').close();
+    })().catch(error=>{ console.error(error); process.exitCode=1; });
+  `,
+  );
 });

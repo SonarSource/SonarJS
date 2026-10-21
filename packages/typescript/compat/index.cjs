@@ -16,10 +16,15 @@
  */
 // Stateless operations for providers exposing the normalized SonarJS object contract.
 const contract = require('../package.json');
+/** @type {import('../contract.cjs').Constants} */
+const constants = require('./constants.json');
+/** @type {import('../contract.cjs').SyntaxBindings} */
+const syntax = { ...require('./syntax.cjs'), ...require('./helpers.cjs') };
+/** @type {import('../contract.cjs').CompilerBindings['versionMajorMinor']} */
+const versionMajorMinor = contract.version.split('.').slice(0, 2).join('.');
 module.exports = {
-  ...require('./constants.json'),
-  ...require('./syntax.cjs'),
-  ...require('./helpers.cjs'),
+  ...constants,
+  ...syntax,
   version: contract.version,
-  versionMajorMinor: contract.version.split('.').slice(0, 2).join('.'),
+  versionMajorMinor,
 };

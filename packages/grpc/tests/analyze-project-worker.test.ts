@@ -422,6 +422,32 @@ describe('analyze-project worker', () => {
     expect(parentThread.postedMessages).toEqual([]);
   });
 
+  it('closes the compiler before its parent port, even when cleanup fails', async () => {
+    const failure = new Error('cleanup failed');
+    const calls: string[] = [];
+    let listener: (message: AnalyzeProjectWorkerInMessage) => void | Promise<void>;
+    const parent = {
+      on(_event: 'message', callback: typeof listener) {
+        listener = callback;
+      },
+      postMessage() {},
+      close() {
+        calls.push('port');
+      },
+    };
+    registerAnalyzeProjectWorkerMessageHandler(
+      parent,
+      workerData,
+      async () => ({ result: undefined, type: 'success' }),
+      () => {
+        calls.push('compiler');
+        throw failure;
+      },
+    );
+    await expect(listener!({ type: 'close' })).rejects.toBe(failure);
+    expect(calls).toEqual(['compiler', 'port']);
+  });
+
   it('should forward cancel messages to the request handler', async () => {
     const handledRequests: unknown[] = [];
     const result: RequestResult = { result: undefined, type: 'success' };

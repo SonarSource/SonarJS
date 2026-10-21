@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 // The actual compiler implementation is private to this provider.
+/** @type {import('../contract.cjs').ReferenceCompiler} */
 const compiler = require('typescript-classic');
 // Some published-rule compatibility tests use the upstream project service.
 // Keep its implementation lazy; analysis uses SonarJS-owned program selection.
@@ -23,8 +24,25 @@ const server = new Proxy(Object.create(null), {
     return require('typescript-classic/lib/tsserverlibrary.js').server[name];
   },
 });
-module.exports = new Proxy(compiler, {
-  get(target, name) {
-    return name === 'server' ? server : target[name];
+/** @returns {import('../contract.cjs').Program} */
+function createProgram(...args) {
+  return compiler.createProgram(...args);
+}
+/** @returns {import('../contract.cjs').BuilderProgram} */
+function createSemanticDiagnosticsBuilderProgram(...args) {
+  return compiler.createSemanticDiagnosticsBuilderProgram(...args);
+}
+module.exports = {
+  compiler: {
+    ...compiler,
+    server,
+    // Contract declarations expose a subset of Program/BuilderProgram. The
+    // reference SDK still receives its original objects at this boundary.
+    createProgram,
+    createSemanticDiagnosticsBuilderProgram,
   },
-});
+  compilerVersion: compiler.version,
+  ownsProgramResources: false,
+  disposeProgram() {},
+  close() {},
+};

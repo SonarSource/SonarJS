@@ -42,7 +42,7 @@
     "deploy-rule-data": "tsx tools/deploy-rule-data.ts",
     "license-regeneration": "node license-management.mjs",
     "cyclonedx:npm": "cyclonedx-npm --omit dev --spec-version 1.6 --validate --output-file target/bom-npm.json",
-    "compiler:check": "npm run compiler:prepare && node tools/generate-typescript-exports.mjs --check && node tools/sync-typescript-compat.mjs --check",
+    "compiler:check": "npm run compiler:prepare && node tools/generate-typescript-exports.mjs --check && node tools/sync-typescript-compat.mjs --check && node tools/check-compiler-provider.mjs",
     "compiler:prepare": "node tools/prepare-compiler.mjs"
   },
   "repository": {

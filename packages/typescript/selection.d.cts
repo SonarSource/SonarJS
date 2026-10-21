@@ -19,8 +19,11 @@ declare namespace selectProvider {
   interface Descriptor {
     name: string;
     module: string;
+    /** Source to validate when the runtime module is generated. */
+    source?: string;
     libraries: string;
     sdk?: string;
+    capabilities: import('./contract.cjs').Capabilities;
     metafile?: string;
     prepare?: string;
     libraryDestination?: string;

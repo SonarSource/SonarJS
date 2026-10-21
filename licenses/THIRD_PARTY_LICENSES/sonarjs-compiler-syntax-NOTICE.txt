@@ -6,10 +6,9 @@ Microsoft TypeScript under Apache-2.0. The source version and SHA-256 are pinned
 `provenance.json`; `LICENSE` retains the upstream terms.
 
 Regenerate or verify with `node tools/sync-typescript-compat.mjs [--check]`.
-The script derives required public helpers from `supported-exports.json`, excludes
-provider-owned operations recorded in `provider-operations.json` and shared helpers,
-and follows their local
-syntax dependencies. It rejects a different source revision and dependencies on
+The script derives required public helpers and provider-owned operations from
+`../contract.json`, excludes shared handwritten helpers, and follows local syntax
+dependencies. It rejects a different source revision and dependencies on
 compiler creation, resolution or filesystem state. Review the provenance pin and
 contract compatibility when intentionally updating this adoption.
 
@@ -18,7 +17,7 @@ IPC and WASM providers. It does not load a TypeScript SDK. Configuration parsing
 source parsing, binding, checking and module resolution belong to the selected
 provider. Handwritten compatibility operations live in `helpers.cjs`.
 
-`index.cjs` is the shared entry point. Its public names and `provider-operations.json`
-partition the supported contract; conformance tests reject gaps or overlapping ownership.
+`index.cjs` is the shared entry point. The canonical contract manifest partitions
+syntax helpers and provider operations; conformance tests reject gaps or overlapping ownership.
 The TS6 reference provider retains its SDK syntax implementations; the shared adoption
 is generated from that same pinned SDK for providers with normalized objects.

@@ -24,7 +24,7 @@ import crypto from 'node:crypto';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const provenance = JSON.parse(fs.readFileSync(root + 'packages/typescript/compat/provenance.json'));
 const sourcePath = require.resolve('typescript-classic');
-const names = JSON.parse(fs.readFileSync(root + 'packages/typescript/supported-exports.json'));
+const { names, operations: providerOperations } = require('../packages/typescript/contract.cjs');
 const constants = Object.fromEntries(
   names
     .filter(n => typeof ts[n] === 'object' && n !== 'factory' && n !== 'sys' && n !== 'server')
@@ -48,7 +48,6 @@ for (const n of ast.statements[1].expression.expression.expression.body.statemen
       if (ts.isIdentifier(d.name)) defs.set(d.name.text, d);
 }
 const helperNames = Object.keys(require('../packages/typescript/compat/helpers.cjs'));
-const providerOperations = require('../packages/typescript/compat/provider-operations.json');
 const overrides = [...helperNames, ...providerOperations];
 const roots = names.filter(n => typeof ts[n] === 'function' && !overrides.includes(n));
 const deps = new Set();

@@ -10,6 +10,14 @@
     "tsc": "./tsc.cjs"
   },
   "exports": {
+    "./contract": {
+      "types": "./contract.d.cts",
+      "default": "./contract.cjs"
+    },
+    "./lifecycle": {
+      "types": "./lifecycle.d.cts",
+      "default": "./lifecycle.cjs"
+    },
     "./errors": {
       "types": "./errors.d.cts",
       "default": "./errors.cjs"

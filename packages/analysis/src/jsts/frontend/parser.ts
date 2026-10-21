@@ -17,6 +17,7 @@
 import path from 'node:path';
 import ts from 'typescript';
 import { CompilerContractError } from 'typescript/errors';
+import { assertMembers } from 'typescript/contract';
 import type {} from './vendor/typescript-internals.js';
 import type { ParserOptions } from './vendor/types/index.js';
 import { astConverter } from './vendor/typescript-estree/ast-converter.js';
@@ -52,7 +53,7 @@ export function parseForESLint(code: string, options: ParserOptions = {}) {
     ? findSourceFile(program, filePath)!
     : createSourceFile(filePath, code, options, sourceType);
   // Binding establishes the parent pointers used by the converter and typed rules.
-  program?.getTypeChecker();
+  if (program) assertMembers(program.getTypeChecker(), 'TypeChecker');
   const { estree: ast, astMaps } = astConverter(
     sourceFile,
     {

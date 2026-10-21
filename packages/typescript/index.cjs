@@ -16,26 +16,40 @@
  */
 // Every consumer, including upstream rules and helpers, resolves this same contract.
 // A provider supplies the supported operations; it does not determine the public export surface.
-const supported = require('./supported-exports.json');
+const { entries, assertMembers } = require('./contract.cjs');
 const { CompilerContractError } = require('./errors.cjs');
-const { name: backend } = require('./selection.cjs')();
-const provider = require('./registry.cjs')(backend);
+const { implementation, metadata, trackProgram } = require('./selected-provider.cjs');
+const provider = implementation.compiler;
 const compiler = Object.create(null);
-for (const name of supported) {
-  if (provider[name] === undefined) {
+for (const { name, kind, capability } of entries) {
+  if (capability && !metadata.capabilities[capability]) {
+    const unsupported = () => {
+      throw new CompilerContractError(
+        `Compiler provider ${metadata.name} does not support ${capability} (${name})`,
+      );
+    };
+    compiler[name] =
+      kind === 'function' ? unsupported : new Proxy(Object.create(null), { get: unsupported });
+    continue;
+  }
+  const value = provider[name];
+  if (typeof value !== kind || value === null) {
     throw new CompilerContractError(
-      `Compiler provider ${backend} does not implement typescript.${name}`,
+      `Compiler provider ${metadata.name} does not implement typescript.${name} (${kind})`,
     );
   }
-  Object.defineProperty(compiler, name, {
-    enumerable: true,
-    get() {
-      const value = provider[name];
-      if (value === undefined)
-        throw new CompilerContractError(`Compiler provider does not implement typescript.${name}`);
-      return value;
-    },
-  });
+  if (name === 'factory' || name === 'sys') assertMembers(value, name);
+  // The selected provider is fixed for this worker. Capture each binding once.
+  compiler[name] =
+    name === 'createProgram'
+      ? (...args) => assertMembers(trackProgram(value(...args)), 'Program')
+      : name === 'createSemanticDiagnosticsBuilderProgram'
+        ? (...args) => {
+            const builder = assertMembers(value(...args), 'BuilderProgram');
+            assertMembers(trackProgram(builder.getProgram()), 'Program');
+            return builder;
+          }
+        : value;
 }
 module.exports = new Proxy(Object.freeze(compiler), {
   get(target, name) {

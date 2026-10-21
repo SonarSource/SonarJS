@@ -16,13 +16,9 @@
  */
 import { writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { createRequire } from 'node:module';
 import { testProject } from '../../packages/ruling/testProject.js';
+import { close, getTiming } from 'typescript/lifecycle';
 const [project, baseDir, output] = process.argv.slice(2);
-const require = createRequire(import.meta.url);
-const selectProvider = require('../../packages/typescript/selection.cjs');
-const selected = selectProvider();
-const provider = require(path.resolve('packages/typescript', selected.module));
 let payload: unknown;
 await testProject(project, {
   baseDir,
@@ -42,7 +38,7 @@ await testProject(project, {
       baseDir,
       analysisMs,
       analysisEndedAt: Date.now(),
-      ipc: provider.timing?.(),
+      ipc: getTiming(),
       files,
       memory: process.memoryUsage(),
       peakRssBytes: process.resourceUsage().maxRSS * 1024,
@@ -51,4 +47,4 @@ await testProject(project, {
 });
 
 await writeFile(output, JSON.stringify(payload, null, 2));
-provider.close?.();
+close();

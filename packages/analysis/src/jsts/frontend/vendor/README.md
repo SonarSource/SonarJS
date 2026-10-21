@@ -35,7 +35,7 @@ For an upstream update:
 3. Run `node tools/sync-typescript-frontend.mjs ~/projects/typescript-eslint` from
    the SonarJS root. Review every generated change. Keep intentional local fixes
    in the synchronization transformation or contribute them upstream before syncing.
-4. Review compiler API additions against `packages/typescript/supported-exports.json`.
+4. Review compiler API additions against `packages/typescript/contract.json`.
    Regenerate its ESM exports and declarations with
    `node tools/generate-typescript-exports.mjs`.
 5. Run `npx tsx --tsconfig packages/tsconfig.test.json tools/check-typescript-frontend.mts
