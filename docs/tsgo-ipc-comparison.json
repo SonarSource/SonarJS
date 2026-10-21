@@ -514,8 +514,6 @@
       }
     }
   ],
-  "typescriptClassic": "6.0.3",
-  "typescriptGo": "7.1.0-beta",
   "date": "2026-10-21",
   "host": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
   "corpus": "SonarSource/jsts-test-sources",
@@ -831,5 +829,9 @@
         ]
       ]
     }
+  },
+  "versions": {
+    "ts6": "6.0.3",
+    "tsgo-ipc": "7.1.0-beta"
   }
 }

@@ -114,3 +114,9 @@ Final local checks on macOS ARM64: compilation and compiler-contract checks pass
 the compiled bridge suite passed 2,960 tests with one skipped; Knip
 (`--no-gitignore`), formatting, the bundled smoke test, 75 TS6 configuration tests,
 and all four Java bundle deployment tests passed. Linux/Windows CI is still needed.
+
+The benchmark summary JSON is the canonical measurement artifact. Its Markdown
+report is generated with `tools/compiler-comparison/report.mjs`. The additional
+Redux finding concerns unresolved JSDoc type `Store`; the other nine added findings
+are S4325 assertion warnings that still need deeper semantic triage before production
+use. Rules are not suppressed to match the baseline.
