@@ -303,6 +303,19 @@ export function createObjects({ native, sdk, checker: remote, call, diagnostics 
       };
       if (property in properties) return wrap(call(() => raw[properties[property]]()));
       if (property === 'getDeclaration') return () => view.declaration;
+      if (property === 'getDocumentationComment')
+        return () => {
+          const declaration = raw.declaration && call(() => raw.declaration.resolve());
+          const text =
+            declaration &&
+            native
+              .getJSDocCommentsAndTags(declaration)
+              .filter(doc => doc.kind === native.SyntaxKind.JSDoc)
+              .map(doc => native.getTextOfJSDocComment(doc.comment) ?? '')
+              .filter(Boolean)
+              .join('\n');
+          return text ? [{ kind: 'text', text }] : [];
+        };
       if (property === 'getJsDocTags')
         return () => {
           const declaration = raw.declaration && call(() => raw.declaration.resolve());

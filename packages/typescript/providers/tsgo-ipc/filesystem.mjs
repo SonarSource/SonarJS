@@ -59,6 +59,11 @@ export const sys = {
   write: text => process.stdout.write(text),
   writeFile: (file, text) => fs.writeFileSync(file, text),
   createDirectory: directory => fs.mkdirSync(directory, { recursive: true }),
+  /**
+   * @param {readonly string[]} [extensions]
+   * @param {readonly string[]} [excludes]
+   * @param {readonly string[]} [includes]
+   */
   readDirectory(directory, extensions, excludes = [], includes = ['**/*'], depth = Infinity) {
     const result = [],
       seen = new Set();

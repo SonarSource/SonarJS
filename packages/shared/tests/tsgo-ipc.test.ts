@@ -206,3 +206,29 @@ it('TSGo recovers after its native child exits', { skip: process.platform === 'w
     const restarted=create();assert.equal(restarted.getSourceFile(name).text,text);restarted.dispose();provider.close();
   `);
 });
+
+it('reads signature documentation through the public AST API', () => {
+  execFileSync(
+    process.execPath,
+    [
+      '--input-type=commonjs',
+      '-e',
+      String.raw`
+    const assert = require('node:assert/strict');
+    const ts = require('typescript'), lifecycle = require('typescript/lifecycle');
+    const name = '/virtual/documented.ts';
+    const text = '/** Identity documentation. */ export function identity(value: number): number { return value; }';
+    const host = {...ts.createCompilerHost({noLib:true}),
+      getSourceFile: file => file === name ? {text} : undefined,
+      readFile: file => file === name ? text : undefined,
+      fileExists: file => file === name, directoryExists: () => true};
+    const program = ts.createProgram({rootNames:[name], options:{noLib:true}, host});
+    const checker = program.getTypeChecker();
+    const signature = checker.getSignatureFromDeclaration(program.getSourceFile(name).statements[0]);
+    assert.equal(ts.displayPartsToString(signature.getDocumentationComment(checker)), 'Identity documentation.');
+    lifecycle.disposeProgram(program); lifecycle.close();
+  `,
+    ],
+    { env: { ...process.env, SONARJS_TYPESCRIPT_BACKEND: 'tsgo-ipc' }, stdio: 'pipe' },
+  );
+});

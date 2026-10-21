@@ -16,13 +16,20 @@
       ],
       "bundleLibraries": true,
       "prepare": "tools/prepare-tsgo-provider.mjs",
-      "legacyModuleResolution": false
+      "legacyModuleResolution": false,
+      "capabilities": {
+        "watchPrograms": false,
+        "projectService": false
+      }
     },
     "ts6": {
       "module": "./providers/classic.cjs",
       "libraries": "../../node_modules/typescript-classic/lib",
       "sdk": "typescript-classic",
-      "capabilities": { "watchPrograms": true, "projectService": true },
+      "capabilities": {
+        "watchPrograms": true,
+        "projectService": true
+      },
       "legacyModuleResolution": true
     }
   }

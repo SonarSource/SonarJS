@@ -22,6 +22,7 @@ import configuration from '../../providers.json' with { type: 'json' };
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from '../../compat/index.cjs';
+import { assertMembers } from '../../contract.cjs';
 import { CompilerContractError } from '../../errors.cjs';
 import { sys, normalize, nativePaths, restorePaths, nativeFileSystem } from './filesystem.mjs';
 import { createRuntime } from './runtime.mjs';
@@ -90,10 +91,12 @@ function createCompilerHost(options = {}) {
     getCanonicalFileName: file => (sys.useCaseSensitiveFileNames ? file : file.toLowerCase()),
     useCaseSensitiveFileNames: () => sys.useCaseSensitiveFileNames,
     getNewLine: () => sys.newLine,
-  };
-  host.getSourceFile = (file, version) => {
-    const text = host.readFile(file);
-    return text === undefined ? undefined : createSourceFile(file, text, version ?? options.target);
+    getSourceFile(file, version) {
+      const text = host.readFile(file);
+      return text === undefined
+        ? undefined
+        : createSourceFile(file, text, version ?? options.target);
+    },
   };
   defaultReaders.set(host, host.getSourceFile);
   return host;
@@ -209,7 +212,7 @@ export function createProgram(input, options, host) {
       );
     };
   finalizers.register(program, { call, snapshot }, program);
-  return program;
+  return assertMembers(program, 'Program');
 }
 export function createSourceFile(file, text, version, _setParents, scriptKind) {
   const requested =
@@ -267,15 +270,12 @@ export function createSourceFile(file, text, version, _setParents, scriptKind) {
   program.dispose();
   return result;
 }
-const unsupported = name => () => {
-  throw new CompilerContractError(`TSGo IPC does not implement ${name}`);
-};
 const scannerKind = value => ts.SyntaxKind[native.SyntaxKind[value]];
 const visitComments = method => (text, pos, visitor, state) =>
   native[method](text, pos, (start, end, kind, newline) =>
     visitor(start, end, scannerKind(kind), newline, state),
   );
-export default {
+const compiler = {
   ...ts,
   ...config,
   sys,
@@ -311,14 +311,16 @@ export default {
     return value === undefined ? undefined : scannerKind(value);
   },
   tokenToString: kind => native.tokenToString(native.SyntaxKind[ts.SyntaxKind[kind]]),
-  isIdentifierStart: native.isIdentifierStart,
-  isIdentifierPart: native.isIdentifierPart,
+  isIdentifierStart: code => native.isIdentifierStart(code),
+  isIdentifierPart: code => native.isIdentifierPart(code),
   forEachLeadingCommentRange: visitComments('forEachLeadingCommentRange'),
   forEachTrailingCommentRange: visitComments('forEachTrailingCommentRange'),
-  server: new Proxy(Object.create(null), {
-    get: (_target, name) => unsupported(`server.${String(name)}`)(),
-  }),
-  createAbstractBuilder: unsupported('createAbstractBuilder'),
-  createWatchCompilerHost: unsupported('createWatchCompilerHost'),
-  createWatchProgram: unsupported('createWatchProgram'),
+};
+export default {
+  compiler,
+  compilerVersion: metadata.version,
+  ownsProgramResources: true,
+  disposeProgram: program => program.dispose(),
+  close,
+  timing,
 };

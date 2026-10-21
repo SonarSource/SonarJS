@@ -42,15 +42,16 @@ export function createConfiguration(runtime) {
       },
     );
   }
+  /** @type {import('../../contract.cjs').CompilerBindings['parseJsonConfigFileContent']} */
   function parseJsonConfigFileContent(
     json,
     host,
     basePath,
     existingOptions = {},
-    configFileName,
-    _resolutionStack,
+    configFileName = undefined,
+    _resolutionStack = undefined,
     extraExtensions = [],
-    extendedCache,
+    extendedCache = undefined,
   ) {
     // The native endpoint performs option conversion, extends lookup and file
     // expansion. Its callbacks retain the analyzer's request filesystem policy.

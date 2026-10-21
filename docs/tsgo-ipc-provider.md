@@ -53,6 +53,14 @@ stay in their original namespace regardless of the process working directory.
 The recording/replay filesystem hook passes transport pipes through without treating
 the protocol as project data; ordinary unknown descriptors still fail.
 
+The provider exports the shared `{compiler, compilerVersion, ownsProgramResources, disposeProgram, close}`
+envelope, with optional native timing. `typescript/lifecycle` reports the actual
+SDK version separately from the facade's compatibility version. Watch programs and
+project service are declared unavailable in the registry; the shared facade owns
+their explicit errors, so the backend supplies no throwing placeholder exports.
+
+Shared batch program scopes and IDE cache replacement/eviction/clearing call
+`disposeProgram`. Worker shutdown calls `close`. The implementation's
 `program.dispose()` releases its remote snapshot and rejects later checker/program
 queries. A finalizer provides best-effort cleanup for abandoned programs. Decoded
 local syntax remains readable after release. Closing a session invalidates all its
@@ -145,3 +153,12 @@ The benchmark summary JSON is the canonical measurement artifact. Its Markdown
 report is generated with `tools/compiler-comparison/report.mjs`. The nine added
 findings are S4325 assertion warnings that still need deeper semantic triage before
 production use. Rules are not suppressed to match the baseline.
+
+## Contract hardening
+
+The provider type check validates this adapter against the generated contract.
+Readonly configuration-extension and directory arguments use the shared signatures;
+scanner helpers normalize their public boundary instead of exporting native enum
+types. Program assembly validates required methods before publishing the object.
+Signature documentation is read from its declaration's JSDoc through the public AST
+API; documentation inheritance and formatting can still differ from TS6.
