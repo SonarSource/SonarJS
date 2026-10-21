@@ -156,6 +156,20 @@ const valid: Sample[] = [
   },
   { name: 'vendor prefix deferred', code: 'a { -webkit-transition: all 1s; }' },
   {
+    name: 'vue transition classes',
+    code: '.fade-enter-active, .fade-leave-active { transition: all 0.3s ease; }',
+  },
+  { name: 'vue default transition class', code: '.v-leave-to { transition: all 0.3s; }' },
+  {
+    name: 'vue transition class with descendant',
+    code: '.nested-leave-active .inner { transition: all 0.3s; }',
+  },
+  {
+    name: 'nested vue transition class',
+    code: '.slide { &-enter-active { transition: all 0.3s; } }',
+    codeFilename: 'test.scss',
+  },
+  {
     name: 'scss include after transition',
     code: 'a { transition: all 1s; @include no-transition; }',
     codeFilename: 'test.scss',
@@ -488,6 +502,20 @@ b {
   +no-transition
 `,
     codeFilename: 'test.sass',
+  },
+  {
+    name: 'selector list mixing a vue transition class with another selector',
+    code: `.fade-enter-active, .button {
+  transition: all 0.3s; /* Noncompliant */
+/*            ^^^ */
+}`,
+  },
+  {
+    name: 'class resembling a vue transition class',
+    code: `.fade-entering {
+  transition: all 0.3s; /* Noncompliant */
+/*            ^^^ */
+}`,
   },
   {
     name: 'less mixin definition',

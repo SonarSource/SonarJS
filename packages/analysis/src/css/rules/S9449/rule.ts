@@ -37,6 +37,9 @@ const CSS_WIDE_KEYWORDS = new Set(['inherit', 'initial', 'revert', 'revert-layer
 const DYNAMIC_FUNCTIONS = new Set(['var', 'env', 'attr']);
 const TRANSITION_PROPERTY = 'transition-property';
 const TRANSITION_PROPERTIES = new Set(['transition', TRANSITION_PROPERTY, 'transition-duration']);
+// Vue `<Transition>` classes, such as `.fade-leave-active` or `&-enter-from`, which only apply
+// while an element enters or leaves.
+const VUE_TRANSITION_CLASS = /(?:\.[\w-]+|&[\w-]*)-(?:enter|leave)-(?:active|from|to)(?![\w-])/;
 
 type Target = { name: string; declaration: PostCSS.Declaration; start: number; end: number };
 type State<T> = { values: T[] | undefined; important: boolean };
@@ -60,8 +63,20 @@ function checkFile(root: PostCSS.Root, result: PostcssResult): void {
     }
   });
   for (const block of blocks) {
-    checkBlock(block, result);
+    if (!isVueTransitionRule(block)) {
+      checkBlock(block, result);
+    }
   }
+}
+
+/** Vue applies transition classes only during the transition, so `all` cannot leak into later changes. */
+function isVueTransitionRule(block: PostCSS.Container): boolean {
+  return (
+    block.type === 'rule' &&
+    (block as PostCSS.Rule).selectors.every((selector: string): boolean =>
+      VUE_TRANSITION_CLASS.test(selector),
+    )
+  );
 }
 
 /**
