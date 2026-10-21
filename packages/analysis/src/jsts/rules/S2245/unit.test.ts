@@ -35,26 +35,88 @@ describe('S2245', () => {
         {
           code: `Foo.random()`,
         },
+        {
+          code: `let x = Math.random();`,
+        },
+        {
+          code: `foo(Math.random())`,
+        },
+        {
+          code: `let random = Math.random; foo(random());`,
+        },
+        {
+          code: `import _ from 'lodash';
+export function shuffleCards(cards) { return [...cards].sort(() => Math.random() - 0.5); }`,
+        },
+        {
+          code: `function randomDelayMs() { return Math.floor(Math.random() * 500); }`,
+        },
+        {
+          // 'iv' and 'ecc' must not match as substrings
+          code: `function derivePrivateEccentric() { return Math.random(); }`,
+        },
+        {
+          // keyword outside the enclosing function does not count
+          code: `function generateToken() {}
+function pickColor() { return Math.random(); }`,
+        },
       ],
       invalid: [
         {
-          code: `let x = Math.random();`,
+          code: `import { createCipheriv } from 'node:crypto';
+export function pickColor() { return Math.random(); }`,
           errors: [
             {
               message: 'Make sure that using this pseudorandom number generator is safe here.',
-              line: 1,
-              endLine: 1,
-              column: 9,
-              endColumn: 22,
+              line: 2,
+              endLine: 2,
+              column: 38,
+              endColumn: 51,
             },
           ],
         },
         {
-          code: `foo(Math.random())`,
+          code: `const c = require('crypto'); foo(Math.random());`,
           errors: 1,
         },
         {
-          code: `let random = Math.random; foo(random());`,
+          code: `import { x } from '@noble/hashes/sha256'; foo(Math.random());`,
+          errors: 1,
+        },
+        {
+          code: `function generateSessionToken() { return Math.random().toString(36); }`,
+          errors: 1,
+        },
+        {
+          code: `function resetPassword(email) { const code = Math.floor(Math.random() * 1000000); send(email, code); }`,
+          errors: 1,
+        },
+        {
+          code: `function sign(payload) { const nonce = Math.random(); return hash(payload + nonce); }`,
+          errors: 1,
+        },
+        {
+          code: `const generateToken = () => Math.random();`,
+          errors: 1,
+        },
+        {
+          code: `const obj = { makeSecret: function () { return Math.random(); } };`,
+          errors: 1,
+        },
+        {
+          code: `const token = Math.random();`,
+          errors: 1,
+        },
+        {
+          code: `function f() { const sessionId = Math.random(); }`,
+          errors: 1,
+        },
+        {
+          code: `function f() { const randomBytes = Math.random(); }`,
+          errors: 1,
+        },
+        {
+          code: `function f() { const AES_KEY = Math.random(); }`,
           errors: 1,
         },
       ],
