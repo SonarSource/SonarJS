@@ -18,10 +18,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { workerData } from 'node:worker_threads';
 import { pathToFileURL } from 'node:url';
+import { tmpdir } from 'node:os';
 import { Pipe } from './pipe.mjs';
 
-const input = new Pipe(workerData.input),
-  output = new Pipe(workerData.output);
+const input = new Pipe(workerData.input, Infinity, workerData.error),
+  output = new Pipe(workerData.output, Infinity, workerData.error);
 try {
   // The Go js/wasm runtime delegates syscalls to this object. Compiler filesystem
   // reads use the SDK's host callbacks; only protocol descriptors are intercepted.
@@ -62,14 +63,19 @@ try {
   );
   const go = new Go();
   go.argv = [workerData.executable, ...workerData.args];
-  go.env = { ...process.env, GOMAXPROCS: '1' };
+  // Go reserves only 8 KiB for argv and environment. Host callbacks own project
+  // access; unrelated analyzer/CI environment variables must not enter Go memory.
+  go.env = { TMPDIR: tmpdir(), GOMAXPROCS: '1' };
   go.exit = code => {
     if (code) throw new Error(`TSGo WASM exited: ${code}`);
   };
   const module = new WebAssembly.Module(fs.readFileSync(workerData.executable));
   await go.run(new WebAssembly.Instance(module, go.importObject));
 } catch (error) {
-  console.error('TSGo WASM worker:', error);
+  // The caller is blocked in Atomics.wait, so worker console/events cannot
+  // reliably deliver startup diagnostics before the caller exits.
+  output.close(error);
+  input.close(error);
 } finally {
   input.close();
   output.close();

@@ -32,8 +32,16 @@ it('WASM streams large ASTs in process, terminates its worker and restarts clean
     const workers = require('node:worker_threads');
     const ActualWorker = workers.Worker;
     const started = [], terminated = [];
+    let failStartup = true;
     workers.Worker = class extends ActualWorker {
-      constructor(...args) { super(...args); started.push(this.threadId); }
+      constructor(filename, options) {
+        if (failStartup) {
+          options.workerData.executable += '.missing';
+          failStartup = false;
+        }
+        super(filename, options);
+        started.push(this.threadId);
+      }
       terminate() { terminated.push(this.threadId); return super.terminate(); }
     };
     Module.syncBuiltinESMExports();
@@ -44,6 +52,13 @@ it('WASM streams large ASTs in process, terminates its worker and restarts clean
       return load.call(this, name, ...args);
     };
     const ts = require('typescript'), lifecycle = require('typescript/lifecycle');
+    assert.throws(
+      () => ts.createSourceFile('/virtual/startup.ts', 'const x = 1;', ts.ScriptTarget.Latest),
+      /TSGo WASM channel is closed: Error: ENOENT/,
+    );
+    assert.equal(started.length, 1);
+    assert.deepEqual(terminated, started);
+    started.length = terminated.length = 0;
     const text = 'export const value = "' + 'x'.repeat(2 * 1024 * 1024) + '";';
     const file = ts.createSourceFile('/virtual/large.ts', text, ts.ScriptTarget.Latest, true);
     assert.equal(file.text, text);
@@ -59,7 +74,12 @@ it('WASM streams large ASTs in process, terminates its worker and restarts clean
   `,
     ],
     {
-      env: { ...process.env, SONARJS_TYPESCRIPT_BACKEND: 'tsgo-wasm' },
+      env: {
+        ...process.env,
+        SONARJS_TYPESCRIPT_BACKEND: 'tsgo-wasm',
+        // Real CI environments exceed Go's 8 KiB argv/environment allocation.
+        SONARJS_WASM_TEST_ENV: 'x'.repeat(20_000),
+      },
       timeout: 30_000,
       stdio: 'pipe',
     },

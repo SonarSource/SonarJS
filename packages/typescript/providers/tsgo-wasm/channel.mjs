@@ -41,10 +41,11 @@ export class SyncRpcChannel {
   constructor(executable, args) {
     const input = createPipe(),
       output = createPipe();
-    this.input = new Pipe(input, 180_000);
-    this.output = new Pipe(output, 180_000);
+    const error = new SharedArrayBuffer(8192);
+    this.input = new Pipe(input, 180_000, error);
+    this.output = new Pipe(output, 180_000, error);
     this.worker = new Worker(pathToFileURL(path.join(path.dirname(executable), 'worker.mjs')), {
-      workerData: { executable, args, input, output },
+      workerData: { executable, args, input, output, error },
       // Do not inherit tsx/test/coverage loaders into the prebuilt WASM worker.
       execArgv: [],
     });

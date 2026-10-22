@@ -87,6 +87,19 @@ The common conformance suite covers config parsing, virtual POSIX/Windows/UNC pa
 typed object identity, overlays and successive edits. Both TSGo transports run the
 same external typed-rule, scanner and snapshot/session regressions. The WASM test
 blocks native spawning and TS6 imports while checking a large AST, worker termination
-and session restart. Packaged checks cover typed/syntax findings, fixes, IDE edits
-and unchanged project configurations. Full-suite and comparison results are recorded
-in the draft PR; comparison reports are generated from their adjacent canonical JSON.
+and session restart, startup diagnostics and an oversized analyzer environment.
+Go receives only its temporary-directory and single-thread settings: the Go runtime
+reserves 8 KiB for argv and environment, so inheriting the CI environment prevents startup.
+Packaged checks cover typed/syntax findings, fixes, IDE edits and unchanged project
+configurations. The full compiled suite passed 2,991 tests with one skip.
+
+The [five-project comparison](tsgo-wasm-comparison.md) runs each provider three times
+in fresh processes on 1,065 unchanged files. WASM retains all 15,640 exact TS6 findings,
+with zero missing and nine added findings. The sum of median analysis times is 52.31s
+versus 24.80s for TS6 (2.11×); measured peak process RSS is also higher. This POC
+achieves close finding parity on this corpus, but does not meet performance parity.
+
+Comparison reports are generated from their adjacent canonical JSON. The report
+labels logical SDK request counters as IPC for both TSGo transports; WASM sends them
+over shared memory. Worker memory is included in Node RSS. Zero compiler-child RSS
+means no child process, not zero WASM memory.
