@@ -15,6 +15,11 @@ defaults:
   run:
     shell: bash
 
+env:
+  # Match master: npmjs lockfiles follow the registry selected for CI.
+  NPM_CONFIG_REPLACE_REGISTRY_HOST: npmjs
+  REPOX_NPM_URL: https://repox-internal.dev.sonar.build
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -96,11 +101,12 @@ jobs:
         with:
           artifactory-reader-role: private-reader
       - &config_npm
-        name: Configure npm registry
-        shell: bash
-        run: |
-          npm config set '//repox.jfrog.io/artifactory/api/npm/:_authToken' "$ARTIFACTORY_ACCESS_TOKEN"
-          npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
+        if: runner.os != 'Windows'
+        uses: SonarSource/ci-github-actions/config-npm@v2
+        with:
+          repox-url: ${{ env.REPOX_NPM_URL }}
+          artifactory-reader-role: private-reader
+          disable-caching: 'true'
       - &npm_install
         name: Install npm dependencies
         run: npm ci --no-audit --no-fund
@@ -154,7 +160,23 @@ jobs:
       - *checkout
       - *mise
       - *config_maven
-      - *config_npm
+      - &npm_windows_secrets
+        if: runner.os == 'Windows'
+        id: npm-secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          url: https://vault.dev.sonar.build
+          secrets: |
+            development/artifactory-edge-dev/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
+      - &config_npm_windows
+        if: runner.os == 'Windows'
+        name: Configure npm registry
+        shell: bash
+        env:
+          ARTIFACTORY_ACCESS_TOKEN: ${{ steps.npm-secrets.outputs.vault && fromJSON(steps.npm-secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN || '' }}
+        run: |
+          npm config set "//${REPOX_NPM_URL#https://}/artifactory/api/npm/:_authToken=${ARTIFACTORY_ACCESS_TOKEN}"
+          npm config set registry "$REPOX_NPM_URL/artifactory/api/npm/npm/"
       - *npm_install
       - *generate_metadata
       - name: Build and run Java tests
@@ -179,6 +201,8 @@ jobs:
       - *mise
       - *config_maven
       - *config_npm
+      - *npm_windows_secrets
+      - *config_npm_windows
       - *npm_install
       - *generate_metadata
       - name: Compile JavaScript and TypeScript tests
