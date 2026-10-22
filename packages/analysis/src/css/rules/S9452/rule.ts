@@ -107,7 +107,7 @@ function withMissingValues(secondaryOptions: unknown): unknown {
     // Leave invalid options to the upstream validation
     return secondaryOptions;
   }
-  const options = secondaryOptions as SecondaryOptions;
+  const options: SecondaryOptions = secondaryOptions;
   const ignored = { ...options.ignoreMediaFeatureNameValues };
   for (const [name, values] of Object.entries(MISSING_VALUES)) {
     ignored[name] = [...(ignored[name] ?? []), ...values];
@@ -120,7 +120,4 @@ const decoratedRule = createDecoratedRule(stylelintKey, upstreamRule, rewriteMes
 const ruleImpl: stylelint.RuleBase = (primary, secondaryOptions, context) =>
   decoratedRule(primary, withMissingValues(secondaryOptions), context);
 
-export const rule = stylelint.createPlugin(stylelintKey, ruleImpl as stylelint.Rule) as {
-  ruleName: string;
-  rule: stylelint.Rule;
-};
+export const rule = stylelint.createPlugin(stylelintKey, ruleImpl as stylelint.Rule);
