@@ -17,11 +17,12 @@
 // https://sonarsource.github.io/rspec/#/rspec/S125/css
 
 import pkg, { type PostcssResult } from 'stylelint';
+import { meta } from './meta.js';
 const { createPlugin, utils } = pkg;
 import type PostCSS from 'postcss';
 import { parse } from 'postcss';
 
-const ruleName = 'sonar/no-commented-code';
+const ruleName = meta.bindings[0].stylelintKey;
 const messages = { commentedCode: 'Remove this commented out code.' };
 
 const ruleImpl: pkg.RuleBase = () => {
@@ -70,7 +71,7 @@ function looksLikeCssRule(text: string) {
 }
 
 function looksLikeCssDeclaration(text: string) {
-  for (let index = 0; index < text.length; ) {
+  for (let index = 0; index < text.length;) {
     if (!isCssPropertyChar(text[index])) {
       index++;
       continue;

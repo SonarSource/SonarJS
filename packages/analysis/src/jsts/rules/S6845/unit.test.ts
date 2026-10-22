@@ -14,10 +14,346 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { describe, it } from 'node:test';
-import { rule } from './index.js';
+import { describe, it, type TestContext } from 'node:test';
+import { SourceCode } from 'eslint';
+import assert from 'node:assert/strict';
+import {
+  DefaultParserRuleTester,
+  NoTypeCheckingRuleTester,
+} from '../../../../tests/jsts/tools/testers/rule-tester.js';
+import { defaultOptions } from '../helpers/configs.js';
 import { rules } from '../external/a11y.js';
-import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
+import { fields } from './config.js';
+import { rule } from './index.js';
+
+const options = defaultOptions(fields);
+const message = '`tabIndex` should only be declared on interactive elements.';
+const valid = [
+  '<div role="separator" aria-valuenow="25" tabIndex={0} />',
+  '<div role="Separator" aria-valuenow={position} tabIndex={0} />',
+  '<div role="unknown SEPARATOR" aria-valuenow={position} tabIndex={0} />',
+  '<div role="separator" aria-valuenow={0} tabIndex={0} />',
+  '<div role="separator" aria-valuenow={100} tabIndex={0} />',
+  '<div role="separator" aria-valuenow={position} tabIndex={0} />',
+  '<div role="separator" aria-valuenow={Math.round(position)} tabIndex={0} />',
+  '<div role="separator" aria-valuenow={layout.position} tabIndex={0} />',
+  '<div role="separator" aria-valuenow={position ?? 50} tabIndex={0} />',
+  '<div role="separator" aria-valuenow={enabled ? position : 50} tabIndex={0} />',
+  ...[
+    'enabled ? null : 50',
+    'enabled ? 50 : null',
+    'enabled ? null : position',
+    'enabled ? position : undefined',
+    'enabled ? Math.round(position) : null',
+    'enabled ? null : layout.position',
+  ].map(value => `<div role="separator" aria-valuenow={${value}} tabIndex={0} />`),
+  'const current = enabled ? current : null; <div role="separator" aria-valuenow={current} tabIndex={0} />',
+  'const first = enabled ? second : null; const second = pending ? false : first; <div role="separator" aria-valuenow={first} tabIndex={0} />',
+  'const first = second; const second = first; <div role="separator" aria-valuenow={enabled ? first : null} tabIndex={0} />',
+  '<div role="separator" aria-valuenow={-~position} tabIndex={0} />',
+  '<div role="separator" aria-valuenow={-50} aria-valuemin={-100} aria-valuemax={100} tabIndex={0} />',
+  '<div role="separator" aria-valuenow={position} aria-valuemin={minimum} aria-valuemax={maximum} tabIndex={0} />',
+  '<div role="separator" aria-valuenow="12.5" aria-valuemin="0" tabIndex="0" />',
+  '<div role="separator" aria-valuenow={position} aria-valuemax={200} tabIndex={0} />',
+  '<div role={"separator"} aria-valuenow={+50} tabIndex={0} onKeyDown={resize} />',
+  '<div role="separator" aria-valuenow={50} tabIndex={1} />',
+  '<div role="separator" aria-valuenow={50} tabIndex={-1} />',
+  '<div role="separator" aria-valuenow={50} />',
+  '<div role="separator" aria-valuenow={50} tabIndex={0} aria-orientation="vertical" />',
+  'const position = 25; <div role="separator" aria-valuenow={position} tabIndex={0} />',
+  ...['25', '"12.5"', 'Math.round(current)', 'layout.position'].map(
+    value =>
+      `let position; position = ${value}; <div role="separator" aria-valuenow={position} tabIndex={0} />`,
+  ),
+  'const layout = { position: 50, min: 0 }; const { position } = layout; <div role="separator" aria-valuenow={position} tabIndex={0} />',
+  'const [position] = [50]; <div role="separator" aria-valuenow={position} tabIndex={0} />',
+  'const { position } = readLayout(); const current = position; <div role="separator" aria-valuenow={current} tabIndex={0} />',
+  '<div role="widget separator" aria-valuenow={50} tabIndex={0} />',
+  '<div role="  separator  " aria-valuenow={50} tabIndex={0} />',
+  '<div role="unknown separator" aria-valuenow={50} tabIndex={0} />',
+  '<div role="separator presentation" aria-valuenow={50} tabIndex={0} />',
+  '<div {...props} role="separator" aria-valuenow={position} tabIndex={0} />',
+  '<div role="separator" aria-valuenow={position} {...{ onKeyDown: resize }} tabIndex={0} />',
+  '<div role="separator" {...{ onKeyDown: resize }} aria-valuenow={position} tabIndex={0} />',
+  'const handlers = { onKeyDown: resize }; <div role="separator" aria-valuenow={position} {...handlers} tabIndex={0} />',
+  'const handlers = { onKeyDown: resize }; const props = { ...handlers, "aria-label": label }; <div role="separator" aria-valuenow={position} {...props} tabIndex={0} />',
+  '<div role="separator" aria-valuenow={position} {...{ ["on" + "KeyDown"]: resize }} tabIndex={0} />',
+  '<div role="presentation" role="separator" aria-valuenow={50} tabIndex={0} />',
+  '<div role="separator" aria-valuenow={null} aria-valuenow={50} tabIndex={0} />',
+  '<div role="tabpanel" tabIndex={0} />',
+  '<div role="button" tabIndex={0} />',
+  '<div role="progressbar" aria-valuenow={50} tabIndex={0} />',
+  '<button tabIndex={0} />',
+  '<input tabIndex={0} />',
+  '<a href="/help" tabIndex={0}>Help</a>',
+  '<div tabIndex={-1} />',
+  ...['"-2.5"', '"+50"', '".5"', '"5e1"', '{`50`}', '{`${position}`}'].map(
+    value => `<div role="separator" aria-valuenow=${value} tabIndex={0} />`,
+  ),
+];
+const invalid = [
+  '<div role="separator" tabIndex={0} />',
+  '<div role="separator" aria-valuemin={0} aria-valuemax={100} tabIndex={0} />',
+  '<div role="separator" tabIndex={0} onKeyDown={resize} />',
+  '<div role="separator" tabIndex={0} onClick={resize} />',
+  '<div aria-valuenow={50} tabIndex={0} />',
+  '<div role="presentation" aria-valuenow={50} tabIndex={0} />',
+  '<div role="status" aria-valuenow={50} tabIndex={0} />',
+  '<div role="region" aria-valuenow={50} tabIndex={0} />',
+  '<div role="" aria-valuenow={50} tabIndex={0} />',
+  '<div role="separator" aria-valuenow="NaN" tabIndex={0} />',
+  'const position = null; <div role="separator" aria-valuenow={position} tabIndex={0} />',
+  'const position = undefined; <div role="separator" aria-valuenow={position} tabIndex={0} />',
+  'const position = "half"; <div role="separator" aria-valuenow={position} tabIndex={0} />',
+  'const position = enabled ? null : undefined; const current = position; <div role="separator" aria-valuenow={current} tabIndex={0} />',
+  'let position; position = enabled ? null : undefined; <div role="separator" aria-valuenow={position} tabIndex={0} />',
+  'const position = enabled ? null : undefined; <div role="separator" aria-valuenow={pending ? position : position} tabIndex={0} />',
+  'for (let position = null; pending;) { items.push(<div role="separator" aria-valuenow={position} tabIndex={0} />); }',
+  ...['null', 'undefined', '"half"', '1 / 0'].map(
+    value =>
+      `let position; position = ${value}; <div role="separator" aria-valuenow={position} tabIndex={0} />`,
+  ),
+  'const current = { position }; <div role="separator" aria-valuenow={current} tabIndex={0} />',
+  'const current = [position]; <div role="separator" aria-valuenow={current} tabIndex={0} />',
+  '<div role="presentation separator" aria-valuenow={50} tabIndex={0} />',
+  '<div role="separator" role="presentation" aria-valuenow={50} tabIndex={0} />',
+  '<div role="separator" aria-valuenow={50} aria-valuenow={null} tabIndex={0} />',
+  '<div role="separator" aria-valuenow={50} {...props} tabIndex={0} />',
+  '<div role="separator" {...props} aria-valuenow={50} tabIndex={0} />',
+  '<div role="separator" aria-valuenow={50} {...{ role: "presentation" }} tabIndex={0} />',
+  '<div role="separator" aria-valuenow={50} {...{ "aria-valuenow": null }} tabIndex={0} />',
+  '<div role="separator" aria-valuenow={50} {...{ [attributeName]: value }} tabIndex={0} />',
+  '<div role="separator" aria-valuenow={50} {...{ ...props, onKeyDown: resize }} tabIndex={0} />',
+  'const props = { ...props }; <div role="separator" aria-valuenow={50} {...props} tabIndex={0} />',
+  'const props = { onKeyDown: resize }; props.role = "presentation"; <div role="separator" aria-valuenow={50} {...props} tabIndex={0} />',
+  'const props = { onKeyDown: resize }; configure(props); <div role="separator" aria-valuenow={50} {...props} tabIndex={0} />',
+  'const { extra } = { extra: { role: "presentation" } }; <div role="separator" aria-valuenow={50} {...extra} tabIndex={0} />',
+  'const [extra] = [{ "aria-valuenow": null }]; <div role="separator" aria-valuenow={50} {...extra} tabIndex={0} />',
+  '<div {...props} role="separator" tabIndex={0} />',
+  '<span role="separator" aria-valuenow={50} tabIndex={0} />',
+  '<hr aria-valuenow={50} tabIndex={0} />',
+  '<div role="separator" aria-valuenow tabIndex={0} />',
+  ...[
+    '{null}',
+    '{undefined}',
+    '{void 0}',
+    '{NaN}',
+    '{Infinity}',
+    '{-Infinity}',
+    '{true}',
+    '{false}',
+    '{1n}',
+    '{1 / 0}',
+    '{0 / 0}',
+    '{[]}',
+    '{{}}',
+    '{{ position }}',
+    '{[position]}',
+    '{() => position}',
+    '{function () { return position; }}',
+    '{class { value() { return position; } }}',
+    '{new Number(position)}',
+    '{<Position value={position} />}',
+    '{<>{position}</>}',
+    '{!position}',
+    '{typeof position}',
+    '{void position}',
+    '{delete state.position}',
+    '{position < 50}',
+    '{position === 50}',
+    '{position in layout}',
+    '{enabled ? null : undefined}',
+    '{enabled ? true : false}',
+    '{enabled ? "half" : ""}',
+    '{enabled ? null : pending ? false : undefined}',
+    '{enabled ? { position } : [position]}',
+    '""',
+    '" "',
+    '"half"',
+    '"50px"',
+    '"0x32"',
+    '"Infinity"',
+    '"1e999"',
+    '{""}',
+    '{`invalid`}',
+    '{``}',
+  ].map(value => `<div role="separator" aria-valuenow=${value} tabIndex={0} />`),
+];
+
+function limitScopeQueries(t: TestContext, maxQueries: number) {
+  let scopeQueries = 0;
+  const getScope = SourceCode.prototype.getScope;
+  // Bound real scope queries so an exponential regression fails without hanging CI.
+  t.mock.method(
+    SourceCode.prototype,
+    'getScope',
+    function (this: SourceCode, ...args: Parameters<SourceCode['getScope']>) {
+      assert.ok(++scopeQueries <= maxQueries, 'Repeatedly analyzing shared bindings');
+      return getScope.apply(this, args);
+    },
+  );
+}
+
+describe('S6845', () => {
+  for (const [language, Tester] of [
+    ['JavaScript JSX', DefaultParserRuleTester],
+    ['TypeScript TSX', NoTypeCheckingRuleTester],
+  ] as const) {
+    it(`allows separator current values in ${language}`, () => {
+      new Tester().run('no-noninteractive-tabindex', rule, {
+        valid: valid.map(code => ({ code, options })),
+        invalid: [],
+      });
+    });
+    for (const code of [
+      'const positions = [25, 75]; for (const position of positions) { items.push(<div role="separator" aria-valuenow={position} tabIndex={0} />); }',
+      'const positions = { left: 25, right: 75 }; for (const position of Object.values(positions)) { items.push(<div role="separator" aria-valuenow={position} tabIndex={0} />); }',
+      'const positions = [25, 75]; for (const position in positions) { items.push(<div role="separator" aria-valuenow={position} tabIndex={0} />); }',
+      'const positions = [25, 75]; for (const position of positions) { const current = position; items.push(<div role="separator" aria-valuenow={current} tabIndex={0} />); }',
+      'const positions = [25, 75]; let position; for (position of positions) { items.push(<div role="separator" aria-valuenow={position} tabIndex={0} />); }',
+      'const positions = { left: 25, right: 75 }; let position; for (position of Object.values(positions)) { items.push(<div role="separator" aria-valuenow={position} tabIndex={0} />); }',
+      'const positions = [25, 75]; let position; for (position in positions) { items.push(<div role="separator" aria-valuenow={position} tabIndex={0} />); }',
+      'const positions = [25, 75]; let position; for (position of positions) { const current = position; items.push(<div role="separator" aria-valuenow={current} tabIndex={0} />); }',
+    ]) {
+      it(`allows loop-bound current values in ${code} in ${language}`, () => {
+        new Tester().run('no-noninteractive-tabindex', rule, {
+          valid: [{ code, options }],
+          invalid: [],
+        });
+      });
+    }
+    for (const binding of [
+      'let position; [position] = [50];',
+      'let position; ({ position } = { position: 50 });',
+      'let position; [position = 50] = [];',
+      'let position; ({ position = 50 } = {});',
+      'let position; [position] = [50]; const current = position;',
+    ]) {
+      it(`allows destructuring assignments in ${binding} in ${language}`, () => {
+        const value = binding.includes('const current') ? 'current' : 'position';
+        new Tester().run('no-noninteractive-tabindex', rule, {
+          valid: [
+            {
+              code: `${binding} <div role="separator" aria-valuenow={${value}} tabIndex={0} />`,
+              options,
+            },
+          ],
+          invalid: [],
+        });
+      });
+    }
+    for (const code of [
+      'let position; for ([position] of [[50]]) { items.push(<div role="separator" aria-valuenow={position} tabIndex={0} />); }',
+      'let position; for ({ position } of [{ position: 50 }]) { items.push(<div role="separator" aria-valuenow={position} tabIndex={0} />); }',
+      'let position; for ([position] in { 50: true }) { items.push(<div role="separator" aria-valuenow={position} tabIndex={0} />); }',
+    ]) {
+      it(`allows destructured loop targets in ${code} in ${language}`, () => {
+        new Tester().run('no-noninteractive-tabindex', rule, {
+          valid: [{ code, options }],
+          invalid: [],
+        });
+      });
+    }
+    it(`retains reports for spreads assigned through object destructuring in ${language}`, () => {
+      new Tester().run('no-noninteractive-tabindex', rule, {
+        valid: [],
+        invalid: [
+          {
+            code: 'let props; ({ props } = { props: { role: "presentation" } }); <div role="separator" aria-valuenow={50} {...props} tabIndex={0} />',
+            options,
+            errors: [{ message }],
+          },
+        ],
+      });
+    });
+    it(`bounds analysis of shared conditional bindings in ${language}`, t => {
+      const levels = 30;
+      const code = [
+        'const position0 = null;',
+        ...Array.from(
+          { length: levels },
+          (_, index) =>
+            `const position${index + 1} = enabled ? position${index} : position${index};`,
+        ),
+        `<div role="separator" aria-valuenow={position${levels}} tabIndex={0} />`,
+      ].join('\n');
+      limitScopeQueries(t, 16 * (levels + 1));
+      new Tester().run('no-noninteractive-tabindex', rule, {
+        valid: [],
+        invalid: [{ code, options, errors: [{ message }] }],
+      });
+    });
+    for (const [properties, overridesAttribute] of [
+      ['onKeyDown: resize', false],
+      ['role: "presentation"', true],
+      ['"aria-valuenow": null', true],
+    ] as const) {
+      it(`bounds analysis of shared spreads with ${properties} in ${language}`, t => {
+        const levels = 30;
+        const code = [
+          `const props0 = { ${properties} };`,
+          ...Array.from(
+            { length: levels },
+            (_, index) => `const props${index + 1} = { ...props${index}, ...props${index} };`,
+          ),
+          `<div role="separator" aria-valuenow={50} {...props${levels}} tabIndex={0} />`,
+        ].join('\n');
+        limitScopeQueries(t, 16 * (levels + 1));
+        new Tester().run('no-noninteractive-tabindex', rule, {
+          valid: overridesAttribute ? [] : [{ code, options }],
+          invalid: overridesAttribute ? [{ code, options, errors: [{ message }] }] : [],
+        });
+      });
+    }
+    for (const code of invalid) {
+      it(`reports ${code} in ${language}`, () => {
+        new Tester().run('no-noninteractive-tabindex', rule, {
+          valid: [],
+          invalid: [{ code, options, errors: [{ message, type: 'JSXAttribute' }] }],
+        });
+      });
+    }
+  }
+
+  it('handles TypeScript assertions around current values and literal roles', () => {
+    new NoTypeCheckingRuleTester().run('no-noninteractive-tabindex', rule, {
+      valid: [
+        '<div role="separator" aria-valuenow={position as number} tabIndex={0} />',
+        '<div role="separator" aria-valuenow={position!} tabIndex={0} />',
+        '<div role="separator" aria-valuenow={position satisfies number} tabIndex={0} />',
+        '<div role="separator" aria-valuenow={(enabled ? null : position) as number | null} tabIndex={0} />',
+        '<div role={"separator" as const} aria-valuenow={50} tabIndex={0} />',
+      ].map(code => ({ code, options })),
+      invalid: [
+        '<div role="separator" aria-valuenow={null as number | null} tabIndex={0} />',
+        '<div role="separator" aria-valuenow={undefined!} tabIndex={0} />',
+        '<div role="separator" aria-valuenow={/* unset */} tabIndex={0} />',
+        '<div role="separator" aria-valuenow={{ position } as unknown as number} tabIndex={0} />',
+        '<div role="separator" aria-valuenow={[position] satisfies number[]} tabIndex={0} />',
+        '<div role="separator" aria-valuenow={enabled ? null as number | null : undefined!} tabIndex={0} />',
+      ].map(code => ({ code, options, errors: [{ message }] })),
+    });
+  });
+
+  it('retains upstream reports for component mappings and unknown roles', () => {
+    new NoTypeCheckingRuleTester().run('no-noninteractive-tabindex', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: '<Separator role="separator" aria-valuenow={50} tabIndex={0} />',
+          settings: { 'jsx-a11y': { components: { Separator: 'div' } } },
+          options,
+          errors: [{ message }],
+        },
+        {
+          code: '<div role={roleName} aria-valuenow={50} tabIndex={0} />',
+          options: [{ roles: ['tabpanel'], allowExpressionValues: false }],
+          errors: [{ message }],
+        },
+      ],
+    });
+  });
+});
 
 const upstreamRule = rules['no-noninteractive-tabindex'];
 

@@ -1,0 +1,39 @@
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) SonarSource Sàrl
+ * mailto:info AT sonarsource DOT com
+ *
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the Sonar Source-Available License for more details.
+ *
+ * You should have received a copy of the Sonar Source-Available License
+ * along with this program; if not, see https://sonarsource.com/license/ssal/
+ */
+import type { CssRuleDefinition } from '../types.js';
+import { supportedCssToolDirectives } from '../helpers/tool-directives.js';
+
+export const meta = {
+  implementation: 'external',
+  externalPlugin: 'stylelint',
+  bindings: [
+    {
+      stylelintKey: 'at-rule-prelude-no-invalid',
+      listParam: [
+        {
+          sqKey: 'ignoreAtRules',
+          javaField: 'ignoredAtRules',
+          description:
+            'Comma-separated list of at-rule names or regular expressions whose preludes should not be validated.',
+          default: supportedCssToolDirectives.join(','),
+          stylelintOptionKey: 'ignoreAtRules',
+        },
+      ],
+      cssOnly: true,
+    },
+  ],
+} satisfies CssRuleDefinition;

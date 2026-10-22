@@ -1,0 +1,4 @@
+___HEADER___// https://sonarsource.github.io/rspec/#/rspec/___RULE_KEY___/css
+import type { CssRuleDefinition } from '../types.js';
+
+export const meta = ___METADATA___ satisfies CssRuleDefinition;
