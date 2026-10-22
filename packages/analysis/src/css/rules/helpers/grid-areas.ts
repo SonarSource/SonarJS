@@ -17,6 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S9451/css
 import type PostCSS from 'postcss';
 import { isTokenBadString, isTokenString, tokenize } from '@csstools/css-tokenizer';
+import { declarationValueIndex } from './declaration.js';
 
 // Properties whose strings define grid areas, where whitespace separates the cells
 const GRID_AREA_PROPERTIES = new Set(['grid-template-areas', 'grid-template', 'grid']);
@@ -38,7 +39,7 @@ export function gridAreaStrings(decl: PostCSS.Declaration): GridAreaString[] {
   }
   // the raw value keeps the comments, so that indexes match the source
   const value = decl.raws.value?.raw ?? decl.value;
-  const valueIndex = decl.prop.length + (decl.raws.between ?? ':').length;
+  const valueIndex = declarationValueIndex(decl);
   const strings: GridAreaString[] = [];
   for (const token of tokenize({ css: value })) {
     if (isTokenString(token) || isTokenBadString(token)) {

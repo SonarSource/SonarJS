@@ -79,6 +79,7 @@ const valid: Sample[] = [
   { name: 'none', code: 'a { transition: none; }' },
   { name: 'zero longhand', code: 'a { transition-property: all; transition-duration: 0ms; }' },
   { name: 'only property', code: 'a { transition-property: all; }' },
+  // `transition-property` may be set by another rule, so it is not assumed to be its default `all`
   { name: 'only duration', code: 'a { transition-duration: 1s; }' },
   { name: 'only delay', code: 'a { transition: all 0s 1s; }' },
   {
@@ -167,6 +168,16 @@ const valid: Sample[] = [
   {
     name: 'nested vue transition class',
     code: '.slide { &-enter-active { transition: all 0.3s; } }',
+    codeFilename: 'test.scss',
+  },
+  {
+    name: 'vue transition class around a nested media query',
+    code: '.fade-enter-active { @media (hover: hover) { transition: all 1s; } }',
+    codeFilename: 'test.scss',
+  },
+  {
+    name: 'nested vue transition class around a nested media query',
+    code: '.slide { &-enter-active { @media (hover: hover) { transition: all 1s; } } }',
     codeFilename: 'test.scss',
   },
   {
@@ -509,6 +520,35 @@ b {
   transition: all 0.3s; /* Noncompliant */
 /*            ^^^ */
 }`,
+  },
+  {
+    name: 'negated vue transition class',
+    code: `.item:not(.list-leave-active) {
+  transition: all 0.3s; /* Noncompliant */
+/*            ^^^ */
+}`,
+  },
+  {
+    name: 'react-transition-group exit class',
+    code: `.fade-exit-active {
+  transition: all 300ms; /* Noncompliant */
+/*            ^^^ */
+}`,
+  },
+  {
+    name: 'invisible character in the value',
+    code: `a {
+  transition: all 1s\u200B; /* Noncompliant */
+/*            ^^^ */
+}`,
+  },
+  {
+    name: 'scss at-root',
+    code: `@at-root { .a {
+  transition: all 1s; /* Noncompliant */
+/*            ^^^ */
+} }`,
+    codeFilename: 'test.scss',
   },
   {
     name: 'class resembling a vue transition class',

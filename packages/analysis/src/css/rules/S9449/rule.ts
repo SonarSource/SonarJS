@@ -18,6 +18,8 @@
 import stylelint, { type PostcssResult } from 'stylelint';
 import type PostCSS from 'postcss';
 import { ident, parse, walk, type CssNode, type Lexer, type LexerMatchResult } from 'css-tree';
+import { CSS_WIDE_KEYWORDS, declarationValueIndex } from '../helpers/declaration.js';
+import { asSpaces } from '../helpers/irregular-whitespaces.js';
 import { knownFunctionsOf } from '../helpers/known-functions.js';
 import { meta } from './meta.js';
 
@@ -26,6 +28,7 @@ const message =
   'Specify which properties should transition so future style changes do not animate unexpectedly.';
 
 const STYLE_AT_RULES = new Set([
+  'at-root',
   'container',
   'layer',
   'media',
@@ -33,20 +36,40 @@ const STYLE_AT_RULES = new Set([
   'starting-style',
   'supports',
 ]);
-const CSS_WIDE_KEYWORDS = new Set(['inherit', 'initial', 'revert', 'revert-layer', 'unset']);
 const DYNAMIC_FUNCTIONS = new Set(['var', 'env', 'attr']);
 const TRANSITION_PROPERTY = 'transition-property';
-const TRANSITION_PROPERTIES = new Set(['transition', TRANSITION_PROPERTY, 'transition-duration']);
+// The transition lists that each property sets. `all` resets both to values the rule cannot read.
+const SLOTS = new Map<string, Slot[]>([
+  ['transition', ['targets', 'durations']],
+  ['all', ['targets', 'durations']],
+  [TRANSITION_PROPERTY, ['targets']],
+  ['transition-duration', ['durations']],
+]);
+// A block without `transition-duration` transitions for the default `0s`.
+const INITIAL_DURATIONS = [0];
+// css-tree grammar types of a transition target and of a duration
+const TRANSITION_TARGET_TYPE = 'single-transition-property';
+const TIME_TYPE = 'time';
 // Vue `<Transition>` classes, such as `.fade-leave-active` or `&-enter-from`, which only apply
-// while an element enters or leaves.
+// while an element enters or leaves. react-transition-group `-enter-active` classes match only
+// because they share the Vue suffix, while its other classes, such as `-exit-active`, are reported.
 const VUE_TRANSITION_CLASS = /(?:\.[\w-]+|&[\w-]*)-(?:enter|leave)-(?:active|from|to)(?![\w-])/;
+// A negated class applies outside of the transition, so it does not make a rule transient.
+const NEGATION = /:not\([^)]*\)/gi;
 
+type Slot = 'targets' | 'durations';
 type Target = { name: string; declaration: PostCSS.Declaration; start: number; end: number };
+/** `values` is `undefined` when the state is overridden by a value that the rule cannot read. */
 type State<T> = { values: T[] | undefined; important: boolean };
 type Transitions = {
   targets?: State<Target>;
   durations?: State<number | undefined>;
 };
+/**
+ * - `invalid`: the browser drops the declaration, so the previous state is kept.
+ * - `unknown`: the declaration overrides the state, but its value cannot be read.
+ * - `known`: the declaration sets the state to these values.
+ */
 type Parsed =
   | { kind: 'invalid' }
   | { kind: 'unknown' }
@@ -57,8 +80,7 @@ const ruleImpl: stylelint.RuleBase = (): typeof checkFile => checkFile;
 function checkFile(root: PostCSS.Root, result: PostcssResult): void {
   const blocks = new Set<PostCSS.Container>();
   root.walkDecls((declaration: PostCSS.Declaration): void => {
-    const property = ident.decode(declaration.prop).toLowerCase();
-    if (isRelevantProperty(property) && isStyle(declaration) && declaration.parent) {
+    if (SLOTS.has(propertyName(declaration)) && isStyle(declaration) && declaration.parent) {
       blocks.add(declaration.parent);
     }
   });
@@ -69,14 +91,34 @@ function checkFile(root: PostCSS.Root, result: PostcssResult): void {
   }
 }
 
+function propertyName(declaration: PostCSS.Declaration): string {
+  return ident.decode(declaration.prop).toLowerCase();
+}
+
 /** Vue applies transition classes only during the transition, so `all` cannot leak into later changes. */
 function isVueTransitionRule(block: PostCSS.Container): boolean {
+  const rule = enclosingRule(block);
   return (
-    block.type === 'rule' &&
-    (block as PostCSS.Rule).selectors.every((selector: string): boolean =>
-      VUE_TRANSITION_CLASS.test(selector),
+    rule !== undefined &&
+    rule.selectors.every((selector: string): boolean =>
+      VUE_TRANSITION_CLASS.test(selector.replaceAll(NEGATION, '')),
     )
   );
+}
+
+/** The block itself, or the rule around a nested at-rule such as `@media`. */
+function enclosingRule(block: PostCSS.Container): PostCSS.Rule | undefined {
+  for (
+    let node: PostCSS.Container | PostCSS.Document | undefined = block;
+    node;
+    node = node.parent
+  ) {
+    if (node.type === 'rule') {
+      // Guarded by the PostCSS node discriminator.
+      return node as PostCSS.Rule;
+    }
+  }
+  return undefined;
 }
 
 /**
@@ -109,7 +151,7 @@ function checkBlock(block: PostCSS.Container, result: PostcssResult): void {
   const lexer = result.stylelint.lexer as Lexer;
   for (const node of block.nodes ?? []) {
     if (node.type === 'decl') {
-      updateTransitions(transitions, node, lexer);
+      updateTransitions(transitions, node, propertyName(node), lexer);
     } else if (isMixinCall(node)) {
       forgetTransitions(transitions);
     }
@@ -117,20 +159,20 @@ function checkBlock(block: PostCSS.Container, result: PostcssResult): void {
   reportTransition(transitions.targets, transitions.durations, result);
 }
 
-/**
- * SCSS `@include`, Less mixin calls, and Less detached ruleset calls, which may set transitions
- * that the rule cannot see.
- */
+/** SCSS `@include` and Less mixin calls, which may set transitions that the rule cannot see. */
 function isMixinCall(node: PostCSS.ChildNode): boolean {
-  if (node.type !== 'atrule') {
-    return false;
-  }
-  // postcss-less marks mixin calls such as `.no-transition();` with `mixin: true`.
-  if (node.name.toLowerCase() === 'include' || (node as { mixin?: boolean }).mixin === true) {
-    return true;
-  }
-  // Less detached ruleset calls such as `@motion();` have empty parameters and no body.
-  return node.params.trim() === '()' && node.nodes === undefined;
+  return node.type === 'atrule' && (node.name.toLowerCase() === 'include' || isLessMixinCall(node));
+}
+
+/**
+ * Less mixin calls such as `.no-transition();`, which postcss-less marks with `mixin: true`, and
+ * Less detached ruleset calls such as `@motion();`, which have empty parameters and no body.
+ */
+function isLessMixinCall(node: PostCSS.AtRule): boolean {
+  return (
+    (node as { mixin?: boolean }).mixin === true ||
+    (node.params.trim() === '()' && node.nodes === undefined)
+  );
 }
 
 /** A mixin call may override earlier transitions unless they are `!important`. */
@@ -146,10 +188,11 @@ function forgetTransitions(transitions: Transitions): void {
 function updateTransitions(
   transitions: Transitions,
   declaration: PostCSS.Declaration,
+  property: string,
   lexer: Lexer,
 ): void {
-  const property = ident.decode(declaration.prop).toLowerCase();
-  if (!isRelevantProperty(property)) {
+  const slots = SLOTS.get(property);
+  if (slots === undefined) {
     return;
   }
   const parsed = parseDeclaration(declaration, property, lexer);
@@ -157,13 +200,13 @@ function updateTransitions(
     return;
   }
   const important = Boolean(declaration.important);
-  if (property !== 'transition-duration' && wins(transitions.targets, important)) {
+  if (slots.includes('targets') && wins(transitions.targets, important)) {
     transitions.targets = {
       values: parsed.kind === 'known' ? parsed.targets : undefined,
       important,
     };
   }
-  if (property !== TRANSITION_PROPERTY && wins(transitions.durations, important)) {
+  if (slots.includes('durations') && wins(transitions.durations, important)) {
     transitions.durations = {
       values: parsed.kind === 'known' ? parsed.durations : undefined,
       important,
@@ -171,15 +214,13 @@ function updateTransitions(
   }
 }
 
-function isRelevantProperty(property: string): boolean {
-  return TRANSITION_PROPERTIES.has(property) || property === 'all';
-}
-
 function reportTransition(
   targets: State<Target> | undefined,
   durations: State<number | undefined> | undefined,
   result: PostcssResult,
 ): void {
+  // Without `transition-property` in the block, the property is not treated as its default `all`,
+  // because another rule may set it for the same element.
   if (!targets?.values) {
     return;
   }
@@ -188,14 +229,13 @@ function reportTransition(
   if (index < 0) {
     return;
   }
-  const times = durations ? durations.values : [0];
+  const times = durations ? durations.values : INITIAL_DURATIONS;
   const duration = times?.[index % times.length];
   if (duration === undefined || duration <= 0) {
     return;
   }
   const target = targets.values[index];
-  const valueStart =
-    target.declaration.prop.length + (target.declaration.raws.between ?? ':').length;
+  const valueStart = declarationValueIndex(target.declaration);
   stylelint.utils.report({
     ruleName,
     result,
@@ -216,7 +256,7 @@ function parseDeclaration(
   lexer: Lexer,
 ): Parsed {
   const raw = declaration.raws.value;
-  const value = raw?.value === declaration.value ? raw.raw : declaration.value;
+  const value = asSpaces(raw?.value === declaration.value ? raw.raw : declaration.value);
   // Substitution may introduce additional tokens or list entries, so do not parse a partial value.
   if (/[$@]|#\{/.test(value)) {
     return { kind: 'unknown' };
@@ -289,7 +329,7 @@ function parseGroups(
       return (
         node.type === 'Identifier' &&
         (property === TRANSITION_PROPERTY ||
-          match.isType(node, 'single-transition-property') ||
+          match.isType(node, TRANSITION_TARGET_TYPE) ||
           ident.decode(node.name).toLowerCase() === 'none')
       );
     });
@@ -318,6 +358,10 @@ function parseGroups(
   return { kind: 'known', targets, durations };
 }
 
+/**
+ * The duration of a list entry in seconds or milliseconds, `0` when the entry has none, such as a
+ * `transition-property` entry, `undefined` when it cannot be resolved, and negative when invalid.
+ */
 function firstTime(
   group: CssNode[],
   property: string,
@@ -326,7 +370,7 @@ function firstTime(
   if (property === TRANSITION_PROPERTY) {
     return 0;
   }
-  const time = group.find((node: CssNode): boolean => match.isType(node, 'time'));
+  const time = group.find((node: CssNode): boolean => match.isType(node, TIME_TYPE));
   if (time === undefined) {
     return 0;
   }
