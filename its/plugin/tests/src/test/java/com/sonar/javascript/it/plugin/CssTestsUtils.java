@@ -20,6 +20,11 @@ import com.sonar.orchestrator.build.SonarScanner;
 
 class CssTestsUtils {
 
+  static SonarScanner createScannerWithEmptyBlockRule(String projectKey) {
+    OrchestratorStarter.setProfile(projectKey, "css-empty-block-profile", "css");
+    return createScanner(projectKey);
+  }
+
   static SonarScanner createScanner(String projectKey) {
     return OrchestratorStarter.getSonarScanner()
       .setSourceEncoding("UTF-8")
