@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 // https://sonarsource.github.io/rspec/#/rspec/S9451/css
+import { replaceInvisibleCharacters } from '../../helpers/invisible-characters.js';
 
 // Characters that look like a space, or are invisible, but that CSS does not treat as whitespace
 export const IRREGULAR_WHITESPACES = new Map([
@@ -48,6 +49,14 @@ const IRREGULAR_WHITESPACE = new RegExp(`[${[...IRREGULAR_WHITESPACES.keys()].jo
 /**
  * Replaces each irregular whitespace with a space, which keeps every location in the text.
  */
-export function replaceIrregularWhitespaces(text: string): string {
+function replaceIrregularWhitespaces(text: string): string {
   return text.replaceAll(IRREGULAR_WHITESPACE, ' ');
+}
+
+/**
+ * Replaces irregular whitespaces such as U+00A0, and the invisible characters from U+2000 to
+ * U+200F such as U+200C, with spaces, leaving their report to S9451.
+ */
+export function asSpaces(text: string): string {
+  return replaceInvisibleCharacters(replaceIrregularWhitespaces(text));
 }

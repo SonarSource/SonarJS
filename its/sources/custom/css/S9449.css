@@ -1,0 +1,29 @@
+.explicit {
+  transition: all 200ms; /* Noncompliant */
+/*            ^^^ */
+}
+
+.implicit {
+  transition: 200ms ease; /* Noncompliant */
+/*            ^^^^^^^^^^ */
+}
+
+.longhand {
+  transition-property: all; /* Noncompliant */
+/*                     ^^^ */
+  transition-duration: 200ms;
+}
+
+.mixed {
+  transition: all 200ms ease, opacity 100ms; /* Noncompliant */
+/*            ^^^ */
+}
+
+.named {
+  transition: background-color 200ms ease, opacity 100ms;
+}
+
+.overridden {
+  transition: all 200ms;
+  transition-duration: 0s;
+}

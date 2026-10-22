@@ -28,6 +28,7 @@ import {
 } from '@csstools/css-parser-algorithms';
 import cssFunctions from 'css-functions-list/index.json' with { type: 'json' };
 import { knownFunctionsOf } from '../helpers/known-functions.js';
+import { declarationValueIndex } from '../helpers/declaration.js';
 import { isLegacyIeFilter, VENDOR_PREFIX } from '../helpers/legacy-syntax.js';
 
 // Stylelint's `function-no-unknown` is not decorated: it skips any value containing braces, even
@@ -211,10 +212,6 @@ function ignoreMatcher(patterns: string[]): (name: string) => boolean {
     return (name: string) => name.toLowerCase() === lowerPattern;
   });
   return (name: string) => matchers.some(matches => matches(name));
-}
-
-function declarationValueIndex(decl: PostCSS.Declaration): number {
-  return decl.prop.length + (decl.raws.between ?? ':').length;
 }
 
 export const rule = stylelint.createPlugin(

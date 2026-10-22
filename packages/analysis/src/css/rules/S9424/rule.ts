@@ -32,8 +32,8 @@ import { calc, ParseErrorMessage, type ParseError } from '@csstools/css-calc';
 import { knownFunctionsOf } from '../helpers/known-functions.js';
 import { isLegacyIeFilter, VENDOR_PREFIX } from '../helpers/legacy-syntax.js';
 import { collectRegisteredSyntaxes, UNIVERSAL_SYNTAX } from './registrations.js';
-import { replaceIrregularWhitespaces } from '../helpers/irregular-whitespaces.js';
-import { replaceInvisibleCharacters } from '../../helpers/invisible-characters.js';
+import { asSpaces } from '../helpers/irregular-whitespaces.js';
+import { CSS_WIDE_KEYWORDS, declarationValueIndex } from '../helpers/declaration.js';
 
 const ruleName = meta.bindings[0].stylelintKey;
 
@@ -102,8 +102,6 @@ const NESTING_AT_RULES = new Set([
   'starting-style',
   'supports',
 ]);
-
-const CSS_WIDE_KEYWORDS = new Set(['inherit', 'initial', 'revert', 'revert-layer', 'unset']);
 
 // Value suffixes targeting old Internet Explorer versions, such as `1px \9` or `10px\0/`
 const IE_HACK_SUFFIX = /\\[09]$/;
@@ -234,14 +232,6 @@ function isAcceptedValue(property: string, ast: CssNode): boolean {
     property.toLowerCase() === '-webkit-perspective' &&
     Number(node.value) >= 0
   );
-}
-
-/**
- * Irregular whitespaces such as U+00A0 are validated as spaces, leaving their report to S9451,
- * as are the invisible characters from U+2000 to U+200F, such as U+200C.
- */
-function asSpaces(text: string): string {
-  return replaceInvisibleCharacters(replaceIrregularWhitespaces(text));
 }
 
 function isSkippedDeclaration(decl: PostCSS.Declaration, syntax: string | undefined): boolean {
@@ -392,10 +382,6 @@ function isInFirstArgument(fn: FunctionNode, node: CssNode): boolean {
 
 function rangeOf(node: CssNode): Range {
   return { start: node.loc?.start.offset ?? 0, end: node.loc?.end.offset ?? 0 };
-}
-
-function declarationValueIndex(decl: PostCSS.Declaration): number {
-  return decl.prop.length + (decl.raws.between ?? ':').length;
 }
 
 export const rule = stylelint.createPlugin(
