@@ -72,23 +72,47 @@ describe('tsconfigs', () => {
     }
   });
 
-  it('should preserve the provided config order regardless of discovery order', async () => {
-    const rootConfig = join(fixtures, 'tsconfig.json');
-    const nestedConfig = join(fixtures, 'paths/tsconfig.json');
-    setGlobalConfiguration({ baseDir: fixtures, tsConfigPaths: [rootConfig, nestedConfig] });
+  const rootConfig = join(fixtures, 'tsconfig.json');
+  const nestedConfig = join(fixtures, 'paths/tsconfig.json');
+  for (const [configOrder, { paths, expected }] of Object.entries({
+    'literal paths': { paths: [rootConfig, nestedConfig], expected: [rootConfig, nestedConfig] },
+    'literal then glob': {
+      paths: [rootConfig, join(fixtures, 'paths/**/tsconfig.json')],
+      expected: [rootConfig, nestedConfig],
+    },
+    'glob then literal': {
+      paths: [join(fixtures, 'paths/**/tsconfig.json'), rootConfig],
+      expected: [nestedConfig, rootConfig],
+    },
+    'multiple globs': {
+      paths: [join(fixtures, 'tsconfig*.json'), join(fixtures, 'paths/*.json')],
+      expected: [rootConfig, nestedConfig],
+    },
+    'one glob': {
+      paths: [join(fixtures, '**/tsconfig.json')],
+      expected: [nestedConfig, rootConfig],
+    },
+    'overlapping entries': {
+      paths: [join(fixtures, '**/tsconfig.json'), rootConfig],
+      expected: [nestedConfig, rootConfig],
+    },
+  })) {
+    it(`should preserve the provided config order with ${configOrder} regardless of discovery order`, async () => {
+      setGlobalConfiguration({ baseDir: fixtures, tsConfigPaths: paths });
 
-    for (const discoveryOrder of [
-      [rootConfig, nestedConfig],
-      [nestedConfig, rootConfig],
-    ]) {
-      tsConfigStore.setup();
-      for (const tsconfig of discoveryOrder) {
-        await tsConfigStore.processFile(tsconfig);
+      for (const discoveryOrder of [
+        [rootConfig, nestedConfig],
+        [nestedConfig, rootConfig],
+      ]) {
+        tsConfigStore.setup();
+        for (const tsconfig of discoveryOrder) {
+          await tsConfigStore.processFile(tsconfig);
+        }
+        await tsConfigStore.postProcess(fixtures);
+        expect(tsConfigStore.getTsConfigs()).toEqual(expected);
       }
-      await tsConfigStore.postProcess(fixtures);
-      expect(tsConfigStore.getTsConfigs()).toEqual([rootConfig, nestedConfig]);
-    }
-  });
+    });
+  }
 
   it('should validate the provided TSconfig files', async () => {
     setGlobalConfiguration({ baseDir: fixtures });
