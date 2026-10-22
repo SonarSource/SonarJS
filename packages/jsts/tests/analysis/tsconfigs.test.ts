@@ -54,6 +54,42 @@ describe('tsconfigs', () => {
     expect(tsConfigStore.getCacheOrigin()).toEqual('lookup');
   });
 
+  it('should select the same lookup order regardless of discovery order', async () => {
+    const rootConfig = join(fixtures, 'tsconfig.json');
+    const nestedConfig = join(fixtures, 'paths/tsconfig.json');
+    setGlobalConfiguration({ baseDir: fixtures });
+
+    for (const discoveryOrder of [
+      [rootConfig, nestedConfig],
+      [nestedConfig, rootConfig],
+    ]) {
+      tsConfigStore.setup();
+      for (const tsconfig of discoveryOrder) {
+        await tsConfigStore.processFile(tsconfig);
+      }
+      await tsConfigStore.postProcess(fixtures);
+      expect(tsConfigStore.getTsConfigs()).toEqual([nestedConfig, rootConfig]);
+    }
+  });
+
+  it('should preserve the provided config order regardless of discovery order', async () => {
+    const rootConfig = join(fixtures, 'tsconfig.json');
+    const nestedConfig = join(fixtures, 'paths/tsconfig.json');
+    setGlobalConfiguration({ baseDir: fixtures, tsConfigPaths: [rootConfig, nestedConfig] });
+
+    for (const discoveryOrder of [
+      [rootConfig, nestedConfig],
+      [nestedConfig, rootConfig],
+    ]) {
+      tsConfigStore.setup();
+      for (const tsconfig of discoveryOrder) {
+        await tsConfigStore.processFile(tsconfig);
+      }
+      await tsConfigStore.postProcess(fixtures);
+      expect(tsConfigStore.getTsConfigs()).toEqual([rootConfig, nestedConfig]);
+    }
+  });
+
   it('should validate the provided TSconfig files', async () => {
     setGlobalConfiguration({ baseDir: fixtures });
     await initFileStores(fixtures);
