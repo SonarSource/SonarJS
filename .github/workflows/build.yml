@@ -399,9 +399,21 @@ jobs:
         shell: bash
         env: *qa_env
         run: |
+          # Keep resource evidence in the log if the host stops before Maven can report a failure.
+          monitor_resources() {
+            while true; do
+              date -u
+              free -m
+              docker stats --no-stream --format 'Alpine QA: memory={{.MemUsage}} CPU={{.CPUPerc}} processes={{.PIDs}}' sonarjs-alpine-qa || true
+              sleep 30
+            done
+          }
+          monitor_resources &
+          monitor_pid=$!
+          trap 'kill "$monitor_pid" 2>/dev/null || true' EXIT
           # This image has Maven and Java but no Node; the analyzer must deploy the musl archive.
           # A numeric UID has no home; apply a writable home to Maven, tests and scanner JVMs.
-          docker run --rm --user "$(id -u):$(id -g)" \
+          docker run --rm --name sonarjs-alpine-qa --user "$(id -u):$(id -g)" \
             -v "$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" -w "$GITHUB_WORKSPACE" \
             -v "$HOME/.m2:/tmp/.m2" \
             -v "$RUNNER_TEMP/orchestrator-production-config:$RUNNER_TEMP/orchestrator-production-config:ro" \
