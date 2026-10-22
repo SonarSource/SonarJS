@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import path from 'path';
-import { cpSync, mkdirSync, statSync, accessSync } from 'node:fs';
+import { cpSync, mkdirSync, statSync } from 'node:fs';
 import { globSync } from 'glob';
 
 const sourceBaseDir = path.join(import.meta.dirname, '..');
@@ -32,23 +32,23 @@ const filesToCopy = [
 filesToCopy.forEach(copyFileIntoLib);
 
 function copyFileIntoLib(file: string) {
-  const dest = file.replace('/packages/', '/lib/');
+  const dest = path.join(
+    sourceBaseDir,
+    'lib',
+    path.relative(path.join(sourceBaseDir, 'packages'), file),
+  );
   if (statSync(file).isDirectory()) {
-    try {
-      accessSync(dest);
-    } catch (e) {
-      mkdirSync(dest, { recursive: true });
-    }
+    mkdirSync(dest, { recursive: true });
   } else {
+    mkdirSync(path.dirname(dest), { recursive: true });
     cpSync(file, dest);
   }
 }
 
 // Use glob to find all files recursively
-const globs = patterns.map(pattern => path.join(sourceBaseDir, pattern));
-console.log(globs.join('\n'));
-globs.forEach(globPattern => {
+console.log(patterns.join('\n'));
+patterns.forEach(globPattern => {
   // using glob from npm, as the glob from node:fs, does not have the dot option
-  const files = globSync(globPattern, { dot: true });
+  const files = globSync(globPattern, { cwd: sourceBaseDir, absolute: true, dot: true });
   files.forEach(copyFileIntoLib);
 });
