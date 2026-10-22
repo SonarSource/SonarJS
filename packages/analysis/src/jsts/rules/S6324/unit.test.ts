@@ -17,10 +17,70 @@
 import { DefaultParserRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { rule } from './rule.js';
 import { describe, it } from 'node:test';
+import { doesNotThrow } from 'node:assert';
 
 const CONTROL_CHAR_MESSAGE = 'Remove this control character.';
 
 describe('S6324', () => {
+  it('recognizes fixed brackets in groups and exact-one repetitions', () => {
+    const ruleTester = new DefaultParserRuleTester();
+    doesNotThrow(() =>
+      ruleTester.run('Fixed terminal introducers', rule, {
+        valid: [
+          { code: String.raw`/\x1b(?:\[)31m/` },
+          { code: String.raw`/\x1b(?:(\[)){1}31m/` },
+          { code: String.raw`/\x1b\[{1}/` },
+          { code: String.raw`/\x1b(?:\[|\[)999m/i` },
+          { code: String.raw`/\u001b(?:\u005b)31m/u` },
+          { code: String.raw`new RegExp('\\x1b(?:\\[)31m', 'i')` },
+          { code: String.raw`/\x1b(?:\])0;title/` },
+          { code: String.raw`/\x1b(?:\])0;title\x07/` },
+          { code: String.raw`/\x1b\]{1}0;title\x1b\\/` },
+          { code: String.raw`/(?:\x1b(?:\])|\x9d)[^\x07\x1b\x9c\x9d]*(?:\x07|\x1b\\|\x9c)/` },
+        ],
+        invalid: [
+          { code: String.raw`/\x1b(?:\[|\])/`, errors: 1 },
+          { code: String.raw`/\x1b(?:\[|)/`, errors: 1 },
+          { code: String.raw`/\x1b(?:\[)?31m/`, errors: 1 },
+          { code: String.raw`/\x1b(?:\[){0}31m/`, errors: 1 },
+          { code: String.raw`/\x1b(?:\[){2}31m/`, errors: 1 },
+          { code: String.raw`/\x1b(?:\[)+31m/`, errors: 1 },
+          { code: String.raw`/\x1b(?:\[x)31m/`, errors: 1 },
+          { code: String.raw`/\x1b(?:\[(?=3))31m/`, errors: 1 },
+          { code: String.raw`/\x1b(?=\[)31m/`, errors: 1 },
+          { code: String.raw`/(\[)\x1b\1/`, errors: 1 },
+          { code: String.raw`/(?:\x1b)(?:\[)31m/`, errors: 1 },
+          {
+            code: String.raw`/\x1b(?:\[)31m\x07/`,
+            errors: [{ message: CONTROL_CHAR_MESSAGE, column: 15, endColumn: 19 }],
+          },
+          {
+            code: String.raw`/\x1b(?:\])0;title\x07\x07/`,
+            errors: [{ message: CONTROL_CHAR_MESSAGE, column: 23, endColumn: 27 }],
+          },
+          {
+            code: String.raw`/\x1b(?:\])0;.*?\x07/`,
+            errors: [{ message: CONTROL_CHAR_MESSAGE, column: 17, endColumn: 21 }],
+          },
+          {
+            code: String.raw`/\x1b(?:\])0;title\x18\x07/`,
+            errors: [
+              { message: CONTROL_CHAR_MESSAGE, column: 19, endColumn: 23 },
+              { message: CONTROL_CHAR_MESSAGE, column: 23, endColumn: 27 },
+            ],
+          },
+          {
+            code: String.raw`/\x1b(?:\]|)0;title\x07/`,
+            errors: [
+              { message: CONTROL_CHAR_MESSAGE, column: 2, endColumn: 6 },
+              { message: CONTROL_CHAR_MESSAGE, column: 20, endColumn: 24 },
+            ],
+          },
+        ],
+      }),
+    );
+  });
+
   describe('bounded OSC matchers', () => {
     // Bounded OSC matcher with both introducers, explicit payload exclusions, and all supported endings.
     const oscPattern = String.raw`(?:\x1b\]|\x9d)[^\x07\x1b\x9c\x9d]*(?:\x07|\x1b\\|\x9c)`;
