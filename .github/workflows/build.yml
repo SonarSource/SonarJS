@@ -447,6 +447,8 @@ jobs:
 
   promote:
     name: Promote tested artifacts
+    # Manual runs on a work branch validate CI; promote only PRs or the maintenance branch.
+    if: github.event_name == 'pull_request' || github.ref_name == 'branch-10-X'
     runs-on: github-ubuntu-latest-s
     needs: [setup, get_build_number, build, build_win, test_js, test_eslint_plugin,
             analyze, plugin_qa_with_node, plugin_qa_without_node, plugin_qa_win,
