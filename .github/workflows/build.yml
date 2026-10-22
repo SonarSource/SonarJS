@@ -474,7 +474,7 @@ jobs:
 
   releasability:
     name: Releasability
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-s
     needs: promote
     if: github.ref_name == 'branch-10-X'
     permissions:
