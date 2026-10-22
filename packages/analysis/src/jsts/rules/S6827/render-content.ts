@@ -17,7 +17,7 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import type { JSXAttribute, JSXOpeningElement } from 'estree-jsx';
+import type { JSXOpeningElement } from 'estree-jsx';
 import { parseDocument } from 'htmlparser2';
 import { getFullyQualifiedName } from '../helpers/module.js';
 import {
@@ -27,7 +27,13 @@ import {
   resolveSingleWriteExpression,
   unwrapTypeScriptExpression,
 } from '../helpers/ast.js';
-import { hasAccessibleNameAttribute } from '../helpers/accessibility.js';
+import {
+  getEffectiveAttribute,
+  getSpreadValue,
+  getStaticValue,
+  hasAttributeContent,
+  isHidden,
+} from './render-attributes.js';
 import { getConditionalBranchRoot } from '../helpers/jsx.js';
 
 const SHADCN_COMPONENTS: Record<string, readonly string[]> = {
@@ -370,146 +376,6 @@ function isHiddenHtmlElement(name: string, attributes: Record<string, string>): 
 function hasHtmlElementName(name: string, attributes: Record<string, string>): boolean {
   const names = ['title', 'aria-label', 'aria-labelledby', ...(name === 'img' ? ['alt'] : [])];
   return names.some(attribute => attributes[attribute]?.trim());
-}
-
-function isHidden(attributes: JSXOpeningElement['attributes'], context: Rule.RuleContext): boolean {
-  const hidden = getAttributeValue(getEffectiveAttribute(attributes, 'hidden', context), context);
-  const ariaHidden = getAttributeValue(
-    getEffectiveAttribute(attributes, 'aria-hidden', context),
-    context,
-  );
-  return !!hidden || ariaHidden === true || ariaHidden === 'true';
-}
-
-function getAttributeValue(
-  attribute: JSXAttribute | null | undefined,
-  context: Rule.RuleContext,
-): unknown {
-  if (!attribute) {
-    return undefined;
-  }
-  if (attribute.value === null) {
-    return true;
-  }
-  const value =
-    attribute.value.type === 'JSXExpressionContainer'
-      ? attribute.value.expression
-      : attribute.value;
-  return getStaticValue(resolveSingleWriteExpression(context, value as TSESTree.Node));
-}
-
-function getStaticValue(value: TSESTree.Node): unknown {
-  if (value.type === 'Literal') {
-    return value.value;
-  }
-  if (value.type === 'TemplateLiteral') {
-    return getStaticExpressionValue(value as unknown as estree.Expression);
-  }
-  return undefined;
-}
-
-function hasAttributeContent(
-  attributes: JSXOpeningElement['attributes'],
-  name: string,
-  context: Rule.RuleContext,
-): boolean {
-  const attribute = getEffectiveAttribute(attributes, name, context);
-  if (attribute === undefined) {
-    return true;
-  }
-  if (!attribute) {
-    return false;
-  }
-  if (attribute.value?.type !== 'JSXExpressionContainer') {
-    return hasAccessibleNameAttribute([attribute], name);
-  }
-  const resolved = resolveSingleWriteExpression(
-    context,
-    attribute.value.expression as TSESTree.Node,
-  );
-  const resolvedAttribute = {
-    ...attribute,
-    value: { ...attribute.value, expression: resolved },
-  } as unknown as JSXAttribute;
-  return hasAccessibleNameAttribute([resolvedAttribute], name);
-}
-
-// null means absent; undefined means an unresolved spread may supply or override the property.
-function getEffectiveAttribute(
-  attributes: JSXOpeningElement['attributes'],
-  name: string,
-  context: Rule.RuleContext,
-): JSXAttribute | null | undefined {
-  for (let i = attributes.length - 1; i >= 0; i--) {
-    const attribute = attributes[i];
-    if (attribute.type === 'JSXAttribute') {
-      if (attribute.name.type === 'JSXIdentifier' && attribute.name.name === name) {
-        return attribute;
-      }
-    } else {
-      const value = getSpreadValue(attribute.argument as TSESTree.Node, name, context, new Set());
-      if (value === undefined) {
-        return undefined;
-      }
-      if (value !== null) {
-        return {
-          type: 'JSXAttribute',
-          name: { type: 'JSXIdentifier', name },
-          value: { type: 'JSXExpressionContainer', expression: value },
-        } as unknown as JSXAttribute;
-      }
-    }
-  }
-  return null;
-}
-
-function getSpreadValue(
-  argument: TSESTree.Node,
-  name: string,
-  context: Rule.RuleContext,
-  seen: Set<TSESTree.Node>,
-): TSESTree.Node | null | undefined {
-  const value = resolveSingleWriteExpression(context, argument);
-  if (['Literal', 'TemplateLiteral', 'ArrayExpression'].includes(value.type)) {
-    return null;
-  }
-  if (value.type !== 'ObjectExpression' || seen.has(value)) {
-    return undefined;
-  }
-  seen.add(value);
-  for (let i = value.properties.length - 1; i >= 0; i--) {
-    const property = value.properties[i];
-    const result =
-      property.type === 'SpreadElement'
-        ? getSpreadValue(property.argument, name, context, seen)
-        : getPropertyValue(property, name, context);
-    if (result !== null) {
-      return result;
-    }
-  }
-  seen.delete(value);
-  return null;
-}
-
-function getPropertyValue(
-  property: TSESTree.Property,
-  name: string,
-  context: Rule.RuleContext,
-): TSESTree.Node | null | undefined {
-  const key = property.computed
-    ? resolveSingleWriteExpression(context, property.key)
-    : property.key;
-  const matchesName =
-    key.type === 'Literal'
-      ? key.value === name
-      : !property.computed && key.type === 'Identifier' && key.name === name;
-  if (matchesName) {
-    return property.kind === 'init' && !property.method ? property.value : undefined;
-  }
-  if (property.computed && key.type !== 'Literal') {
-    return undefined;
-  }
-  return null;
 }
 
 /**
