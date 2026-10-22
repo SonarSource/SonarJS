@@ -351,14 +351,19 @@ jobs:
         env: *qa_env
         run: |
           # This image has Maven and Java but no Node; the analyzer must deploy the musl archive.
+          # A numeric UID has no home; apply a writable home to Maven, tests and scanner JVMs.
           docker run --rm --user "$(id -u):$(id -g)" \
             -v "$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" -w "$GITHUB_WORKSPACE" \
-            -v "$HOME/.m2:/tmp/.m2" -e MAVEN_OPTS=-Duser.home=/tmp \
+            -v "$HOME/.m2:/tmp/.m2" \
+            -e JAVA_TOOL_OPTIONS="${JAVA_TOOL_OPTIONS:-} -Duser.home=/tmp" \
             -e MAVEN_CONFIG=/tmp/.m2 -e SONARSOURCE_REPOSITORY_URL \
             -e SONARSOURCE_QA -e SONARJS_ARTIFACT -e GITHUB_TOKEN -e ORCHESTRATOR_HOME \
             -e ANALYZE_PROFILE -e ARTIFACTORY_USERNAME -e ARTIFACTORY_ACCESS_TOKEN \
             maven:3.9.9-eclipse-temurin-21-alpine sh -ec '
-              ! command -v node
+              if command -v node; then
+                echo "Node must not be installed in this image" >&2
+                exit 1
+              fi
               mvn -B -ntp -s /tmp/.m2/settings.xml -Dmaven.repo.local=/tmp/.m2/repository \
                 verify -f its/plugin/pom.xml -DskipTests=false -P"$ANALYZE_PROFILE" \
                 -Dsonar.runtimeVersion=LATEST_RELEASE \
