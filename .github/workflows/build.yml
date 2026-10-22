@@ -22,7 +22,7 @@ concurrency:
 jobs:
   setup:
     name: Prepare maintenance build
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-s
     outputs:
       node-version: ${{ steps.versions.outputs.node-version }}
       node-matrix: ${{ steps.versions.outputs.node-matrix }}
@@ -55,7 +55,7 @@ jobs:
 
   get_build_number:
     name: Get build number
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-s
     needs: setup
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions:
@@ -69,7 +69,7 @@ jobs:
 
   build:
     name: Build, test and deploy on Linux
-    runs-on: github-ubuntu-latest-m
+    runs-on: sonar-m
     needs: [setup, get_build_number]
     permissions: &read_permissions
       id-token: write
@@ -146,7 +146,7 @@ jobs:
 
   build_win:
     name: Build and test on Windows
-    runs-on: github-windows-latest-s
+    runs-on: warp-custom-windows-2022-s
     needs: [setup, get_build_number]
     permissions: *read_permissions
     env: *build_env
@@ -171,9 +171,9 @@ jobs:
       matrix:
         include:
           - os: Linux
-            runner: github-ubuntu-latest-m
+            runner: sonar-m
           - os: Windows
-            runner: github-windows-latest-s
+            runner: warp-custom-windows-2022-s
     steps:
       - *checkout
       - *mise
@@ -199,7 +199,7 @@ jobs:
 
   test_eslint_plugin:
     name: ESLint ${{ matrix.eslint-version }} integration tests
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-s
     needs: [setup, get_build_number]
     permissions: *read_permissions
     env: *build_env
@@ -223,7 +223,7 @@ jobs:
 
   analyze:
     name: Analyze in SonarQube NEXT
-    runs-on: github-ubuntu-latest-m
+    runs-on: sonar-m
     needs: [setup, get_build_number, build, test_js]
     permissions: *read_permissions
     env: *build_env
@@ -274,7 +274,7 @@ jobs:
 
   plugin_qa_with_node:
     name: QA with Node ${{ matrix.node-version }} (${{ matrix.profile }})
-    runs-on: github-ubuntu-latest-m
+    runs-on: sonar-m
     needs: [setup, get_build_number, build]
     permissions: *read_permissions
     env: *build_env
@@ -315,7 +315,8 @@ jobs:
 
   plugin_qa_without_node:
     name: Embedded runtime QA on ${{ matrix.os }} (${{ matrix.profile }})
-    runs-on: github-ubuntu-latest-m
+    # Alpine QA launches Docker; standard sonar runners have no Docker socket.
+    runs-on: ${{ matrix.os == 'Alpine' && 'warp-custom-ubuntu-24-04' || 'sonar-m' }}
     needs: [setup, get_build_number, build]
     permissions: *read_permissions
     env:
@@ -372,7 +373,7 @@ jobs:
 
   plugin_qa_win:
     name: Plugin QA on Windows
-    runs-on: github-windows-latest-s
+    runs-on: warp-custom-windows-2022-s
     needs: [setup, get_build_number, build]
     permissions: *read_permissions
     env: *build_env
@@ -391,7 +392,7 @@ jobs:
 
   js_ts_ruling:
     name: JS/TS ruling
-    runs-on: github-ubuntu-latest-m
+    runs-on: sonar-m
     needs: [setup, get_build_number, build]
     permissions: *read_permissions
     env: *build_env
@@ -418,7 +419,7 @@ jobs:
 
   ruling:
     name: ${{ matrix.test }} (${{ matrix.profile }})
-    runs-on: github-ubuntu-latest-m
+    runs-on: sonar-m
     needs: [setup, get_build_number, build]
     permissions: *read_permissions
     env: *build_env
@@ -458,7 +459,7 @@ jobs:
     name: Promote tested artifacts
     # Manual runs on a work branch validate CI; promote only PRs or the maintenance branch.
     if: github.event_name == 'pull_request' || github.ref_name == 'branch-10-X'
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-s
     needs: [setup, get_build_number, build, build_win, test_js, test_eslint_plugin,
             analyze, plugin_qa_with_node, plugin_qa_without_node, plugin_qa_win,
             js_ts_ruling, ruling]
