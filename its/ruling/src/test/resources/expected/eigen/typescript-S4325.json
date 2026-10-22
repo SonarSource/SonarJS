@@ -270,6 +270,9 @@
 "eigen:src/app/Scenes/MyCollection/Screens/ArtworkForm/MyCollectionArtworkForm.tests.tsx": [
 39
 ],
+"eigen:src/app/Scenes/MyCollection/Screens/ArtworkForm/MyCollectionImageUtil.ts": [
+82
+],
 "eigen:src/app/Scenes/MyCollection/Screens/ArtworkForm/Screens/MyCollectionArtworkFormArtwork.tsx": [
 81,
 82
@@ -459,11 +462,6 @@
 "eigen:src/app/utils/renderWithPlaceholder.tests.tsx": [
 9,
 20
-],
-"eigen:src/app/utils/renderWithPlaceholder.tsx": [
-50,
-85,
-88
 ],
 "eigen:src/app/utils/useImageSearch.ts": [
 100

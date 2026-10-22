@@ -2,6 +2,7 @@
 "rxjs:src/Subscriber.ts": [
 71,
 75,
+81,
 180,
 182,
 183,
@@ -20,14 +21,25 @@
 94,
 104
 ],
+"rxjs:src/observable/combineLatest.ts": [
+157
+],
 "rxjs:src/observable/dom/WebSocketSubject.ts": [
-90
+90,
+215
 ],
 "rxjs:src/operator/bufferTime.ts": [
 224
 ],
+"rxjs:src/operator/concat.ts": [
+176,
+182
+],
 "rxjs:src/operator/delay.ts": [
 54
+],
+"rxjs:src/operator/merge.ts": [
+164
 ],
 "rxjs:src/operator/mergeMap.ts": [
 76
@@ -38,6 +50,9 @@
 "rxjs:src/operator/multicast.ts": [
 35,
 38
+],
+"rxjs:src/operator/onErrorResumeNext.ts": [
+109
 ],
 "rxjs:src/operator/race.ts": [
 30,
@@ -58,5 +73,8 @@
 ],
 "rxjs:src/util/isScheduler.ts": [
 3
+],
+"rxjs:src/util/toSubscriber.ts": [
+12
 ]
 }

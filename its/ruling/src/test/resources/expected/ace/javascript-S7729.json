@@ -2,9 +2,6 @@
 "ace:lib/ace/mode/javascript/jshint.js": [
 9616
 ],
-"ace:src/edit_session/fold_line.js": [
-24
-],
 "ace:src/edit_session/folding.js": [
 86,
 384,
@@ -40,10 +37,6 @@
 ],
 "ace:src/mouse/dragdrop_handler.js": [
 23
-],
-"ace:src/snippets.js": [
-549,
-727
 ],
 "ace:src/test/mockdom.js": [
 19,

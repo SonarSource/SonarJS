@@ -4,10 +4,6 @@
 ],
 "ace:lib/ace/mode/html/saxparser.js": [
 325,
-503,
-510,
-563,
-570,
 9484
 ],
 "ace:lib/ace/mode/javascript/jshint.js": [
@@ -21,12 +17,6 @@
 ],
 "ace:src/mode/csound_orchestra_highlight_rules.js": [
 1853
-],
-"ace:src/mode/folding/ruby.js": [
-111
-],
-"ace:src/mode/folding/vbscript.js": [
-72
 ],
 "ace:src/mode/slim_highlight_rules.js": [
 27
