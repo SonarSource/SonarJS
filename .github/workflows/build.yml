@@ -311,6 +311,11 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.licenses.outputs.vault).GITHUB_TOKEN }}
           ORCHESTRATOR_HOME: ${{ github.workspace }}/orchestrator
           ANALYZE_PROFILE: ${{ matrix.profile }}
+          # Container runners can expose the host CPU count; bound scanner concurrency explicitly.
+          MAVEN_ARGS: &qa_maven_args >-
+            -Djunit.jupiter.execution.parallel.config.strategy=fixed
+            -Djunit.jupiter.execution.parallel.config.fixed.parallelism=4
+            -Djunit.jupiter.execution.parallel.config.fixed.max-pool-size=4
         run: mvn verify -f its/plugin/pom.xml -DskipTests=false -P${{ matrix.profile }} -Dsonar.runtimeVersion=LATEST_RELEASE
 
   plugin_qa_without_node:
@@ -357,7 +362,7 @@ jobs:
             -v "$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" -w "$GITHUB_WORKSPACE" \
             -v "$HOME/.m2:/tmp/.m2" \
             -e JAVA_TOOL_OPTIONS="${JAVA_TOOL_OPTIONS:-} -Duser.home=/tmp" \
-            -e MAVEN_CONFIG=/tmp/.m2 -e SONARSOURCE_REPOSITORY_URL \
+            -e MAVEN_ARGS -e MAVEN_CONFIG=/tmp/.m2 -e SONARSOURCE_REPOSITORY_URL \
             -e SONARSOURCE_QA -e SONARJS_ARTIFACT -e GITHUB_TOKEN -e ORCHESTRATOR_HOME \
             -e ANALYZE_PROFILE -e ARTIFACTORY_USERNAME -e ARTIFACTORY_ACCESS_TOKEN \
             maven:3.9.9-eclipse-temurin-21-alpine sh -ec '
@@ -388,6 +393,7 @@ jobs:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.licenses.outputs.vault).GITHUB_TOKEN }}
           ORCHESTRATOR_HOME: ${{ github.workspace }}/orchestrator
+          MAVEN_ARGS: *qa_maven_args
         run: mvn verify -f its/plugin/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE
 
   js_ts_ruling:
@@ -444,10 +450,10 @@ jobs:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.licenses.outputs.vault).GITHUB_TOKEN }}
           ORCHESTRATOR_HOME: ${{ github.workspace }}/orchestrator
+          MAVEN_ARGS: *qa_maven_args
         run: >-
           mvn test -f its/ruling/pom.xml -Dtest=${{ matrix.test }} -P${{ matrix.profile }}
           -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE
-          -Djunit.jupiter.execution.parallel.config.dynamic.factor=1
       - name: Upload ruling differences
         if: failure()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
