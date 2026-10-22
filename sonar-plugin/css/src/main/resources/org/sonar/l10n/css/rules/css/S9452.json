@@ -1,0 +1,27 @@
+{
+  "title": "Media feature values should be valid",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-9452",
+  "sqKey": "S9452",
+  "scope": "Main",
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "BLOCKER"
+    },
+    "attribute": "LOGICAL"
+  },
+  "compatibleLanguages": [
+    "css"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}
