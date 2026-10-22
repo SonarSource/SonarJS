@@ -104,6 +104,10 @@ jobs:
       - &npm_install
         name: Install npm dependencies
         run: npm ci --no-audit --no-fund
+      - &generate_metadata
+        name: Generate TypeScript metadata from committed rule data
+        # Parallel Maven modules consume this before the bridge build finishes.
+        run: npm run generate-meta
       - id: deployer-secrets
         uses: SonarSource/vault-action-wrapper@v3
         with:
@@ -152,6 +156,7 @@ jobs:
       - *config_maven
       - *config_npm
       - *npm_install
+      - *generate_metadata
       - name: Build and run Java tests
         run: mvn install -T1C
 
@@ -175,10 +180,9 @@ jobs:
       - *config_maven
       - *config_npm
       - *npm_install
+      - *generate_metadata
       - name: Compile JavaScript and TypeScript tests
-        run: |
-          npm run generate-meta
-          npm run bridge:compile
+        run: npm run bridge:compile
       - name: Run JS tests with coverage
         if: runner.os == 'Linux'
         run: npm run bridge:test:cov
