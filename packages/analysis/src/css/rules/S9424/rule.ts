@@ -32,6 +32,8 @@ import { calc, ParseErrorMessage, type ParseError } from '@csstools/css-calc';
 import { knownFunctionsOf } from '../helpers/known-functions.js';
 import { isLegacyIeFilter, VENDOR_PREFIX } from '../helpers/legacy-syntax.js';
 import { collectRegisteredSyntaxes, UNIVERSAL_SYNTAX } from './registrations.js';
+import { replaceIrregularWhitespaces } from '../helpers/irregular-whitespaces.js';
+import { replaceInvisibleCharacters } from '../../helpers/invisible-characters.js';
 
 const ruleName = meta.bindings[0].stylelintKey;
 
@@ -154,7 +156,7 @@ function findProblem(
   if (isSkippedDeclaration(decl, syntax)) {
     return undefined;
   }
-  const value = decl.raws.value?.raw ?? decl.value;
+  const value = asSpaces(decl.raws.value?.raw ?? decl.value);
   const cacheKey = syntax === undefined ? `${decl.prop}:${value}` : undefined;
   if (cacheKey !== undefined && validValues.has(cacheKey)) {
     return undefined;
@@ -234,13 +236,21 @@ function isAcceptedValue(property: string, ast: CssNode): boolean {
   );
 }
 
+/**
+ * Irregular whitespaces such as U+00A0 are validated as spaces, leaving their report to S9451,
+ * as are the invisible characters from U+2000 to U+200F, such as U+200C.
+ */
+function asSpaces(text: string): string {
+  return replaceInvisibleCharacters(replaceIrregularWhitespaces(text));
+}
+
 function isSkippedDeclaration(decl: PostCSS.Declaration, syntax: string | undefined): boolean {
   const property = decl.prop.toLowerCase();
   return (
     // custom properties are checked only against a restricted registered syntax
     (property.startsWith('--') && (syntax === undefined || syntax === UNIVERSAL_SYNTAX)) ||
     isLegacyIeFilter(decl) ||
-    decl.value.trimEnd().endsWith(IE8_HACK_SUFFIX) ||
+    asSpaces(decl.value).trimEnd().endsWith(IE8_HACK_SUFFIX) ||
     isDescriptor(decl)
   );
 }

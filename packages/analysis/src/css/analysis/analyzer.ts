@@ -26,6 +26,11 @@ import {
 import { warn } from '../../../../shared/src/helpers/logging.js';
 import type { CssIssue } from '../linter/issues/issue.js';
 import { extractSonarResolveCommentsFromCssRoot } from '../../common/sonar-resolve.js';
+import type { FileType } from '../../contracts/file.js';
+import {
+  hasInvisibleCharacters,
+  lintWithInvisibleCharactersReplaced,
+} from '../helpers/invisible-characters.js';
 
 /**
  * Analyzes a CSS analysis input
@@ -67,14 +72,15 @@ export async function analyzeCSS(
   if (isTestFile && !includeMetrics) {
     return { issues: [] };
   }
-  const sanitizedCode = fileContent
-    .replaceAll(/[\u2000-\u200F]/g, ' ')
-    // PostCSS tracks lines by splitting on '\n'; normalize CR-only files to keep locations stable.
-    .replaceAll(/\r(?!\n)/g, '\n');
+  // PostCSS tracks lines by splitting on '\n'; normalize CR-only files to keep locations stable.
+  const normalizedCode = fileContent.replaceAll(/\r(?!\n)/g, '\n');
 
   // TEST files keep highlighting (parity with old CssMetricSensor), but issues remain suppressed.
-  const lintResult = await linter.lint(filePath, sanitizedCode, ruleFileType);
-  const { root, issues: lintingIssues } = lintResult;
+  const {
+    code: lintedCode,
+    root,
+    issues: lintingIssues,
+  } = await lintWithInvisibleCharactersFallback(filePath, normalizedCode, ruleFileType);
   throwIfCssParsingError(lintingIssues);
   const issues = isTestFile ? [] : lintingIssues;
   const sonarResolveComments = root ? extractSonarResolveCommentsFromCssRoot(root) : [];
@@ -102,7 +108,7 @@ export async function analyzeCSS(
         ...(sonarResolveComments.length > 0 ? { sonarResolveComments } : {}),
       };
     } else {
-      const highlights = computeHighlighting(root, sanitizedCode);
+      const highlights = computeHighlighting(root, lintedCode);
       const metrics = computeMetrics(root, {
         includeNcloc: true,
         includeCommentLines: !isTestFile,
@@ -143,8 +149,33 @@ export async function analyzeCSSProject(
   }
 }
 
+/**
+ * Lints the code as written, so that rules see invisible characters such as U+200B. PostCSS rejects
+ * them where it expects no word, for example before a closing brace. Code that fails to parse and
+ * contains them is linted again with a space in place of each, which keeps every location, while
+ * S9451 still reads the code as written.
+ */
+async function lintWithInvisibleCharactersFallback(
+  filePath: CssAnalysisInput['filePath'],
+  code: string,
+  ruleFileType: FileType | undefined,
+): Promise<Awaited<ReturnType<typeof linter.lint>> & { code: string }> {
+  const result = await linter.lint(filePath, code, ruleFileType);
+  if (!findParsingError(result.issues) || !hasInvisibleCharacters(code)) {
+    return { ...result, code };
+  }
+  return lintWithInvisibleCharactersReplaced(code, async sanitizedCode => ({
+    ...(await linter.lint(filePath, sanitizedCode, ruleFileType)),
+    code: sanitizedCode,
+  }));
+}
+
+function findParsingError(issues: CssIssue[]): CssIssue | undefined {
+  return issues.find(issue => issue.ruleId === 'CssSyntaxError');
+}
+
 function throwIfCssParsingError(issues: CssIssue[]) {
-  const parsingIssue = issues.find(issue => issue.ruleId === 'CssSyntaxError');
+  const parsingIssue = findParsingError(issues);
   if (parsingIssue) {
     throw APIError.parsingError(parsingIssue.message, {
       line: parsingIssue.line,
