@@ -27,6 +27,26 @@ describe('S2245', () => {
     ruleTester.run('Using pseudorandom number generators (PRNGs) is security-sensitive', rule, {
       valid: [
         {
+          // `insecure` alone is not a keyword; only the two-word form is
+          code: `function f() { const insecure = Math.random(); }`,
+        },
+        {
+          code: `class Shuffler { run() { return Math.random(); } }`,
+        },
+        {
+          // keyword in an unrelated top-level function does not count for module-level code
+          code: `function verifyInput(x) {}
+const id = Math.random();`,
+        },
+        {
+          code: `class A { verify() {} }
+const id = Math.random();`,
+        },
+        {
+          // identifiers of nested functions are other scopes
+          code: `function outer() { function hashPassword() {} return Math.random(); }`,
+        },
+        {
           code: `class A { shuffle(xs) { return xs.map(() => Math.random()); } }`,
         },
         {
@@ -72,6 +92,69 @@ function pickColor() { return Math.random(); }`,
         },
       ],
       invalid: [
+        {
+          code: `function f() { const insecureRandom = Math.random(); }`,
+          errors: 1,
+        },
+        {
+          // class name is outside the method but part of its context
+          code: `class AuthService { shuffle() { return Math.random(); } }`,
+          errors: 1,
+        },
+        {
+          // result variable of a callback-built value
+          code: `const token = Array.from({ length: 16 }, () => chars[Math.floor(Math.random() * 62)]).join('');`,
+          errors: 1,
+        },
+        {
+          code: `function build() { const token = Array.from({ length: 16 }, () => Math.random()); }`,
+          errors: 1,
+        },
+        {
+          code: `import AES from 'crypto-js/aes'; foo(Math.random());`,
+          errors: 1,
+        },
+        {
+          code: `import { useSession } from 'next-auth/react'; foo(Math.random());`,
+          errors: 1,
+        },
+        {
+          code: `const aes = require('crypto-js/aes'); foo(Math.random());`,
+          errors: 1,
+        },
+        {
+          code: `function f() { const AES256_KEY = Math.random(); }`,
+          errors: 1,
+        },
+        {
+          code: `function f() { const RSA2048 = Math.random(); }`,
+          errors: 1,
+        },
+        {
+          code: `function f() { const HMAC256 = Math.random(); }`,
+          errors: 1,
+        },
+        {
+          code: `function f() { const AES_256_KEY = Math.random(); }`,
+          errors: 1,
+        },
+        {
+          code: `function f() { const SHA256RSA = Math.random(); }`,
+          errors: 1,
+        },
+        {
+          code: `function f() { const aes256key = Math.random(); }`,
+          errors: 1,
+        },
+        {
+          // digit-bearing keywords still match whole
+          code: `function f() { const pbkdf2 = Math.random(); const ChaCha20 = 1; }`,
+          errors: 1,
+        },
+        {
+          code: `function f() { const PBKDF2SALT = Math.random(); }`,
+          errors: 1,
+        },
         {
           code: `class A { generateToken() { return [1].map(() => Math.random()); } }`,
           errors: 1,
@@ -166,6 +249,29 @@ export function pickColor() { return Math.random(); }`,
     ruleTester.run('crypto import via import-equals', rule, {
       valid: [{ code: `import lodash = require('lodash'); foo(Math.random());` }],
       invalid: [
+        {
+          code: `export class InsecureRandomService extends ChallengeService {
+  public static generate5RandomValues(numberOfValues = 5): number[] {
+    const numbers = []
+    for (let i = 0; i < 5; i++)
+      numbers.push(Math.random())
+    return numbers
+  }
+}`,
+          errors: 1,
+        },
+        {
+          code: `const generateToken = (() => Math.random()) as () => number;`,
+          errors: 1,
+        },
+        {
+          code: `const generateToken = (() => Math.random()) satisfies () => number;`,
+          errors: 1,
+        },
+        {
+          code: `const generateToken = (() => Math.random())!;`,
+          errors: 1,
+        },
         {
           code: `import crypto = require('crypto'); foo(Math.random());`,
           errors: 1,
