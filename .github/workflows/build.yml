@@ -829,10 +829,7 @@ jobs:
     name: JS/TS Ruling
     needs: [setup, populate_npm_cache]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    permissions:
-      id-token: write
-      contents: write
-      pull-requests: write
+    permissions: *read_permissions
     steps:
       - &checkout_with_submodules
         name: Checkout source code
@@ -846,75 +843,6 @@ jobs:
         run: |
           npm run generate-meta
           npm run ruling
-      - name: Update ruling and notify
-        if: failure() && steps.ruling.outcome == 'failure' && github.event_name == 'pull_request'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          HEAD_REF: ${{ github.head_ref }}
-        run: |
-          # Check if last commit was already an auto-update (prevent infinite loop)
-          LAST_COMMIT_MSG=$(git log -1 --format=%B)
-          if echo "$LAST_COMMIT_MSG" | grep -q "🤖 Generated with GitHub Actions"; then
-            echo "Last commit was an auto-update, skipping to prevent infinite loop"
-            exit 0
-          fi
-
-          # Sync ruling results (this modifies its/ruling/...)
-          npm run ruling-sync
-
-          # Generate report comparing against master
-          git fetch origin master
-          node tools/ruling-report.js > ruling-report.md
-
-          # Stash changes before checkout
-          git stash push -m "ruling-sync-changes" -- its/ruling/src/test/expected/jsts/
-
-          # Checkout PR branch
-          git fetch origin "$HEAD_REF"
-          git checkout "$HEAD_REF"
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          # Pop the stashed changes
-          git stash pop
-
-          git add its/ruling/src/test/expected/jsts/
-
-          if git diff --staged --quiet; then
-            echo "No ruling changes to commit"
-            exit 0
-          fi
-
-          git commit -m "Update ruling results
-
-          🤖 Generated with GitHub Actions"
-          git push origin "$HEAD_REF"
-
-          # Build comment with marker for identification
-          MARKER="<!-- ruling-report -->"
-          {
-            echo "$MARKER"
-            if [ -s ruling-report.md ]; then
-              cat ruling-report.md
-              echo ""
-            fi
-            echo "---"
-            echo "✅ **Ruling has been updated.** To re-run CI, either:"
-            echo "- Close and reopen this PR, or"
-            echo "- Run: \`git pull && git commit --allow-empty -m 'Trigger CI' && git push\`"
-          } > comment.md
-
-          # Find existing ruling comment and update it, or create new one
-          EXISTING_COMMENT_ID=$(gh api "repos/${{ github.repository }}/issues/$PR_NUMBER/comments" \
-            --jq ".[] | select(.body | startswith(\"$MARKER\")) | .id" | head -1)
-
-          if [ -n "$EXISTING_COMMENT_ID" ]; then
-            gh api "repos/${{ github.repository }}/issues/comments/$EXISTING_COMMENT_ID" \
-              -X PATCH -F body=@comment.md
-          else
-            gh pr comment "$PR_NUMBER" --body-file comment.md
-          fi
 
   ruling:
     runs-on: github-ubuntu-latest-m
