@@ -20,18 +20,18 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { it } from 'node:test';
 
-function probe(script: string) {
+function probe(script: string, backend = 'tsgo-ipc') {
   execFileSync(process.execPath, ['--import', 'tsx', '--input-type=module', '-e', script], {
     encoding: 'utf8',
     stdio: 'pipe',
     timeout: 30_000,
-    env: { ...process.env, SONARJS_TYPESCRIPT_BACKEND: 'tsgo-ipc' },
+    env: { ...process.env, SONARJS_TYPESCRIPT_BACKEND: backend },
   });
 }
 
 it('TSGo preserves virtual POSIX, Windows and UNC path namespaces on every host', async () => {
   const { normalize, nativePaths, restorePaths, nativeFileSystem } = await import(
-    pathToFileURL(path.resolve('packages/typescript/providers/tsgo-ipc/filesystem.mjs')).href
+    pathToFileURL(path.resolve('packages/typescript/providers/tsgo/filesystem.mjs')).href
   );
   for (const [file, cwd, expected] of [
     ['/virtual/main.ts', 'C:/analyzer', '/virtual/main.ts'],
@@ -75,10 +75,12 @@ it('TSGo preserves virtual POSIX, Windows and UNC path namespaces on every host'
   assert.equal(callbacks.getCurrentDirectory(), '/server/share/project');
 });
 
-it('TSGo keeps external typed rules on the facade with the TS6 runtime blocked', () => {
-  const parser = new URL('../../analysis/src/jsts/frontend/parser.js', import.meta.url).href;
-  const factory = new URL('../../analysis/src/jsts/program/factory.js', import.meta.url).href;
-  probe(`
+for (const backend of ['tsgo-ipc', 'tsgo-wasm']) {
+  it(`TSGo ${backend} keeps external typed rules on the facade with the TS6 runtime blocked`, () => {
+    const parser = new URL('../../analysis/src/jsts/frontend/parser.js', import.meta.url).href;
+    const factory = new URL('../../analysis/src/jsts/program/factory.js', import.meta.url).href;
+    probe(
+      `
     import assert from 'node:assert/strict';
     import Module from 'node:module';
     const load=Module._load;
@@ -98,13 +100,16 @@ it('TSGo keeps external typed rules on the facade with the TS6 runtime blocked',
     },{filename:name});
     assert.equal(findings.length,1);assert.equal(findings[0].ruleId,'ts/no-floating-promises');
     assert.equal(findings[0].fatal,undefined);
-    const {createRequire}=await import('node:module');createRequire(process.cwd()+'/package.json')('./packages/typescript/providers/tsgo-ipc/index.mjs').close();
-  `);
-});
+    const {createRequire}=await import('node:module');createRequire(process.cwd()+'/package.json')('typescript/lifecycle').close();
+  `,
+      backend,
+    );
+  });
 
-it('TSGo token traversal terminates for JSDoc links containing a bare hash', () => {
-  const parser = new URL('../../analysis/src/jsts/frontend/parser.js', import.meta.url).href;
-  probe(`
+  it(`TSGo ${backend} token traversal terminates for JSDoc links containing a bare hash`, () => {
+    const parser = new URL('../../analysis/src/jsts/frontend/parser.js', import.meta.url).href;
+    probe(
+      `
     import assert from 'node:assert/strict';
     import * as native from 'typescript-go/ast';
     for (const text of ['#', '#-member', '# member']) {
@@ -125,16 +130,19 @@ it('TSGo token traversal terminates for JSDoc links containing a bare hash', () 
       assert.equal(ast.comments[0].value,'* See {@link $compile#-bindtocontroller- bindings}. ');
       assert.deepEqual(ast.comments[0].range,[0,text.indexOf('\\n')]);
     } finally {
-      (await import('./packages/typescript/providers/tsgo-ipc/index.mjs')).close();
+      (await import('typescript/lifecycle')).close();
     }
-  `);
-});
+  `,
+      backend,
+    );
+  });
 
-it('TSGo scopes queries to snapshots, releases programs and starts a fresh session', () => {
-  probe(`
+  it(`TSGo ${backend} scopes queries to snapshots, releases programs and starts a fresh session`, () => {
+    probe(
+      `
     import assert from 'node:assert/strict';
     import ts from 'typescript';
-    import {createRequire} from 'node:module';const {close}=createRequire(process.cwd()+'/package.json')('./packages/typescript/providers/tsgo-ipc/index.mjs');
+    import {createRequire} from 'node:module';const {close}=createRequire(process.cwd()+'/package.json')('typescript/lifecycle');
     const name='/virtual/overlays/main.ts',dependency='/virtual/overlays/imported.ts';
     const files=new Map([[name,"import { value } from './imported'; export const result=value;"],[dependency,'export const value=42;']]);
     const host={...ts.createCompilerHost({noLib:true}),readFile:file=>files.get(file),fileExists:file=>files.has(file),
@@ -149,12 +157,15 @@ it('TSGo scopes queries to snapshots, releases programs and starts a fresh sessi
     original.dispose();original.dispose();assert.throws(()=>value(original),/disposed/);
     close();assert.throws(()=>value(edited),/session was closed/);
     const restarted=create();assert.equal(value(restarted),'"edited"');restarted.dispose();close();close();
-  `);
-});
+  `,
+      backend,
+    );
+  });
+}
 
 it('TSGo invalidates a failed transport without retrying stale program operations', async () => {
   const runtimeModule = pathToFileURL(
-    path.resolve('packages/typescript/providers/tsgo-ipc/runtime.mjs'),
+    path.resolve('packages/typescript/providers/tsgo/runtime.mjs'),
   ).href;
   const { createRuntime } = await import(runtimeModule);
   let opened = 0,

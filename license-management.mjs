@@ -28,8 +28,8 @@ const THIRD_PARTY_LICENSES_DIR = path.resolve('./licenses/THIRD_PARTY_LICENSES')
 // Native platform packages carry the same license/notice as their registered SDK.
 // Emit that common copy below so regeneration does not depend on the build host.
 const platformPackages = new Set(
-  Object.values(configuration.providers).flatMap(({ sdk, platforms }) => {
-    if (!sdk || !platforms) return [];
+  Object.values(configuration.providers).flatMap(({ sdk }) => {
+    if (!sdk) return [];
     const metadata = require(`${sdk}/package.json`);
     return Object.keys(metadata.optionalDependencies ?? {});
   }),
@@ -130,8 +130,12 @@ async function main() {
     await downloadLicenses();
     await copyMainLicense();
     // license-checker can omit aliased compiler SDKs and native notices.
-    for (const { sdk } of Object.values(configuration.providers)) {
-      if (!sdk) continue;
+    const compilerPackages = new Set(
+      Object.values(configuration.providers)
+        .map(({ sdk }) => sdk)
+        .filter(Boolean),
+    );
+    for (const sdk of compilerPackages) {
       const directory = path.dirname(require.resolve(`${sdk}/package.json`));
       for (const filename of ['LICENSE', 'LICENSE.txt', 'NOTICE.txt']) {
         const source = path.join(directory, filename);

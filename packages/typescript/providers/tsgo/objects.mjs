@@ -382,9 +382,7 @@ export function createObjects({ native, sdk, checker: remote, call, diagnostics 
         return (name, symbol) =>
           wrap(call(() => remote.getMemberInModuleExports(unwrap(symbol), name)));
       if (typeof remote[property] !== 'function')
-        throw new CompilerContractError(
-          `TSGo IPC does not implement TypeChecker.${String(property)}`,
-        );
+        throw new CompilerContractError(`TSGo does not implement TypeChecker.${String(property)}`);
       const method = memoize((...args) => {
         if (property === 'getTypeAtLocation' && args[0] == null)
           return wrap(call(() => remote.getAnyType()));

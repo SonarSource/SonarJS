@@ -101,9 +101,9 @@ export function createRuntime(API, serverFS, executable, expectedVersion) {
   }
   function invoke(host, operation, expectedGeneration = generation) {
     if (inCallback)
-      throw new CompilerContractError('TSGo IPC cannot be re-entered from a filesystem callback');
+      throw new CompilerContractError('TSGo cannot be re-entered from a filesystem callback');
     if (expectedGeneration !== generation)
-      throw new CompilerContractError('TSGo IPC session was closed; recreate the program');
+      throw new CompilerContractError('TSGo session was closed; recreate the program');
     const previous = activeHost;
     activeHost = host ?? sys;
     try {
@@ -111,7 +111,7 @@ export function createRuntime(API, serverFS, executable, expectedVersion) {
     } catch (cause) {
       if (cause instanceof CompilerContractError) throw cause;
       if (
-        /Unexpected EOF|EPIPE|EBADF|ECONNRESET|channel is closed|callback|^panic:/i.test(
+        /Unexpected EOF|EPIPE|EBADF|ECONNRESET|channel is closed|channel timed out|callback|^panic:/i.test(
           cause.message ?? '',
         )
       ) {
@@ -123,7 +123,7 @@ export function createRuntime(API, serverFS, executable, expectedVersion) {
           generation++;
         }
       }
-      const error = new CompilerContractError(`TSGo IPC: ${cause.message ?? cause}`);
+      const error = new CompilerContractError(`TSGo: ${cause.message ?? cause}`);
       error.cause = cause;
       throw error;
     } finally {
