@@ -1,0 +1,488 @@
+name: Build
+on:
+  push:
+    branches:
+      - branch-10-X
+  pull_request:
+    branches:
+      - branch-10-X
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  setup:
+    name: Prepare maintenance build
+    runs-on: github-ubuntu-latest-s
+    outputs:
+      node-version: ${{ steps.versions.outputs.node-version }}
+      node-matrix: ${{ steps.versions.outputs.node-matrix }}
+    steps:
+      - &checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - name: Read Node versions from the runtime dependency and package engines
+        id: versions
+        run: |
+          python3 - <<'PYTHON'
+          import json
+          import os
+          import re
+          import xml.etree.ElementTree as ET
+          ns = {'m': 'http://maven.apache.org/POM/4.0.0'}
+          pom = ET.parse('sonar-plugin/sonar-javascript-plugin/pom.xml')
+          versions = [d.findtext('m:version', namespaces=ns)
+                      for d in pom.findall('.//m:artifactItem', ns)
+                      if d.findtext('m:artifactId', namespaces=ns) == 'nodejs-runtime']
+          assert len(versions) == 1, versions
+          embedded = versions[0].rsplit('.', 1)[0]
+          engine = json.load(open('package.json'))['engines']['node']
+          minimum = re.fullmatch(r'>=(\d+)', engine)
+          assert minimum, f'Update the QA matrix parser for Node engines: {engine}'
+          matrix = {'node-version': [minimum[1], embedded]}
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              print(f'node-version={embedded}', file=output)
+              print(f'node-matrix={json.dumps(matrix)}', file=output)
+          PYTHON
+
+  get_build_number:
+    name: Get build number
+    runs-on: github-ubuntu-latest-s
+    needs: setup
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    permissions:
+      id-token: write
+      contents: write
+    outputs:
+      build-number: ${{ steps.build-number.outputs.BUILD_NUMBER }}
+    steps:
+      - id: build-number
+        uses: SonarSource/ci-github-actions/get-build-number@v2
+
+  build:
+    name: Build, test and deploy on Linux
+    runs-on: github-ubuntu-latest-m
+    needs: [setup, get_build_number]
+    permissions: &read_permissions
+      id-token: write
+      contents: read
+    env: &build_env
+      # Allocate once; configuration, QA and promotion must use the same version.
+      BUILD_NUMBER: &build_number ${{ needs.get_build_number.outputs.build-number }}
+    steps:
+      - *checkout
+      - &mise
+        uses: jdx/mise-action@v3.6.1
+        with:
+          version: 2025.11.2
+          cache_save: false
+          mise_toml: |
+            [tools]
+            java = "21.0"
+            maven = "3.9"
+            node = "${{ needs.setup.outputs.node-version }}"
+      - &config_maven
+        name: Configure Maven
+        id: config-maven
+        uses: SonarSource/ci-github-actions/config-maven@v2
+        with:
+          artifactory-reader-role: private-reader
+      - &config_npm
+        name: Configure npm registry
+        shell: bash
+        run: |
+          npm config set '//repox.jfrog.io/artifactory/api/npm/:_authToken' "$ARTIFACTORY_ACCESS_TOKEN"
+          npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
+      - &npm_install
+        name: Install npm dependencies
+        run: npm ci --no-audit --no-fund
+      - &generate_metadata
+        name: Generate TypeScript metadata from committed rule data
+        # Parallel Maven modules consume this before the bridge build finishes.
+        run: npm run generate-meta
+      - id: deployer-secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/artifactory/token/{REPO_OWNER_NAME_DASH}-qa-deployer username | ARTIFACTORY_DEPLOY_USERNAME;
+            development/artifactory/token/{REPO_OWNER_NAME_DASH}-qa-deployer access_token | ARTIFACTORY_DEPLOY_ACCESS_TOKEN;
+            development/kv/data/sign key | SIGN_KEY;
+            development/kv/data/sign passphrase | PGP_PASSPHRASE;
+      - name: Build, run Java tests and deploy signed artifacts
+        run: mvn deploy -Pdeploy-sonarsource,coverage,coverage-report,sign,release -T1C
+        env:
+          ARTIFACTORY_DEPLOY_USERNAME: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_USERNAME }}
+          ARTIFACTORY_DEPLOY_PASSWORD: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_ACCESS_TOKEN }}
+          ARTIFACTORY_DEPLOY_REPO: sonarsource-public-qa
+          SIGN_KEY: ${{ fromJSON(steps.deployer-secrets.outputs.vault).SIGN_KEY }}
+          PGP_PASSPHRASE: ${{ fromJSON(steps.deployer-secrets.outputs.vault).PGP_PASSPHRASE }}
+      - name: Verify committed rule data is unchanged
+        run: >-
+          git diff --exit-code --
+          sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript
+          sonar-plugin/css/src/main/resources/org/sonar/l10n/css/rules/css
+      - name: Upload built Maven artifacts for QA
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: sonarjs-m2
+          path: ~/.m2/repository/org/sonarsource/javascript
+          retention-days: 3
+      - name: Upload build outputs and Java coverage for analysis
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: maven-targets
+          path: |
+            **/target/
+            coverage/java/
+          retention-days: 3
+
+  build_win:
+    name: Build and test on Windows
+    runs-on: github-windows-latest-s
+    needs: [setup, get_build_number]
+    permissions: *read_permissions
+    env: *build_env
+    steps:
+      - *checkout
+      - *mise
+      - *config_maven
+      - *config_npm
+      - *npm_install
+      - *generate_metadata
+      - name: Build and run Java tests
+        run: mvn install -T1C
+
+  test_js:
+    name: JS tests on ${{ matrix.os }} with embedded Node version
+    runs-on: ${{ matrix.runner }}
+    needs: [setup, get_build_number]
+    permissions: *read_permissions
+    env: *build_env
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: Linux
+            runner: github-ubuntu-latest-m
+          - os: Windows
+            runner: github-windows-latest-s
+    steps:
+      - *checkout
+      - *mise
+      - *config_maven
+      - *config_npm
+      - *npm_install
+      - *generate_metadata
+      - name: Compile JavaScript and TypeScript tests
+        run: npm run bridge:compile
+      - name: Run JS tests with coverage
+        if: runner.os == 'Linux'
+        run: npm run bridge:test:cov
+      - name: Run JS tests on Windows
+        if: runner.os == 'Windows'
+        run: npm run bridge:test:js
+      - name: Upload JS coverage
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: js-coverage
+          path: coverage/js/
+          retention-days: 3
+
+  test_eslint_plugin:
+    name: ESLint ${{ matrix.eslint-version }} integration tests
+    runs-on: github-ubuntu-latest-s
+    needs: [setup, get_build_number]
+    permissions: *read_permissions
+    env: *build_env
+    strategy:
+      fail-fast: false
+      matrix:
+        eslint-version: [8, 9]
+    steps:
+      - *checkout
+      - *mise
+      - *config_maven
+      - *config_npm
+      - name: Build ESLint plugin
+        run: npm run eslint-plugin:build
+      - name: Test ESLint plugin and declarations
+        working-directory: its/eslint${{ matrix.eslint-version }}-plugin-sonarjs
+        run: |
+          npm install --no-audit --no-fund
+          npx tsc --noEmit
+          npm test
+
+  analyze:
+    name: Analyze in SonarQube NEXT
+    runs-on: github-ubuntu-latest-m
+    needs: [setup, get_build_number, build, test_js]
+    permissions: *read_permissions
+    env: *build_env
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          fetch-depth: 0
+      - *mise
+      - *config_maven
+      - *config_npm
+      - *npm_install
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: maven-targets
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: js-coverage
+          path: coverage/js
+      - id: secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/kv/data/next url | SONAR_URL;
+            development/kv/data/next token | SONAR_TOKEN;
+      - name: Run SonarQube analysis
+        shell: bash
+        env:
+          SONAR_HOST_URL: ${{ fromJSON(steps.secrets.outputs.vault).SONAR_URL }}
+          SONAR_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).SONAR_TOKEN }}
+          PROJECT_VERSION: ${{ steps.config-maven.outputs.project-version }}
+          EVENT_NAME: ${{ github.event_name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_REF: ${{ github.head_ref }}
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          npm run generate-meta
+          npm run bridge:compile
+          args=(-Dsonar.projectKey=org.sonarsource.javascript:javascript
+                "-Dsonar.projectVersion=$PROJECT_VERSION"
+                "-Dsonar.scm.revision=$GITHUB_SHA" -Dcommercial)
+          if [[ "$EVENT_NAME" == pull_request ]]; then
+            args+=("-Dsonar.pullrequest.key=$PR_NUMBER"
+                   "-Dsonar.pullrequest.branch=$HEAD_REF" "-Dsonar.pullrequest.base=$BASE_REF")
+          else
+            args+=("-Dsonar.branch.name=$GITHUB_REF_NAME")
+          fi
+          mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.1.0.4751:sonar "${args[@]}"
+
+  plugin_qa_with_node:
+    name: QA with Node ${{ matrix.node-version }} (${{ matrix.profile }})
+    runs-on: github-ubuntu-latest-m
+    needs: [setup, get_build_number, build]
+    permissions: *read_permissions
+    env: *build_env
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: ${{ fromJSON(needs.setup.outputs.node-matrix).node-version }}
+        profile: [analyze-project-enabled, analyze-project-disabled]
+    steps:
+      - *checkout
+      - *mise
+      - name: Select Node version for compatibility QA
+        env:
+          QA_NODE_VERSION: ${{ matrix.node-version }}
+        run: |
+          mise install "node@$QA_NODE_VERSION"
+          echo "$(mise where "node@$QA_NODE_VERSION")/bin" >> "$GITHUB_PATH"
+      - *config_maven
+      - &download_m2
+        name: Restore built Maven artifacts
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: sonarjs-m2
+          path: ~/.m2/repository/org/sonarsource/javascript
+      - &licenses
+        id: licenses
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/github/token/licenses-ro token | GITHUB_TOKEN;
+      - name: Run plugin QA
+        env: &qa_env
+          SONARSOURCE_QA: true
+          GITHUB_TOKEN: ${{ fromJSON(steps.licenses.outputs.vault).GITHUB_TOKEN }}
+          ORCHESTRATOR_HOME: ${{ github.workspace }}/orchestrator
+          ANALYZE_PROFILE: ${{ matrix.profile }}
+        run: mvn verify -f its/plugin/pom.xml -DskipTests=false -P${{ matrix.profile }} -Dsonar.runtimeVersion=LATEST_RELEASE
+
+  plugin_qa_without_node:
+    name: Embedded runtime QA on ${{ matrix.os }} (${{ matrix.profile }})
+    runs-on: github-ubuntu-latest-m
+    needs: [setup, get_build_number, build]
+    permissions: *read_permissions
+    env:
+      BUILD_NUMBER: *build_number
+      SONARJS_ARTIFACT: ${{ matrix.os == 'Alpine' && 'linux-x64-musl' || 'multi' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [Ubuntu, Alpine]
+        profile: [analyze-project-enabled, analyze-project-disabled]
+    steps:
+      - *checkout
+      - *mise
+      - *config_maven
+      - *download_m2
+      - *licenses
+      - name: Build the consumer plugin before disabling Node
+        run: mvn package -f its/plugin/plugins/pom.xml --projects '!org.sonarsource.javascript:eslint-custom-rules-plugin'
+      - name: Run embedded runtime QA on Ubuntu
+        if: matrix.os == 'Ubuntu'
+        shell: bash
+        env: *qa_env
+        run: |
+          # Remove every preinstalled Node executable so PATH lookup must use the embedded runtime.
+          while node_path=$(command -v node); do sudo mv "$node_path" "$node_path.disabled"; done
+          mvn verify -f its/plugin/pom.xml -DskipTests=false -P"$ANALYZE_PROFILE" \
+            -Dsonar.runtimeVersion=LATEST_RELEASE \
+            '-Dtest=!EslintCustomRulesTest,!SonarJsIntegrationTest' \
+            --projects '!org.sonarsource.javascript:eslint-custom-rules-plugin'
+      - name: Run embedded runtime QA in Alpine
+        if: matrix.os == 'Alpine'
+        shell: bash
+        env: *qa_env
+        run: |
+          # This image has Maven and Java but no Node; the analyzer must deploy the musl archive.
+          # A numeric UID has no home; apply a writable home to Maven, tests and scanner JVMs.
+          docker run --rm --user "$(id -u):$(id -g)" \
+            -v "$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" -w "$GITHUB_WORKSPACE" \
+            -v "$HOME/.m2:/tmp/.m2" \
+            -e JAVA_TOOL_OPTIONS="${JAVA_TOOL_OPTIONS:-} -Duser.home=/tmp" \
+            -e MAVEN_CONFIG=/tmp/.m2 -e SONARSOURCE_REPOSITORY_URL \
+            -e SONARSOURCE_QA -e SONARJS_ARTIFACT -e GITHUB_TOKEN -e ORCHESTRATOR_HOME \
+            -e ANALYZE_PROFILE -e ARTIFACTORY_USERNAME -e ARTIFACTORY_ACCESS_TOKEN \
+            maven:3.9.9-eclipse-temurin-21-alpine sh -ec '
+              if command -v node; then
+                echo "Node must not be installed in this image" >&2
+                exit 1
+              fi
+              mvn -B -ntp -s /tmp/.m2/settings.xml -Dmaven.repo.local=/tmp/.m2/repository \
+                verify -f its/plugin/pom.xml -DskipTests=false -P"$ANALYZE_PROFILE" \
+                -Dsonar.runtimeVersion=LATEST_RELEASE \
+                "-Dtest=!EslintCustomRulesTest,!SonarJsIntegrationTest" \
+                --projects "!org.sonarsource.javascript:eslint-custom-rules-plugin"'
+
+  plugin_qa_win:
+    name: Plugin QA on Windows
+    runs-on: github-windows-latest-s
+    needs: [setup, get_build_number, build]
+    permissions: *read_permissions
+    env: *build_env
+    steps:
+      - *checkout
+      - *mise
+      - *config_maven
+      - *download_m2
+      - *licenses
+      - name: Run plugin and SonarLint QA
+        env:
+          SONARSOURCE_QA: true
+          GITHUB_TOKEN: ${{ fromJSON(steps.licenses.outputs.vault).GITHUB_TOKEN }}
+          ORCHESTRATOR_HOME: ${{ github.workspace }}/orchestrator
+        run: mvn verify -f its/plugin/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE
+
+  js_ts_ruling:
+    name: JS/TS ruling
+    runs-on: github-ubuntu-latest-m
+    needs: [setup, get_build_number, build]
+    permissions: *read_permissions
+    env: *build_env
+    steps:
+      - &checkout_submodules
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          submodules: true
+      - *mise
+      - *config_maven
+      - *config_npm
+      - *npm_install
+      - name: Compile and run ruling
+        run: |
+          npm run generate-meta
+          npm run bridge:compile
+          npm run ruling
+      - name: Upload ruling differences
+        if: failure()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: ruling-differences-jsts
+          path: packages/ruling/tests/actual/jsts/
+
+  ruling:
+    name: ${{ matrix.test }} (${{ matrix.profile }})
+    runs-on: github-ubuntu-latest-m
+    needs: [setup, get_build_number, build]
+    permissions: *read_permissions
+    env: *build_env
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - test: JsTsRulingTest
+            profile: analyze-project-enabled
+          - test: JsTsRulingTest
+            profile: analyze-project-disabled
+          - test: CssRulingTest
+            profile: analyze-project-disabled
+    steps:
+      - *checkout_submodules
+      - *mise
+      - *config_maven
+      - *download_m2
+      - *licenses
+      - name: Run ruling tests
+        env:
+          SONARSOURCE_QA: true
+          GITHUB_TOKEN: ${{ fromJSON(steps.licenses.outputs.vault).GITHUB_TOKEN }}
+          ORCHESTRATOR_HOME: ${{ github.workspace }}/orchestrator
+        run: >-
+          mvn test -f its/ruling/pom.xml -Dtest=${{ matrix.test }} -P${{ matrix.profile }}
+          -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE
+          -Djunit.jupiter.execution.parallel.config.dynamic.factor=1
+      - name: Upload ruling differences
+        if: failure()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: ruling-differences-${{ matrix.test }}-${{ matrix.profile }}
+          path: its/ruling/target/actual/
+
+  promote:
+    name: Promote tested artifacts
+    # Manual runs on a work branch validate CI; promote only PRs or the maintenance branch.
+    if: github.event_name == 'pull_request' || github.ref_name == 'branch-10-X'
+    runs-on: github-ubuntu-latest-s
+    needs: [setup, get_build_number, build, build_win, test_js, test_eslint_plugin,
+            analyze, plugin_qa_with_node, plugin_qa_without_node, plugin_qa_win,
+            js_ts_ruling, ruling]
+    permissions: *read_permissions
+    env: *build_env
+    steps:
+      - *checkout
+      - *mise
+      - uses: SonarSource/ci-github-actions/promote@v1
+        with:
+          promote-pull-request: true
+
+  releasability:
+    name: Releasability
+    runs-on: github-ubuntu-latest-s
+    needs: promote
+    if: github.ref_name == 'branch-10-X'
+    permissions:
+      id-token: write
+      statuses: write
+      contents: read
+    steps:
+      - uses: SonarSource/gh-action_releasability/releasability-status@v3
+        with:
+          optional_checks: Jira
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
