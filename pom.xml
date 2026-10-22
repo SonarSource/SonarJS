@@ -144,6 +144,12 @@
         <artifactId>commons-compress</artifactId>
         <version>1.27.1</version>
       </dependency>
+      <!-- Match master: older test APIs must not override Orchestrator's runtime dependency. -->
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>3.21.0</version>
+      </dependency>
       <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
