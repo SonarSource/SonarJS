@@ -413,6 +413,7 @@ jobs:
           trap 'kill "$monitor_pid" 2>/dev/null || true' EXIT
           # This image has Maven and Java but no Node; the analyzer must deploy the musl archive.
           # A numeric UID has no home; apply a writable home to Maven, tests and scanner JVMs.
+          # Cap this larger legacy QA suite at four classes to leave headroom on the 16 GB host.
           docker run --rm --name sonarjs-alpine-qa --user "$(id -u):$(id -g)" \
             -v "$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" -w "$GITHUB_WORKSPACE" \
             -v "$HOME/.m2:/tmp/.m2" \
@@ -428,6 +429,8 @@ jobs:
               fi
               mvn -B -ntp -s /tmp/.m2/settings.xml -Dmaven.repo.local=/tmp/.m2/repository \
                 "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" \
+                -Djunit.jupiter.execution.parallel.config.strategy=fixed \
+                -Djunit.jupiter.execution.parallel.config.fixed.parallelism=4 \
                 verify -f its/plugin/pom.xml -DskipTests=false -P"$ANALYZE_PROFILE" \
                 -Dsonar.runtimeVersion=LATEST_RELEASE \
                 "-Dtest=!EslintCustomRulesTest,!SonarJsIntegrationTest" \
