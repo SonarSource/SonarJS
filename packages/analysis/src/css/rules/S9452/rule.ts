@@ -120,4 +120,7 @@ const decoratedRule = createDecoratedRule(stylelintKey, upstreamRule, rewriteMes
 const ruleImpl: stylelint.RuleBase = (primary, secondaryOptions, context) =>
   decoratedRule(primary, withMissingValues(secondaryOptions), context);
 
-export const rule = stylelint.createPlugin(stylelintKey, ruleImpl as stylelint.Rule);
+export const rule = stylelint.createPlugin(stylelintKey, ruleImpl as stylelint.Rule) as {
+  ruleName: string;
+  rule: stylelint.Rule;
+};
