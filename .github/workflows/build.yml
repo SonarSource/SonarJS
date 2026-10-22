@@ -77,9 +77,14 @@ jobs:
     name: Get build number
     needs: setup
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    permissions: *read_permissions
+    permissions:
+      id-token: write
+      contents: write
+    outputs:
+      build-number: ${{ steps.build-number.outputs.BUILD_NUMBER }}
     steps:
-      - uses: SonarSource/ci-github-actions/get-build-number@master
+      - id: build-number
+        uses: SonarSource/ci-github-actions/get-build-number@v2
 
   populate_npm_cache:
     runs-on: github-ubuntu-latest-s
@@ -137,6 +142,9 @@ jobs:
     needs: [setup, get_build_number, populate_npm_cache]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
+    env: &shared_build_number
+      # Reuse the number allocated once by get_build_number in every Maven and promotion job.
+      BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
     steps:
       - *checkout
       - &mise
@@ -163,7 +171,7 @@ jobs:
       - &config_maven
         name: Configure Maven
         id: config-maven
-        uses: SonarSource/ci-github-actions/config-maven@master
+        uses: SonarSource/ci-github-actions/config-maven@v2
         with:
           artifactory-reader-role: private-reader
           disable-caching: 'true'
@@ -214,9 +222,10 @@ jobs:
   build_win:
     runs-on: github-windows-latest-s
     name: Build SonarJS on Windows
-    needs: [setup, populate_npm_cache_win]
+    needs: [setup, get_build_number, populate_npm_cache_win]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
+    env: *shared_build_number
     steps:
       - *checkout
       - *mise
@@ -390,9 +399,10 @@ jobs:
   analyze_primary:
     runs-on: github-ubuntu-latest-s
     name: Analyze in SonarQube NEXT
-    needs: [setup, test_js, build]
+    needs: [setup, get_build_number, test_js, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
+    env: *shared_build_number
     steps:
       - &checkout_with_tags
         name: Checkout source code with tags
@@ -449,7 +459,7 @@ jobs:
   analyze_shadows:
     runs-on: github-ubuntu-latest-s
     name: Analyze in ${{ matrix.platform }}
-    needs: [setup, test_js, build]
+    needs: [setup, get_build_number, test_js, build]
     permissions: *read_permissions
     if: github.event_name == 'schedule'
     strategy:
@@ -459,6 +469,7 @@ jobs:
             sonar-platform: sonarcloud
           - platform: SonarQube US
             sonar-platform: sonarqube-us
+    env: *shared_build_number
     steps:
       - *checkout_with_tags
       - *mise
@@ -501,11 +512,12 @@ jobs:
   plugin_qa_with_node:
     runs-on: github-ubuntu-latest-s
     name: QA with Node ${{ matrix.node-version }} on Ubuntu
-    needs: [setup, build]
+    needs: [setup, get_build_number, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     strategy:
       matrix: ${{ fromJson(needs.setup.outputs.node-matrix) }}
+    env: *shared_build_number
     steps:
       - *checkout
       - &mise_java_matrix_node
@@ -546,11 +558,12 @@ jobs:
   plugin_qa_fast_with_node:
     runs-on: github-ubuntu-latest-s
     name: Fast QA with Node ${{ matrix.node-version }} on Ubuntu
-    needs: [setup, build]
+    needs: [setup, get_build_number, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     strategy:
       matrix: ${{ fromJson(needs.setup.outputs.node-matrix) }}
+    env: *shared_build_number
     steps:
       - *checkout
       - *mise_java_matrix_node
@@ -572,9 +585,10 @@ jobs:
   plugin_qa_without_node:
     runs-on: github-ubuntu-latest-s
     name: QA without Node on Ubuntu SQ:LATEST_RELEASE
-    needs: [setup, build]
+    needs: [setup, get_build_number, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
+    env: *shared_build_number
     steps:
       - *checkout
       - &mise_java_only
@@ -621,9 +635,10 @@ jobs:
   plugin_qa_without_node_dev:
     runs-on: github-ubuntu-latest-s
     name: QA without Node on Ubuntu SQ:DEV
-    needs: [setup, build]
+    needs: [setup, get_build_number, build]
     if: github.event_name == 'schedule'
     permissions: *read_permissions
+    env: *shared_build_number
     steps:
       - *checkout
       - *mise_java_only
@@ -646,7 +661,7 @@ jobs:
   plugin_qa_fast_without_node:
     runs-on: github-ubuntu-latest-s
     name: Fast QA without Node on ${{ matrix.os }} SQ:${{ matrix.sq-version }}
-    needs: [setup, build]
+    needs: [setup, get_build_number, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     strategy:
@@ -658,6 +673,7 @@ jobs:
 #          - os: Alpine
 #            sq-version: LATEST_RELEASE
 #            artifact: linux-x64-musl
+    env: *shared_build_number
     steps:
       - *checkout
       - *mise_java_only
@@ -682,9 +698,10 @@ jobs:
   plugin_qa_fast_without_node_dev:
     runs-on: github-ubuntu-latest-s
     name: Fast QA without Node on Ubuntu SQ:DEV
-    needs: [setup, build]
+    needs: [setup, get_build_number, build]
     if: github.event_name == 'schedule'
     permissions: *read_permissions
+    env: *shared_build_number
     steps:
       - *checkout
       - *mise_java_only
@@ -706,7 +723,7 @@ jobs:
   plugin_qa_win:
     runs-on: github-windows-latest-s
     name: QA on Windows (${{ matrix.group }})
-    needs: [setup, build]
+    needs: [setup, get_build_number, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     strategy:
@@ -716,6 +733,7 @@ jobs:
             exclude: false
           - group: 2
             exclude: true
+    env: *shared_build_number
     steps:
       - *checkout
       - *mise
@@ -746,9 +764,10 @@ jobs:
   plugin_qa_sonarlint_win:
     runs-on: github-windows-latest-s
     name: QA SonarLint on Windows
-    needs: [setup, build]
+    needs: [setup, get_build_number, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
+    env: *shared_build_number
     steps:
       - *checkout
       - *mise
@@ -765,7 +784,7 @@ jobs:
   plugin_qa_win_fast_with_node:
     runs-on: github-windows-latest-s
     name: Fast QA on Windows with Node (${{ matrix.group }})
-    needs: [setup, build]
+    needs: [setup, get_build_number, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     strategy:
@@ -775,6 +794,7 @@ jobs:
             exclude: false
           - group: 2
             exclude: true
+    env: *shared_build_number
     steps:
       - *checkout
       - *mise
@@ -809,10 +829,7 @@ jobs:
     name: JS/TS Ruling
     needs: [setup, populate_npm_cache]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    permissions:
-      id-token: write
-      contents: write
-      pull-requests: write
+    permissions: *read_permissions
     steps:
       - &checkout_with_submodules
         name: Checkout source code
@@ -826,82 +843,14 @@ jobs:
         run: |
           npm run generate-meta
           npm run ruling
-      - name: Update ruling and notify
-        if: failure() && steps.ruling.outcome == 'failure' && github.event_name == 'pull_request'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          HEAD_REF: ${{ github.head_ref }}
-        run: |
-          # Check if last commit was already an auto-update (prevent infinite loop)
-          LAST_COMMIT_MSG=$(git log -1 --format=%B)
-          if echo "$LAST_COMMIT_MSG" | grep -q "🤖 Generated with GitHub Actions"; then
-            echo "Last commit was an auto-update, skipping to prevent infinite loop"
-            exit 0
-          fi
-
-          # Sync ruling results (this modifies its/ruling/...)
-          npm run ruling-sync
-
-          # Generate report comparing against master
-          git fetch origin master
-          node tools/ruling-report.js > ruling-report.md
-
-          # Stash changes before checkout
-          git stash push -m "ruling-sync-changes" -- its/ruling/src/test/expected/jsts/
-
-          # Checkout PR branch
-          git fetch origin "$HEAD_REF"
-          git checkout "$HEAD_REF"
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          # Pop the stashed changes
-          git stash pop
-
-          git add its/ruling/src/test/expected/jsts/
-
-          if git diff --staged --quiet; then
-            echo "No ruling changes to commit"
-            exit 0
-          fi
-
-          git commit -m "Update ruling results
-
-          🤖 Generated with GitHub Actions"
-          git push origin "$HEAD_REF"
-
-          # Build comment with marker for identification
-          MARKER="<!-- ruling-report -->"
-          {
-            echo "$MARKER"
-            if [ -s ruling-report.md ]; then
-              cat ruling-report.md
-              echo ""
-            fi
-            echo "---"
-            echo "✅ **Ruling has been updated.** To re-run CI, either:"
-            echo "- Close and reopen this PR, or"
-            echo "- Run: \`git pull && git commit --allow-empty -m 'Trigger CI' && git push\`"
-          } > comment.md
-
-          # Find existing ruling comment and update it, or create new one
-          EXISTING_COMMENT_ID=$(gh api "repos/${{ github.repository }}/issues/$PR_NUMBER/comments" \
-            --jq ".[] | select(.body | startswith(\"$MARKER\")) | .id" | head -1)
-
-          if [ -n "$EXISTING_COMMENT_ID" ]; then
-            gh api "repos/${{ github.repository }}/issues/comments/$EXISTING_COMMENT_ID" \
-              -X PATCH -F body=@comment.md
-          else
-            gh pr comment "$PR_NUMBER" --body-file comment.md
-          fi
 
   ruling:
     runs-on: github-ubuntu-latest-m
     name: Ruling Test
-    needs: [setup, build]
+    needs: [setup, get_build_number, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
+    env: *shared_build_number
     steps:
       - *checkout_with_submodules
       - *mise
@@ -929,9 +878,10 @@ jobs:
   css_ruling:
     runs-on: github-ubuntu-latest-s
     name: CSS Ruling
-    needs: [setup, build]
+    needs: [setup, get_build_number, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
+    env: *shared_build_number
     steps:
       - *checkout_with_submodules
       - *mise
@@ -983,6 +933,8 @@ jobs:
   promote:
     runs-on: github-ubuntu-latest-s
     needs:
+      - setup
+      - get_build_number
       - build
       - build_win
       - test_js
@@ -1001,6 +953,7 @@ jobs:
       - js_ts_ruling
     if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
     permissions: *read_permissions
+    env: *shared_build_number
     steps:
       - *checkout
       - *mise

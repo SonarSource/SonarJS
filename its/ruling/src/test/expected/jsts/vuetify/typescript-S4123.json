@@ -1,0 +1,14 @@
+{
+"vuetify:packages/docs/src/store/ads.ts": [
+44
+],
+"vuetify:packages/docs/src/store/banners.ts": [
+64
+],
+"vuetify:packages/docs/src/store/shopify.ts": [
+53
+],
+"vuetify:packages/docs/src/store/sponsors.ts": [
+29
+]
+}
