@@ -11,6 +11,11 @@ on:
   schedule:
     - cron: '0 0 * * *'  # Nightly for analyze and iris tasks
 
+env:
+  # Match master: npmjs lockfiles follow the registry selected for CI.
+  NPM_CONFIG_REPLACE_REGISTRY_HOST: npmjs
+  REPOX_NPM_URL: https://repox-internal.dev.sonar.build
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -89,20 +94,26 @@ jobs:
   populate_npm_cache:
     runs-on: sonar-xs
     name: Populate NPM cache for Linux
-    needs: setup
+    needs: [setup, get_build_number]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
-    steps: &populate_npm_cache_steps
-      - name: Cache NPM dependencies
+    env: &shared_build_number
+      # Reuse the number allocated once by get_build_number in every Maven and promotion job.
+      BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
+    steps:
+      - &npm_cache_probe
+        name: Cache NPM dependencies
         id: cache
         uses: SonarSource/gh-action_cache@v1
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
-      - name: Checkout source code
+      - &npm_cache_checkout
+        name: Checkout source code
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-      - if: steps.cache.outputs.cache-hit != 'true'
+      - &npm_cache_mise
+        if: steps.cache.outputs.cache-hit != 'true'
         uses: jdx/mise-action@v3.6.1
         with:
           version: 2025.11.2
@@ -113,28 +124,43 @@ jobs:
             maven = "3.9"
             node = "24.11.0"
       - if: steps.cache.outputs.cache-hit != 'true'
-        id: secrets
-        name: Access vault secrets
-        uses: SonarSource/vault-action-wrapper@v3
-        with:
-          secrets: |
-            development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
-      - if: steps.cache.outputs.cache-hit != 'true'
-        name: Configure npm registry
-        run: |
-          npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
-          npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
-      - if: steps.cache.outputs.cache-hit != 'true'
+        uses: SonarSource/ci-github-actions/config-npm@v2
+        with: &npm_configuration
+          repox-url: ${{ env.REPOX_NPM_URL }}
+          artifactory-reader-role: private-reader
+          disable-caching: 'true'
+      - &npm_cache_install
+        if: steps.cache.outputs.cache-hit != 'true'
         name: Install NPM dependencies
         run: npm ci
 
   populate_npm_cache_win:
     runs-on: warp-custom-windows-2022-s
     name: Populate NPM cache for Windows
-    needs: setup
+    needs: [setup, get_build_number]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
-    steps: *populate_npm_cache_steps
+    env: *shared_build_number
+    steps:
+      - *npm_cache_probe
+      - *npm_cache_checkout
+      - *npm_cache_mise
+      - if: steps.cache.outputs.cache-hit != 'true'
+        id: npm-secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          url: https://vault.dev.sonar.build
+          secrets: |
+            development/artifactory-edge-dev/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
+      - if: steps.cache.outputs.cache-hit != 'true'
+        name: Configure npm registry
+        shell: bash
+        env:
+          ARTIFACTORY_ACCESS_TOKEN: ${{ steps.npm-secrets.outputs.vault && fromJSON(steps.npm-secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN || '' }}
+        run: |
+          npm config set "//${REPOX_NPM_URL#https://}/artifactory/api/npm/:_authToken=${ARTIFACTORY_ACCESS_TOKEN}"
+          npm config set registry "$REPOX_NPM_URL/artifactory/api/npm/npm/"
+      - *npm_cache_install
 
   build:
     runs-on: sonar-l
@@ -142,9 +168,7 @@ jobs:
     needs: [setup, get_build_number, populate_npm_cache]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
-    env: &shared_build_number
-      # Reuse the number allocated once by get_build_number in every Maven and promotion job.
-      BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
+    env: *shared_build_number
     steps:
       - *checkout
       - &mise
@@ -244,23 +268,17 @@ jobs:
 
   build_eslint_plugin:
     runs-on: warp-custom-ubuntu-24-04
-    needs: [setup, populate_npm_cache]
+    needs: [setup, get_build_number, populate_npm_cache]
     name: Build ESLint Plugin
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
+    env: *shared_build_number
     steps:
       - *checkout
       - *mise
-      - id: secrets
-        name: Access vault secrets
-        uses: SonarSource/vault-action-wrapper@v3
-        with:
-          secrets: |
-            development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
-      - name: Configure npm registry
-        run: |
-          npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
-          npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
+      - &config_npm
+        uses: SonarSource/ci-github-actions/config-npm@v2
+        with: *npm_configuration
       - *npm_cache
       - name: Build ESLint plugin
         run: npm run eslint-plugin:build
@@ -274,9 +292,11 @@ jobs:
   test_eslint_plugin:
     runs-on: warp-custom-ubuntu-24-04
     name: ESLint Plugin Test - ESLint ${{ matrix.eslint-version }} Node ${{ matrix.node-version }}
-    needs: [setup, build_eslint_plugin]
+    needs: [setup, get_build_number, build_eslint_plugin]
     permissions: *read_permissions
+    env: *shared_build_number
     strategy:
+      fail-fast: false
       matrix:
         include:
           - eslint-version: 9
@@ -295,6 +315,7 @@ jobs:
             [tools]
             node = "${{ matrix.node-version }}"
       - *eslint_tarball_cache
+      - *config_npm
       - name: Test ESLint Plugin
         run: |
           cd its/eslint${{ matrix.eslint-version }}-plugin-sonarjs
