@@ -272,6 +272,13 @@ export class TsConfigStore implements FileStore {
         `Failed to find any of the provided tsconfig.json files: ${getTsConfigPaths().join(', ')}`,
       );
     }
+    // Sort lookup tsconfigs alphabetically to ensure deterministic analysis order
+    // regardless of filesystem traversal order.
+    this.foundLookupTsConfigs.sort();
+    // Sort property tsconfigs by their position in the user-provided list to preserve
+    // the intentional ordering from sonar.typescript.tsconfigPaths.
+    const providedOrder = this.providedPropertyTsConfigs?.map(p => p.path) ?? [];
+    this.foundPropertyTsConfigs.sort((a, b) => providedOrder.indexOf(a) - providedOrder.indexOf(b));
     await this.initializeTsConfigs(baseDir);
   }
 }
