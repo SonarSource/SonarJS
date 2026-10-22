@@ -27,8 +27,10 @@
   "entry": [
     "packages/typescript/index.cjs",
     "packages/typescript/compat/index.cjs",
+    "tools/prepare-tsgo-wasm-provider.mjs",
     "tools/compiler-provider-plugin.mjs",
     "packages/typescript/providers/classic.cjs",
-    "packages/typescript/providers/tsgo-ipc/index.mjs"
+    "packages/typescript/providers/tsgo-ipc/index.mjs",
+    "packages/typescript/providers/tsgo-wasm/index.mjs"
   ]
 }

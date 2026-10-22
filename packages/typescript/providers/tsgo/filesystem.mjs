@@ -27,6 +27,8 @@ const attempt = (operation, fallback) => {
 };
 export const normalize = (file, cwd = process.cwd()) => {
   const normalized = file.replaceAll('\\', '/');
+  // Embedded Go compilers identify standard declarations with this rooted URI.
+  if (normalized.startsWith('bundled:///')) return normalized;
   if (normalized.startsWith('/'))
     return (normalized.startsWith('//') ? '/' : '') + path.posix.normalize(normalized);
   if (/^[a-z]:\//i.test(normalized)) return path.posix.normalize(normalized);

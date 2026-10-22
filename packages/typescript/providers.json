@@ -1,5 +1,5 @@
 {
-  "defaultProvider": "tsgo-ipc",
+  "defaultProvider": "tsgo-wasm",
   "providers": {
     "tsgo-ipc": {
       "module": "./providers/tsgo-ipc/index.mjs",
@@ -31,6 +31,22 @@
         "projectService": true
       },
       "legacyModuleResolution": true
+    },
+    "tsgo-wasm": {
+      "module": "../../target/tsgo-wasm/provider.mjs",
+      "source": "./providers/tsgo-wasm/index.mjs",
+      "libraries": "../../target/tsgo-wasm/assets",
+      "sdk": "typescript-go-wasm",
+      "libraryDestination": "tsgo-wasm",
+      "bundleLibraries": true,
+      "prepare": "tools/prepare-tsgo-wasm-provider.mjs",
+      "metafile": "target/tsgo-wasm/provider-meta.json",
+      "legacyModuleResolution": false,
+      "capabilities": {
+        "watchPrograms": false,
+        "projectService": false
+      },
+      "wasmPackage": "tsgo-wasm"
     }
   }
 }
