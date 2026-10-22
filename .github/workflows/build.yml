@@ -354,9 +354,9 @@ jobs:
           docker run --rm --user "$(id -u):$(id -g)" \
             -v "$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" -w "$GITHUB_WORKSPACE" \
             -v "$HOME/.m2:/tmp/.m2" -e MAVEN_OPTS=-Duser.home=/tmp \
+            -e MAVEN_CONFIG=/tmp/.m2 -e SONARSOURCE_REPOSITORY_URL \
             -e SONARSOURCE_QA -e SONARJS_ARTIFACT -e GITHUB_TOKEN -e ORCHESTRATOR_HOME \
-            -e ANALYZE_PROFILE -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME \
-            -e ARTIFACTORY_ACCESS_TOKEN -e ARTIFACTORY_PASSWORD \
+            -e ANALYZE_PROFILE -e ARTIFACTORY_USERNAME -e ARTIFACTORY_ACCESS_TOKEN \
             maven:3.9.9-eclipse-temurin-21-alpine sh -ec '
               ! command -v node
               mvn -B -ntp -s /tmp/.m2/settings.xml -Dmaven.repo.local=/tmp/.m2/repository \

@@ -208,6 +208,8 @@ class TsConfigProviderTest {
 
   @Test
   void should_create_tsconfig() throws Exception {
+    // Resolve Windows short temporary paths before creating the input files.
+    baseDir = baseDir.toRealPath();
     var ctx = new JsTsContext<SensorContextTester>(SensorContextTester.create(baseDir));
     createInputFile(ctx, "file1.ts");
     createInputFile(ctx, "file2.ts");
