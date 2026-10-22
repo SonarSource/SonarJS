@@ -91,6 +91,7 @@ public final class OrchestratorStarter
     .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
     .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-js-profile.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-ts-profile.xml"))
+    .restoreProfileAtStartup(FileLocation.ofClasspath("/css-empty-block-profile.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/profile-javascript-custom-rules.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/nosonar.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/eslint-based-rules.xml"))
