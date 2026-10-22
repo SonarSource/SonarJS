@@ -27,6 +27,22 @@ describe('S2245', () => {
     ruleTester.run('Using pseudorandom number generators (PRNGs) is security-sensitive', rule, {
       valid: [
         {
+          // names bound to nested functions belong to those functions, as for declarations
+          code: `const verifyInput = (x) => {};
+const id = Math.random();`,
+        },
+        {
+          code: `function outer() { const hashPassword = () => {}; return Math.random(); }`,
+        },
+        {
+          code: `const helpers = { verify: () => {} };
+const id = Math.random();`,
+        },
+        {
+          // a variable holding a callback's result is still a name in this scope
+          code: `function f() { const x = [1].map(() => 1); return Math.random(); }`,
+        },
+        {
           // `insecure` alone is not a keyword; only the two-word form is
           code: `function f() { const insecure = Math.random(); }`,
         },
@@ -92,6 +108,10 @@ function pickColor() { return Math.random(); }`,
         },
       ],
       invalid: [
+        {
+          code: `function f() { const token = [1].map(() => 1); return Math.random(); }`,
+          errors: 1,
+        },
         {
           code: `function f() { const insecureRandom = Math.random(); }`,
           errors: 1,

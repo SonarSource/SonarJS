@@ -155,14 +155,46 @@ function childNodes(sourceCode: SourceCode, node: estree.Node): estree.Node[] {
   });
 }
 
-// ranges of the outermost functions inside the scope, sorted by position
+const TS_WRAPPERS = new Set([
+  'TSAsExpression',
+  'TSSatisfiesExpression',
+  'TSNonNullExpression',
+  'TSTypeAssertion',
+]);
+
+// the name a function is directly bound to (`const f = () => {}`, `{ f: () => {} }`), as opposed to the
+// name receiving the result of a call that takes the function as an argument
+function directBinding(fn: TSESTree.Node): TSESTree.Node | undefined {
+  let child = fn;
+  let parent = fn.parent;
+  while (parent && TS_WRAPPERS.has(parent.type)) {
+    child = parent;
+    parent = parent.parent;
+  }
+  switch (parent?.type) {
+    case 'VariableDeclarator':
+      return parent.init === child ? parent.id : undefined;
+    case 'AssignmentExpression':
+      return parent.right === child ? parent.left : undefined;
+    case 'Property':
+    case 'PropertyDefinition':
+      return parent.value === child ? parent.key : undefined;
+    default:
+      return undefined;
+  }
+}
+
+// ranges of the outermost functions inside the scope, including the name they are bound to, sorted by position
 function nestedFunctionRanges(sourceCode: SourceCode, scope: estree.Node) {
   const ranges: [number, number][] = [];
   const pending: estree.Node[] = [scope];
   for (let node = pending.pop(); node; node = pending.pop()) {
     for (const child of childNodes(sourceCode, node)) {
       if (functionLike.has(child.type)) {
-        ranges.push(sourceCode.getRange(child));
+        const [start, end] = sourceCode.getRange(child);
+        const binding = directBinding(child as TSESTree.Node);
+        const bindingStart = binding ? sourceCode.getRange(binding as estree.Node)[0] : start;
+        ranges.push([Math.min(bindingStart, start), end]);
       } else {
         pending.push(child);
       }
