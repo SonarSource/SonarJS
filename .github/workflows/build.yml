@@ -18,7 +18,7 @@ defaults:
 env:
   # Match master: npmjs lockfiles follow the registry selected for CI.
   NPM_CONFIG_REPLACE_REGISTRY_HOST: npmjs
-  REPOX_NPM_URL: https://repox-internal.dev.sonar.build
+  REPOX_DEV_URL: https://repox-internal.dev.sonar.build
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -99,12 +99,14 @@ jobs:
         id: config-maven
         uses: SonarSource/ci-github-actions/config-maven@v2
         with:
+          repox-url: ${{ env.REPOX_DEV_URL }}
           artifactory-reader-role: private-reader
+          disable-caching: 'true'
       - &config_npm
         if: runner.os != 'Windows'
         uses: SonarSource/ci-github-actions/config-npm@v2
         with:
-          repox-url: ${{ env.REPOX_NPM_URL }}
+          repox-url: ${{ env.REPOX_DEV_URL }}
           artifactory-reader-role: private-reader
           disable-caching: 'true'
       - &npm_install
@@ -177,8 +179,8 @@ jobs:
         env:
           ARTIFACTORY_ACCESS_TOKEN: ${{ steps.npm-secrets.outputs.vault && fromJSON(steps.npm-secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN || '' }}
         run: |
-          npm config set "//${REPOX_NPM_URL#https://}/artifactory/api/npm/:_authToken=${ARTIFACTORY_ACCESS_TOKEN}"
-          npm config set registry "$REPOX_NPM_URL/artifactory/api/npm/npm/"
+          npm config set "//${REPOX_DEV_URL#https://}/artifactory/api/npm/:_authToken=${ARTIFACTORY_ACCESS_TOKEN}"
+          npm config set registry "$REPOX_DEV_URL/artifactory/api/npm/npm/"
       - *npm_install
       - *generate_metadata
       - name: Build and run Java tests
@@ -331,13 +333,32 @@ jobs:
         with:
           secrets: |
             development/github/token/licenses-ro token | GITHUB_TOKEN;
+            development/artifactory-edge-prod/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ORCHESTRATOR_ACCESS_TOKEN;
+      - &configure_orchestrator
+        name: Configure production Orchestrator
+        shell: bash
+        env:
+          ORCHESTRATOR_ACCESS_TOKEN: ${{ fromJSON(steps.licenses.outputs.vault).ORCHESTRATOR_ACCESS_TOKEN }}
+        run: |
+          umask 077
+          config_dir="$RUNNER_TEMP/orchestrator-production-config"
+          mkdir -p "$config_dir"
+          printf '%s\n' \
+            'orchestrator.artifactory.url=https://repox-internal.sonar.build/artifactory' \
+            "orchestrator.artifactory.accessToken=$ORCHESTRATOR_ACCESS_TOKEN" > "$config_dir/orchestrator.properties"
+          config_path="$config_dir/orchestrator.properties"
+          if [[ "$RUNNER_OS" == Windows ]]; then
+            config_path="/$(cygpath -m "$config_path")"
+          fi
+          config_path="${config_path// /%20}"
+          echo "ORCHESTRATOR_CONFIG_URL=file://$config_path" >> "$GITHUB_ENV"
       - name: Run plugin QA
         env: &qa_env
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.licenses.outputs.vault).GITHUB_TOKEN }}
           ORCHESTRATOR_HOME: ${{ github.workspace }}/orchestrator
           ANALYZE_PROFILE: ${{ matrix.profile }}
-        run: mvn verify -f its/plugin/pom.xml -DskipTests=false -P${{ matrix.profile }} -Dsonar.runtimeVersion=LATEST_RELEASE
+        run: mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" verify -f its/plugin/pom.xml -DskipTests=false -P${{ matrix.profile }} -Dsonar.runtimeVersion=LATEST_RELEASE
 
   plugin_qa_without_node:
     name: Embedded runtime QA on ${{ matrix.os }} (${{ matrix.profile }})
@@ -359,6 +380,7 @@ jobs:
       - *config_maven
       - *download_m2
       - *licenses
+      - *configure_orchestrator
       - name: Build the consumer plugin before disabling Node
         run: mvn package -f its/plugin/plugins/pom.xml --projects '!org.sonarsource.javascript:eslint-custom-rules-plugin'
       - name: Run embedded runtime QA on Ubuntu
@@ -368,7 +390,7 @@ jobs:
         run: |
           # Remove every preinstalled Node executable so PATH lookup must use the embedded runtime.
           while node_path=$(command -v node); do sudo mv "$node_path" "$node_path.disabled"; done
-          mvn verify -f its/plugin/pom.xml -DskipTests=false -P"$ANALYZE_PROFILE" \
+          mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" verify -f its/plugin/pom.xml -DskipTests=false -P"$ANALYZE_PROFILE" \
             -Dsonar.runtimeVersion=LATEST_RELEASE \
             '-Dtest=!EslintCustomRulesTest,!SonarJsIntegrationTest' \
             --projects '!org.sonarsource.javascript:eslint-custom-rules-plugin'
@@ -382,16 +404,18 @@ jobs:
           docker run --rm --user "$(id -u):$(id -g)" \
             -v "$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" -w "$GITHUB_WORKSPACE" \
             -v "$HOME/.m2:/tmp/.m2" \
+            -v "$RUNNER_TEMP/orchestrator-production-config:$RUNNER_TEMP/orchestrator-production-config:ro" \
             -e JAVA_TOOL_OPTIONS="${JAVA_TOOL_OPTIONS:-} -Duser.home=/tmp" \
             -e MAVEN_CONFIG=/tmp/.m2 -e SONARSOURCE_REPOSITORY_URL \
             -e SONARSOURCE_QA -e SONARJS_ARTIFACT -e GITHUB_TOKEN -e ORCHESTRATOR_HOME \
-            -e ANALYZE_PROFILE -e ARTIFACTORY_USERNAME -e ARTIFACTORY_ACCESS_TOKEN \
+            -e ORCHESTRATOR_CONFIG_URL -e ANALYZE_PROFILE -e ARTIFACTORY_USERNAME -e ARTIFACTORY_ACCESS_TOKEN \
             maven:3.9.9-eclipse-temurin-21-alpine sh -ec '
               if command -v node; then
                 echo "Node must not be installed in this image" >&2
                 exit 1
               fi
               mvn -B -ntp -s /tmp/.m2/settings.xml -Dmaven.repo.local=/tmp/.m2/repository \
+                "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" \
                 verify -f its/plugin/pom.xml -DskipTests=false -P"$ANALYZE_PROFILE" \
                 -Dsonar.runtimeVersion=LATEST_RELEASE \
                 "-Dtest=!EslintCustomRulesTest,!SonarJsIntegrationTest" \
@@ -409,12 +433,13 @@ jobs:
       - *config_maven
       - *download_m2
       - *licenses
+      - *configure_orchestrator
       - name: Run plugin and SonarLint QA
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.licenses.outputs.vault).GITHUB_TOKEN }}
           ORCHESTRATOR_HOME: ${{ github.workspace }}/orchestrator
-        run: mvn verify -f its/plugin/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE
+        run: mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" verify -f its/plugin/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE
 
   js_ts_ruling:
     name: JS/TS ruling
@@ -465,6 +490,7 @@ jobs:
       - *config_maven
       - *download_m2
       - *licenses
+      - *configure_orchestrator
       - name: Run ruling tests
         env:
           SONARSOURCE_QA: true
@@ -475,7 +501,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.licenses.outputs.vault).GITHUB_TOKEN }}
           ORCHESTRATOR_HOME: ${{ github.workspace }}/orchestrator
         run: >-
-          mvn test -f its/ruling/pom.xml -Dtest=${{ matrix.test }} -P${{ matrix.profile }}
+          mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" test -f its/ruling/pom.xml -Dtest=${{ matrix.test }} -P${{ matrix.profile }}
           -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE
       - name: Upload ruling differences
         if: failure()
@@ -497,7 +523,7 @@ jobs:
     steps:
       - *checkout
       - *mise
-      - uses: SonarSource/ci-github-actions/promote@v1
+      - uses: SonarSource/ci-github-actions/promote@v2
         with:
           promote-pull-request: true
 
