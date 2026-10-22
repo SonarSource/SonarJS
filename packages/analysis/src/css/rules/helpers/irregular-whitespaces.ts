@@ -49,7 +49,7 @@ const IRREGULAR_WHITESPACE = new RegExp(`[${[...IRREGULAR_WHITESPACES.keys()].jo
 /**
  * Replaces each irregular whitespace with a space, which keeps every location in the text.
  */
-export function replaceIrregularWhitespaces(text: string): string {
+function replaceIrregularWhitespaces(text: string): string {
   return text.replaceAll(IRREGULAR_WHITESPACE, ' ');
 }
 
