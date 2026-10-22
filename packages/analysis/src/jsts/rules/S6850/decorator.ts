@@ -20,12 +20,10 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import {
-  getUniqueWriteReference,
-  getVariableFromName,
   isIdentifier,
   isNumberLiteral,
   isStringLiteral,
-  unwrapTypeScriptExpression,
+  resolveSingleWriteExpression,
 } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
@@ -72,13 +70,13 @@ const CARRIES_NO_NAMED_PROP = new Set(['Literal', 'TemplateLiteral', 'ArrayExpre
  * value the decorator cannot resolve down to a literal - is not proof of content, so the channel
  * stays unproven and the report is kept.
  *
- * Resolved through `resolveValue`, the same strict single-write rule the decorator uses for spread
+ * Resolved through `resolveSingleWriteExpression`, the same strict single-write rule used for spread
  * arguments, rather than `getValueOfExpression`'s plain `getUniqueWriteUsage`: the latter also
  * follows a parameter's default-value write, which would credit `function H(title = 'Title')` with
  * `'Title'` for every call, including `<H title="" />`.
  */
 function isProvenContentValue(context: Rule.RuleContext, value: estree.Node): boolean {
-  const literal = resolveValue(context, value);
+  const literal = resolveSingleWriteExpression(context, value);
   if (literal.type !== 'Literal') {
     return false;
   }
@@ -108,49 +106,6 @@ function isContentProperty(element: estree.Property): boolean {
 }
 
 /**
- * The expression written to `identifier`, or `undefined` when no single write proves what the
- * identifier holds.
- *
- * A binding introduced by a destructuring pattern is refused: its only write expression is the whole
- * initializer, which says nothing about the binding itself. Resolving it would credit
- * `const { children: _unused, ...rest } = source` with `source`'s `children`, the very property the
- * pattern strips.
- */
-function getSoleWriteExpression(
-  context: Rule.RuleContext,
-  identifier: estree.Identifier,
-): estree.Node | undefined {
-  const variable = getVariableFromName(context, identifier.name, identifier);
-  if (variable?.defs.length !== 1) {
-    return undefined;
-  }
-  const [definition] = variable.defs;
-  if (definition.type !== 'Variable' || definition.node.id !== definition.name) {
-    return undefined;
-  }
-  return getUniqueWriteReference(variable);
-}
-
-/**
- * What `argument` denotes: itself, with TypeScript wrappers removed and provable single-write
- * aliases followed. The walk iterates instead of recursing and carries its own guard, so a self- or
- * mutually-referencing alias (`let a = a`, `let a = b, b = a`) terminates.
- */
-function resolveValue(context: Rule.RuleContext, argument: estree.Node): estree.Node {
-  const visited = new Set<estree.Node>();
-  let current = unwrapTypeScriptExpression(argument);
-  while (current.type === 'Identifier' && !visited.has(current)) {
-    visited.add(current);
-    const write = getSoleWriteExpression(context, current);
-    if (write === undefined) {
-      return current;
-    }
-    current = unwrapTypeScriptExpression(write);
-  }
-  return current;
-}
-
-/**
  * How spreading `argument` settles the content channel.
  *
  * Only an object literal can prove anything, so everything else settles the channel as unproven.
@@ -164,7 +119,7 @@ function spreadSettles(
   argument: estree.Node,
   seen: Set<estree.Node>,
 ): Settlement {
-  const value = resolveValue(context, argument);
+  const value = resolveSingleWriteExpression(context, argument);
   if (CARRIES_NO_NAMED_PROP.has(value.type)) {
     return null;
   }
