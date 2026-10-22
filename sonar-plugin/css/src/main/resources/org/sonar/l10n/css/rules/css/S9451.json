@@ -1,0 +1,27 @@
+{
+  "title": "CSS code should not contain irregular whitespace",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-9451",
+  "sqKey": "S9451",
+  "scope": "Main",
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "HIGH"
+    },
+    "attribute": "LOGICAL"
+  },
+  "compatibleLanguages": [
+    "css"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}

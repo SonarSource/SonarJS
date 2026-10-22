@@ -271,6 +271,65 @@ ${character}${character}${character}.foo {`,
   }
 });
 
+describe('invisible characters in code that parses', () => {
+  const zeroWidthSpace = '\u200B';
+  const invisibleCharacterRules = [
+    { key: 'block-no-empty', configurations: [] },
+    { key: 'sonar/no-irregular-whitespace', configurations: [] },
+  ];
+
+  it('should lint the code as written, so that rules can report invisible characters', async () => {
+    linter.initialize(invisibleCharacterRules);
+    const { issues } = await analyzeCSS({
+      fileContent: `a { margin:${zeroWidthSpace}0; }`,
+      filePath: normalizeToAbsolutePath('foo.css'),
+      sonarlint: false,
+    });
+    expect(issues).toEqual([
+      expect.objectContaining({
+        ruleId: 'sonar/no-irregular-whitespace',
+        line: 1,
+        column: 11,
+        endLine: 1,
+        endColumn: 12,
+      }),
+    ]);
+  });
+
+  it('should lint the code with spaces instead when invisible characters prevent parsing', async () => {
+    linter.initialize(invisibleCharacterRules);
+    const { issues } = await analyzeCSS({
+      fileContent: `a {}\nb { color: red; ${zeroWidthSpace}}`,
+      filePath: normalizeToAbsolutePath('foo.css'),
+      sonarlint: false,
+    });
+    expect(issues).toEqual([
+      expect.objectContaining({ ruleId: 'sonar/no-irregular-whitespace', line: 2, column: 16 }),
+      expect.objectContaining({ ruleId: 'block-no-empty', line: 1, column: 2 }),
+    ]);
+  });
+
+  it('should still report every invisible character when they prevent parsing', async () => {
+    linter.initialize(invisibleCharacterRules);
+    const { issues } = await analyzeCSS({
+      fileContent: [
+        `a${zeroWidthSpace} { color: red; }`,
+        `b { color: red;${zeroWidthSpace} }`,
+        `c { grid-template-areas: "a${zeroWidthSpace}a"; }`,
+        `d { content: "${zeroWidthSpace}"; /* ${zeroWidthSpace} */ }`,
+        `e\\${zeroWidthSpace} { grid-template-areas: "a\\${zeroWidthSpace}a"; }`,
+      ].join('\n'),
+      filePath: normalizeToAbsolutePath('foo.css'),
+      sonarlint: false,
+    });
+    expect(issues).toEqual([
+      expect.objectContaining({ ruleId: 'sonar/no-irregular-whitespace', line: 1, column: 1 }),
+      expect.objectContaining({ ruleId: 'sonar/no-irregular-whitespace', line: 2, column: 15 }),
+      expect.objectContaining({ ruleId: 'sonar/no-irregular-whitespace', line: 3, column: 27 }),
+    ]);
+  });
+});
+
 async function input(
   filePath: string,
   fileContent?: string,

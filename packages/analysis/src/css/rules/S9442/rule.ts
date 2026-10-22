@@ -18,8 +18,8 @@
 import stylelint from 'stylelint';
 import { meta } from './meta.js';
 import type PostCSS from 'postcss';
-import valueParser from 'postcss-value-parser';
 import { createDecoratedRule, type DecoratedMessage } from '../helpers/decorated-result.js';
+import { gridAreaStrings } from '../helpers/grid-areas.js';
 
 const SONAR_RULE = meta.bindings[0].stylelintKey;
 const UPSTREAM_RULE = meta.bindings[0].upstreamRule;
@@ -53,16 +53,12 @@ function rectangleName(text: string, upstream: UpstreamMessages): string | undef
 }
 
 function hasUnsupportedAreaSyntax(node: PostCSS.Node | undefined): boolean {
-  if (node?.type !== 'decl') {
-    return false;
-  }
-  let unsupported = false;
-  valueParser((node as PostCSS.Declaration).value).walk(valueNode => {
-    if (valueNode.type === 'string' && UNSUPPORTED_AREA_SYNTAX.test(valueNode.value)) {
-      unsupported = true;
-    }
-  });
-  return unsupported;
+  return (
+    node?.type === 'decl' &&
+    gridAreaStrings(node as PostCSS.Declaration).some(({ text }) =>
+      UNSUPPORTED_AREA_SYNTAX.test(text),
+    )
+  );
 }
 
 function rewriteMessage(

@@ -368,7 +368,7 @@ That is exactly artifact semantics, not cache semantics.
 | JS coverage cache          | `coverage/js`                      | `test_js`                                                            | `test_js` itself                                                                                                                                               | `js-coverage-${runner.os}-${js-files-hash}-${test-input-hash}`                           | combined restore/save cache; allows skip when exact coverage already exists                                         |
 | Windows JS marker          | `.js-test-marker-win`              | `test_js_win`                                                        | `test_js_win` itself                                                                                                                                           | `js-test-win-${runner.os}-${js-files-hash}-${test-input-hash}`                           | lookup-only probe; on miss the job runs tests and saves marker at job end                                           |
 | Maven repository           | `~/.m2/repository`                 | `build`, plus default-branch `build_win`, through `actions/cache`    | all Maven cache users                                                                                                                                          | `maven-${runner.os}-${cache-month}-${maven-hash}` plus monthly restore prefix            | Linux build saves on every eligible run; Windows build saves only on the default branch; other jobs restore only    |
-| Orchestrator home          | `${github.workspace}/orchestrator` | one normal and one fast QA owner per OS through `orchestrator-cache` | orchestrator-based QA/ruling jobs                                                                                                                              | `${key-prefix}-${month}-${github.run_id}` with monthly restore prefix                    | all jobs restore; one Linux and one Windows owner per cache family save only on the default branch                  |
+| Orchestrator home          | `${github.workspace}/orchestrator` for cached runs outside PRs; `${runner.temp}/orchestrator-production` on PRs and uncached DEV jobs | one normal and one fast QA owner per OS through `orchestrator-cache` | orchestrator-based QA/ruling jobs                                                                                                                              | `${key-prefix}-${month}-${github.run_id}` with monthly restore prefix                    | PR jobs skip restore; one Linux and one Windows owner per cache family save only on the default branch                  |
 | Rule API clone/cache       | `$HOME/.sonar/rule-api`            | default-branch `prepare_rspec_rule_data` through `rule-api-cache`    | `prepare_rspec_rule_data`                                                                                                                                      | `${key-prefix}-${github.run_id}` with prefix restore                                     | only default branch saves unless `save: false`                                                                      |
 
 ### Helper-owned or transitive caches
@@ -405,8 +405,9 @@ The cache ownership rule keeps SonarJS artifacts out of new caches:
 - key includes `github.run_id`
 - restore uses a prefix within the current month
 - `key-prefix` separates normal and `fast` orchestrator environments
-- every Orchestrator job restores, but only one Linux and one Windows owner per cache family save
-- owners save only on the default branch; pull requests and ruling are restore-only
+- Cache-enabled jobs outside pull requests restore; only one Linux and one Windows owner per cache family save
+- Owners save only on the default branch; ruling is restore-only
+- The action selects and exports the home for every consumer; pull requests and jobs with `enabled: false` use a temporary home without restoring or saving distributions
 
 The owners are the non-matrix `plugin_qa_without_node` jobs on Linux and matrix group 1 of the corresponding Windows jobs. Explicit ownership prevents parallel jobs with the same run key from racing to save different copies of the cache.
 
@@ -710,7 +711,7 @@ Variants differ by:
 Important details:
 
 - Alpine jobs pre-seed `BUILD_NUMBER` from `get_build_number` because the `get-build-number` action's GitHub cache approach is unreliable in Alpine-container context
-- `fast` jobs use `key-prefix: orchestrator-fast`
+- `fast` jobs use `key-prefix: orchestrator-production-fast`
 - `DEV` jobs intentionally skip orchestrator cache because the target version changes too frequently
 
 #### `js_ts_ruling`
@@ -866,7 +867,7 @@ The ESLint plugin release runs on a GitHub-hosted runner. `jfrog rt npm-config` 
 - fetches a `private-reader` token issued by the Edge (`development/artifactory-edge-dev` on `https://vault.dev.sonar.build`)
 - writes Maven `settings.xml`
 - sets `ARTIFACTORY_URL` to the Edge and `SONARSOURCE_REPOSITORY_URL=$ARTIFACTORY_URL/sonarsource-qa`
-- exports authentication environment variables for Maven and Orchestrator
+- exports authentication environment variables for Maven; plugin, fast, and ruling QA read a separate production Orchestrator configuration
 
 All Maven jobs in `build.yml` run on self-hosted or WarpBuild runners, which can reach the Edge. The GitHub-hosted ESLint release workflow explicitly sets `repox-url: https://repox.jfrog.io` to keep Maven configuration on SaaS when the shared action defaults change.
 
@@ -876,7 +877,7 @@ All Maven jobs in `build.yml` run on self-hosted or WarpBuild runners, which can
 
 The initial migration in [#8005](https://github.com/SonarSource/SonarJS/pull/8005) moved bulk Maven and npm dependency resolution on self-hosted and WarpBuild runners to Edge. CLP-1095 extends that scope to Maven setup calls, Orchestrator's direct downloads, and the ESLint build/test installs that previously used SaaS. Edge-issued reader credentials replace federated SaaS reader credentials and local waiters. GitHub-hosted release installs and deployment/publishing/promotion retain their SaaS configuration.
 
-Fast QA requires `sonar-scanner-integration-tester` 1.3.0.1396, already merged in [#8092](https://github.com/SonarSource/SonarJS/pull/8092). Its bundled Orchestrator 6.4.3 recognizes Edge; the previous tester bundled Orchestrator 6.2.0.
+Fast QA uses `sonar-scanner-integration-tester` [1.5.0.1412](https://github.com/SonarSource/sonar-scanner-integration-tester/releases/tag/1.5.0.1412), which embeds Orchestrator 6.4.4.4797 in its shaded JAR. All Fast QA jobs use the production Edge configuration and a separate production-issued reader token, with `orchestrator-production-fast` distribution caches.
 
 For registry routing validation, manually dispatch `build.yml` with `validate-registry-routing=true`. This uses run-specific npm and Orchestrator cache keys and logs npm HTTP requests, without evicting shared caches. Two additional jobs check a public npmjs install with no credentials and a SaaS install using the release npm repository configuration without publishing. Validation skips SonarQube branch analysis and promotion. This keeps registry checks separate from existing branch-wide quality gates, and the shared promotion action does not support manually dispatched feature branches. Normal build, deployment, and promotion behavior is unchanged; scheduled-only QA paths (Alpine and DEV) still need separate validation.
 
@@ -1074,3 +1075,9 @@ And for caches specifically:
 - GitHub cache is the direct mechanism in this workflow
 - artifacts carry run-local build products
 - default branch is the intended long-lived producer for shared warm caches
+
+## Orchestrator production downloads
+
+Plugin, fast, and ruling QA use Orchestrator 6.4.4.4797 and a separate private-reader token from `development/artifactory-edge-prod` on production Vault. A configuration file with restricted permissions under the runner temporary directory selects `https://repox-internal.sonar.build/artifactory`. Only its URI is passed to test JVMs, keeping the reader token out of XML report properties. Maven and npm dependency configuration retains its existing endpoints and tokens; publication and promotion continue using SaaS Repox.
+
+Pull-request QA runs use an isolated Orchestrator home under the runner temporary directory so private distribution downloads and version-alias resolution exercise production authentication without restored distribution caches. Default-branch normal QA distribution caches use `orchestrator-production` keys, and Fast QA uses `orchestrator-production-fast` keys. The shared `orchestrator-cache` action selects the home for all consumers; nightly DEV jobs disable caching and use a temporary home.
