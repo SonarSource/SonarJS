@@ -26,13 +26,35 @@ export async function logMemoryConfiguration() {
   const osMem = Math.floor(os.totalmem() / MB);
   const heapSize = getHeapSize();
   const dockerMemLimit = await readDockerMemoryLimit();
-  const dockerMem = dockerMemLimit ? `, Docker (${dockerMemLimit} MB),` : ',';
-  info(`Memory configuration: OS (${osMem} MB)${dockerMem} Node.js (${heapSize} MB).`);
-  if (heapSize > osMem) {
-    warn(
-      `Node.js heap size limit ${heapSize} is higher than available memory ${osMem}. Check your configuration of sonar.javascript.node.maxspace`,
-    );
+  const { infoMessage, warningMessage } = getMemoryConfigurationMessages(
+    osMem,
+    heapSize,
+    dockerMemLimit,
+  );
+  info(infoMessage);
+  if (warningMessage) {
+    warn(warningMessage);
   }
+}
+
+export function getMemoryConfigurationMessages(
+  osMem: number,
+  heapSize: number,
+  dockerMemLimit?: number,
+) {
+  const dockerMem = dockerMemLimit === undefined ? ',' : `, Docker (${dockerMemLimit} MB),`;
+  const availableMem = getAvailableMemory(osMem, dockerMemLimit);
+  return {
+    infoMessage: `Memory configuration: OS (${osMem} MB)${dockerMem} Node.js (${heapSize} MB).`,
+    warningMessage:
+      heapSize > availableMem
+        ? `Node.js heap size limit ${heapSize} is higher than available memory ${availableMem}. Check your configuration of sonar.javascript.node.maxspace`
+        : undefined,
+  };
+}
+
+export function getAvailableMemory(osMem: number, dockerMemLimit?: number) {
+  return dockerMemLimit === undefined ? osMem : Math.min(osMem, dockerMemLimit);
 }
 
 async function readDockerMemoryLimit() {
