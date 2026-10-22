@@ -244,24 +244,16 @@ class EslintBasedRulesTest {
       .setProjectKey(projectKey)
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".")
+      .setProperty("sonar.javascript.node.maxspace", "500000")
       .setProperty("sonar.javascript.node.debugMemory", "true")
       .setDebugLogs(true)
       .setProjectDir(projectDir);
 
-    // Node can report host RAM rather than the container limit, so measure it before forcing a warning.
-    var initialBuildResult = orchestrator.executeBuild(build);
-    var osMem = Pattern.compile("Memory configuration: OS \\((\\d+) MB\\)").matcher(
-      initialBuildResult.getLogs()
-    );
-    assertThat(osMem.find()).isTrue();
-    var maxspace = Long.toString(2 * Long.parseLong(osMem.group(1)));
-    build.setProperty("sonar.javascript.node.maxspace", maxspace);
-
     var buildResult = orchestrator.executeBuild(build);
     assertThat(buildResult.isSuccess()).isTrue();
-    assertThat(buildResult.getLogs()).contains(
-      "Configured Node.js --max-old-space-size=" + maxspace + "."
-    );
+    assertThat(buildResult.getLogs()).contains("Configured Node.js --max-old-space-size=500000.");
+    var osMem = Pattern.compile(".*Memory configuration: OS \\(\\d+ MB\\),.*", Pattern.DOTALL);
+    assertThat(buildResult.getLogs()).matches(osMem);
     var warn = Pattern.compile(
       ".*WARN: Node.js heap size limit \\d+ is higher than available memory \\d+. Check your configuration of sonar\\.javascript\\.node\\.maxspace.*",
       Pattern.DOTALL

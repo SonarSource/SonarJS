@@ -22,7 +22,7 @@ concurrency:
 jobs:
   setup:
     name: Prepare maintenance build
-    runs-on: sonar-s
+    runs-on: sonar-xs
     outputs:
       node-version: ${{ steps.versions.outputs.node-version }}
       node-matrix: ${{ steps.versions.outputs.node-matrix }}
@@ -55,7 +55,7 @@ jobs:
 
   get_build_number:
     name: Get build number
-    runs-on: sonar-s
+    runs-on: sonar-xs
     needs: setup
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions:
@@ -69,7 +69,7 @@ jobs:
 
   build:
     name: Build, test and deploy on Linux
-    runs-on: sonar-m
+    runs-on: sonar-l
     needs: [setup, get_build_number]
     permissions: &read_permissions
       id-token: write
@@ -146,7 +146,7 @@ jobs:
 
   build_win:
     name: Build and test on Windows
-    runs-on: warp-custom-windows-2022-s
+    runs-on: warp-custom-windows-2022-m
     needs: [setup, get_build_number]
     permissions: *read_permissions
     env: *build_env
@@ -173,7 +173,7 @@ jobs:
           - os: Linux
             runner: sonar-m
           - os: Windows
-            runner: warp-custom-windows-2022-s
+            runner: warp-custom-windows-2022-m
     steps:
       - *checkout
       - *mise
@@ -199,7 +199,7 @@ jobs:
 
   test_eslint_plugin:
     name: ESLint ${{ matrix.eslint-version }} integration tests
-    runs-on: sonar-s
+    runs-on: warp-custom-ubuntu-24-04
     needs: [setup, get_build_number]
     permissions: *read_permissions
     env: *build_env
@@ -311,11 +311,6 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.licenses.outputs.vault).GITHUB_TOKEN }}
           ORCHESTRATOR_HOME: ${{ github.workspace }}/orchestrator
           ANALYZE_PROFILE: ${{ matrix.profile }}
-          # Container runners can expose the host CPU count; bound scanner concurrency explicitly.
-          MAVEN_ARGS: &qa_maven_args >-
-            -Djunit.jupiter.execution.parallel.config.strategy=fixed
-            -Djunit.jupiter.execution.parallel.config.fixed.parallelism=4
-            -Djunit.jupiter.execution.parallel.config.fixed.max-pool-size=4
         run: mvn verify -f its/plugin/pom.xml -DskipTests=false -P${{ matrix.profile }} -Dsonar.runtimeVersion=LATEST_RELEASE
 
   plugin_qa_without_node:
@@ -362,7 +357,7 @@ jobs:
             -v "$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" -w "$GITHUB_WORKSPACE" \
             -v "$HOME/.m2:/tmp/.m2" \
             -e JAVA_TOOL_OPTIONS="${JAVA_TOOL_OPTIONS:-} -Duser.home=/tmp" \
-            -e MAVEN_ARGS -e MAVEN_CONFIG=/tmp/.m2 -e SONARSOURCE_REPOSITORY_URL \
+            -e MAVEN_CONFIG=/tmp/.m2 -e SONARSOURCE_REPOSITORY_URL \
             -e SONARSOURCE_QA -e SONARJS_ARTIFACT -e GITHUB_TOKEN -e ORCHESTRATOR_HOME \
             -e ANALYZE_PROFILE -e ARTIFACTORY_USERNAME -e ARTIFACTORY_ACCESS_TOKEN \
             maven:3.9.9-eclipse-temurin-21-alpine sh -ec '
@@ -378,7 +373,7 @@ jobs:
 
   plugin_qa_win:
     name: Plugin QA on Windows
-    runs-on: warp-custom-windows-2022-s
+    runs-on: warp-custom-windows-2022-m
     needs: [setup, get_build_number, build]
     permissions: *read_permissions
     env: *build_env
@@ -393,12 +388,11 @@ jobs:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.licenses.outputs.vault).GITHUB_TOKEN }}
           ORCHESTRATOR_HOME: ${{ github.workspace }}/orchestrator
-          MAVEN_ARGS: *qa_maven_args
         run: mvn verify -f its/plugin/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE
 
   js_ts_ruling:
     name: JS/TS ruling
-    runs-on: sonar-m
+    runs-on: sonar-xl
     needs: [setup, get_build_number, build]
     permissions: *read_permissions
     env: *build_env
@@ -425,7 +419,7 @@ jobs:
 
   ruling:
     name: ${{ matrix.test }} (${{ matrix.profile }})
-    runs-on: sonar-m
+    runs-on: sonar-xl
     needs: [setup, get_build_number, build]
     permissions: *read_permissions
     env: *build_env
@@ -448,9 +442,12 @@ jobs:
       - name: Run ruling tests
         env:
           SONARSOURCE_QA: true
+          # Match master: cap analyses independently of the container host CPU count.
+          MAVEN_ARGS: >-
+            -Djunit.jupiter.execution.parallel.config.strategy=fixed
+            -Djunit.jupiter.execution.parallel.config.fixed.parallelism=8
           GITHUB_TOKEN: ${{ fromJSON(steps.licenses.outputs.vault).GITHUB_TOKEN }}
           ORCHESTRATOR_HOME: ${{ github.workspace }}/orchestrator
-          MAVEN_ARGS: *qa_maven_args
         run: >-
           mvn test -f its/ruling/pom.xml -Dtest=${{ matrix.test }} -P${{ matrix.profile }}
           -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE
@@ -465,7 +462,7 @@ jobs:
     name: Promote tested artifacts
     # Manual runs on a work branch validate CI; promote only PRs or the maintenance branch.
     if: github.event_name == 'pull_request' || github.ref_name == 'branch-10-X'
-    runs-on: sonar-s
+    runs-on: sonar-xs
     needs: [setup, get_build_number, build, build_win, test_js, test_eslint_plugin,
             analyze, plugin_qa_with_node, plugin_qa_without_node, plugin_qa_win,
             js_ts_ruling, ruling]
@@ -480,7 +477,7 @@ jobs:
 
   releasability:
     name: Releasability
-    runs-on: sonar-s
+    runs-on: sonar-xs
     needs: promote
     if: github.ref_name == 'branch-10-X'
     permissions:
