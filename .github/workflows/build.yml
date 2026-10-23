@@ -362,8 +362,8 @@ jobs:
 
   plugin_qa_without_node:
     name: Embedded runtime QA on ${{ matrix.os }} (${{ matrix.profile }})
-    # Alpine QA launches Docker; standard sonar runners have no Docker socket.
-    runs-on: ${{ matrix.os == 'Alpine' && 'warp-custom-ubuntu-24-04' || 'sonar-m' }}
+    # Alpine needs Docker and more memory for this branch's larger legacy QA suite.
+    runs-on: ${{ matrix.os == 'Alpine' && 'warp-custom-ubuntu-24-04-l' || 'sonar-m' }}
     needs: [setup, get_build_number, build]
     permissions: *read_permissions
     env:
@@ -413,7 +413,7 @@ jobs:
           trap 'kill "$monitor_pid" 2>/dev/null || true' EXIT
           # This image has Maven and Java but no Node; the analyzer must deploy the musl archive.
           # A numeric UID has no home; apply a writable home to Maven, tests and scanner JVMs.
-          # Cap this larger legacy QA suite at four classes to leave headroom on the 16 GB host.
+          # Keep four classes even on the larger host; the default scales with its CPU count.
           docker run --rm --name sonarjs-alpine-qa --user "$(id -u):$(id -g)" \
             -v "$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" -w "$GITHUB_WORKSPACE" \
             -v "$HOME/.m2:/tmp/.m2" \
