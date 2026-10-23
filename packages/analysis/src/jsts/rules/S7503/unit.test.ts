@@ -64,6 +64,29 @@ declare function getDisposable(): AsyncDisposable;
 `,
           filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
         },
+        {
+          code: `
+type Data = { id: number };
+function init(loader: () => Promise<Data | null> = async () => null) {}
+`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+        },
+        {
+          code: `
+type Loader = () => PromiseLike<string>;
+function init(loader: Loader = async function () { return 'x'; }) {}
+`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+        },
+        {
+          code: `
+class Service {
+  constructor(private readonly loader: (() => Promise<void>) | undefined = async () => {}) {}
+  run(handler: (id: number) => Promise<number> = async id => id) {}
+}
+`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+        },
       ],
       invalid: [
         {
@@ -85,6 +108,34 @@ class Service {
 }
 declare function decorator(): MethodDecorator;
 declare function computeSync(): number;
+`,
+          errors: 1,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+        },
+        {
+          code: `
+function init(loader = async () => null) {}
+`,
+          errors: 1,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+        },
+        {
+          code: `
+function init(loader: () => number | Promise<number> = async () => 1) {}
+`,
+          errors: 1,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+        },
+        {
+          code: `
+function init(loader: Function = async () => null) {}
+`,
+          errors: 1,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+        },
+        {
+          code: `
+const loader: () => Promise<null> = async () => null;
 `,
           errors: 1,
           filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
