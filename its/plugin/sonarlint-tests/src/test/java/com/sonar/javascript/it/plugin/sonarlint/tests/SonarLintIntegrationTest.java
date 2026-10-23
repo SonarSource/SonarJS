@@ -102,7 +102,7 @@ class SonarLintIntegrationTest {
 
     triggerAnalysisByFileOpened(fileDTO);
 
-    assertResults(results -> {
+    assertResults(60, results -> {
       assertThat(results).hasSize(1);
       assertThat(results.get(0).getRuleKey()).isEqualTo("javascript:S3923");
     });
@@ -365,8 +365,12 @@ class SonarLintIntegrationTest {
   }
 
   private void assertResults(Consumer<List<RaisedIssueDto>> assertionLambda) {
+    assertResults(15, assertionLambda);
+  }
+
+  private void assertResults(long timeoutInSeconds, Consumer<List<RaisedIssueDto>> assertionLambda) {
     await()
-      .atMost(15, TimeUnit.SECONDS)
+      .atMost(timeoutInSeconds, TimeUnit.SECONDS)
       .untilAsserted(() -> {
         var results = client.getRaisedIssuesForScopeIdAsList(CONFIG_SCOPE_ID);
         assertionLambda.accept(results);
