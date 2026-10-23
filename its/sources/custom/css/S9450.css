@@ -1,0 +1,33 @@
+.a {
+  --color: pink;
+  --color: orange; /* Noncompliant */
+/*^^^^^^^*/
+}
+
+.b {
+  --color: pink;
+  color: var(--color);
+  --color: orange; /* Noncompliant */
+/*^^^^^^^*/
+  --color: orange; /* Noncompliant */
+/*^^^^^^^*/
+}
+
+.c {
+  --color: pink !important; /* stylelint-disable-line sonar/declaration-no-important */
+  --color: orange; /* Noncompliant */
+/*^^^^^^^*/
+}
+
+.d {
+  --color: orange;
+  --Color: pink;
+}
+
+.e {
+  --color: pink;
+}
+
+.f {
+  --color: orange;
+}
