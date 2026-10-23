@@ -253,12 +253,17 @@ export class TsConfigStore implements FileStore {
     }
   }
 
-  async processFile(filename: string) {
-    const matches = this.providedPropertyTsConfigs?.some(
-      providedTsConfig =>
-        providedTsConfig.path === filename || providedTsConfig.pattern.match(filename),
+  private getProvidedTsConfigIndex(filename: string) {
+    return (
+      this.providedPropertyTsConfigs?.findIndex(
+        providedTsConfig =>
+          providedTsConfig.path === filename || providedTsConfig.pattern.match(filename),
+      ) ?? -1
     );
-    if (matches) {
+  }
+
+  async processFile(filename: string) {
+    if (this.getProvidedTsConfigIndex(filename) !== -1) {
       this.foundPropertyTsConfigs.push(filename);
     }
     if (basename(filename) === TSCONFIG_JSON) {
@@ -272,6 +277,15 @@ export class TsConfigStore implements FileStore {
         `Failed to find any of the provided tsconfig.json files: ${getTsConfigPaths().join(', ')}`,
       );
     }
+    // Sort lookup tsconfigs alphabetically to ensure deterministic analysis order
+    // regardless of filesystem traversal order.
+    this.foundLookupTsConfigs.sort();
+    // Sort paths first so matches within one provided entry have deterministic order.
+    // The stable sort then preserves the user's ordering of literal paths and globs.
+    this.foundPropertyTsConfigs.sort();
+    this.foundPropertyTsConfigs.sort(
+      (a, b) => this.getProvidedTsConfigIndex(a) - this.getProvidedTsConfigIndex(b),
+    );
     await this.initializeTsConfigs(baseDir);
   }
 }
