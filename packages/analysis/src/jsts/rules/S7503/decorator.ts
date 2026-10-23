@@ -25,8 +25,8 @@ import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { isRequiredParserServices } from '../helpers/parser-services.js';
 import type { RequiredParserServices } from '../helpers/parser-services.js';
 import { hasThenMethod } from '../helpers/type.js';
+import { isServerFunction } from '../helpers/nextjs.js';
 import { isFunctionNode } from '../helpers/ast.js';
-import type { FunctionNodeType } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 // Suppresses reports on async defaults of Promise-returning typed parameters,
@@ -40,7 +40,8 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         'node' in descriptor &&
         ((isRequiredParserServices(services) &&
           isTypedPromiseReturningDefault(descriptor.node, services)) ||
-          isServerFunction(descriptor.node, context))
+          (isFunctionNode(descriptor.node) &&
+            isServerFunction(descriptor.node, context.sourceCode)))
       ) {
         return;
       }
@@ -72,58 +73,5 @@ function isTypedPromiseReturningDefault(
   return (
     signatures.length > 0 &&
     signatures.every(signature => hasThenMethod(signature.getReturnType(), checker))
-  );
-}
-
-/**
- * Server Functions must be async even without `await`: either the function has its own
- * 'use server' directive, or it is exported from a 'use server' module.
- */
-function isServerFunction(node: estree.Node, context: Rule.RuleContext): boolean {
-  if (!isFunctionNode(node)) {
-    return false;
-  }
-  if (node.body.type === 'BlockStatement' && hasUseServerDirective(node.body.body)) {
-    return true;
-  }
-  return hasUseServerDirective(context.sourceCode.ast.body) && isExported(node, context);
-}
-
-// Parsers only set `directive` on directive-prologue entries.
-function hasUseServerDirective(statements: estree.Node[]): boolean {
-  return statements.some(
-    statement =>
-      statement.type === 'ExpressionStatement' &&
-      'directive' in statement &&
-      statement.directive === 'use server',
-  );
-}
-
-function isExported(node: FunctionNodeType, context: Rule.RuleContext): boolean {
-  const parent = (node as TSESTree.Node).parent;
-  if (parent?.type === 'ExportNamedDeclaration' || parent?.type === 'ExportDefaultDeclaration') {
-    return true;
-  }
-  const declarator = parent?.type === 'VariableDeclarator' ? parent : undefined;
-  if (declarator?.parent.parent?.type === 'ExportNamedDeclaration') {
-    return true;
-  }
-  const declaration =
-    node.type === 'FunctionDeclaration' ? node : (declarator as estree.Node | undefined);
-  if (!declaration) {
-    return false;
-  }
-  return context.sourceCode
-    .getDeclaredVariables(declaration)
-    .some(variable => variable.references.some(({ identifier }) => isExportReference(identifier)));
-}
-
-// `export { action }` or `export default action`
-function isExportReference(identifier: estree.Node): boolean {
-  const node = identifier as TSESTree.Node;
-  const parent = node.parent;
-  return (
-    (parent?.type === 'ExportSpecifier' && parent.local === node) ||
-    (parent?.type === 'ExportDefaultDeclaration' && parent.declaration === node)
   );
 }
