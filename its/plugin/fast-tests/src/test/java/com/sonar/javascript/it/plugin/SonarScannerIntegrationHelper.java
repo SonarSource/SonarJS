@@ -19,18 +19,25 @@ package com.sonar.javascript.it.plugin;
 import static com.sonarsource.scanner.integrationtester.utility.QualityProfileLoader.loadActiveRulesFromXmlProfile;
 
 import com.sonar.orchestrator.config.Configuration;
+import com.sonar.orchestrator.container.Edition;
+import com.sonar.orchestrator.container.SonarDistribution;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.Location;
 import com.sonar.orchestrator.locator.Locators;
 import com.sonar.orchestrator.locator.MavenLocation;
+import com.sonar.orchestrator.server.PackagingResolver;
 import com.sonarsource.scanner.integrationtester.dsl.ActiveRule;
 import com.sonarsource.scanner.integrationtester.dsl.EngineVersion;
 import com.sonarsource.scanner.integrationtester.dsl.SonarProjectContext;
 import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
+import java.util.zip.ZipFile;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.css.CssLanguage;
@@ -47,7 +54,7 @@ public final class SonarScannerIntegrationHelper {
    * Get the engine version based on the sonar.runtimeVersion system property.
    * Defaults to LATEST_RELEASE if not specified.
    */
-  public static EngineVersion.Version getEngineVersion() {
+  public static synchronized EngineVersion.Version getEngineVersion() {
     String runtimeVersion = System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE");
     if ("DEV".equals(runtimeVersion)) {
       return EngineVersion.latestMasterBuild();
@@ -55,16 +62,40 @@ public final class SonarScannerIntegrationHelper {
     if ("LATEST_RELEASE".equals(runtimeVersion)) {
       return EngineVersion.latestRelease();
     }
-    // The 2026.1 LTA enterprise engine uses the coordinates from before engine extraction.
-    var engine = new Locators(Configuration.createEnv()).locate(
-      MavenLocation.create("com.sonarsource.sonarqube", "scanner-enterprise", runtimeVersion, "all")
+    // The LTA engine is shipped inside the server ZIP, not published as a standalone artifact.
+    var configuration = Configuration.createEnv();
+    var packaging = new PackagingResolver(new Locators(configuration)).resolve(
+      new SonarDistribution().setEdition(Edition.ENTERPRISE_LW).setVersion(runtimeVersion)
     );
-    if (engine == null) {
-      throw new IllegalStateException(
-        "Unable to locate the enterprise scanner engine " + runtimeVersion
-      );
+    var engineName = "scanner-enterprise-" + packaging.getVersion() + "-all.jar";
+    var engine = configuration
+      .fileSystem()
+      .getCacheDir()
+      .resolve("sonarjs-scanner-engines")
+      .resolve(engineName);
+    if (!Files.exists(engine)) {
+      try (var zip = new ZipFile(packaging.getZip())) {
+        var entry = zip.getEntry(
+          "sonarqube-" + packaging.getVersion() + "/lib/scanner/" + engineName
+        );
+        if (entry == null) {
+          throw new IllegalStateException("Missing scanner engine in " + packaging.getZip());
+        }
+        Files.createDirectories(engine.getParent());
+        var temporaryEngine = Files.createTempFile(engine.getParent(), engineName, ".tmp");
+        try {
+          try (var input = zip.getInputStream(entry)) {
+            Files.copy(input, temporaryEngine, StandardCopyOption.REPLACE_EXISTING);
+          }
+          Files.move(temporaryEngine, engine, StandardCopyOption.REPLACE_EXISTING);
+        } finally {
+          Files.deleteIfExists(temporaryEngine);
+        }
+      } catch (IOException e) {
+        throw new IllegalStateException("Unable to extract the enterprise scanner engine", e);
+      }
     }
-    return EngineVersion.localBuild(engine.toPath());
+    return EngineVersion.localBuild(engine);
   }
 
   public static SonarServerContext getContext(
