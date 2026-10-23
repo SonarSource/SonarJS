@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type ts from 'typescript';
+import { disposeProgram } from 'typescript/lifecycle';
 import path from 'node:path/posix';
 import type { IncrementalCompilerHost } from '../compilerHost.js';
 import { info } from '../../../../../shared/src/helpers/logging.js';
@@ -117,6 +118,10 @@ export class ProgramCacheManager {
       const oldestKey = this.lruCache.keys().next().value;
       if (oldestKey) {
         info(`Evicting oldest program from cache (key: ${oldestKey})`);
+        const oldestEntry = this.lruCache.get(oldestKey)!;
+        const oldest = this.cache.get(oldestEntry.keyObj);
+        if (oldest) disposeProgram(oldest.program.getProgram());
+        this.cache.delete(oldestEntry.keyObj);
         this.lruCache.delete(oldestKey);
       }
     }
@@ -156,6 +161,8 @@ export class ProgramCacheManager {
     // Get existing host and update with new program (using same keyObj)
     const cached = this.cache.get(entry.keyObj);
     if (cached) {
+      if (cached.program.getProgram() !== newProgram.getProgram())
+        disposeProgram(cached.program.getProgram());
       this.cache.set(entry.keyObj, { program: newProgram, host: cached.host });
     }
   }
@@ -187,7 +194,21 @@ export class ProgramCacheManager {
   }
 
   clear(): void {
+    const programs = Array.from(this.lruCache.values()).flatMap(entry => {
+      const cached = this.cache.get(entry.keyObj);
+      this.cache.delete(entry.keyObj);
+      return cached ? [cached.program.getProgram()] : [];
+    });
     this.lruCache.clear();
+    const errors = [];
+    for (const program of programs) {
+      try {
+        disposeProgram(program);
+      } catch (error) {
+        errors.push(error);
+      }
+    }
+    if (errors.length) throw new AggregateError(errors, 'Cached compiler program cleanup failed');
   }
 }
 

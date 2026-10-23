@@ -16,7 +16,7 @@
  */
 import * as babelESLintParser from '@babel/eslint-parser';
 import * as vueESLintParser from 'vue-eslint-parser';
-import * as typescriptESLintParser from '@typescript-eslint/parser';
+import * as typescriptESLintParser from '../frontend/parser.js';
 
 /**
  * The ESLint-based parsers used to parse JavaScript, TypeScript, and Vue.js code.
