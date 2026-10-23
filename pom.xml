@@ -57,7 +57,7 @@
   </issueManagement>
 
   <properties>
-    <revision>10.26.0-SNAPSHOT</revision>
+    <revision>10.26.1-SNAPSHOT</revision>
     <gitRepositoryName>SonarJS</gitRepositoryName>
     <license.title>SonarQube JavaScript Plugin</license.title>
     <!-- Version corresponds to SQ 9.9 LTS -->
@@ -70,7 +70,7 @@
     <slf4j.version>2.0.17</slf4j.version>
     <sonar.version>25.6.0.109173</sonar.version>
     <sonar.api.version>13.4.2.4284</sonar.api.version>
-    <sonar-orchestrator.version>5.6.2.2625</sonar-orchestrator.version>
+    <sonar-orchestrator.version>6.4.4.4797</sonar-orchestrator.version>
     <gson.version>2.13.1</gson.version>
     <analyzer-commons.version>2.21.0.4626</analyzer-commons.version>
     <sslr.version>1.25.0.3878</sslr.version>
@@ -143,6 +143,12 @@
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-compress</artifactId>
         <version>1.27.1</version>
+      </dependency>
+      <!-- Match master: older test APIs must not override Orchestrator's runtime dependency. -->
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>3.21.0</version>
       </dependency>
       <dependency>
         <groupId>commons-io</groupId>

@@ -40,8 +40,7 @@ class CssNoCssFileProjectTest {
 
   @BeforeAll
   public static void prepare() {
-    orchestrator.getServer().provisionProject(PROJECT_KEY, PROJECT_KEY);
-    SonarScanner scanner = CssTestsUtils.createScanner(PROJECT_KEY);
+    SonarScanner scanner = CssTestsUtils.createScannerWithEmptyBlockRule(PROJECT_KEY);
     orchestrator.executeBuild(scanner);
   }
 

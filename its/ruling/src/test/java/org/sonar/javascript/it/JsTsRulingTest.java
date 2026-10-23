@@ -27,7 +27,7 @@ import com.sonar.orchestrator.container.Server;
 import com.sonar.orchestrator.junit5.OrchestratorExtension;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
-import com.sonar.orchestrator.version.Version;
+import com.sonar.orchestrator.util.Version;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -39,7 +39,6 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
-import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.parallel.Execution;
@@ -251,7 +250,7 @@ class JsTsRulingTest {
   }
 
   private static void installScanner() {
-    var installer = new SonarScannerInstaller(orchestrator.getConfiguration().locators());
+    var installer = new SonarScannerInstaller(orchestrator.getLocators());
     installer.install(Version.create(SCANNER_VERSION), Path.of("target").toFile());
   }
 
@@ -357,7 +356,7 @@ class JsTsRulingTest {
       .findFirst()
       .orElse(null);
 
-    if (!StringUtils.isEmpty(profileKey)) {
+    if (profileKey != null && !profileKey.isEmpty()) {
       newAdminWsClient(orchestrator)
         .qualityprofiles()
         .activateRule(

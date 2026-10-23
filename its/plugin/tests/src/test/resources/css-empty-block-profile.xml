@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<profile>
+  <name>css-empty-block-profile</name>
+  <language>css</language>
+  <rules>
+    <rule>
+      <repositoryKey>css</repositoryKey>
+      <key>S4658</key>
+      <priority>MAJOR</priority>
+    </rule>
+  </rules>
+</profile>
