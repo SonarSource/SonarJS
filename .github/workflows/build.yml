@@ -722,9 +722,12 @@ jobs:
             development/kv/data/next token | SONAR_TOKEN;
       - name: Run SonarQube analysis on Next
         env:
-          SONAR_HOST_URL: ${{ steps.secrets.outputs.vault && fromJSON(steps.secrets.outputs.vault).SONAR_URL || '' }}
-          SONAR_TOKEN: ${{ steps.secrets.outputs.vault && fromJSON(steps.secrets.outputs.vault).SONAR_TOKEN || '' }}
+          SONAR_HOST_URL: ${{ fromJSON(steps.secrets.outputs.vault).SONAR_URL }}
+          SONAR_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).SONAR_TOKEN }}
         run: |
+          if [ -z "$SONAR_HOST_URL" ] || [ -z "$SONAR_TOKEN" ]; then
+            echo '::error::Sonar Next secrets are missing from Vault output'; exit 1
+          fi
           SONAR_ARGS="-Dsonar.host.url=$SONAR_HOST_URL"
           SONAR_ARGS="$SONAR_ARGS -Dsonar.token=$SONAR_TOKEN"
           SONAR_ARGS="$SONAR_ARGS -Dsonar.projectKey=org.sonarsource.javascript:javascript"
@@ -779,6 +782,9 @@ jobs:
           SONAR_HOST_URL: ${{ fromJSON(steps.secrets.outputs.vault).SONAR_URL }}
           SONAR_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).SONAR_TOKEN }}
         run: |
+          if [ -z "$SONAR_HOST_URL" ] || [ -z "$SONAR_TOKEN" ]; then
+            echo '::error::Sonar secrets are missing from Vault output'; exit 1
+          fi
           SONAR_ARGS="-Dsonar.host.url=$SONAR_HOST_URL"
           SONAR_ARGS="$SONAR_ARGS -Dsonar.token=$SONAR_TOKEN"
           SONAR_ARGS="$SONAR_ARGS -Dsonar.projectKey=SonarSource_SonarJS"
