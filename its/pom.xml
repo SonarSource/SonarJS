@@ -20,6 +20,14 @@
   <build>
     <plugins>
       <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <systemPropertyVariables>
+            <sonar.runtimeVersion>${sonar.runtimeVersion}</sonar.runtimeVersion>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
+      <plugin>
         <groupId>com.mycila</groupId>
         <artifactId>license-maven-plugin</artifactId>
         <configuration>
@@ -59,6 +67,8 @@
   <properties>
     <maven.deploy.skip>true</maven.deploy.skip>
     <skipTests>true</skipTests>
+    <!-- SonarQube Server maintenance release tested by this branch. -->
+    <sonar.runtimeVersion>2026.1.6.131977</sonar.runtimeVersion>
     <!-- sonar scanner properties -->
     <sonar.sources>src/main</sonar.sources>
     <sonar.tests>src/test</sonar.tests>

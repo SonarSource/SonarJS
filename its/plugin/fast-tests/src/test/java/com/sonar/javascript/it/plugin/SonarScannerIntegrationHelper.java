@@ -18,8 +18,10 @@ package com.sonar.javascript.it.plugin;
 
 import static com.sonarsource.scanner.integrationtester.utility.QualityProfileLoader.loadActiveRulesFromXmlProfile;
 
+import com.sonar.orchestrator.config.Configuration;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.Location;
+import com.sonar.orchestrator.locator.Locators;
 import com.sonar.orchestrator.locator.MavenLocation;
 import com.sonarsource.scanner.integrationtester.dsl.ActiveRule;
 import com.sonarsource.scanner.integrationtester.dsl.EngineVersion;
@@ -50,7 +52,19 @@ public final class SonarScannerIntegrationHelper {
     if ("DEV".equals(runtimeVersion)) {
       return EngineVersion.latestMasterBuild();
     }
-    return EngineVersion.latestRelease();
+    if ("LATEST_RELEASE".equals(runtimeVersion)) {
+      return EngineVersion.latestRelease();
+    }
+    // The 2026.1 LTA enterprise engine uses the coordinates from before engine extraction.
+    var engine = new Locators(Configuration.createEnv()).locate(
+      MavenLocation.create("com.sonarsource.sonarqube", "scanner-enterprise", runtimeVersion, "all")
+    );
+    if (engine == null) {
+      throw new IllegalStateException(
+        "Unable to locate the enterprise scanner engine " + runtimeVersion
+      );
+    }
+    return EngineVersion.localBuild(engine.toPath());
   }
 
   public static SonarServerContext getContext(
@@ -60,6 +74,7 @@ public final class SonarScannerIntegrationHelper {
   ) {
     var builder = SonarServerContext.builder()
       .withProduct(SonarServerContext.Product.SERVER)
+      .withServerEdition(SonarServerContext.ServerEdition.ENTERPRISE)
       .withEngineVersion(getEngineVersion());
     for (var pluginLocation : pluginLocations) {
       builder.withPlugin(pluginLocation);

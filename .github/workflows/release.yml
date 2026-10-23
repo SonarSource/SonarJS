@@ -13,6 +13,11 @@ on:
         description: Flag to enable the dry-run execution
         default: false
         required: false
+      skipJavascriptReleasabilityChecks:
+        type: boolean
+        description: Skip all releasability checks, including Quality Gate and Jira
+        default: false
+        required: false
 
 jobs:
   release:
@@ -26,3 +31,4 @@ jobs:
       slackChannel: squad-corelang-releases
       version: ${{ inputs.version }}
       dryRun: ${{ inputs.dryRun == true }}
+      skipJavascriptReleasabilityChecks: ${{ inputs.skipJavascriptReleasabilityChecks == true }}
