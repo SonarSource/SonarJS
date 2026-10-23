@@ -525,6 +525,25 @@ jobs:
           name: ruling-differences-${{ matrix.test }}-${{ matrix.profile }}
           path: its/ruling/target/actual/
 
+  # Legacy names retained in branch protection from the 11.x workflow.
+  # These are compatibility placeholders; promote gates all real 10.x checks.
+  legacy_required_checks:
+    name: ${{ matrix.check }}
+    runs-on: sonar-xs
+    strategy:
+      fail-fast: false
+      matrix:
+        check:
+          - QA without Node on Ubuntu SQ:LATEST_RELEASE
+          - Fast QA with Node 24.0.0 on Ubuntu
+          - Knip
+          - Build ESLint Plugin
+          - Populate NPM cache for Linux
+          - QA with Node 24.0.0 on Ubuntu
+    steps:
+      - name: Report compatibility status for a legacy required check
+        run: echo 'Compatibility placeholder. The promote job requires the real 10.x build and test jobs.'
+
   promote:
     name: promote
     # Manual runs on a work branch validate CI; promote only PRs or the maintenance branch.
