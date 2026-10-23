@@ -358,7 +358,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.licenses.outputs.vault).GITHUB_TOKEN }}
           ORCHESTRATOR_HOME: ${{ github.workspace }}/orchestrator
           ANALYZE_PROFILE: ${{ matrix.profile }}
-        run: mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" verify -f its/plugin/pom.xml -DskipTests=false -P${{ matrix.profile }} -Dsonar.runtimeVersion=LATEST_RELEASE
+        run: mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" verify -f its/plugin/pom.xml -DskipTests=false -P${{ matrix.profile }}
 
   plugin_qa_without_node:
     name: Embedded runtime QA on ${{ matrix.os }} (${{ matrix.profile }})
@@ -391,7 +391,6 @@ jobs:
           # Remove every preinstalled Node executable so PATH lookup must use the embedded runtime.
           while node_path=$(command -v node); do sudo mv "$node_path" "$node_path.disabled"; done
           mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" verify -f its/plugin/pom.xml -DskipTests=false -P"$ANALYZE_PROFILE" \
-            -Dsonar.runtimeVersion=LATEST_RELEASE \
             '-Dtest=!EslintCustomRulesTest,!SonarJsIntegrationTest' \
             --projects '!org.sonarsource.javascript:eslint-custom-rules-plugin'
       - name: Run embedded runtime QA in Alpine
@@ -432,7 +431,6 @@ jobs:
                 -Djunit.jupiter.execution.parallel.config.strategy=fixed \
                 -Djunit.jupiter.execution.parallel.config.fixed.parallelism=4 \
                 verify -f its/plugin/pom.xml -DskipTests=false -P"$ANALYZE_PROFILE" \
-                -Dsonar.runtimeVersion=LATEST_RELEASE \
                 "-Dtest=!EslintCustomRulesTest,!SonarJsIntegrationTest" \
                 --projects "!org.sonarsource.javascript:eslint-custom-rules-plugin"'
 
@@ -454,7 +452,7 @@ jobs:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.licenses.outputs.vault).GITHUB_TOKEN }}
           ORCHESTRATOR_HOME: ${{ github.workspace }}/orchestrator
-        run: mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" verify -f its/plugin/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE
+        run: mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" verify -f its/plugin/pom.xml -DskipTests=false
 
   js_ts_ruling:
     name: JS/TS Ruling
@@ -517,7 +515,7 @@ jobs:
           ORCHESTRATOR_HOME: ${{ github.workspace }}/orchestrator
         run: >-
           mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" test -f its/ruling/pom.xml -Dtest=${{ matrix.test }} -P${{ matrix.profile }}
-          -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE
+          -DskipTests=false
       - name: Upload ruling differences
         if: failure()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
