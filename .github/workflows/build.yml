@@ -73,7 +73,7 @@ jobs:
         uses: SonarSource/ci-github-actions/get-build-number@v2
 
   build:
-    name: Build, test and deploy on Linux
+    name: Build SonarJS on Linux
     runs-on: sonar-l
     needs: [setup, get_build_number]
     permissions: &read_permissions
@@ -155,7 +155,7 @@ jobs:
           retention-days: 3
 
   build_win:
-    name: Build and test on Windows
+    name: Build SonarJS on Windows
     runs-on: warp-custom-windows-2022-m
     needs: [setup, get_build_number]
     permissions: *read_permissions
@@ -457,7 +457,7 @@ jobs:
         run: mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" verify -f its/plugin/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE
 
   js_ts_ruling:
-    name: JS/TS ruling
+    name: JS/TS Ruling
     runs-on: sonar-xl
     needs: [setup, get_build_number, build]
     permissions: *read_permissions
@@ -526,7 +526,7 @@ jobs:
           path: its/ruling/target/actual/
 
   promote:
-    name: Promote tested artifacts
+    name: promote
     # Manual runs on a work branch validate CI; promote only PRs or the maintenance branch.
     if: github.event_name == 'pull_request' || github.ref_name == 'branch-10-X'
     runs-on: sonar-xs
