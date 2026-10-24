@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import ts from 'typescript';
+import { getProjectCache } from 'typescript/control';
 import { IncrementalCompilerHost } from './compilerHost.js';
 import {
   defaultCompilerOptions,
@@ -177,6 +178,15 @@ export function createOrGetCachedProgramForFile(
   getProgramOptions: () => ProgramOptions | undefined,
   skipNodeModuleLookupOutsideBaseDir = false,
 ) {
+  const providerCache = getProjectCache();
+  if (providerCache)
+    return providerCache.getProgram(
+      baseDir,
+      sourceFile,
+      getProgramOptions,
+      skipNodeModuleLookupOutsideBaseDir,
+    );
+
   const cacheManager = getProgramCacheManager();
   const fileContent = getCurrentFilesContext()?.[sourceFile]?.fileContent;
 
