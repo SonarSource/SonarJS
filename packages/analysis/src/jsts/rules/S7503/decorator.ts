@@ -104,8 +104,8 @@ function getContract(node: ts.Expression, checker: ts.TypeChecker): ts.Type | un
 }
 
 /**
- * Walks up to the enclosing call argument, e.g. `useMemo(() => async () => {})`, stopping at
- * explicit type annotations and at statements other than returns.
+ * Walks up to the enclosing call argument, e.g. `useMemo(() => async () => {})`, as long as each
+ * parent passes its contextual type down to the child.
  */
 function isInferredFromGenericCall(node: ts.Node, checker: ts.TypeChecker): boolean {
   for (let child = node, parent = node.parent; parent; child = parent, parent = parent.parent) {
@@ -113,21 +113,44 @@ function isInferredFromGenericCall(node: ts.Node, checker: ts.TypeChecker): bool
       (ts.isCallExpression(parent) || ts.isNewExpression(parent)) &&
       parent.arguments?.includes(child as ts.Expression)
     ) {
-      return !!checker.getResolvedSignature(parent)?.getDeclaration()?.typeParameters?.length;
+      return isGeneric(checker.getResolvedSignature(parent)?.getDeclaration());
     }
-    if (
-      hasTypeAnnotation(parent) ||
-      (ts.isStatement(parent) && !ts.isReturnStatement(parent) && !ts.isBlock(parent))
-    ) {
+    if (!propagatesContextualType(parent, child)) {
       return false;
     }
   }
   return false;
 }
 
-function hasTypeAnnotation(node: ts.Node): boolean {
-  const type = (node as { type?: ts.Node }).type;
-  return type !== undefined && ts.isTypeNode(type);
+/**
+ * Constructors do not declare type parameters themselves, their class does.
+ */
+function isGeneric(declaration: ts.SignatureDeclaration | undefined): boolean {
+  if (declaration === undefined) {
+    return false;
+  }
+  return (
+    !!declaration.typeParameters?.length ||
+    (ts.isConstructorDeclaration(declaration) && !!declaration.parent.typeParameters?.length)
+  );
+}
+
+/**
+ * Anything else, e.g. JSX attributes, assignments or type annotations, provides its own contextual type.
+ */
+function propagatesContextualType(parent: ts.Node, child: ts.Node): boolean {
+  return (
+    ts.isParenthesizedExpression(parent) ||
+    ts.isArrayLiteralExpression(parent) ||
+    ts.isObjectLiteralExpression(parent) ||
+    ts.isPropertyAssignment(parent) ||
+    (ts.isConditionalExpression(parent) && parent.condition !== child) ||
+    ts.isReturnStatement(parent) ||
+    ts.isBlock(parent) ||
+    ((ts.isArrowFunction(parent) || ts.isFunctionExpression(parent)) &&
+      parent.body === child &&
+      parent.type === undefined)
+  );
 }
 
 function returnsThenable(type: ts.Type | undefined, checker: ts.TypeChecker): boolean {

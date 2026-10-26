@@ -328,6 +328,17 @@ const declared = useMemo(() => {
           filename,
         },
         {
+          // JSX attributes and assignments provide their own contract even under generic calls
+          code: `
+declare function doSomething(): void;
+declare function Form(props: { onSubmit: () => Promise<void> }): any;
+declare const targets: { handler: () => Promise<void> }[];
+const forms = targets.map(() => <Form onSubmit={async () => { doSomething(); }} />);
+const assigned = targets.map(target => (target.handler = async () => { doSomething(); }));
+`,
+          filename: path.join(import.meta.dirname, 'fixtures/placeholder.tsx'),
+        },
+        {
           code: `
 interface Repository {
   save(): Promise<void>;
@@ -397,6 +408,29 @@ const picked = memoize(condition ? async () => {
 });
 `,
           errors: 5,
+          filename,
+        },
+        {
+          // `T` is inferred from the constructor argument, including inherited constructors
+          code: `
+declare function doSomething(): void;
+class Box<T> {
+  constructor(public value: T) {}
+}
+class Crate<T> extends Box<T> {}
+new Box(async () => {
+  doSomething();
+});
+new Box({
+  async save() {
+    doSomething();
+  },
+});
+new Crate(async () => {
+  doSomething();
+});
+`,
+          errors: 3,
           filename,
         },
         {
@@ -487,6 +521,21 @@ withDependencies({
   callback: jest.fn(async () => {
     doSomething();
   }),
+});
+`,
+          errors: 1,
+          filename,
+        },
+        {
+          // the parameter requires a Promise regardless of `K` and `V`, e.g. DataLoader's batch function
+          code: `
+declare function doSomething(): void;
+declare class Loader<K, V> {
+  constructor(batch: (keys: readonly K[]) => Promise<V[]>);
+}
+new Loader(async (keys: readonly string[]) => {
+  doSomething();
+  return keys.map(key => key.length);
 });
 `,
           errors: 1,
