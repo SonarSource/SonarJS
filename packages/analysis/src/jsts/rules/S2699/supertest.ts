@@ -27,7 +27,7 @@ export function isLocalFactoryAssertion(context: Rule.RuleContext, node: estree.
     return false;
   }
   const factory = resolveLocalFactory(context, identifier);
-  if (!factory || factory.params.length !== 0 || factory.async || factory.generator) {
+  if (factory?.params.length !== 0 || factory?.async || factory?.generator) {
     return false;
   }
   const returned = getReturnedExpression(factory);
