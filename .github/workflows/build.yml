@@ -115,7 +115,7 @@ jobs:
       contents: read
     steps:
       - *checkout
-      - uses: jdx/mise-action@9b200bcecbfd6303e69a4a261b2e09e3757440a7 # v5.2.0
+      - uses: jdx/mise-action@fc42bcc7ddbf51124c30f95a877a0c5168a3bfde # v5.2.1
         with:
           version: 2026.9.18
           cache: false
@@ -138,7 +138,7 @@ jobs:
       BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
     steps:
       - *checkout
-      - uses: jdx/mise-action@9b200bcecbfd6303e69a4a261b2e09e3757440a7 # v5.2.0
+      - uses: jdx/mise-action@fc42bcc7ddbf51124c30f95a877a0c5168a3bfde # v5.2.1
         with:
           version: 2026.9.18
           cache: false
@@ -180,7 +180,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - &npm_cache_mise
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: jdx/mise-action@9b200bcecbfd6303e69a4a261b2e09e3757440a7 # v5.2.0
+        uses: jdx/mise-action@fc42bcc7ddbf51124c30f95a877a0c5168a3bfde # v5.2.1
         with:
           version: 2026.9.18
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -234,7 +234,7 @@ jobs:
     steps:
       - *checkout
       - &mise
-        uses: jdx/mise-action@9b200bcecbfd6303e69a4a261b2e09e3757440a7 # v5.2.0
+        uses: jdx/mise-action@fc42bcc7ddbf51124c30f95a877a0c5168a3bfde # v5.2.1
         with:
           version: 2026.9.18
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -532,7 +532,7 @@ jobs:
             node-label: 'min supported'
     steps:
       - *checkout
-      - uses: jdx/mise-action@9b200bcecbfd6303e69a4a261b2e09e3757440a7 # v5.2.0
+      - uses: jdx/mise-action@fc42bcc7ddbf51124c30f95a877a0c5168a3bfde # v5.2.1
         with:
           version: 2026.9.18
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -591,7 +591,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - if: steps.cache.outputs.cache-hit != 'true'
-        uses: jdx/mise-action@9b200bcecbfd6303e69a4a261b2e09e3757440a7 # v5.2.0
+        uses: jdx/mise-action@fc42bcc7ddbf51124c30f95a877a0c5168a3bfde # v5.2.1
         with:
           version: 2026.9.18
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -650,7 +650,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - if: steps.cache.outputs.cache-hit != 'true'
-        uses: jdx/mise-action@9b200bcecbfd6303e69a4a261b2e09e3757440a7 # v5.2.0
+        uses: jdx/mise-action@fc42bcc7ddbf51124c30f95a877a0c5168a3bfde # v5.2.1
         with:
           version: 2026.9.18
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -813,7 +813,7 @@ jobs:
     steps:
       - *checkout
       - &mise_java_matrix_node
-        uses: jdx/mise-action@9b200bcecbfd6303e69a4a261b2e09e3757440a7 # v5.2.0
+        uses: jdx/mise-action@fc42bcc7ddbf51124c30f95a877a0c5168a3bfde # v5.2.1
         with:
           version: 2026.9.18
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -908,7 +908,7 @@ jobs:
       - *checkout
       - &mise_java_only
         name: Setup Java and Maven
-        uses: jdx/mise-action@9b200bcecbfd6303e69a4a261b2e09e3757440a7 # v5.2.0
+        uses: jdx/mise-action@fc42bcc7ddbf51124c30f95a877a0c5168a3bfde # v5.2.1
         with:
           version: 2026.9.18
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -1000,7 +1000,7 @@ jobs:
           chown -R sonar:sonar /github/home
       - &alpine_setup_maven
         name: Setup Maven
-        uses: jdx/mise-action@9b200bcecbfd6303e69a4a261b2e09e3757440a7 # v5.2.0
+        uses: jdx/mise-action@fc42bcc7ddbf51124c30f95a877a0c5168a3bfde # v5.2.1
         with:
           version: 2026.9.18
           cache_save: true
@@ -1304,7 +1304,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 2
-      - uses: jdx/mise-action@9b200bcecbfd6303e69a4a261b2e09e3757440a7 # v5.2.0
+      - uses: jdx/mise-action@fc42bcc7ddbf51124c30f95a877a0c5168a3bfde # v5.2.1
         with:
           version: 2026.9.18
           install_args: node
