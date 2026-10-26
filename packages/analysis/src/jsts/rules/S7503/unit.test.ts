@@ -134,13 +134,6 @@ function withCallback(callback: Function = async () => null) {}
           errors: 1,
           filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
         },
-        {
-          code: `
-const callback: () => Promise<null> = async () => null;
-`,
-          errors: 1,
-          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
-        },
       ],
     });
   });
@@ -253,11 +246,28 @@ declare function doSomething(): void;
     });
   });
 
-  it('known limitation: reports async callbacks passed to Promise-typed parameters', () => {
-    // Only typed default parameters are exempted. Mocks are rare since S7503 runs on Main code only.
-    ruleTester.run('S7503 - Promise-typed callback arguments', rule, {
-      valid: [],
-      invalid: [
+  it('should not report functions that must satisfy a Promise-returning contract', () => {
+    ruleTester.run('S7503 - Promise-returning contracts', rule, {
+      valid: [
+        {
+          code: `
+type AsyncFunc = () => Promise<void>;
+declare function doSomething(): void;
+const annotated: AsyncFunc = async () => { doSomething(); };
+const satisfying = (async () => { doSomething(); }) satisfies AsyncFunc;
+const asserted = (async () => { doSomething(); }) as AsyncFunc;
+const expression: AsyncFunc = async function () { doSomething(); };
+const elements: AsyncFunc[] = [async () => { doSomething(); }];
+const handlers: { onSave: AsyncFunc } = { onSave: async () => { doSomething(); } };
+class Store {
+  onSave: AsyncFunc = async () => { doSomething(); };
+}
+function make(): AsyncFunc {
+  return async () => { doSomething(); };
+}
+`,
+          filename,
+        },
         {
           code: `
 declare function withCallback(callback: () => Promise<void>): void;
@@ -266,9 +276,158 @@ withCallback(async () => {
   doSomething();
 });
 `,
+          filename,
+        },
+        {
+          code: `
+interface Entity { id: number }
+interface Repository {
+  save(entity: Entity): Promise<void>;
+}
+class InMemoryRepository implements Repository {
+  private readonly entities: Entity[] = [];
+  async save(entity: Entity): Promise<void> {
+    this.entities.push(entity);
+  }
+}
+`,
+          filename,
+        },
+        {
+          code: `
+abstract class Handler {
+  abstract handle(): Promise<number>;
+}
+class SyncHandler extends Handler {
+  async handle() {
+    return 1;
+  }
+}
+`,
+          filename,
+        },
+        {
+          code: `
+interface Repository {
+  save(): Promise<void>;
+}
+declare function register(repository: Repository): void;
+declare function doSomething(): void;
+const repository: Repository = {
+  async save() {
+    doSomething();
+  },
+};
+register({
+  async save() {
+    doSomething();
+  },
+});
+`,
+          filename,
+        },
+      ],
+      invalid: [
+        {
+          // `T` is inferred from the function itself
+          code: `
+declare function memoize<T extends (...args: any[]) => any>(fn: T): T;
+declare function useStore<T>(options: T): T;
+declare function doSomething(): void;
+const memoized = memoize(async () => {
+  doSomething();
+});
+const store = useStore({
+  async save() {
+    doSomething();
+  },
+  load: [async () => {
+    doSomething();
+  }],
+});
+`,
+          errors: 3,
+          filename,
+        },
+        {
+          // the function's own return type is not a contract
+          code: `
+declare function doSomething(): void;
+async function save(): Promise<void> {
+  doSomething();
+}
+`,
           errors: 1,
           filename,
         },
+        {
+          code: `
+interface Handler {
+  handle(): Promise<void> | void;
+}
+declare function doSomething(): void;
+class SyncHandler implements Handler {
+  async handle() {
+    doSomething();
+  }
+}
+`,
+          errors: 1,
+          filename,
+        },
+        {
+          code: `
+interface Handler {
+  handle(): Promise<void>;
+}
+declare function doSomething(): void;
+class SyncHandler implements Handler {
+  handle() {
+    return Promise.resolve();
+  }
+  static async handle() { // Noncompliant: static members do not implement the interface
+    doSomething();
+  }
+  async other() {
+    doSomething();
+  }
+}
+`,
+          errors: 2,
+          filename,
+        },
+        {
+          code: `
+declare function doSomething(): void;
+const repository = {
+  async save() {
+    doSomething();
+  },
+};
+`,
+          errors: 1,
+          filename,
+        },
+        {
+          code: `
+declare function doSomething(): void;
+const callback: (() => void) | (() => Promise<void>) = async () => {
+  doSomething();
+};
+`,
+          errors: 1,
+          filename,
+        },
+      ],
+    });
+  });
+
+  it('known limitation: reports async callbacks passed to generic calls', () => {
+    // Type arguments may be inferred from the callback itself, e.g. `useCallback(async () => {})`,
+    // so generic calls are skipped even when `T` comes from an outer Promise-returning type.
+    ruleTester.run('S7503 - generic calls', rule, {
+      valid: [],
+      invalid: [
         {
           code: `
 declare const jest: { fn<T extends (...args: any[]) => any>(implementation?: T): T };

@@ -17,9 +17,8 @@
 // https://sonarsource.github.io/rspec/#/rspec/S7503/javascript
 
 import type { Rule } from 'eslint';
-import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import type ts from 'typescript';
+import ts from 'typescript';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { isRequiredParserServices } from '../helpers/parser-services.js';
@@ -27,10 +26,11 @@ import type { RequiredParserServices } from '../helpers/parser-services.js';
 import { hasThenMethod } from '../helpers/type.js';
 import { isServerFunction } from '../helpers/nextjs.js';
 import { isFunctionNode } from '../helpers/ast.js';
+import type { FunctionNodeType } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
-// Suppresses reports on async defaults of Promise-returning typed parameters,
-// e.g. `loader: () => Promise<T> = async () => null`, and on 'use server' functions.
+// Suppresses reports on functions that must satisfy a Promise-returning contract,
+// e.g. `const load: () => Promise<T> = async () => null`, and on 'use server' functions.
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
     { ...rule, meta: generateMeta(meta, rule.meta) },
@@ -38,10 +38,9 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       const services = context.sourceCode.parserServices;
       if (
         'node' in descriptor &&
-        ((isRequiredParserServices(services) &&
-          isTypedPromiseReturningDefault(descriptor.node, services)) ||
-          (isFunctionNode(descriptor.node) &&
-            isServerFunction(descriptor.node, context.sourceCode)))
+        isFunctionNode(descriptor.node) &&
+        ((isRequiredParserServices(services) && hasPromiseContract(descriptor.node, services)) ||
+          isServerFunction(descriptor.node, context.sourceCode))
       ) {
         return;
       }
@@ -51,25 +50,81 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
 }
 
 /**
- * Reads the type from the annotation, not the parameter, so untyped parameters never qualify.
+ * The contract is the type the function is expected to have: the contextual type of a function
+ * expression (annotation, `satisfies`, argument, default value, returned value...), or the type
+ * of the member a method implements or overrides. The function's own return type annotation is
+ * not a contract, since it is the very thing that `async` satisfies.
  */
-function isTypedPromiseReturningDefault(
-  node: estree.Node,
-  services: RequiredParserServices,
-): boolean {
-  const parent = (node as TSESTree.Node).parent;
-  if (parent?.type !== 'AssignmentPattern') {
-    return false;
-  }
-  const typeAnnotation = parent.left.typeAnnotation?.typeAnnotation;
-  if (!typeAnnotation) {
-    return false;
-  }
+function hasPromiseContract(node: FunctionNodeType, services: RequiredParserServices): boolean {
   const checker = services.program.getTypeChecker();
-  const declaredType = checker.getNonNullableType(
-    checker.getTypeFromTypeNode(services.esTreeNodeToTSNodeMap.get(typeAnnotation) as ts.TypeNode),
-  );
-  const signatures = declaredType.getCallSignatures();
+  const tsNode = services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node);
+  if (ts.isFunctionExpression(tsNode) || ts.isArrowFunction(tsNode)) {
+    return returnsThenable(getContract(tsNode, checker), checker);
+  }
+  if (ts.isMethodDeclaration(tsNode)) {
+    return getMemberContracts(tsNode, checker).some(type => returnsThenable(type, checker));
+  }
+  return false;
+}
+
+/**
+ * Methods have no contextual type, so the contract is looked up by name in the object literal's
+ * contextual type or in the types the class extends or implements.
+ */
+function getMemberContracts(method: ts.MethodDeclaration, checker: ts.TypeChecker): ts.Type[] {
+  const name = checker.getSymbolAtLocation(method.name)?.name;
+  if (name === undefined) {
+    return [];
+  }
+  const owner = method.parent;
+  let ownerContracts: ts.Type[] = [];
+  if (ts.isObjectLiteralExpression(owner)) {
+    const contextualType = getContract(owner, checker);
+    ownerContracts = contextualType ? [checker.getNonNullableType(contextualType)] : [];
+  } else if (
+    ts.isClassLike(owner) &&
+    !(ts.getCombinedModifierFlags(method) & ts.ModifierFlags.Static)
+  ) {
+    ownerContracts = (owner.heritageClauses ?? [])
+      .flatMap(clause => clause.types)
+      .map(heritage => checker.getTypeAtLocation(heritage));
+  }
+  return ownerContracts.flatMap(contract => {
+    const member = contract.getProperty(name);
+    return member ? [checker.getTypeOfSymbol(member)] : [];
+  });
+}
+
+/**
+ * A generic call can infer its type arguments from the argument itself, e.g. `memoize(async () => {})`
+ * infers `T` as the function's own type, so contextual types under generic calls are not contracts.
+ */
+function getContract(node: ts.Expression, checker: ts.TypeChecker): ts.Type | undefined {
+  let argument: ts.Node = node;
+  while (
+    ts.isParenthesizedExpression(argument.parent) ||
+    ts.isArrayLiteralExpression(argument.parent) ||
+    ts.isPropertyAssignment(argument.parent) ||
+    ts.isObjectLiteralExpression(argument.parent)
+  ) {
+    argument = argument.parent;
+  }
+  const call = argument.parent;
+  if (
+    (ts.isCallExpression(call) || ts.isNewExpression(call)) &&
+    call.arguments?.includes(argument as ts.Expression) &&
+    checker.getResolvedSignature(call)?.getDeclaration()?.typeParameters?.length
+  ) {
+    return undefined;
+  }
+  return checker.getContextualType(node);
+}
+
+function returnsThenable(type: ts.Type | undefined, checker: ts.TypeChecker): boolean {
+  if (!type) {
+    return false;
+  }
+  const signatures = checker.getNonNullableType(type).getCallSignatures();
   return (
     signatures.length > 0 &&
     signatures.every(signature => hasThenMethod(signature.getReturnType(), checker))
