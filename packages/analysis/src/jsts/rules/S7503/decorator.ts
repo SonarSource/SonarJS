@@ -100,24 +100,34 @@ function getMemberContracts(method: ts.MethodDeclaration, checker: ts.TypeChecke
  * infers `T` as the function's own type, so contextual types under generic calls are not contracts.
  */
 function getContract(node: ts.Expression, checker: ts.TypeChecker): ts.Type | undefined {
-  let argument: ts.Node = node;
-  while (
-    ts.isParenthesizedExpression(argument.parent) ||
-    ts.isArrayLiteralExpression(argument.parent) ||
-    ts.isPropertyAssignment(argument.parent) ||
-    ts.isObjectLiteralExpression(argument.parent)
-  ) {
-    argument = argument.parent;
+  return isInferredFromGenericCall(node, checker) ? undefined : checker.getContextualType(node);
+}
+
+/**
+ * Walks up to the enclosing call argument, e.g. `useMemo(() => async () => {})`, stopping at
+ * explicit type annotations and at statements other than returns.
+ */
+function isInferredFromGenericCall(node: ts.Node, checker: ts.TypeChecker): boolean {
+  for (let child = node, parent = node.parent; parent; child = parent, parent = parent.parent) {
+    if (
+      (ts.isCallExpression(parent) || ts.isNewExpression(parent)) &&
+      parent.arguments?.includes(child as ts.Expression)
+    ) {
+      return !!checker.getResolvedSignature(parent)?.getDeclaration()?.typeParameters?.length;
+    }
+    if (
+      hasTypeAnnotation(parent) ||
+      (ts.isStatement(parent) && !ts.isReturnStatement(parent) && !ts.isBlock(parent))
+    ) {
+      return false;
+    }
   }
-  const call = argument.parent;
-  if (
-    (ts.isCallExpression(call) || ts.isNewExpression(call)) &&
-    call.arguments?.includes(argument as ts.Expression) &&
-    checker.getResolvedSignature(call)?.getDeclaration()?.typeParameters?.length
-  ) {
-    return undefined;
-  }
-  return checker.getContextualType(node);
+  return false;
+}
+
+function hasTypeAnnotation(node: ts.Node): boolean {
+  const type = (node as { type?: ts.Node }).type;
+  return type !== undefined && ts.isTypeNode(type);
 }
 
 function returnsThenable(type: ts.Type | undefined, checker: ts.TypeChecker): boolean {

@@ -307,6 +307,27 @@ class SyncHandler extends Handler {
           filename,
         },
         {
+          // explicit annotations are contracts even under generic calls
+          code: `
+type AsyncFunc = () => Promise<void>;
+declare function useMemo<T>(factory: () => T, deps: unknown[]): T;
+declare function doSomething(): void;
+const returned = useMemo((): AsyncFunc => async () => {
+  doSomething();
+}, []);
+const asserted = useMemo(() => (async () => {
+  doSomething();
+}) satisfies AsyncFunc, []);
+const declared = useMemo(() => {
+  const callback: AsyncFunc = async () => {
+    doSomething();
+  };
+  return callback;
+}, []);
+`,
+          filename,
+        },
+        {
           code: `
 interface Repository {
   save(): Promise<void>;
@@ -347,6 +368,35 @@ const store = useStore({
 });
 `,
           errors: 3,
+          filename,
+        },
+        {
+          // `T` is inferred through returned values and conditionals
+          code: `
+declare function useMemo<T>(factory: () => T, deps: unknown[]): T;
+declare function memoize<T extends (...args: any[]) => any>(fn: T): T;
+declare function doSomething(): void;
+declare const condition: boolean;
+const callback = useMemo(() => async () => {
+  doSomething();
+}, []);
+const factory = useMemo(() => {
+  return async () => {
+    doSomething();
+  };
+}, []);
+const api = useMemo(() => ({
+  async save() {
+    doSomething();
+  },
+}), []);
+const picked = memoize(condition ? async () => {
+  doSomething();
+} : async () => {
+  doSomething();
+});
+`,
+          errors: 5,
           filename,
         },
         {
