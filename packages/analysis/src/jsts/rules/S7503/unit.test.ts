@@ -382,12 +382,23 @@ const store = useStore({
           filename,
         },
         {
-          // `T` is inferred through returned values and conditionals
+          // `T` is inferred through returned values, conditionals and logical operators
           code: `
 declare function useMemo<T>(factory: () => T, deps: unknown[]): T;
 declare function memoize<T extends (...args: any[]) => any>(fn: T): T;
 declare function doSomething(): void;
 declare const condition: boolean;
+declare function wrap<T>(value: T): T;
+declare const missing: undefined;
+const nullish = wrap(missing ?? (async () => {
+  doSomething();
+}));
+const fallback = wrap(missing || (async () => {
+  doSomething();
+}));
+const guarded = wrap(condition && (async () => {
+  doSomething();
+}));
 const callback = useMemo(() => async () => {
   doSomething();
 }, []);
@@ -407,7 +418,7 @@ const picked = memoize(condition ? async () => {
   doSomething();
 });
 `,
-          errors: 5,
+          errors: 8,
           filename,
         },
         {

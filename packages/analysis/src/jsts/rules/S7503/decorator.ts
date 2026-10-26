@@ -145,12 +145,29 @@ function propagatesContextualType(parent: ts.Node, child: ts.Node): boolean {
     ts.isObjectLiteralExpression(parent) ||
     ts.isPropertyAssignment(parent) ||
     (ts.isConditionalExpression(parent) && parent.condition !== child) ||
+    (ts.isBinaryExpression(parent) && propagatesThroughOperator(parent, child)) ||
     ts.isReturnStatement(parent) ||
     ts.isBlock(parent) ||
     ((ts.isArrowFunction(parent) || ts.isFunctionExpression(parent)) &&
       parent.body === child &&
       parent.type === undefined)
   );
+}
+
+/**
+ * `a ?? b` and `a || b` pass their contextual type to both operands, `a && b` and `a, b` only to `b`.
+ */
+function propagatesThroughOperator(parent: ts.BinaryExpression, child: ts.Node): boolean {
+  switch (parent.operatorToken.kind) {
+    case ts.SyntaxKind.QuestionQuestionToken:
+    case ts.SyntaxKind.BarBarToken:
+      return true;
+    case ts.SyntaxKind.AmpersandAmpersandToken:
+    case ts.SyntaxKind.CommaToken:
+      return parent.right === child;
+    default:
+      return false;
+  }
 }
 
 function returnsThenable(type: ts.Type | undefined, checker: ts.TypeChecker): boolean {
