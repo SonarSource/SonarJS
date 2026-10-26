@@ -29,6 +29,7 @@ import {
 import { isRequiredParserServices } from '../helpers/parser-services.js';
 import * as Mocha from '../helpers/testing/mocha.js';
 import * as Vitest from '../helpers/testing/vitest.js';
+import * as Supertest from './supertest.js';
 import {
   followCallToImplementation,
   followTypeScriptCallToImplementation,
@@ -49,12 +50,13 @@ import type { ParserServicesWithTypeInformation, TSESTree } from '@typescript-es
 import ts from 'typescript';
 
 /**
- * Every known assertion framework: any assertion at all clears this rule, so it has no reason to be
- * selective. AWS CDK additionally needs the assignment fallback, because a CDK template is
- * conventionally assigned in `beforeEach` rather than declared with an initializer, which is all
- * the type-aware resolver follows.
+ * Any assertion clears this rule. The fallbacks also recognize local Supertest factories and
+ * setup-assigned AWS CDK templates.
  */
 const ASSERTION_EVIDENCE_PROFILE = allAssertionFrameworks({
+  supertest: {
+    isTSAssertionFallback: Supertest.isTSLocalFactoryAssertion,
+  },
   awsCdk: {
     isTSAssertionFallback: AwsCdk.isTSAssertionWithAssignmentFallback,
   },
@@ -293,7 +295,8 @@ class TestCaseAssertionVisitor {
     }
     visitedNodes.set(node, false);
     if (
-      isAssertionEvidence(context, node, ASSERTION_EVIDENCE_PROFILE) &&
+      (Supertest.isLocalFactoryAssertion(context, node) ||
+        isAssertionEvidence(context, node, ASSERTION_EVIDENCE_PROFILE)) &&
       !isIncompleteShouldAccess(context, node)
     ) {
       visitedNodes.set(node, true);

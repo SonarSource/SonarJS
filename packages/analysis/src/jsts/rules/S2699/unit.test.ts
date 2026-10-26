@@ -16,6 +16,7 @@
  */
 import {
   DefaultParserRuleTester,
+  NoTypeCheckingRuleTester,
   RuleTester,
 } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { rule } from './rule.js';
@@ -1637,5 +1638,135 @@ describe('typed unrelated should chains', () => {
         },
       ],
     });
+  });
+
+  it('recognizes only proven local Supertest request factories', () => {
+    const testCase = (
+      factory: string,
+      body = "await http().post('/items').send({}).expect(401);",
+    ) => `
+import { it } from 'node:test';
+import request from 'supertest';
+${factory}
+it('checks the response', async () => {
+  ${body}
+});
+`;
+    const validFactories = [
+      'const http = () => request(app);',
+      'const http = function () { return request(app); };',
+      'function http() { return request(app); }',
+      'let http = () => request(app);',
+      "const http = () => require('supertest')(app);",
+      "const client = require('supertest'); const http = () => client(app);",
+    ];
+    const invalidCases = [
+      testCase(
+        'const http = () => ({ post: () => ({ send: () => ({ expect: () => undefined }) }) });',
+      ),
+      testCase(
+        'const http = () => request(app);',
+        "const http = () => fakeRequest(app); await http().get('/items').expect(401);",
+      ),
+      testCase('let http = () => request(app); http = () => fakeRequest(app);'),
+      testCase('function http() { return request(app); } http = () => fakeRequest(app);'),
+      testCase('const http = server => request(app);'),
+      testCase('const http = () => request(app);', "await http(app).get('/items').expect(401);"),
+      testCase('const http = async () => request(app);'),
+      testCase('function* http() { return request(app); }'),
+      testCase('const factory = () => request(app); const http = factory;'),
+      testCase(
+        'const client = { http: () => request(app) };',
+        "await client.http().get('/items').expect(401);",
+      ),
+      testCase('function http() { if (flag) return request(app); return fakeRequest(app); }'),
+      testCase('function http() { log(); return request(app); }'),
+      testCase('function http() { return request(app); return fakeRequest(app); }'),
+      testCase('const factory = () => request(app); const http = () => factory();'),
+      testCase(
+        'const http = () => request(app); const plugin = req => { req.expect = () => req; };',
+        "await http().get('/items').use(plugin).expect(401);",
+      ),
+      testCase('const http = () => request(app);', "await http().get('/items').expect;"),
+      testCase('const http = () => request(app);', "await http()['get']('/items').expect(401);"),
+      testCase('const http = () => request(app);', "await http().get('/items')['expect'](401);"),
+      testCase('const http = () => request(app);', 'await http().expect(401);'),
+      testCase(
+        `
+const require = () => () => ({ get: () => ({ expect: () => undefined }) });
+const http = () => require('supertest')(app);
+`,
+        "await http().get('/items').expect(401);",
+      ),
+      `
+import { it } from 'node:test';
+import request from 'supertest';
+function register(require) {
+  const http = () => require('supertest')(app);
+  it('does not resolve a parameter loader', async () => {
+    await http().get('/items').expect(401);
+  });
+}
+register(fakeLoader);
+`,
+      testCase(
+        `
+const require = () => () => ({ get: () => ({ expect: () => undefined }) });
+const client = require('supertest');
+const http = () => client(app);
+`,
+        "await http().get('/items').expect(401);",
+      ),
+      testCase(
+        `
+require = fakeLoader;
+const http = () => require('supertest')(app);
+`,
+        "await http().get('/items').expect(401);",
+      ),
+      testCase(
+        `
+require = fakeLoader;
+const client = require('supertest');
+const http = () => client(app);
+`,
+        "await http().get('/items').expect(401);",
+      ),
+      testCase('const client = request; const http = () => client(app);'),
+      `
+import { it } from 'node:test';
+let request = require('supertest');
+request = fakeRequest;
+const http = () => request(app);
+it('does not resolve an overwritten request binding', async () => {
+  await http().get('/items').expect(401);
+});
+`,
+      testCase('const http = () => request(app);') +
+        `
+it('only sends a request from the same factory', async () => {
+  await http().post('/items').send({});
+});
+`,
+    ];
+    for (const Tester of [DefaultParserRuleTester, NoTypeCheckingRuleTester, RuleTester]) {
+      new Tester().run(`Local Supertest factories (${Tester.name})`, rule, {
+        valid: [
+          ...validFactories.map(factory => ({ code: testCase(factory) })),
+          {
+            code: testCase("const http = () => require('supertest')(app);"),
+            languageOptions: { globals: { require: 'writable' } },
+          },
+        ],
+        invalid: [
+          ...invalidCases.map(code => ({ code, errors: 1 })),
+          {
+            code: testCase("require = fakeLoader; const http = () => require('supertest')(app);"),
+            languageOptions: { globals: { require: 'writable' } },
+            errors: 1,
+          },
+        ],
+      });
+    }
   });
 });
