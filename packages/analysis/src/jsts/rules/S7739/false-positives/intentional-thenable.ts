@@ -14,22 +14,20 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
 import type { AssignmentExpression, CallExpression, Node, Property } from 'estree';
-import {
-  getVariableFromName,
-  isIdentifier,
-  isStaticMethodCall,
-  isThisExpression,
-} from '../../helpers/ast.js';
+import { isIdentifier, isStaticMethodCall, isThisExpression } from '../../helpers/ast.js';
 import { getNodeParent } from '../../helpers/ancestor.js';
 import { isGlobalShadowed } from '../../helpers/module.js';
 import { collectPropertyNames, getAncestorsWithParent } from '../helpers.js';
-
-// Matches the contract names used by JSDoc `@implements` annotations and TypeScript
-// `implements` heritage clauses to declare an intentional thenable implementation.
-const THENABLE_CONTRACT_PATTERN = /\b(?:IThenable|Thenable|PromiseLike)\b/;
+import {
+  isCallableThenValue,
+  isConstFactoryResult,
+  isDirectFactoryResult,
+  isPromiseOrDeferredAssignmentTarget,
+  isPromiseOrDeferredFunctionDeclaration,
+} from './promise-factory.js';
+import { isClassThenMethodWithThenableContract } from './thenable-contract.js';
 
 /**
  * Checks if the RHS of an assignment delegates to a Promise's then method.
@@ -112,35 +110,6 @@ function isCallToThenMethod(call: CallExpression): boolean {
  */
 function isMemberAccessingThen(node: Node): boolean {
   return node.type === 'MemberExpression' && !node.computed && isIdentifier(node.property, 'then');
-}
-
-/**
- * Checks if an ancestor is a function declaration named 'Promise' or 'Deferred'.
- */
-function isPromiseOrDeferredFunctionDeclaration(ancestor: Node): boolean {
-  return (
-    ancestor.type === 'FunctionDeclaration' &&
-    ancestor.id !== null &&
-    isIdentifier(ancestor.id, 'Promise', 'Deferred')
-  );
-}
-
-/**
- * Recognizes a factory assignment such as `Promise = ...` or `namespace.Deferred = ...`.
- * Computed targets, such as `namespace['Promise']`, intentionally remain outside this pattern.
- */
-function isPromiseOrDeferredAssignmentTarget(target: Node): boolean {
-  return (
-    isIdentifier(target, 'Promise', 'Deferred') || isPromiseOrDeferredMemberAssignmentTarget(target)
-  );
-}
-
-function isPromiseOrDeferredMemberAssignmentTarget(target: Node): boolean {
-  return (
-    target.type === 'MemberExpression' &&
-    !target.computed &&
-    isIdentifier(target.property, 'Promise', 'Deferred')
-  );
 }
 
 /**
@@ -239,10 +208,6 @@ function isUnshadowedDefinePropertyCall(context: Rule.RuleContext, call: CallExp
       call.callee.type === 'MemberExpression' &&
       !isGlobalShadowed(context.sourceCode, call.callee.object, 'Reflect'))
   );
-}
-
-function isCallableThenValue(node: Node): boolean {
-  return node.type === 'FunctionExpression' || node.type === 'ArrowFunctionExpression';
 }
 
 function isCallablePropertyDescriptor(node: Node): boolean {
@@ -377,140 +342,6 @@ function isThenDefinitionBoundary(context: Rule.RuleContext, ancestor: Node, nod
 }
 
 /**
- * Recognizes `{ then: fn }` only when it is the direct return value of a named Promise/Deferred
- * factory or method. A nested object literal does not establish that its `then` belongs to the
- * factory result and remains reportable.
- */
-function isDirectFactoryResult(node: Node): boolean {
-  const parent = getNodeParent(node);
-  if (
-    (parent?.type === 'ArrowFunctionExpression' ||
-      parent?.type === 'FunctionExpression' ||
-      parent?.type === 'FunctionDeclaration') &&
-    parent.body === node
-  ) {
-    return isPromiseOrDeferredFactory(parent);
-  }
-  const block = parent?.type === 'ReturnStatement' ? getNodeParent(parent) : undefined;
-  const functionNode = block?.type === 'BlockStatement' ? getNodeParent(block) : undefined;
-  return (
-    (functionNode?.type === 'ArrowFunctionExpression' ||
-      functionNode?.type === 'FunctionExpression' ||
-      functionNode?.type === 'FunctionDeclaration') &&
-    isPromiseOrDeferredFactory(functionNode) &&
-    functionNode.body === block &&
-    block?.type === 'BlockStatement' &&
-    parent?.type === 'ReturnStatement' &&
-    block.body.includes(parent)
-  );
-}
-
-/**
- * Recognizes an object literal saved in a local const and returned from the same Promise/Deferred
- * factory. The binding identity prevents an outer or shadowed variable from being treated as the
- * factory result.
- */
-function isConstFactoryResult(context: Rule.RuleContext, node: Node): boolean {
-  const [property, object, declarator, declaration] = getAncestorsWithParent(node);
-  if (
-    property?.type !== 'Property' ||
-    property.key !== node ||
-    property.kind !== 'init' ||
-    !isCallableThenValue(property.value as Node) ||
-    object?.type !== 'ObjectExpression' ||
-    declarator?.type !== 'VariableDeclarator' ||
-    declarator.init !== object ||
-    declarator.id.type !== 'Identifier' ||
-    declaration?.type !== 'VariableDeclaration' ||
-    declaration.kind !== 'const'
-  ) {
-    return false;
-  }
-
-  const variable = getVariableFromName(context, declarator.id.name, declarator.id);
-  if (
-    variable?.defs.length !== 1 ||
-    variable.defs[0].type !== 'Variable' ||
-    variable.defs[0].node !== declarator ||
-    variable.references.filter(reference => reference.isWrite()).length !== 1
-  ) {
-    return false;
-  }
-
-  const factory = getAncestorsWithParent(declarator).find(
-    ancestor =>
-      ancestor.type === 'FunctionDeclaration' ||
-      ancestor.type === 'FunctionExpression' ||
-      ancestor.type === 'ArrowFunctionExpression',
-  );
-  if (!factory || !isPromiseOrDeferredFactory(factory)) {
-    return false;
-  }
-
-  return variable.references.some(reference => {
-    if (reference.isWrite()) {
-      return false;
-    }
-    const parent = getNodeParent(reference.identifier);
-    if (parent?.type !== 'ReturnStatement' || parent.argument !== reference.identifier) {
-      return false;
-    }
-    const returnFactory = getAncestorsWithParent(parent).find(
-      ancestor =>
-        ancestor.type === 'FunctionDeclaration' ||
-        ancestor.type === 'FunctionExpression' ||
-        ancestor.type === 'ArrowFunctionExpression',
-    );
-    return returnFactory === factory;
-  });
-}
-
-/**
- * Recognizes function, arrow, and instance-method factories named or assigned `Promise` or
- * `Deferred`, for example `exports.Promise = () => ({ then() {} })`.
- */
-function isPromiseOrDeferredFactory(node: Node): boolean {
-  if (isPromiseOrDeferredFunctionDeclaration(node)) {
-    return true;
-  }
-  if (isNamedPromiseOrDeferredClassMethod(node)) {
-    return true;
-  }
-  if (node.type !== 'FunctionExpression' && node.type !== 'ArrowFunctionExpression') {
-    return false;
-  }
-  const parent = getNodeParent(node);
-  return (
-    (parent?.type === 'VariableDeclarator' &&
-      parent.id.type === 'Identifier' &&
-      isIdentifier(parent.id, 'Promise', 'Deferred')) ||
-    (parent?.type === 'AssignmentExpression' && isPromiseOrDeferredAssignmentTarget(parent.left))
-  );
-}
-
-/**
- * Recognizes an instance method of `class Promise` or `class Deferred` returning a factory
- * object. Static methods are excluded because their returned object is not tied to an instance
- * factory.
- */
-function isNamedPromiseOrDeferredClassMethod(node: Node): boolean {
-  if (node.type !== 'FunctionExpression') {
-    return false;
-  }
-  const method = getNodeParent(node);
-  if (method?.type !== 'MethodDefinition' || method.static || method.kind !== 'method') {
-    return false;
-  }
-  const classBody = getNodeParent(method);
-  const classNode = classBody?.type === 'ClassBody' ? getNodeParent(classBody) : undefined;
-  return (
-    (classNode?.type === 'ClassDeclaration' || classNode?.type === 'ClassExpression') &&
-    classNode.id !== null &&
-    isIdentifier(classNode.id, 'Promise', 'Deferred')
-  );
-}
-
-/**
  * Recognizes `then` defined directly by a `Promise`/`Deferred` class or factory, such as
  * `function Deferred() { this.then = fn }`. Nested declarations remain reportable unless they
  * are a direct factory result or preserve the enclosing receiver through an arrow function.
@@ -619,133 +450,6 @@ function isInterfaceShapeDescriptor(node: Node): boolean {
     return false;
   }
   return !parent.computed && parent.key === node && isIdentifier(parent.value, 'Function');
-}
-
-/**
- * Checks if the reported node is the key of the MethodDefinition/PropertyDefinition it
- * belongs to. The upstream unicorn rule resolves class member keys with
- * getPropertyName/getStaticValue before reporting, so it only ever reports a key it has
- * already determined to be 'then' — including quoted and statically-known computed keys
- * (`['then']`, `` [`then`] ``, `[KEY]` where `KEY = 'then'`) — so no further name check is
- * needed here.
- */
-function isThenMemberKey(
-  member: TSESTree.MethodDefinition | TSESTree.PropertyDefinition,
-  node: Node,
-): boolean {
-  return (member.key as unknown as Node) === node;
-}
-
-/**
- * Checks if a class method or field named 'then' belongs to a class that explicitly
- * declares a thenable contract, via JSDoc `@implements {IThenable}` (or
- * `Thenable`/`PromiseLike`) or a TypeScript `implements` heritage clause naming one of
- * those same contracts.
- *
- * Uses the nearest MethodDefinition/PropertyDefinition/class ancestors (via
- * getAncestorsWithParent, which walks the parent chain innermost-first) so that a `then`
- * member declared on a class nested inside another class's method is attributed to its
- * own declaration, not to an unrelated enclosing class that happens to declare the
- * contract itself.
- *
- * Excludes static members: an `implements`/`@implements` thenable contract describes the
- * instance shape, not the class object itself, so a `static then` still makes the class
- * object thenable (e.g. `await import()` of a module default-exporting it) and must
- * remain reported regardless of the instance-side contract.
- */
-function isClassThenMethodWithThenableContract(context: Rule.RuleContext, node: Node): boolean {
-  const ancestors = getAncestorsWithParent(node);
-  const member = ancestors[0] as unknown as TSESTree.Node | undefined;
-  if (
-    (member?.type !== 'MethodDefinition' && member?.type !== 'PropertyDefinition') ||
-    member.static ||
-    !isThenMemberKey(member, node)
-  ) {
-    return false;
-  }
-
-  const containingClass = ancestors.find(
-    ancestor => ancestor.type === 'ClassDeclaration' || ancestor.type === 'ClassExpression',
-  );
-  if (!containingClass) {
-    return false;
-  }
-
-  return hasExplicitThenableContract(context, containingClass);
-}
-
-function hasExplicitThenableContract(context: Rule.RuleContext, classNode: Node): boolean {
-  return (
-    hasJSDocThenableContract(context, classNode) ||
-    hasTypeScriptThenableContract(context, classNode)
-  );
-}
-
-/**
- * Checks the JSDoc block comment leading the class for an `@implements` tag naming a
- * thenable contract. Walks up through the class's `const`/`let`/`var` declarator and
- * declaration, and any `export`/`export default` wrapper, since the JSDoc precedes
- * whichever of those is outermost rather than the `class` keyword itself (e.g.
- * `/** @implements {IThenable} *\/ const Foo = class { ... }`).
- */
-function hasJSDocThenableContract(context: Rule.RuleContext, classNode: Node): boolean {
-  let commentTarget = classNode;
-  let parent = getNodeParent(commentTarget);
-  while (
-    parent?.type === 'VariableDeclarator' ||
-    parent?.type === 'VariableDeclaration' ||
-    parent?.type === 'ExportNamedDeclaration' ||
-    parent?.type === 'ExportDefaultDeclaration'
-  ) {
-    commentTarget = parent;
-    parent = getNodeParent(commentTarget);
-  }
-
-  return context.sourceCode
-    .getCommentsBefore(commentTarget)
-    .some(comment => comment.type === 'Block' && hasImplementsThenableContract(comment.value));
-}
-
-/**
- * Matches an `@implements` JSDoc tag and captures only the braced type it names, so the
- * thenable-contract pattern is tested against that type and not against unrelated prose
- * elsewhere on the same line.
- */
-const IMPLEMENTS_TAG_PATTERN = /@implements\s*\{([^}]*)\}/;
-
-function hasImplementsThenableContract(comment: string): boolean {
-  return comment.split(/\r?\n/).some(line => {
-    const match = IMPLEMENTS_TAG_PATTERN.exec(line);
-    if (match === null) {
-      return false;
-    }
-    // Test only the named type, not its type arguments, so a class implementing an
-    // unrelated interface merely parameterized by a thenable type (e.g.
-    // `@implements {Cache<PromiseLike<Data>>}`) isn't mistaken for an explicit contract —
-    // mirrors hasTypeScriptThenableContract's exclusion of heritage-clause type arguments.
-    const typeName = match[1].split('<')[0].trim();
-    return THENABLE_CONTRACT_PATTERN.test(typeName);
-  });
-}
-
-/**
- * Checks the class's TypeScript `implements` heritage clause for an entry naming a
- * thenable contract. Tests only the implemented interface name (the heritage entry's
- * `expression`), not its type arguments, so a class implementing an unrelated interface
- * merely parameterized by a thenable type (e.g. `implements Cache<PromiseLike<Data>>`)
- * is not mistaken for an explicit thenable contract.
- */
-function hasTypeScriptThenableContract(context: Rule.RuleContext, classNode: Node): boolean {
-  const tsClassNode = classNode as unknown as TSESTree.Node;
-  if (tsClassNode.type !== 'ClassDeclaration' && tsClassNode.type !== 'ClassExpression') {
-    return false;
-  }
-  // `implements` is only populated by the TypeScript ESLint parser; a class parsed as plain
-  // JavaScript has no such field at runtime despite the TSESTree type claiming otherwise.
-  const heritageEntries = tsClassNode.implements ?? [];
-  return heritageEntries.some(entry =>
-    THENABLE_CONTRACT_PATTERN.test(context.sourceCode.getText(entry.expression as unknown as Node)),
-  );
 }
 
 /**
