@@ -245,7 +245,10 @@ function isThenableUnionWithGuards(
   return hasThenable && allThenableOrGuard;
 }
 
-function hasThenMethod(type: ts.Type, checker: ts.TypeChecker): boolean {
+/**
+ * Returns true when `type` has a callable `then` property, i.e. it is Promise-like.
+ */
+export function hasThenMethod(type: ts.Type, checker: ts.TypeChecker): boolean {
   const thenProperty = type.getProperty('then');
   if (!thenProperty) {
     return false;
