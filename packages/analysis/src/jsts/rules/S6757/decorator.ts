@@ -32,13 +32,49 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
     (context, reportDescriptor) => {
       const { node } = reportDescriptor as { node?: TSESTree.Node };
 
-      if (isThisMemberExpression(node) && isLexicallyBoundToClassMember(node)) {
+      if (
+        isThisMemberExpression(node) &&
+        (isLexicallyBoundToClassMember(node) || isBoundToLowercaseMemberAssignment(node))
+      ) {
         return;
       }
 
       context.report(reportDescriptor);
     },
   );
+}
+
+function isBoundToLowercaseMemberAssignment(node: TSESTree.MemberExpression): boolean {
+  // Arrow functions preserve the receiver; an ordinary nested function owns its own.
+  const receiver = ancestorsChain(node, new Set<string>()).find(
+    ancestor => ancestor.type === 'FunctionExpression' || ancestor.type === 'FunctionDeclaration',
+  );
+  if (receiver?.type !== 'FunctionExpression') {
+    return false;
+  }
+
+  const assignment = receiver.parent;
+  if (
+    assignment.type !== 'AssignmentExpression' ||
+    assignment.right !== receiver ||
+    assignment.left.type !== 'MemberExpression' ||
+    assignment.left.computed ||
+    assignment.left.property.type !== 'Identifier'
+  ) {
+    return false;
+  }
+
+  if (
+    assignment.left.object.type === 'Identifier' &&
+    assignment.left.object.name === 'module' &&
+    assignment.left.property.name === 'exports'
+  ) {
+    return false;
+  }
+
+  // Match React's component naming convention, which ignores leading underscores.
+  const firstLetter = assignment.left.property.name.replace(/^_+/, '').charAt(0);
+  return firstLetter.toUpperCase() !== firstLetter;
 }
 
 function isThisMemberExpression(

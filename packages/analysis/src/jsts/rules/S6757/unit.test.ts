@@ -16,19 +16,112 @@
  */
 import { rule } from './index.js';
 import { rules } from '../external/react.js';
-import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
+import {
+  DefaultParserRuleTester,
+  NoTypeCheckingRuleTester,
+} from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
 const upstreamRule = rules['no-this-in-sfc'];
 
-// Sentinel: verify that the upstream ESLint rule still raises on the class-component
+const prototypeMethod = `
+function Parser(tokens) { this.tokens = tokens; }
+Parser.prototype.parse = function Parse() {
+  if (!this.tokens.length) return null;
+  return this.tokens[0];
+};
+`;
+
+describe('S6757 member assignments', () => {
+  for (const Tester of [DefaultParserRuleTester, NoTypeCheckingRuleTester]) {
+    it(`respects the assignment target with ${Tester.name}`, () => {
+      new Tester().run('Stateless functional components should not use `this`', rule, {
+        valid: [
+          { code: prototypeMethod },
+          { code: prototypeMethod.replace('.parse =', '._parse =') },
+          { code: prototypeMethod.replace('function Parse()', 'function ()') },
+          {
+            code: `
+const parser = {};
+parser.parse = function Parse() {
+  const read = () => this.tokens[0];
+  if (!this.tokens.length) return null;
+  return read();
+};
+`,
+          },
+          {
+            code: `
+class Parser {
+  parse() {
+    if (!this.tokens.length) return null;
+    return this.tokens[0];
+  }
+}
+`,
+          },
+        ],
+        invalid: [
+          {
+            code: `
+function Widget(props) {
+  const v = this.props.value;
+  if (!v) return null;
+  return null;
+}
+`,
+            errors: 1,
+          },
+          ...['function ()', 'function Parse()'].map(fn => ({
+            code: `Parser.prototype.Parse = ${fn} {
+  if (!this.tokens.length) return null;
+  return null;
+};`,
+            errors: 1,
+          })),
+          { code: prototypeMethod.replace('.parse =', '.__Parse ='), errors: 2 },
+          {
+            code: 'const Widget = props => <div>{this.props.label}</div>;',
+            errors: 1,
+          },
+          {
+            code: 'function Widget() { return <div>{this.props.label}</div>; }',
+            errors: 1,
+          },
+          {
+            code: `
+module.exports = function Widget() {
+  if (!this.props.v) return null;
+  return null;
+};
+`,
+            errors: 1,
+          },
+          {
+            // A nested component has its own receiver, even inside a prototype method.
+            code: `
+Parser.prototype.parse = function Parse() {
+  function Widget() { return <div>{this.props.label}</div>; }
+  return null;
+};
+`,
+            errors: 1,
+          },
+        ],
+      });
+    });
+  }
+});
+
+// Sentinel: verify that upstream still reports the prototype method and class-component
 // arrow callback patterns our decorator suppresses.
 describe('S6757 upstream sentinel', () => {
-  it('upstream no-this-in-sfc raises on nested class arrow callbacks', () => {
+  it('upstream no-this-in-sfc raises on prototype methods and nested class arrow callbacks', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
     ruleTester.run('no-this-in-sfc', upstreamRule, {
       valid: [],
       invalid: [
+        { code: prototypeMethod, errors: 2 },
         {
           code: `
 const React = { Component: class {} };
