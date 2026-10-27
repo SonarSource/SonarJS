@@ -53,14 +53,14 @@ export function isPresentationTable(context: Rule.RuleContext, node: TSESTree.JS
   return DISALLOWED_VALUES.includes(roleValue?.toLowerCase());
 }
 
-export function getRole(node: TSESTree.JSXOpeningElement): string | null {
+export function getRole(node: TSESTree.JSXOpeningElement): string | undefined {
   const roleProp = getProp((node as JSXOpeningElement).attributes, 'role');
   if (!roleProp) {
-    return null;
+    return undefined;
   }
   const roleValue = getLiteralPropValue(roleProp);
   if (typeof roleValue !== 'string') {
-    return null;
+    return undefined;
   }
   return roleValue.toLowerCase();
 }

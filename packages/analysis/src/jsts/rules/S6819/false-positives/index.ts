@@ -35,7 +35,7 @@ import {
  */
 export function isFalsePositive(node: TSESTree.JSXOpeningElement): boolean {
   const role = getRole(node);
-  if (role === null) {
+  if (role === undefined) {
     return false;
   }
 
