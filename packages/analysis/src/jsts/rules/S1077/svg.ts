@@ -19,7 +19,7 @@ import type { Node } from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { JSXOpeningElement } from 'estree-jsx';
 import pkg from 'jsx-ast-utils-x';
-import { hasAccessibleName } from '../helpers/accessibility.js';
+import { hasAccessibleName, isHiddenFromEveryone } from '../helpers/accessibility.js';
 import { isJsxIdentifierNamed } from '../helpers/jsx.js';
 
 const { getProp, getLiteralPropValue } = pkg;
@@ -54,7 +54,7 @@ export function checkSvgAccessibleName(
     return;
   }
 
-  if (isHiddenFromAssistiveTech(node)) {
+  if (isHiddenFromEveryone(node, context)) {
     return;
   }
 
@@ -85,43 +85,4 @@ function isRoleDecorativeOrUnresolvable(attributes: JSXOpeningElement['attribute
   }
   const firstToken = roleValue.trim().split(/\s+/)[0].toLowerCase();
   return DECORATIVE_ROLES.has(firstToken);
-}
-
-function isHiddenFromAssistiveTech(node: TSESTree.JSXOpeningElement): boolean {
-  let ancestor: TSESTree.Node | undefined = node.parent;
-  while (ancestor) {
-    if (
-      ancestor.type === 'JSXElement' &&
-      isElementHidden(ancestor.openingElement.attributes as JSXOpeningElement['attributes'])
-    ) {
-      return true;
-    }
-    ancestor = ancestor.parent;
-  }
-
-  return false;
-}
-
-function isElementHidden(attributes: JSXOpeningElement['attributes']): boolean {
-  return isAriaHidden(attributes) || isNativeHidden(attributes);
-}
-
-function isAriaHidden(attributes: JSXOpeningElement['attributes']): boolean {
-  const prop = getProp(attributes, 'aria-hidden');
-  if (!prop) {
-    return false;
-  }
-  // Dynamic/unresolvable value: conservatively treat as hidden.
-  const value = getLiteralPropValue(prop);
-  return value !== false && value !== 'false';
-}
-
-function isNativeHidden(attributes: JSXOpeningElement['attributes']): boolean {
-  const prop = getProp(attributes, 'hidden');
-  if (!prop) {
-    return false;
-  }
-  // Presence (shorthand `hidden`), explicit `true`, or a dynamic/unresolvable value:
-  // conservatively treat as hidden.
-  return getLiteralPropValue(prop) !== false;
 }

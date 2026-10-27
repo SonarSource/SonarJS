@@ -21,9 +21,9 @@ import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { JSXAttribute, JSXOpeningElement, JSXSpreadAttribute } from 'estree-jsx';
 import pkg from 'jsx-ast-utils-x';
-const { getProp, getLiteralPropValue } = pkg;
+const { getProp } = pkg;
 import { generateMeta } from '../helpers/generate-meta.js';
-import { getElementType } from '../helpers/accessibility.js';
+import { getElementType, isHiddenFromEveryone } from '../helpers/accessibility.js';
 import { functionLike, getValueOfExpression, getProperty } from '../helpers/ast.js';
 import { getConditionalBranchRoot, isArgumentOfRenderingCall } from '../helpers/jsx.js';
 import { report, toSecondaryLocation } from '../helpers/location.js';
@@ -36,8 +36,6 @@ const messages = {
     'Use a distinct text or label, or point to the same target for this link and the one on line {{line}}.',
 };
 
-const ARIA_HIDDEN = 'aria-hidden';
-
 // Props whose presence in a spread makes the anchor unresolvable.
 const RELEVANT_PROPS = [
   'href',
@@ -45,11 +43,9 @@ const RELEVANT_PROPS = [
   'aria-label',
   'title',
   'hidden',
-  ARIA_HIDDEN,
+  'aria-hidden',
   'style',
 ];
-
-const DISPLAY_NONE_PATTERN = /display\s*:\s*none/i;
 
 export type JsxAttributes = (JSXAttribute | JSXSpreadAttribute)[];
 
@@ -80,7 +76,7 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
-        if (isLinkHidden(attributes, context) || isHiddenByAncestor(element, context)) {
+        if (isHiddenFromEveryone(opening, context) || hasUnsafeSpreadAncestor(element, context)) {
           return;
         }
 
@@ -266,70 +262,19 @@ function alwaysExits(statement: TSESTree.Node): boolean {
   }
 }
 
-// True when the anchor is hidden from every user via aria-hidden, `hidden`, or `display: none`; unresolvable values are never treated as hidden.
-function isLinkHidden(attributes: JsxAttributes, context: Rule.RuleContext): boolean {
-  return (
-    isAriaHidden(attributes) ||
-    isHiddenAttributeSet(attributes) ||
-    isDisplayNone(attributes, context)
-  );
-}
-
-// True when a wrapping JSX element hides the anchor from every user, e.g. `<div aria-hidden="true">`.
-function isHiddenByAncestor(anchor: TSESTree.JSXElement, context: Rule.RuleContext): boolean {
+// True when a wrapping JSX element has a spread that could hide the anchor, e.g. `<div {...props}>`.
+function hasUnsafeSpreadAncestor(anchor: TSESTree.JSXElement, context: Rule.RuleContext): boolean {
   let node: TSESTree.Node | undefined = anchor.parent;
   while (node) {
-    if (node.type === 'JSXElement') {
-      const attributes = (node.openingElement as unknown as JSXOpeningElement).attributes;
-      if (!isSpreadSafe(attributes, context) || isLinkHidden(attributes, context)) {
-        return true;
-      }
+    if (
+      node.type === 'JSXElement' &&
+      !isSpreadSafe((node.openingElement as unknown as JSXOpeningElement).attributes, context)
+    ) {
+      return true;
     }
     node = node.parent;
   }
   return false;
-}
-
-function isAriaHidden(attributes: JsxAttributes): boolean {
-  const attribute = getProp(attributes, ARIA_HIDDEN);
-  return !!attribute && getLiteralPropValue(attribute) === true;
-}
-
-function isHiddenAttributeSet(attributes: JsxAttributes): boolean {
-  const attribute = getProp(attributes, 'hidden') as JSXAttribute | undefined;
-  if (!attribute) {
-    return false;
-  }
-  if (attribute.value === null) {
-    // Shorthand boolean attribute, e.g. `<a hidden>`.
-    return true;
-  }
-  return getLiteralPropValue(attribute) === true;
-}
-
-function isDisplayNone(attributes: JsxAttributes, context: Rule.RuleContext): boolean {
-  const styleAttribute = getProp(attributes, 'style') as JSXAttribute | undefined;
-  const value = styleAttribute?.value;
-  if (!value) {
-    return false;
-  }
-  if (value.type === 'Literal') {
-    return typeof value.value === 'string' && DISPLAY_NONE_PATTERN.test(value.value);
-  }
-  if (value.type !== 'JSXExpressionContainer') {
-    return false;
-  }
-  const resolvedStyle = getValueOfExpression(
-    context,
-    value.expression as unknown as estree.Node,
-    'ObjectExpression',
-  );
-  const displayProperty = resolvedStyle && getProperty(resolvedStyle, 'display', context);
-  const displayValue =
-    displayProperty && getValueOfExpression(context, displayProperty.value, 'Literal');
-  return (
-    typeof displayValue?.value === 'string' && displayValue.value.trim().toLowerCase() === 'none'
-  );
 }
 
 // False when a spread attribute could dynamically set href, aria-labelledby, aria-label, title, or a visibility prop (hidden/aria-hidden/style), making the anchor unresolvable.

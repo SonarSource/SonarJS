@@ -28,7 +28,8 @@ import * as meta from './generated-meta.js';
  * Suppresses reports for:
  * 1. Custom components (not standard HTML elements)
  * 2. Valid ARIA patterns where semantic equivalents would lose functionality:
- *    - SVG with role="presentation"/"img" and aria-hidden="true" (decorative icons)
+ *    - SVG with role="presentation"/"img" hidden from everyone, e.g. aria-hidden="true" on it
+ *      or an ancestor (decorative icons)
  *    - SVG with role="img" and a <title> child, aria-label, or aria-labelledby (semantic icons)
  *    - role="status" with aria-live (live region pattern)
  *    - role="slider" with complete aria-value* attributes
@@ -69,7 +70,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         return;
       }
 
-      if (fp.isFalsePositive(node)) {
+      if (fp.isFalsePositive(node, context)) {
         // Suppress for valid ARIA patterns
         return;
       }

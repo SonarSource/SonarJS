@@ -418,6 +418,28 @@ describe('S6819', () => {
   });
 
   // JS-1465: inline SVG with role="img" and proper accessible name
+  it('should not flag decorative SVG hidden from everyone', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('prefer-tag-over-role - decorative svg', rule, {
+      valid: [
+        { code: `<svg role="presentation" aria-hidden="true"><path d="M12 4v16"/></svg>` },
+        { code: `<svg role="img" aria-hidden={true}><path d="M12 4v16"/></svg>` },
+        // hiding is inherited from an ancestor
+        { code: `<span aria-hidden="true"><svg role="img"><path d="M12 4v16"/></svg></span>` },
+        { code: `<div hidden><svg role="img"><path d="M12 4v16"/></svg></div>` },
+        { code: `<svg role="img" style={{ display: 'none' }}><path d="M12 4v16"/></svg>` },
+        // unresolvable aria-hidden is conservatively treated as hidden
+        { code: `<svg role="img" aria-hidden={isDecorative}><path d="M12 4v16"/></svg>` },
+      ],
+      invalid: [
+        { code: `<svg role="img" aria-hidden="false"><path d="M5 12h14"/></svg>`, errors: 1 },
+        // an unresolvable style is not treated as hiding
+        { code: `<svg role="img" style={iconStyle}><path d="M5 12h14"/></svg>`, errors: 1 },
+      ],
+    });
+  });
+
   it('should not flag SVG with role="img" when it has an accessible name', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 

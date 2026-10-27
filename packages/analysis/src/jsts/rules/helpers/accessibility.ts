@@ -18,9 +18,13 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import { roles } from 'aria-query';
 import type { JSXAttribute, JSXOpeningElement } from 'estree-jsx';
 import type { Rule } from 'eslint';
+import type estree from 'estree';
 import pkg from 'jsx-ast-utils-x';
+import { getProperty, getValueOfExpression } from './ast.js';
 import { isJsxElementNamed } from './jsx.js';
 const { getProp, getLiteralPropValue, getPropValue, elementType } = pkg;
+
+const DISPLAY_NONE_PATTERN = /display\s*:\s*none/i;
 
 const CONCRETE_ROLES = new Set<string>(
   roles
@@ -191,3 +195,106 @@ export const getElementType = (
       : rawType;
   };
 };
+
+/**
+ * Whether the element or an ancestor is hidden via `aria-hidden`, `hidden`, or `display: none`.
+ * Unresolvable values count as hidden.
+ */
+export function isHiddenFromEveryone(
+  node: TSESTree.JSXOpeningElement,
+  context: Rule.RuleContext,
+): boolean {
+  let ancestor: TSESTree.Node | undefined = node.parent;
+  while (ancestor) {
+    if (ancestor.type === 'JSXElement') {
+      const attributes = (ancestor.openingElement as JSXOpeningElement).attributes;
+      if (getOwnHiddenState(attributes, context) !== false) {
+        return true;
+      }
+    }
+    ancestor = ancestor.parent;
+  }
+  return false;
+}
+
+/**
+ * Like {@link isHiddenFromEveryone}, but for the element's own attributes only. Returns
+ * `undefined` for an unresolvable `aria-hidden` or `hidden`; an unresolvable `style` never hides.
+ */
+export function getOwnHiddenState(
+  attributes: JSXOpeningElement['attributes'],
+  context: Rule.RuleContext,
+): boolean | undefined {
+  const states = [
+    resolveHiddenAttribute(attributes, 'aria-hidden', context, isAriaHiddenValue),
+    // React renders boolean attributes for any truthy value, e.g. `hidden="false"` still hides.
+    resolveHiddenAttribute(attributes, 'hidden', context, Boolean),
+    isDisplayNone(attributes, context),
+  ];
+  if (states.includes(true)) {
+    return true;
+  }
+  return states.includes(undefined) ? undefined : false;
+}
+
+function isAriaHiddenValue(value: unknown): boolean {
+  return String(value).trim().toLowerCase() === 'true';
+}
+
+/** `false` when the attribute is absent, `undefined` when its value can't be resolved. */
+function resolveHiddenAttribute(
+  attributes: JSXOpeningElement['attributes'],
+  name: string,
+  context: Rule.RuleContext,
+  isHidden: (value: unknown) => boolean,
+): boolean | undefined {
+  const attribute = getProp(attributes, name) as JSXAttribute | undefined;
+  if (!attribute) {
+    return false;
+  }
+  const { value } = attribute;
+  if (value === null) {
+    return isHidden(true);
+  }
+  if (value.type === 'Literal') {
+    return isHidden(value.value);
+  }
+  if (value.type === 'JSXExpressionContainer') {
+    const literal = getValueOfExpression(
+      context,
+      value.expression as unknown as estree.Node,
+      'Literal',
+    );
+    if (literal) {
+      return isHidden(literal.value);
+    }
+  }
+  return undefined;
+}
+
+function isDisplayNone(
+  attributes: JSXOpeningElement['attributes'],
+  context: Rule.RuleContext,
+): boolean {
+  const value = (getProp(attributes, 'style') as JSXAttribute | undefined)?.value;
+  if (!value) {
+    return false;
+  }
+  if (value.type === 'Literal') {
+    return typeof value.value === 'string' && DISPLAY_NONE_PATTERN.test(value.value);
+  }
+  if (value.type !== 'JSXExpressionContainer') {
+    return false;
+  }
+  const resolvedStyle = getValueOfExpression(
+    context,
+    value.expression as unknown as estree.Node,
+    'ObjectExpression',
+  );
+  const displayProperty = resolvedStyle && getProperty(resolvedStyle, 'display', context);
+  const displayValue =
+    displayProperty && getValueOfExpression(context, displayProperty.value, 'Literal');
+  return (
+    typeof displayValue?.value === 'string' && displayValue.value.trim().toLowerCase() === 'none'
+  );
+}

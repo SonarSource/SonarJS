@@ -16,26 +16,19 @@
  */
 
 import type { TSESTree } from '@typescript-eslint/utils';
-import type { JSXOpeningElement } from 'estree-jsx';
-import pkg from 'jsx-ast-utils-x';
-import { hasAccessibleName } from '../../helpers/accessibility.js';
-
-const { getLiteralPropValue, getProp } = pkg;
+import type { Rule } from 'eslint';
+import { hasAccessibleName, isHiddenFromEveryone } from '../../helpers/accessibility.js';
 
 export function isDecorativeSvg(
   elementName: string | null,
   role: string,
-  attributes: JSXOpeningElement['attributes'],
+  node: TSESTree.JSXOpeningElement,
+  context: Rule.RuleContext,
 ): boolean {
   if (elementName !== 'svg' || (role !== 'presentation' && role !== 'img')) {
     return false;
   }
-  const ariaHiddenProp = getProp(attributes, 'aria-hidden');
-  if (!ariaHiddenProp) {
-    return false;
-  }
-  const ariaHiddenValue = getLiteralPropValue(ariaHiddenProp);
-  return ariaHiddenValue === true || ariaHiddenValue === 'true';
+  return isHiddenFromEveryone(node, context);
 }
 
 /**
