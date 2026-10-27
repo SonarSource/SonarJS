@@ -146,7 +146,7 @@ export function isConstFactoryResult(context: Rule.RuleContext, node: Node): boo
  * Recognizes function, arrow, and instance-method factories named or assigned `Promise` or
  * `Deferred`, for example `exports.Promise = () => ({ then() {} })`.
  */
-export function isPromiseOrDeferredFactory(node: Node): boolean {
+function isPromiseOrDeferredFactory(node: Node): boolean {
   if (isPromiseOrDeferredFunctionDeclaration(node)) {
     return true;
   }
