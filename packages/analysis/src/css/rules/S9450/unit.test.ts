@@ -124,6 +124,86 @@ describe('S9450 (sonar/declaration-block-no-duplicate-custom-properties)', (): v
       errors: [issue(String.raw`--c\6flor`, 3)],
     }));
 
+  it('preserves the upstream limitation for escaped leading hyphens', (): Promise<void> =>
+    ruleTester.valid({
+      code: String.raw`a {
+  \2d\2d color: red;
+  \2d\2d color: blue;
+}`,
+    }));
+
+  for (const keyframes of ['keyframes', '-webkit-keyframes', 'KEYFRAMES']) {
+    for (const values of [
+      ['red !important', 'blue'],
+      ['red', 'blue !important'],
+      ['red !important', 'blue !important'],
+    ]) {
+      it(`ignores ineffective keyframe declarations in @${keyframes}: ${values}`, (): Promise<void> =>
+        ruleTester.valid({
+          code: `@${keyframes} pulse {
+  from {
+    --color: ${values[0]};
+    --color: ${values[1]};
+  }
+}`,
+        }));
+    }
+
+    it(`reports effective duplicates in @${keyframes}`, (): Promise<void> =>
+      ruleTester.invalid({
+        code: `@${keyframes} pulse {
+  from {
+    --color: red !important;
+    --color: blue;
+    --color: pink !important;
+    --color: green; /* Noncompliant */
+  /*^^^^^^^*/
+    --color: orange; /* Noncompliant */
+  /*^^^^^^^*/
+  }
+}`,
+        errors: [issue('--color', 6, 5), issue('--color', 8, 5)],
+      }));
+  }
+
+  it('keeps effective declaration sets separate for keyframe selectors', (): Promise<void> =>
+    ruleTester.valid({
+      code: `@keyframes pulse {
+  from { --color: red !important; --color: blue; }
+  to { --color: green; }
+}`,
+    }));
+
+  it('preserves S4655 warnings when ignoring ineffective keyframe duplicates', async (): Promise<void> => {
+    const config = createStylelintConfig(
+      [RULE, 'keyframe-declaration-no-important'].map(
+        (key: string): { key: string; configurations: [] } => ({ key, configurations: [] }),
+      ),
+    );
+    const {
+      results: [{ warnings }],
+    } = await stylelint.lint({
+      codeFilename: 'test.css',
+      code: `@keyframes pulse {
+  from {
+    --color: red !important;
+    --color: blue;
+  }
+  to {
+    --color: red;
+    --color: blue !important;
+  }
+}`,
+      config,
+    });
+    expect(
+      warnings.map((warning: stylelint.Warning): [string, number] => [warning.rule, warning.line]),
+    ).toEqual([
+      ['keyframe-declaration-no-important', 3],
+      ['keyframe-declaration-no-important', 8],
+    ]);
+  });
+
   it('supports exact and regular expression exclusions without ignoring unmatched names', async (): Promise<void> => {
     const configured = new StylelintRuleTester(RULE, [
       true,
