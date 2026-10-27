@@ -55,6 +55,7 @@ import ts from 'typescript';
  */
 const ASSERTION_EVIDENCE_PROFILE = allAssertionFrameworks({
   supertest: {
+    isAssertionFallback: Supertest.isLocalFactoryAssertion,
     isTSAssertionFallback: Supertest.isTSLocalFactoryAssertion,
   },
   awsCdk: {
@@ -295,8 +296,7 @@ class TestCaseAssertionVisitor {
     }
     visitedNodes.set(node, false);
     if (
-      (Supertest.isLocalFactoryAssertion(context, node) ||
-        isAssertionEvidence(context, node, ASSERTION_EVIDENCE_PROFILE)) &&
+      isAssertionEvidence(context, node, ASSERTION_EVIDENCE_PROFILE) &&
       !isIncompleteShouldAccess(context, node)
     ) {
       visitedNodes.set(node, true);

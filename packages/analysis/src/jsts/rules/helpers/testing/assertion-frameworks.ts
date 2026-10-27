@@ -178,12 +178,11 @@ export function allAssertionFrameworks(
 /**
  * Extra per-framework detection a rule can bolt onto the catalog's own detectors.
  *
- * `isTSAssertionFallback` runs when the catalog's type-aware detector misses. It is
- * library-agnostic by design: the type-aware resolver only follows declaration initializers, so
- * any framework whose assertion object is *assigned* in test setup rather than declared with an
- * initializer needs it. AWS CDK is simply the only one that does today.
+ * Each fallback runs when the matching catalog detector misses. The profile limits a fallback to
+ * the rules that need it.
  */
 type AssertionEvidenceExtension = {
+  isAssertionFallback?: AssertionDetector;
   isTSAssertionFallback?: (
     context: Rule.RuleContext,
     services: ParserServicesWithTypeInformation,
@@ -237,7 +236,10 @@ export function isAssertionEvidence(
   node: estree.Node,
   profile: AssertionEvidenceProfile,
 ): boolean {
-  return getFrameworkEntries(profile).some(({ framework }) => framework.isAssertion(context, node));
+  return getFrameworkEntries(profile).some(
+    ({ framework, extension }) =>
+      framework.isAssertion(context, node) || extension.isAssertionFallback?.(context, node),
+  );
 }
 
 /**
