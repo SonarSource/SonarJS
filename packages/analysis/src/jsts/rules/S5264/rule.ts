@@ -97,5 +97,5 @@ const isHiddenFromScreenReader = (
 
   // Ancestors are deliberately ignored: a hidden <object> or wrapper says nothing about whether
   // the fallback content itself is visible. An unresolvable value is treated as visible content.
-  return getOwnHiddenState(attributes, context) === true;
+  return getOwnHiddenState(attributes, context) === 'hidden';
 };

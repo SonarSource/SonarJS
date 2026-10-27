@@ -23,7 +23,12 @@ import type { JSXAttribute, JSXOpeningElement, JSXSpreadAttribute } from 'estree
 import pkg from 'jsx-ast-utils-x';
 const { getProp } = pkg;
 import { generateMeta } from '../helpers/generate-meta.js';
-import { getElementType, isHiddenFromEveryone } from '../helpers/accessibility.js';
+import {
+  getElementType,
+  HIDING_ATTRIBUTES,
+  isHiddenFromEveryone,
+} from '../helpers/accessibility.js';
+import { findFirstMatchingAncestor } from '../helpers/ancestor.js';
 import { functionLike, getValueOfExpression, getProperty } from '../helpers/ast.js';
 import { getConditionalBranchRoot, isArgumentOfRenderingCall } from '../helpers/jsx.js';
 import { report, toSecondaryLocation } from '../helpers/location.js';
@@ -37,15 +42,7 @@ const messages = {
 };
 
 // Props whose presence in a spread makes the anchor unresolvable.
-const RELEVANT_PROPS = [
-  'href',
-  'aria-labelledby',
-  'aria-label',
-  'title',
-  'hidden',
-  'aria-hidden',
-  'style',
-];
+const RELEVANT_PROPS = ['href', 'aria-labelledby', 'aria-label', 'title', ...HIDING_ATTRIBUTES];
 
 export type JsxAttributes = (JSXAttribute | JSXSpreadAttribute)[];
 
@@ -264,17 +261,12 @@ function alwaysExits(statement: TSESTree.Node): boolean {
 
 // True when a wrapping JSX element has a spread that could hide the anchor, e.g. `<div {...props}>`.
 function hasUnsafeSpreadAncestor(anchor: TSESTree.JSXElement, context: Rule.RuleContext): boolean {
-  let node: TSESTree.Node | undefined = anchor.parent;
-  while (node) {
-    if (
+  return !!findFirstMatchingAncestor(
+    anchor,
+    node =>
       node.type === 'JSXElement' &&
-      !isSpreadSafe((node.openingElement as unknown as JSXOpeningElement).attributes, context)
-    ) {
-      return true;
-    }
-    node = node.parent;
-  }
-  return false;
+      !isSpreadSafe((node.openingElement as unknown as JSXOpeningElement).attributes, context),
+  );
 }
 
 // False when a spread attribute could dynamically set href, aria-labelledby, aria-label, title, or a visibility prop (hidden/aria-hidden/style), making the anchor unresolvable.
