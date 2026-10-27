@@ -112,6 +112,7 @@
 76
 ],
 "ace:demo/static-highlighter/client.html": [
+28,
 44
 ],
 "ace:demo/static-highlighter/server.js": [
@@ -247,6 +248,7 @@
 42
 ],
 "ace:experiments/cut_copy.html": [
+45,
 65,
 69,
 140
@@ -282,6 +284,7 @@
 30
 ],
 "ace:experiments/worker.html": [
+15,
 29
 ],
 "ace:kitchen-sink.html": [
