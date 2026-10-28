@@ -18,7 +18,7 @@
 //   node tools/benchmark-sass-parser.mjs capture sass-parser
 //   node tools/benchmark-sass-parser.mjs capture statement-parser
 //   node tools/benchmark-sass-parser.mjs compare sass-parser statement-parser
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, globSync } from 'node:fs';
 import { resolve, relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createRequire } from 'node:module';
@@ -51,9 +51,9 @@ const sourceFiles = [
 ];
 
 function corpus() {
-  return execFileSync('rg', ['--files', 'its', 'packages', '-g', '*.sass'], { encoding: 'utf8' })
-    .trim()
-    .split('\n')
+  return globSync(['its/**/*.sass', 'packages/**/*.sass'], {
+    exclude: ['**/node_modules/**', '**/.git/**'],
+  })
     .sort()
     .map(file => ({ file: resolve(file), code: readFileSync(file, 'utf8') }));
 }

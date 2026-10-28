@@ -27,7 +27,16 @@ export function isDeclarationSeparator(text: string, colon: number): boolean {
     (/\s/.test(text[colon + 1] ?? ' ') ||
       text.startsWith('$') ||
       /^[\w-]+\.\$/.test(text) ||
-      text.startsWith('--'))
+      text.startsWith('--') ||
+      (/^[\w-]+$/.test(text.slice(0, colon)) &&
+        /^(?:\d|\.\d|[(["'$!+])/.test(text.slice(colon + 1))))
+  );
+}
+
+/** Hashes, negative numbers and comments can also occur in selectors with a body. */
+export function isDeclarationCandidate(text: string, colon: number): boolean {
+  return (
+    /^[\w-]+$/.test(text.slice(0, colon)) && /^(?:#(?!\{)|-\d|\/\*)/.test(text.slice(colon + 1))
   );
 }
 
@@ -46,9 +55,8 @@ export function continuesOnNewline(
   type: SassStatement['type'],
   firstLine: string,
   header: string,
-  selector: string,
 ): boolean {
-  if (type === 'rule') return selector.trimEnd().endsWith(',');
+  if (type === 'rule') return header.trimEnd().endsWith(',');
   const expression =
     type === 'decl' || /^@(if|else|each|for|while|return|debug|warn|error)\b/.test(firstLine);
   return (

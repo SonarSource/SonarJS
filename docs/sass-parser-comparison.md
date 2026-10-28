@@ -4,6 +4,10 @@ The `sass-parser` implementation is preserved in commit `eea7badd1` on
 `codex/sass-parser-postcss`. The experimental statement parser is on
 `codex/sass-statement-parser`. The branches are alternatives for review against `master`.
 
+The measurements, issue totals, source hashes and source-line counts below record the
+implementation before PR review fixes. See [the review follow-up](sass-parser-review.md)
+for the current parser changes, expanded Vue validation and updated measurements.
+
 Both alternatives expose the same PostCSS syntax object and use the same Stylelint
 configuration. CSS-only rules stay excluded from standalone Sass analysis. Neither
 alternative evaluates variables, resolves imports, expands mixins, or emits compiled CSS.

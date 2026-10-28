@@ -23,12 +23,17 @@ type IndentationLevel = { indent: number; nodes: SassStatement[] };
 
 /** Organizes scanned statements by indentation, then normalizes comments and container spans. */
 export class SassStatementParser {
-  constructor(private readonly input: Input) {}
+  constructor(
+    private readonly input: Input,
+    private readonly embedded = false,
+  ) {}
 
   parse(): SassStatement[] {
     const nodes: SassStatement[] = [];
-    const levels: IndentationLevel[] = [{ indent: 0, nodes }];
     const scanner = new SassStatementScanner(this.input);
+    const levels: IndentationLevel[] = [
+      { indent: this.embedded ? (scanner.peekLine()?.indent.length ?? 0) : 0, nodes },
+    ];
     let previous: SassStatement | undefined;
     let indentCharacter: string | undefined;
     let line: SassLine | undefined;
@@ -75,12 +80,19 @@ export class SassStatementParser {
   private normalizeStatements(nodes: SassStatement[]): SassStatement[] {
     const normalized: SassStatement[] = [];
     for (const statement of nodes) {
+      // Comments alone do not turn an ambiguous declaration into a selector block.
+      if (
+        statement.declarationCandidate !== undefined &&
+        !statement.nodes?.some(child => child.type !== 'comment')
+      ) {
+        statement.type = 'decl';
+      }
       const siblingComment = this.separateTrailingComment(statement);
-      this.validateChildren(statement);
       if (statement.nodes) {
         statement.nodes = this.normalizeStatements(statement.nodes);
         statement.end = statement.nodes.at(-1)?.end ?? statement.end;
       }
+      this.validateChildren(statement);
       normalized.push(statement);
       if (siblingComment) normalized.push(siblingComment);
     }

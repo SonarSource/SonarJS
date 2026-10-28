@@ -76,7 +76,9 @@ export class PostcssAstBuilder {
     const header = input.css.slice(node.start, headerEnd).trimEnd();
     let converted: ChildNode;
     if (node.type === 'rule') {
-      converted = postcss.rule({ selector: header });
+      converted = this.tokenizeHeader(`${header}{}`, node, 0).first!;
+      const raw = converted.raws.selector as { raw: string; scss?: string } | undefined;
+      if (raw?.scss !== undefined) raw.raw = raw.scss;
     } else {
       // SCSS shares Sass declaration/at-rule token syntax. Let its tokenizer retain raw values,
       // comments and !important rather than duplicating those lexical rules here.
@@ -174,10 +176,17 @@ export class PostcssAstBuilder {
       } else if (result.length > 0) {
         // Indented Sass comments may continue on a line without another // marker.
         const previous = result.at(-1)! as postcss.Comment;
-        previous.text += '\n' + line.trimEnd();
+        const end = offset + line.trimEnd().length;
+        // Rebuild from the source span so interior newlines and whitespace stay verbatim.
+        const merged = this.createComment(
+          input.css.slice(previous.source!.start!.offset! + 2, end),
+        );
+        previous.text = merged.text;
+        previous.raws.left = merged.raws.left;
+        previous.raws.right = merged.raws.right;
         previous.source = this.source({
           start: previous.source!.start!.offset!,
-          end: offset + line.trimEnd().length,
+          end,
         });
       }
       offset += line.length;

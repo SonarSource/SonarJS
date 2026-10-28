@@ -22,6 +22,8 @@ export interface SassStatement {
   headerEnd: number;
   inline?: boolean;
   trailingComment?: number;
+  /** A colon that may introduce a declaration once child indentation is known. */
+  declarationCandidate?: number;
   nodes?: SassStatement[];
 }
 

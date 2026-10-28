@@ -28,7 +28,8 @@ import { PostcssAstBuilder } from './postcss-ast-builder.js';
 /** Parse Sass statement structure and build the PostCSS representation for Stylelint. */
 function parse(code: string | { toString(): string }, options?: ProcessOptions): Root {
   const input = new postcss.Input(code.toString(), options);
-  const statements = new SassStatementParser(input).parse();
+  // postcss-html supplies the containing document; embedded blocks may have a base indent.
+  const statements = new SassStatementParser(input, typeof options?.document === 'string').parse();
   return new PostcssAstBuilder(input).build(statements);
 }
 
@@ -48,7 +49,9 @@ const stringify: Stringifier = (node, builder) => {
       return;
     }
     if (current.type === 'rule') {
-      builder((current as postcss.Rule).selector, current, 'start');
+      const rule = current as postcss.Rule;
+      const raw = rule.raws.selector;
+      builder(raw?.value === rule.selector ? raw.raw : rule.selector, current, 'start');
     } else if (current.type === 'atrule') {
       const rule = current as postcss.AtRule;
       const params = rule.raws.params?.raw ?? rule.params;

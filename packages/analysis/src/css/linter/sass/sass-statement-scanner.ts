@@ -20,6 +20,7 @@ import {
   continuesOnNewline,
   initialStatementType,
   isDeclarationSeparator,
+  isDeclarationCandidate,
 } from './sass-statement-rules.js';
 
 type ScannerMode =
@@ -47,6 +48,7 @@ class HeaderScanner {
   private cursor: number;
   private end: number;
   private trailingComment: number | undefined;
+  private declarationCandidate: number | undefined;
 
   constructor(
     private readonly input: Input,
@@ -120,10 +122,12 @@ class HeaderScanner {
       this.type === 'rule' &&
       character === ':' &&
       this.delimiters.length === 0 &&
-      this.cursor < this.line.end &&
-      isDeclarationSeparator(this.firstLine, this.cursor - this.start)
+      this.cursor < this.line.end
     ) {
-      this.type = 'decl';
+      const colon = this.cursor - this.start;
+      if (isDeclarationSeparator(this.firstLine, colon)) this.type = 'decl';
+      else if (isDeclarationCandidate(this.firstLine, colon))
+        this.declarationCandidate ??= this.cursor;
     }
   }
 
@@ -148,12 +152,7 @@ class HeaderScanner {
     const continued =
       this.mode.kind === 'block-comment' ||
       this.delimiters.length > 0 ||
-      continuesOnNewline(
-        this.type,
-        this.firstLine,
-        this.input.css.slice(this.start, codeEnd),
-        this.input.css.slice(this.start, this.end),
-      );
+      continuesOnNewline(this.type, this.firstLine, this.input.css.slice(this.start, codeEnd));
     if (continued) {
       if (this.mode.kind === 'line-comment') this.mode = { kind: 'code' };
       this.trailingComment = undefined;
@@ -203,6 +202,7 @@ class HeaderScanner {
         end: this.end,
         headerEnd: this.end,
         trailingComment: this.trailingComment,
+        declarationCandidate: this.declarationCandidate,
       },
       next,
     };
