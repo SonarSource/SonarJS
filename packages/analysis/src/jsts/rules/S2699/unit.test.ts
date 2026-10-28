@@ -1654,6 +1654,10 @@ it('checks the response', async () => {
 `;
     const validFactories = [
       'const http = () => request(app);',
+      'const http = () => request.agent(app);',
+      "const client = require('supertest'); const http = () => client.agent(app);",
+      "import { agent } from 'supertest'; const http = () => agent(app);",
+      "import { agent as createAgent } from 'supertest'; const http = () => createAgent(app);",
       'const http = function () { return request(app); };',
       'function http() { return request(app); }',
       'let http = () => request(app);',
@@ -1661,6 +1665,45 @@ it('checks the response', async () => {
       "const client = require('supertest'); const http = () => client(app);",
     ];
     const invalidCases = [
+      ...[
+        'const http = () => fakeRequest.agent(app);',
+        'request.agent = fakeAgent; const http = () => request.agent(app);',
+        "import other from 'supertest'; other.agent = fakeAgent; const http = () => request.agent(app);",
+        "import { default as other } from 'supertest'; other.agent = fakeAgent; const http = () => request.agent(app);",
+        "const other = require('supertest'); other.agent = fakeAgent; const http = () => request.agent(app);",
+        "let other = require('supertest'); other.agent = fakeAgent; other = fakeRequest; const http = () => request.agent(app);",
+        "require('supertest').agent = fakeAgent; const http = () => request.agent(app);",
+        "import { agent } from 'supertest'; request.agent = fakeAgent; const http = () => agent(app);",
+        "request['agent'] = fakeAgent; const http = () => request.agent(app);",
+        'delete request.agent; const http = () => request.agent(app);',
+        'Object.assign(request, { agent: fakeAgent }); const http = () => request.agent(app);',
+        "import { agent } from 'supertest'; agent = fakeAgent; const http = () => agent(app);",
+        'const client = request; client.agent = fakeAgent; const http = () => request.agent(app);',
+        "const client = require('supertest'); client.agent = fakeAgent; const http = () => client.agent(app);",
+        "let client = require('supertest'); client = fakeRequest; const http = () => client.agent(app);",
+        "const require = fakeLoader; const client = require('supertest'); const http = () => client.agent(app);",
+        "require = fakeLoader; const client = require('supertest'); const http = () => client.agent(app);",
+        "import { agent } from 'other-client'; const http = () => agent(app);",
+        'const http = () => request.agent(app); http = () => fakeRequest(app);',
+      ].map(factory => ({ name: factory, code: testCase(factory) })),
+      {
+        name: 'rejects a shadowed agent loader',
+        code: testCase(
+          'const http = () => request.agent(app);',
+          "const request = fakeRequest; const http = () => request.agent(app); await http().get('/items').expect(200);",
+        ),
+      },
+      {
+        name: 'rejects an agent request with a plugin',
+        code: testCase(
+          'const http = () => request.agent(app);',
+          "await http().get('/items').use(plugin).expect(200);",
+        ),
+      },
+      {
+        name: 'rejects an agent request without an assertion',
+        code: testCase('const http = () => request.agent(app);', "await http().get('/items');"),
+      },
       {
         name: 'rejects an object-shaped fake request',
         code: testCase(

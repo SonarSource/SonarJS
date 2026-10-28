@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { Rule } from 'eslint';
+import type { Rule, SourceCode } from 'eslint';
 import {
   getUniqueWriteReference,
   getVariableFromName,
@@ -25,6 +25,8 @@ import { getFullyQualifiedNameTS } from '../module-ts.js';
 import type estree from 'estree';
 import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 import ts from 'typescript';
+
+const stableAgentProperties = new WeakMap<SourceCode, boolean>();
 
 export function isAssertion(context: Rule.RuleContext, node: estree.Node) {
   const fqn = extractFQNForCallExpression(context, node);
@@ -91,11 +93,118 @@ function isLocalFactoryAssertion(context: Rule.RuleContext, node: estree.Node): 
   }
   const expression = getReturnedExpression(factory);
   const returned = expression && unwrapTypeScriptExpression(expression);
+  if (returned?.type !== 'CallExpression' || returned.optional) {
+    return false;
+  }
+  const fqn = getFullyQualifiedName(context, returned);
+  const callee = unwrapTypeScriptExpression(returned.callee);
+  if (fqn === 'supertest') {
+    return hasDirectSupertestOrigin(context, callee);
+  }
+  if (fqn !== 'supertest.agent' || !hasStableAgentProperty(context)) {
+    return false;
+  }
+  if (callee.type === 'Identifier') {
+    return hasDirectSupertestOrigin(context, callee);
+  }
   return (
-    returned?.type === 'CallExpression' &&
-    getFullyQualifiedName(context, returned) === 'supertest' &&
-    hasDirectSupertestOrigin(context, returned.callee)
+    callee.type === 'MemberExpression' &&
+    !callee.computed &&
+    !callee.optional &&
+    callee.property.type === 'Identifier' &&
+    callee.property.name === 'agent' &&
+    hasDirectSupertestOrigin(context, unwrapTypeScriptExpression(callee.object))
   );
+}
+
+/** Check all local module bindings because imports share the mutable agent property. */
+function hasStableAgentProperty(context: Rule.RuleContext): boolean {
+  const cached = stableAgentProperties.get(context.sourceCode);
+  if (cached !== undefined) {
+    return cached;
+  }
+  const stable = computeStableAgentProperty(context);
+  stableAgentProperties.set(context.sourceCode, stable);
+  return stable;
+}
+
+function computeStableAgentProperty(context: Rule.RuleContext): boolean {
+  const scopes = context.sourceCode.scopeManager?.scopes;
+  if (!scopes) {
+    return false;
+  }
+  for (const scope of scopes) {
+    for (const variable of scope.variables) {
+      if (
+        variable.defs.some(definition => {
+          if (definition.type === 'ImportBinding') {
+            return (
+              definition.parent.source.value === 'supertest' &&
+              (definition.node.type !== 'ImportSpecifier' ||
+                (definition.node.imported.type === 'Identifier' &&
+                  definition.node.imported.name === 'default'))
+            );
+          }
+          if (definition.type === 'Variable') {
+            const init = (definition.node as estree.VariableDeclarator).init;
+            return (
+              init != null &&
+              isRequire(init) &&
+              init.arguments[0].type === 'Literal' &&
+              init.arguments[0].value === 'supertest'
+            );
+          }
+          return false;
+        }) &&
+        !variable.references.every(
+          reference => reference.init || isStableLoaderUse(reference.identifier),
+        )
+      ) {
+        return false;
+      }
+    }
+    // Inline require calls have no local binding whose uses can be checked.
+    for (const reference of [...scope.references, ...scope.through]) {
+      if (reference.identifier.name !== 'require') {
+        continue;
+      }
+      const call = (reference.identifier as estree.Identifier & { parent?: estree.Node }).parent;
+      if (
+        call?.type !== 'CallExpression' ||
+        !isRequire(call) ||
+        call.arguments[0].type !== 'Literal' ||
+        call.arguments[0].value !== 'supertest'
+      ) {
+        continue;
+      }
+      const parent = (call as estree.CallExpression & { parent?: estree.Node }).parent;
+      if (
+        parent?.type !== 'VariableDeclarator' ||
+        parent.init !== call ||
+        parent.id.type !== 'Identifier'
+      ) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+function isStableLoaderUse(node: estree.Identifier): boolean {
+  const parent = (node as estree.Identifier & { parent?: estree.Node }).parent;
+  if (parent?.type === 'CallExpression' && parent.callee === node) {
+    return true;
+  }
+  if (
+    parent?.type !== 'MemberExpression' ||
+    parent.computed ||
+    parent.property.type !== 'Identifier' ||
+    parent.property.name !== 'agent'
+  ) {
+    return false;
+  }
+  const call = (parent as estree.MemberExpression & { parent?: estree.Node }).parent;
+  return call?.type === 'CallExpression' && call.callee === parent;
 }
 
 function hasDirectSupertestOrigin(context: Rule.RuleContext, callee: estree.Node): boolean {
