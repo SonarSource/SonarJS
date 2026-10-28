@@ -19,7 +19,7 @@ import type { Node } from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { JSXOpeningElement } from 'estree-jsx';
 import pkg from 'jsx-ast-utils-x';
-import { hasAccessibleName, isHiddenFromEveryone } from '../helpers/accessibility.js';
+import { getHiddenState, hasAccessibleName } from '../helpers/accessibility.js';
 import { isJsxIdentifierNamed } from '../helpers/jsx.js';
 
 const { getProp, getLiteralPropValue } = pkg;
@@ -54,7 +54,7 @@ export function checkSvgAccessibleName(
     return;
   }
 
-  if (isHiddenFromEveryone(node, context)) {
+  if (getHiddenState(node, context) !== 'visible') {
     return;
   }
 

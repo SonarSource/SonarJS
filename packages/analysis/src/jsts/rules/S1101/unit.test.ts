@@ -41,15 +41,6 @@ describe('S1101', () => {
           </div>;
         `,
       },
-      {
-        // An unresolvable dynamic `hidden` value is conservatively treated as hidden.
-        code: `
-          <div>
-            <a href="/a" hidden={dynamicHidden}>Same</a>
-            <a href="/b">Same</a>
-          </div>;
-        `,
-      },
     ],
     invalid: [
       {
@@ -67,6 +58,26 @@ describe('S1101', () => {
         code: `
           <div>
             <a href="/a" hidden={false}>Same</a>
+            <a href="/b">Same</a>
+          </div>;
+        `,
+        errors: 1,
+      },
+      {
+        // An unresolvable dynamic `hidden` value is NOT treated as hidden.
+        code: `
+          <div>
+            <a href="/a" hidden={dynamicHidden}>Same</a>
+            <a href="/b">Same</a>
+          </div>;
+        `,
+        errors: 1,
+      },
+      {
+        // A call the resolver can't evaluate is unresolvable, even when it is falsy at runtime.
+        code: `
+          <div>
+            <a href="/a" hidden={Boolean(0)}>Same</a>
             <a href="/b">Same</a>
           </div>;
         `,
@@ -312,17 +323,18 @@ describe('S1101', () => {
           </section>;
         `,
       },
+    ],
+    invalid: [
       {
-        // An unresolvable ancestor aria-hidden is conservatively treated as hidden.
+        // An unresolvable ancestor aria-hidden is NOT treated as hiding the anchor.
         code: `
           <div aria-hidden={dynamicHidden}>
             <a href="/a">Same</a>
             <a href="/b">Same</a>
           </div>;
         `,
+        errors: 1,
       },
-    ],
-    invalid: [
       {
         // An ancestor's unresolvable style is NOT treated as hiding the anchor.
         code: `

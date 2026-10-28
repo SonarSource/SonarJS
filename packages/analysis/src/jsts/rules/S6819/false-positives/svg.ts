@@ -17,7 +17,7 @@
 
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
-import { hasAccessibleName, isHiddenFromEveryone } from '../../helpers/accessibility.js';
+import { getHiddenState, hasAccessibleName } from '../../helpers/accessibility.js';
 
 export function isDecorativeSvg(
   elementName: string | null,
@@ -28,7 +28,7 @@ export function isDecorativeSvg(
   if (elementName !== 'svg' || (role !== 'presentation' && role !== 'img')) {
     return false;
   }
-  return isHiddenFromEveryone(node, context);
+  return getHiddenState(node, context) !== 'visible';
 }
 
 /**

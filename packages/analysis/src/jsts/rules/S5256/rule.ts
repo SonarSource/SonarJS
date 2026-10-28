@@ -21,11 +21,7 @@ import type { Rule } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { computeGrid } from '../helpers/table.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import {
-  isPresentationTable,
-  getElementType,
-  isHiddenFromEveryone,
-} from '../helpers/accessibility.js';
+import { isPresentationTable, getElementType, getHiddenState } from '../helpers/accessibility.js';
 import * as meta from './generated-meta.js';
 import type { JSXOpeningElement } from 'estree-jsx';
 
@@ -73,7 +69,7 @@ export const rule: Rule.RuleModule = {
           if (isPresentationTable(context, tree.openingElement)) {
             return;
           }
-          if (isHiddenFromEveryone(tree.openingElement, context)) {
+          if (getHiddenState(tree.openingElement, context) !== 'visible') {
             return;
           }
           // Skip reusable wrapper components: tables with no children and spread props

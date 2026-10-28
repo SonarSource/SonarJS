@@ -23,11 +23,7 @@ import type { JSXAttribute, JSXOpeningElement, JSXSpreadAttribute } from 'estree
 import pkg from 'jsx-ast-utils-x';
 const { getProp } = pkg;
 import { generateMeta } from '../helpers/generate-meta.js';
-import {
-  getElementType,
-  HIDING_ATTRIBUTES,
-  isHiddenFromEveryone,
-} from '../helpers/accessibility.js';
+import { getElementType, HIDING_ATTRIBUTES, getHiddenState } from '../helpers/accessibility.js';
 import { findFirstMatchingAncestor } from '../helpers/ancestor.js';
 import { functionLike, getValueOfExpression, getProperty } from '../helpers/ast.js';
 import { getConditionalBranchRoot, isArgumentOfRenderingCall } from '../helpers/jsx.js';
@@ -73,7 +69,10 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
-        if (isHiddenFromEveryone(opening, context) || hasUnsafeSpreadAncestor(element, context)) {
+        if (
+          getHiddenState(opening, context) === 'hidden' ||
+          hasUnsafeSpreadAncestor(element, context)
+        ) {
           return;
         }
 

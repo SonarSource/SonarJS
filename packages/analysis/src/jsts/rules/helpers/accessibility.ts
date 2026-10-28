@@ -20,7 +20,7 @@ import type { JSXAttribute, JSXOpeningElement } from 'estree-jsx';
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import pkg from 'jsx-ast-utils-x';
-import { findFirstMatchingAncestor } from './ancestor.js';
+import { ancestorsChain } from './ancestor.js';
 import { getProperty, getValueOfExpression } from './ast.js';
 import { isJsxElementNamed } from './jsx.js';
 const { getProp, getLiteralPropValue, getPropValue, elementType } = pkg;
@@ -204,27 +204,32 @@ export const getElementType = (
 
 /**
  * Whether the element or an ancestor is hidden via `aria-hidden`, `hidden`, or `display: none`.
- * Unresolvable values count as hidden.
+ * `'unknown'` when none is known to hide it but some value can't be resolved; callers decide how
+ * to treat it.
  */
-export function isHiddenFromEveryone(
+export function getHiddenState(
   node: TSESTree.JSXOpeningElement,
   context: Rule.RuleContext,
-): boolean {
-  return !!findFirstMatchingAncestor(node as TSESTree.Node, ancestor =>
-    isMaybeHiddenElement(ancestor, context),
-  );
-}
-
-function isMaybeHiddenElement(node: TSESTree.Node, context: Rule.RuleContext): boolean {
-  if (node.type !== 'JSXElement') {
-    return false;
+): HiddenState {
+  let state: HiddenState = 'visible';
+  for (const ancestor of ancestorsChain(node as TSESTree.Node, new Set())) {
+    if (ancestor.type !== 'JSXElement') {
+      continue;
+    }
+    const attributes = (ancestor.openingElement as JSXOpeningElement).attributes;
+    const ownState = getOwnHiddenState(attributes, context);
+    if (ownState === 'hidden') {
+      return 'hidden';
+    }
+    if (ownState === 'unknown') {
+      state = 'unknown';
+    }
   }
-  const attributes = (node.openingElement as JSXOpeningElement).attributes;
-  return getOwnHiddenState(attributes, context) !== 'visible';
+  return state;
 }
 
 /**
- * Like {@link isHiddenFromEveryone}, but for the element's own attributes only. An unresolvable
+ * Like {@link getHiddenState}, but for the element's own attributes only. An unresolvable
  * `aria-hidden` or `hidden` gives `'unknown'`; an unresolvable `style` never hides.
  */
 export function getOwnHiddenState(
