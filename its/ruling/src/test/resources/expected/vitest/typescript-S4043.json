@@ -9,6 +9,9 @@
 247,
 274
 ],
+"vitest:packages/ui/client/components/FileDetails.vue": [
+176
+],
 "vitest:packages/vitest/src/node/ast-collect.ts": [
 369
 ],
