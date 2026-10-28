@@ -16,7 +16,7 @@
  */
 import type stylelint from 'stylelint';
 import postcssHtml from 'postcss-html';
-import postcssSass from 'postcss-sass';
+import { postcssSass } from './sass.js';
 import postcssScss from 'postcss-scss';
 import postcssLess from 'postcss-less';
 import postcssHtmlConfig from 'stylelint-config-html/html.js';
