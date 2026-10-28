@@ -14,63 +14,34 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import stylelint, { type DisabledRange, type PostcssResult } from 'stylelint';
+import stylelint, { type PostcssResult } from 'stylelint';
 import type PostCSS from 'postcss';
 
-export type DecoratedMessage = {
-  text: string;
-  rule?: string;
-  node?: PostCSS.Node;
-  stylelintType?: string;
+export type DecoratedMessage = PostCSS.Warning & {
+  stylelintType?: stylelint.WarningOptions['stylelintType'];
 };
 
-function copyRanges(ranges: DisabledRange[]): DisabledRange[] {
-  return ranges.map(range => ({
-    ...range,
-    rules: range.rules?.slice(),
-  }));
-}
-
-/**
- * Give an upstream Stylelint rule the Sonar rule's disable ranges without
- * changing the result shared with concurrently running rules.
- */
-export function withSonarDisables(
-  result: PostcssResult,
-  sonarRule: string,
-  upstreamRule: string,
-): PostcssResult {
-  const disabledRanges = Object.fromEntries(
-    Object.entries(result.stylelint.disabledRanges).map(([rule, ranges]) => [
-      rule,
-      copyRanges(ranges),
-    ]),
-  );
-  const sonarRanges = result.stylelint.disabledRanges[sonarRule];
-  if (sonarRanges) {
-    disabledRanges[upstreamRule] = copyRanges(sonarRanges);
-  } else {
-    Reflect.deleteProperty(disabledRanges, upstreamRule);
-  }
-  // The proxy forwards status updates and disabled-warning tracking to the
-  // shared Stylelint state, while isolating only the disabled-ranges lookup.
-  const scopedStylelint = new Proxy(result.stylelint, {
-    get(target, property, receiver) {
-      return property === 'disabledRanges'
-        ? disabledRanges
-        : Reflect.get(target, property, receiver);
-    },
-  });
-  // PostCSS's warn() appends to this.messages. Keep upstream warnings private
-  // until the decorator has rewritten them, so another rule's warnings cannot
-  // be mistaken for this invocation's warnings.
+/** Collect upstream warnings without applying rule settings or changing shared reporting state. */
+function isolatedResult(result: PostcssResult): PostcssResult {
   const scopedResult = Object.create(result) as PostcssResult;
-  scopedResult.stylelint = scopedStylelint;
-  scopedResult.messages = [];
+  scopedResult.stylelint = {
+    ...result.stylelint,
+    ruleSeverities: {},
+    customMessages: {},
+    customUrls: {},
+    ruleMetadata: {},
+    disabledRanges: {},
+    disabledWarnings: [],
+    fixersData: {},
+    rangesOfComputedEditInfos: [],
+    stylelintError: false,
+    stylelintWarning: false,
+    quiet: false,
+  };
   return scopedResult;
 }
 
-/** Run an upstream rule with isolated warnings, then publish its rewritten results. */
+/** Run an upstream rule in isolation, then report accepted warnings under the Sonar rule. */
 export function createDecoratedRule(
   sonarRule: string,
   upstreamRule: keyof typeof stylelint.rules,
@@ -81,27 +52,45 @@ export function createDecoratedRule(
     result: PostcssResult,
   ) => string | undefined,
 ): stylelint.RuleBase {
-  return (primary: unknown, secondaryOptions: unknown, context: stylelint.RuleContext) => {
+  return (primary, secondaryOptions, context) => {
     return async (root: PostCSS.Root, result: PostcssResult): Promise<void> => {
       const factory = (await stylelint.rules[upstreamRule]) as stylelint.Rule;
-      const upstream = factory(primary, secondaryOptions, context);
-      const scopedResult = withSonarDisables(result, sonarRule, upstreamRule);
-      await upstream(root, scopedResult);
-
-      const reported = (result as unknown as { messages: DecoratedMessage[] }).messages;
-      for (const message of scopedResult.messages as unknown as DecoratedMessage[]) {
-        if (message.stylelintType !== undefined) {
-          reported.push(message);
-          continue;
-        }
-        const rewritten = rewriteMessage(message, factory.messages, root, scopedResult);
-        if (rewritten === undefined) {
-          continue;
-        }
-        message.text = `${rewritten} (${sonarRule})`;
-        message.rule = sonarRule;
-        reported.push(message);
-      }
+      await stylelint.utils.checkAgainstRule(
+        {
+          ruleName: upstreamRule,
+          ruleSettings: [primary, secondaryOptions],
+          root,
+          result: isolatedResult(result),
+          context,
+        },
+        warning => {
+          const message = warning as DecoratedMessage;
+          if (message.stylelintType !== undefined) {
+            result.messages.push(message);
+            if (
+              message.stylelintType === 'invalidOption' ||
+              message.stylelintType === 'parseError'
+            ) {
+              result.stylelint.stylelintError = true;
+            }
+            return;
+          }
+          const rewritten = rewriteMessage(message, factory.messages, root, result);
+          if (rewritten !== undefined) {
+            stylelint.utils.report({
+              ruleName: sonarRule,
+              result,
+              message: rewritten,
+              node: message.node,
+              start: { line: message.line, column: message.column },
+              end: {
+                line: message.endLine ?? message.line,
+                column: message.endColumn ?? message.column,
+              },
+            });
+          }
+        },
+      );
     };
   };
 }
