@@ -1,5 +1,11 @@
 {
 "vuetify:packages/api-generator/src/types.ts": [
 66
+],
+"vuetify:packages/docs/src/components/app/Toc.vue": [
+212
+],
+"vuetify:packages/docs/src/components/promoted/Script.vue": [
+30
 ]
 }
