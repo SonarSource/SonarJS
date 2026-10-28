@@ -1961,6 +1961,7 @@ it('checks the response', async () => {
 `;
     const valid = [
       testCase('function http(): any { return request(app); }'),
+      testCase('const http = (): request.SuperAgentTest => request.agent(app);'),
       testCase('const http = () => request(app) as any;'),
       testCase('const http = () => request(app) satisfies any;'),
       testCase('const http = () => request(app)!;'),

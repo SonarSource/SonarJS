@@ -157,7 +157,10 @@ function computeStableAgentProperty(context: Rule.RuleContext): boolean {
           return false;
         }) &&
         !variable.references.every(
-          reference => reference.init || isStableLoaderUse(reference.identifier),
+          reference =>
+            reference.init ||
+            isTypeOnlyReference(reference) ||
+            isStableLoaderUse(reference.identifier),
         )
       ) {
         return false;
@@ -191,8 +194,13 @@ function computeStableAgentProperty(context: Rule.RuleContext): boolean {
 }
 
 function isStableLoaderUse(node: estree.Identifier): boolean {
-  const parent = (node as estree.Identifier & { parent?: estree.Node }).parent;
-  if (parent?.type === 'CallExpression' && parent.callee === node) {
+  let current: estree.Node = node;
+  let parent = getParent(current);
+  while (parent && unwrapTypeScriptExpression(parent) === current) {
+    current = parent;
+    parent = getParent(current);
+  }
+  if (parent?.type === 'CallExpression' && parent.callee === current) {
     return true;
   }
   if (
@@ -205,6 +213,22 @@ function isStableLoaderUse(node: estree.Identifier): boolean {
   }
   const call = (parent as estree.MemberExpression & { parent?: estree.Node }).parent;
   return call?.type === 'CallExpression' && call.callee === parent;
+}
+
+function getParent(node: estree.Node): estree.Node | undefined {
+  return (node as estree.Node & { parent?: estree.Node }).parent;
+}
+
+function isTypeOnlyReference(reference: {
+  identifier: estree.Identifier;
+  isTypeReference?: boolean;
+}) {
+  const parent = getParent(reference.identifier);
+  return (
+    reference.isTypeReference ||
+    parent?.type === 'TSQualifiedName' ||
+    parent?.type === 'TSTypeQuery'
+  );
 }
 
 function hasDirectSupertestOrigin(context: Rule.RuleContext, callee: estree.Node): boolean {
