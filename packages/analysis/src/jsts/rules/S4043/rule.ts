@@ -94,11 +94,12 @@ export const rule: Rule.RuleModule = {
 
 function getArrayMutatingMethod(memberExpression: estree.MemberExpression): string | undefined {
   const { computed, property } = memberExpression;
-  const name = computed
-    ? getStaticExpressionValue(property as estree.Expression)
-    : property.type === 'Identifier'
-      ? property.name
-      : undefined;
+  let name: string | undefined;
+  if (computed) {
+    name = getStaticExpressionValue(property as estree.Expression);
+  } else if (property.type === 'Identifier') {
+    name = property.name;
+  }
   return name && arrayMutatingMethods.has(name) ? name : undefined;
 }
 
