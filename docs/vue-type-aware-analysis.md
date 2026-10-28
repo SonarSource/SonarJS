@@ -45,8 +45,11 @@ This is script analysis. Vue component export generation, full macro semantics a
 checking are not provided by this adapter. Explicit `disableTypeChecking` remains supported.
 Generic attributes are approximated as aliases of their constraints by Vue's parser. For example,
 `generic="T extends unknown"` produces `type T = unknown`, which can make S4157 incorrectly
-report a necessary `Option<T>` argument as the default `Option<unknown>`. These findings must
-be resolved before accepting the corresponding ruling changes.
+report a necessary `Option<T>` argument as the default `Option<unknown>`. This predates the
+March 2024 removal of Vue typing: the same seven S4157 findings in ruling's `c-select.vue`
+reproduce with the former dependency versions (vue-eslint-parser 9.3.2, typescript-eslint
+6.14.0 and TypeScript 5.3.3). Ruling expectations retain these findings as a documented
+upstream limitation.
 
 ## Vuetify performance and ruling changes
 
