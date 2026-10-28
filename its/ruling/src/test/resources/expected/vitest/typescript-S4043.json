@@ -5,15 +5,8 @@
 "vitest:packages/pretty-format/src/collections.ts": [
 14
 ],
-"vitest:packages/runner/src/fixture.ts": [
-247,
-274
-],
 "vitest:packages/vitest/src/node/ast-collect.ts": [
 369
-],
-"vitest:packages/vitest/src/node/core.ts": [
-1498
 ],
 "vitest:packages/vitest/src/node/reporters/base.ts": [
 689
