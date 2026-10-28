@@ -17,7 +17,7 @@
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import postcss, { type Root, type Declaration } from 'postcss';
-import { postcssSass } from '../../../src/css/linter/sass.js';
+import { postcssSass } from '../../../src/css/linter/sass/index.js';
 import { LinterWrapper } from '../../../src/css/linter/wrapper.js';
 import { normalizeToAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import { computeHighlighting } from '../../../src/css/analysis/highlighting.js';
@@ -45,6 +45,7 @@ describe('Sass syntax', () => {
     '$map: (red: #f00, blue: #00f)\na\n  color: map.get($map, red)\n',
     '// NOSONAR\n// sonar-resolve css:S125 "reason"\na\n  color: #fff\n',
     'a\r\n\tcolor: red\r\n',
+    'a\r\n  content: "a\\\r\nb"\r\n',
     'a\n  color: red  \n\n',
     'a\n  color: red // original comment\n',
     'a\n  color: red; // original comment\n',
@@ -52,6 +53,27 @@ describe('Sass syntax', () => {
     '@charset "utf-8"\n\n$x: 1\n$y: 2\n\na\n  color: red\n',
     '@mixin selection\n  @if $x\n    &::selection\n      @content\n  @else\n    \\::selection\n      @content\n',
     'a\n  color: red;\n',
+    '@use \"theme\" as *\na\n  width: 62.5%\n',
+    'a\n  width: 1px + // sum\n    2px\n  color: red\n',
+    'a\n  width: 1px +\n    2px\n',
+    'a\n  color: red //\n',
+    'a\n  +theme(red) // mixin comment\n',
+    'a\n  background: url(//cdn.example/x.png)\n',
+    'a\n  background: url(https://cdn.example/x.png)\n',
+    'a // selector comment\n  color: red\n',
+    '@if $x // branch comment\n  a\n    color: red\n',
+    '$map: (\n  // explanation\n  color: red,\n)\n',
+    '@function double($x)\n  @return $x * 2\n',
+    '@for $i from 1 through 3\n  .item-#{$i}\n    width: $i * 1px\n',
+    '@while $i < 2\n  $i: $i + 1\n',
+    '@forward "theme" as theme-* hide private with ($color: red !default)\n',
+    '%base\n  color: red\na\n  @extend %base !optional\n',
+    'a\n  @at-root .b\n    color: red\n',
+    'a\n  #{$prop}: red\n',
+    'a\n  width: calc(\n    100% -\n    10px\n  )\n',
+    'a\n  color: if(sass($x): red; else: blue)\n',
+    'a\n  --foo: { color: red; }\n',
+    'a\n  content: "a: b, \\"quoted\\""\n',
     '',
   ]) {
     it(`preserves source syntax: ${JSON.stringify(code)}`, async () => {
@@ -91,6 +113,23 @@ describe('Sass syntax', () => {
     expect(root.last).toMatchObject({
       type: 'rule',
       nodes: [{ type: 'atrule', name: 'include', params: 'theme(red)' }],
+    });
+  });
+
+  it('keeps continued arithmetic inside one declaration', () => {
+    const root = parse('a\n  width: 1px +\n    2px\n');
+    expect(root.first).toMatchObject({
+      nodes: [{ type: 'decl', prop: 'width', value: '1px +\n    2px' }],
+    });
+  });
+
+  it('keeps shorthand mixin locations before trailing comments', () => {
+    const root = parse('a\n  +theme(red) // mixin comment\n');
+    expect(root.first).toMatchObject({
+      nodes: [
+        { type: 'atrule', name: 'include', source: { start: { line: 2, column: 3 } } },
+        { type: 'comment', text: 'mixin comment', source: { start: { line: 2, column: 15 } } },
+      ],
     });
   });
 
@@ -158,6 +197,21 @@ describe('Sass syntax', () => {
     ]);
   });
 
+  for (const code of [
+    'a\n  color: red\n    blue\n',
+    'a\n  color: ]\n',
+    'a\n  width: ([)]\n',
+    'a\n  color: "red\n',
+    'a\n  width: (1px\n',
+    'a\n    color: red\n  width: 1px\n',
+    'a\n \tcolor: red\n',
+    '@use "theme"\n  a\n    color: red\n',
+  ]) {
+    it(`rejects malformed statement structure: ${JSON.stringify(code)}`, () => {
+      expect(() => parse(code)).toThrow(expect.objectContaining({ name: 'CssSyntaxError' }));
+    });
+  }
+
   it('reports invalid syntax as a located CssSyntaxError', () => {
     expect(() => parse('a\n  color: (\n')).toThrow(
       expect.objectContaining({
@@ -165,6 +219,19 @@ describe('Sass syntax', () => {
         reason: 'expected ")".',
         line: 2,
         column: 11,
+      }),
+    );
+  });
+
+  it('maps header tokenizer errors back to the original source', () => {
+    const code = 'a\n  color: red; ???\n';
+    expect(() => parse(code)).toThrow(
+      expect.objectContaining({
+        name: 'CssSyntaxError',
+        line: 2,
+        column: 15,
+        source: code,
+        file: from,
       }),
     );
   });

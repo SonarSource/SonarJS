@@ -22,34 +22,14 @@ import postcss, {
   type Stringifier,
   type Syntax,
 } from 'postcss';
-import { sass } from 'sass-parser';
+import { SassStatementParser } from './sass-statement-parser.js';
 import { PostcssAstBuilder } from './postcss-ast-builder.js';
 
-/**
- * Parse Sass grammar and indentation, then build the PostCSS representation for Stylelint.
- *
- * patches/sass+1.106.1.patch disables eager CSS selector parsing in the parser export. Otherwise
- * Sass rejects valid percentage keyframe selectors. We only need statement spans, not selector ASTs.
- */
+/** Parse Sass statement structure and build the PostCSS representation for Stylelint. */
 function parse(code: string | { toString(): string }, options?: ProcessOptions): Root {
   const input = new postcss.Input(code.toString(), options);
-  let parsed: ReturnType<typeof sass.parse>;
-  try {
-    parsed = sass.parse(input.css, { from: options?.from });
-  } catch (error) {
-    // The parser export currently throws a Dart error without the public SassException fields.
-    // Its diagnostic footer carries the original, one-based location even when the path has spaces.
-    const location = / (\d+):(\d+)\s+root stylesheet\s*$/.exec(error.message);
-    if (!location) {
-      throw error;
-    }
-    throw input.error(
-      error.message.split('\n')[0].replace(/^Error:\s*/, ''),
-      Number(location[1]),
-      Number(location[2]),
-    );
-  }
-  return new PostcssAstBuilder(input).build(parsed);
+  const statements = new SassStatementParser(input).parse();
+  return new PostcssAstBuilder(input).build(statements);
 }
 
 /** Emit indentation and original token spelling, without introducing CSS braces or semicolons. */

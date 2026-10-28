@@ -145,7 +145,6 @@
     "postcss-selector-parser": "7.1.7",
     "postcss-value-parser": "4.2.0",
     "protobufjs": "8.8.1",
-    "sass-parser": "0.5.1",
     "scslre": "0.3.0",
     "semver": "7.8.5",
     "stylelint": "17.16.0",
