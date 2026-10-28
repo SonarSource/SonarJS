@@ -11,6 +11,9 @@
 "vitest:packages/vitest/src/node/reporters/base.ts": [
 689
 ],
+"vitest:packages/vitest/src/node/resolver.ts": [
+28
+],
 "vitest:packages/vitest/src/runtime/runners/test.ts": [
 247
 ],
