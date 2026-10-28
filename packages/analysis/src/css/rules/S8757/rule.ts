@@ -18,6 +18,7 @@
 import stylelint, { type PostcssResult } from 'stylelint';
 import { meta } from './meta.js';
 import type PostCSS from 'postcss';
+import { createDecoratedRule } from '../helpers/decorated-result.js';
 
 const SONAR_RULE = meta.bindings[0].stylelintKey;
 const UPSTREAM_RULE = meta.bindings[0].upstreamRule;
@@ -44,78 +45,16 @@ function isSassAnnotationWarning(text: string): boolean {
   return match !== null && SASS_ANNOTATIONS.has(match[1]);
 }
 
-function relabelWarnings(result: PostcssResult, from: number): void {
-  for (const w of result.warnings().slice(from)) {
-    // Rules run concurrently, so other rules may have reported since `from`
-    if ((w as unknown as { rule?: string }).rule !== UPSTREAM_RULE) {
-      continue;
+const ruleImpl = createDecoratedRule(
+  SONAR_RULE,
+  UPSTREAM_RULE,
+  (message, _upstreamMessages, root, result) => {
+    if (isSassBlock(root, result) && isSassAnnotationWarning(message.text)) {
+      return undefined;
     }
-    w.text = w.text.replace(` (${UPSTREAM_RULE})`, ` (${SONAR_RULE})`);
-    (w as unknown as { rule: string }).rule = SONAR_RULE;
-  }
-}
-
-function removeSassAnnotationWarnings(result: PostcssResult, from: number): void {
-  const messages = (
-    result as unknown as { messages: { stylelintType?: string; text: string; rule?: string }[] }
-  ).messages;
-  for (let i = messages.length - 1; i >= from; i--) {
-    const w = messages[i];
-    // Earlier blocks of the same document may already have relabeled this warning
-    if (
-      (w.rule === UPSTREAM_RULE || w.rule === SONAR_RULE) &&
-      w.stylelintType !== 'invalidOption' &&
-      isSassAnnotationWarning(w.text)
-    ) {
-      messages.splice(i, 1);
-    }
-  }
-}
-
-const ruleImpl: stylelint.RuleBase = (primary, secondaryOptions, context) => {
-  let upstream: ReturnType<stylelint.RuleBase> | undefined;
-
-  const getUpstream = async () => {
-    if (!upstream) {
-      const factory = (await stylelint.rules[UPSTREAM_RULE]) as stylelint.Rule;
-      upstream = factory(primary, secondaryOptions, context);
-    }
-    return upstream;
-  };
-
-  const runOnBlock = async (
-    block: PostCSS.Root,
-    result: PostcssResult,
-    sass: boolean,
-  ): Promise<void> => {
-    const delegated = await getUpstream();
-    const messages = (result as unknown as { messages: object[] }).messages;
-    const msgCount = messages.length;
-    const warnCount = result.warnings().length;
-    await (delegated as (root: PostCSS.Root, result: PostcssResult) => Promise<void>)(
-      block,
-      result,
-    );
-    if (sass) {
-      removeSassAnnotationWarnings(result, msgCount);
-    }
-    relabelWarnings(result, warnCount);
-  };
-
-  return async (root: PostCSS.Root | PostCSS.Document, result) => {
-    if ((root as PostCSS.Node).type === 'document') {
-      for (const child of (root as PostCSS.Document).nodes) {
-        if ((child as PostCSS.Node).type !== 'root') {
-          continue;
-        }
-        const childRoot = child as unknown as PostCSS.Root;
-        await runOnBlock(childRoot, result, isSassBlock(childRoot, result));
-      }
-      return;
-    }
-    await runOnBlock(root as PostCSS.Root, result, isSassBlock(root as PostCSS.Root, result));
-  };
-};
+    return message.text.replace(` (${UPSTREAM_RULE})`, '');
+  },
+);
 
 export const rule = stylelint.createPlugin(SONAR_RULE, ruleImpl as stylelint.Rule) as {
   ruleName: string;
