@@ -56,7 +56,9 @@ export function continuesOnNewline(
   firstLine: string,
   header: string,
 ): boolean {
-  if (type === 'rule') return header.trimEnd().endsWith(',');
+  if (type === 'rule') {
+    return header.trimEnd().endsWith(',');
+  }
   const expression =
     type === 'decl' || /^@(if|else|each|for|while|return|debug|warn|error)\b/.test(firstLine);
   return (

@@ -14,9 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+type SassStatementType = 'rule' | 'decl' | 'atrule' | 'comment';
+
 /** Statement boundaries only: expressions remain source text. End offsets are exclusive. */
 export interface SassStatement {
-  type: 'rule' | 'decl' | 'atrule' | 'comment';
+  type: SassStatementType;
   start: number;
   end: number;
   headerEnd: number;

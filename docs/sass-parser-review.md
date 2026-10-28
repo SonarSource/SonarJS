@@ -102,3 +102,29 @@ Validation: all 1,138 CSS tests, application/test TypeScript checks and the full
 build pass. Regression cases cover every Gitar finding, embedded source locations,
 the ruling false positives above, and positive controls showing that real diagnostics
 remain enabled.
+
+## Quality gate follow-up
+
+The gate reported 59 new issues across nine TypeScript rules: missing control-flow
+braces (S121), non-null assertions (S2966), duplicated string literals (S1192),
+cognitive complexity (S3776), nested ternaries (S3358), string-prefix checks (S6557),
+destructuring (S3514), an inline union type (S4622), and implicit object stringification
+(S6551).
+
+The builder now separates header tokenization, shorthand normalization and source
+mapping. Required PostCSS nodes and offsets are checked explicitly instead of using
+non-null assertions. Indentation levels hold a parent reference, so returning to an
+outer block no longer depends on asserting that an array stack is nonempty. The
+stringifier checks that shorthand metadata is a string before emitting it. Braces,
+named comment-kind constants, a statement-type alias and destructuring address the
+remaining findings without changing the accepted grammar.
+
+Local verification runs the nine reported rules against all six production Sass
+modules and reports zero findings. All 1,140 CSS tests, both TypeScript checks and
+the bridge build pass. Regression tests cover returning through multiple indentation
+levels and unexpected shorthand metadata.
+
+A comparison against PR head `0828dc7e9` confirms identical diagnostics for all 1,113
+Sass/Vue files and identical PostCSS ASTs and exact source round trips for all 226
+standalone Sass files. The measurements above precede this quality refactor; they
+have not been remeasured. The remote gate must be re-evaluated by CI on the new commit.

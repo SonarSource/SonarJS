@@ -23,11 +23,14 @@ import {
   isDeclarationCandidate,
 } from './sass-statement-rules.js';
 
+const LINE_COMMENT = 'line-comment';
+const BLOCK_COMMENT = 'block-comment';
+
 type ScannerMode =
   | { kind: 'code' }
   | { kind: 'string'; quote: '"' | "'" }
-  | { kind: 'line-comment'; start: number }
-  | { kind: 'block-comment' };
+  | { kind: typeof LINE_COMMENT; start: number }
+  | { kind: typeof BLOCK_COMMENT };
 
 type OpeningDelimiter = '(' | '[' | '{' | 'url(';
 const closingDelimiters: Record<OpeningDelimiter, string> = {
@@ -65,9 +68,13 @@ class HeaderScanner {
       const character = this.input.css[this.cursor];
       const next = this.input.css[this.cursor + 1];
       if (character === '\n' || (character === '\r' && next !== '\n')) {
-        if (!this.scanNewline()) return this.result(this.cursor + 1);
+        if (!this.scanNewline()) {
+          return this.result(this.cursor + 1);
+        }
       } else {
-        if (character !== '\r' && !/\s/.test(character)) this.end = this.cursor + 1;
+        if (character !== '\r' && !/\s/.test(character)) {
+          this.end = this.cursor + 1;
+        }
         switch (this.mode.kind) {
           case 'code':
             this.scanCode(character, next);
@@ -75,10 +82,10 @@ class HeaderScanner {
           case 'string':
             this.scanString(character, this.mode.quote);
             break;
-          case 'block-comment':
+          case BLOCK_COMMENT:
             this.scanBlockComment(character, next);
             break;
-          case 'line-comment':
+          case LINE_COMMENT:
             // All characters are comment text until scanNewline() ends this mode.
             break;
         }
@@ -99,13 +106,15 @@ class HeaderScanner {
       return;
     }
     if (character === '/' && next === '*') {
-      this.mode = { kind: 'block-comment' };
+      this.mode = { kind: BLOCK_COMMENT };
       this.cursor++;
       return;
     }
     if (character === '/' && next === '/' && this.startsLineComment()) {
-      this.mode = { kind: 'line-comment', start: this.cursor };
-      if (this.delimiters.length === 0) this.trailingComment = this.cursor;
+      this.mode = { kind: LINE_COMMENT, start: this.cursor };
+      if (this.delimiters.length === 0) {
+        this.trailingComment = this.cursor;
+      }
       this.cursor++;
       this.end = this.cursor + 1;
       return;
@@ -125,15 +134,20 @@ class HeaderScanner {
       this.cursor < this.line.end
     ) {
       const colon = this.cursor - this.start;
-      if (isDeclarationSeparator(this.firstLine, colon)) this.type = 'decl';
-      else if (isDeclarationCandidate(this.firstLine, colon))
+      if (isDeclarationSeparator(this.firstLine, colon)) {
+        this.type = 'decl';
+      } else if (isDeclarationCandidate(this.firstLine, colon)) {
         this.declarationCandidate ??= this.cursor;
+      }
     }
   }
 
   private scanString(character: string, quote: '"' | "'"): void {
-    if (character === '\\') this.skipEscape();
-    else if (character === quote) this.mode = { kind: 'code' };
+    if (character === '\\') {
+      this.skipEscape();
+    } else if (character === quote) {
+      this.mode = { kind: 'code' };
+    }
   }
 
   private scanBlockComment(character: string, next: string | undefined): void {
@@ -148,13 +162,15 @@ class HeaderScanner {
     if (this.mode.kind === 'string') {
       throw this.input.error('Unclosed string.', this.cursor);
     }
-    const codeEnd = this.mode.kind === 'line-comment' ? this.mode.start : this.end;
+    const codeEnd = this.mode.kind === LINE_COMMENT ? this.mode.start : this.end;
     const continued =
-      this.mode.kind === 'block-comment' ||
+      this.mode.kind === BLOCK_COMMENT ||
       this.delimiters.length > 0 ||
       continuesOnNewline(this.type, this.firstLine, this.input.css.slice(this.start, codeEnd));
     if (continued) {
-      if (this.mode.kind === 'line-comment') this.mode = { kind: 'code' };
+      if (this.mode.kind === LINE_COMMENT) {
+        this.mode = { kind: 'code' };
+      }
       this.trailingComment = undefined;
     }
     return continued;
@@ -188,10 +204,16 @@ class HeaderScanner {
   }
 
   private validateEnd(): void {
-    if (this.mode.kind === 'block-comment') throw this.input.error('Unclosed comment.', this.end);
-    if (this.mode.kind === 'string') throw this.input.error('Unclosed string.', this.end);
+    if (this.mode.kind === BLOCK_COMMENT) {
+      throw this.input.error('Unclosed comment.', this.end);
+    }
+    if (this.mode.kind === 'string') {
+      throw this.input.error('Unclosed string.', this.end);
+    }
     const opening = this.delimiters.at(-1);
-    if (opening) throw this.input.error(`expected "${closingDelimiters[opening]}".`, this.end);
+    if (opening) {
+      throw this.input.error(`expected "${closingDelimiters[opening]}".`, this.end);
+    }
   }
 
   private result(next: number): { statement: SassStatement; next: number } {
@@ -219,7 +241,9 @@ export class SassStatementScanner {
   peekLine(): SassLine | undefined {
     while (this.offset < this.input.css.length) {
       const line = this.line(this.offset);
-      if (line.start + line.indent.length !== line.end) return line;
+      if (line.start + line.indent.length !== line.end) {
+        return line;
+      }
       this.offset = line.next;
     }
     return undefined;
@@ -238,8 +262,7 @@ export class SassStatementScanner {
 
   private readComment(line: SassLine, inline: boolean): SassStatement {
     const start = line.start + line.indent.length;
-    let end = line.end;
-    let next = line.next;
+    let { end, next } = line;
     // Unclosed /* and // comments include indented continuation lines; a closed /* ends here.
     const closed = !inline && this.input.css.slice(start, end).includes('*/');
     while (!closed && next < this.input.css.length) {
@@ -248,10 +271,14 @@ export class SassStatementScanner {
         next = continuation.next;
         continue;
       }
-      if (continuation.indent.length <= line.indent.length) break;
+      if (continuation.indent.length <= line.indent.length) {
+        break;
+      }
       end = continuation.end;
       next = continuation.next;
-      if (!inline && this.input.css.slice(continuation.start, end).includes('*/')) break;
+      if (!inline && this.input.css.slice(continuation.start, end).includes('*/')) {
+        break;
+      }
     }
     this.offset = next;
     end = start + this.input.css.slice(start, end).trimEnd().length;
@@ -263,7 +290,7 @@ export class SassStatementScanner {
     const newline = css.indexOf('\n', start);
     const next = newline === -1 ? css.length : newline + 1;
     const end = newline === -1 ? css.length : newline - Number(css[newline - 1] === '\r');
-    const indent = /^[\t ]*/.exec(css.slice(start, end))![0];
+    const indent = /^[\t ]*/.exec(css.slice(start, end))?.[0] ?? '';
     return { start, end, next, indent };
   }
 }

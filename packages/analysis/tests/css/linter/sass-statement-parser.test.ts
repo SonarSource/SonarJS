@@ -85,6 +85,29 @@ describe('Sass statement scanning', () => {
 });
 
 describe('Sass statement tree construction', () => {
+  it('returns to each parent level when several nested blocks end together', () => {
+    const code =
+      'a\n  @media screen\n    &:hover\n      color: red\n  width: 1px\nb\n  color: blue\n';
+    const nodes = new SassStatementParser(new postcss.Input(code)).parse();
+    const summarize = (node: SassStatement): object => ({
+      header: code.slice(node.start, node.headerEnd),
+      nodes: node.nodes?.map(summarize),
+    });
+    expect(nodes.map(summarize)).toEqual([
+      {
+        header: 'a',
+        nodes: [
+          {
+            header: '@media screen',
+            nodes: [{ header: '&:hover', nodes: [{ header: 'color: red', nodes: undefined }] }],
+          },
+          { header: 'width: 1px', nodes: undefined },
+        ],
+      },
+      { header: 'b', nodes: [{ header: 'color: blue', nodes: undefined }] },
+    ]);
+  });
+
   it('checks indentation before scanning a malformed header', () => {
     const code = 'a\n    color: red\n  content: "unfinished\n';
     expect(() => new SassStatementParser(new postcss.Input(code)).parse()).toThrow(

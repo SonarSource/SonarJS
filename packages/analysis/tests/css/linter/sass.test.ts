@@ -172,6 +172,15 @@ describe('Sass syntax', () => {
     });
   });
 
+  it('uses the at-rule header when shorthand metadata is not a string', () => {
+    const root = parse('@include theme(red)\n');
+    expect(root.first).toBeDefined();
+    if (root.first) {
+      root.first.raws.sassShorthand = {};
+    }
+    expect(root.toString(postcssSass.stringify)).toBe('@include theme(red)\n');
+  });
+
   it('keeps shorthand mixin locations before trailing comments', () => {
     const root = parse('a\n  +theme(red) // mixin comment\n');
     expect(root.first).toMatchObject({

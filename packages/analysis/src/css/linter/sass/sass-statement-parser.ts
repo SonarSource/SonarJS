@@ -19,7 +19,11 @@ import type { SassLine, SassStatement } from './sass-statement.js';
 import { SassStatementScanner } from './sass-statement-scanner.js';
 import { canHaveChildren } from './sass-statement-rules.js';
 
-type IndentationLevel = { indent: number; nodes: SassStatement[] };
+type IndentationLevel = {
+  indent: number;
+  nodes: SassStatement[];
+  parent?: IndentationLevel;
+};
 
 /** Organizes scanned statements by indentation, then normalizes comments and container spans. */
 export class SassStatementParser {
@@ -31,23 +35,26 @@ export class SassStatementParser {
   parse(): SassStatement[] {
     const nodes: SassStatement[] = [];
     const scanner = new SassStatementScanner(this.input);
-    const levels: IndentationLevel[] = [
-      { indent: this.embedded ? (scanner.peekLine()?.indent.length ?? 0) : 0, nodes },
-    ];
+    let level: IndentationLevel = {
+      indent: this.embedded ? (scanner.peekLine()?.indent.length ?? 0) : 0,
+      nodes,
+    };
     let previous: SassStatement | undefined;
     let indentCharacter: string | undefined;
     let line: SassLine | undefined;
     while ((line = scanner.peekLine())) {
       indentCharacter = this.validateIndentation(line, indentCharacter);
-      const siblings = this.containerAtIndent(line, levels, previous);
+      level = this.containerAtIndent(line, level, previous);
       previous = scanner.readStatement(line);
-      siblings.push(previous);
+      level.nodes.push(previous);
     }
     return this.normalizeStatements(nodes);
   }
 
   private validateIndentation(line: SassLine, indentCharacter?: string): string | undefined {
-    if (!line.indent) return indentCharacter;
+    if (!line.indent) {
+      return indentCharacter;
+    }
     indentCharacter ??= line.indent[0];
     if ([...line.indent].some(character => character !== indentCharacter)) {
       throw this.input.error('Mixed tabs and spaces in indentation.', line.start);
@@ -57,24 +64,25 @@ export class SassStatementParser {
 
   private containerAtIndent(
     line: SassLine,
-    levels: IndentationLevel[],
+    level: IndentationLevel,
     previous?: SassStatement,
-  ): SassStatement[] {
+  ): IndentationLevel {
     const indent = line.indent.length;
     const start = line.start + indent;
-    if (indent > levels.at(-1)!.indent) {
+    if (indent > level.indent) {
       if (!previous || !canHaveChildren(previous, this.input.css)) {
         throw this.input.error('Unexpected indentation.', start);
       }
       previous.nodes ??= [];
-      levels.push({ indent, nodes: previous.nodes });
-    } else {
-      while (levels.length > 1 && indent < levels.at(-1)!.indent) levels.pop();
-      if (indent !== levels.at(-1)!.indent) {
-        throw this.input.error('Inconsistent indentation.', start);
-      }
+      return { indent, nodes: previous.nodes, parent: level };
     }
-    return levels.at(-1)!.nodes;
+    while (indent < level.indent && level.parent) {
+      level = level.parent;
+    }
+    if (indent !== level.indent) {
+      throw this.input.error('Inconsistent indentation.', start);
+    }
+    return level;
   }
 
   private normalizeStatements(nodes: SassStatement[]): SassStatement[] {
@@ -94,13 +102,17 @@ export class SassStatementParser {
       }
       this.validateChildren(statement);
       normalized.push(statement);
-      if (siblingComment) normalized.push(siblingComment);
+      if (siblingComment) {
+        normalized.push(siblingComment);
+      }
     }
     return normalized;
   }
 
   private separateTrailingComment(statement: SassStatement): SassStatement | undefined {
-    if (statement.trailingComment === undefined) return undefined;
+    if (statement.trailingComment === undefined) {
+      return undefined;
+    }
     const start = statement.trailingComment;
     const end = statement.headerEnd;
     const comment: SassStatement = { type: 'comment', inline: true, start, end, headerEnd: end };
@@ -119,8 +131,12 @@ export class SassStatementParser {
   }
 
   private validateChildren(statement: SassStatement): void {
-    if (statement.type !== 'decl') return;
+    if (statement.type !== 'decl') {
+      return;
+    }
     const selector = statement.nodes?.find(child => child.type === 'rule');
-    if (selector) throw this.input.error('Expected a nested property.', selector.start);
+    if (selector) {
+      throw this.input.error('Expected a nested property.', selector.start);
+    }
   }
 }

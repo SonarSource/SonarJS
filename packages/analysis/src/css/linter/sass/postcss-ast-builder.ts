@@ -24,6 +24,7 @@ import postcss, {
 } from 'postcss';
 import type { SassStatement } from './sass-statement.js';
 import scss from 'postcss-scss';
+import assert from 'node:assert';
 
 type Bounds = { start: number; end: number };
 
@@ -51,16 +52,14 @@ export class PostcssAstBuilder {
   ): void {
     const input = this.input;
     let cursor = start;
-    const append = (node: ChildNode): void => {
-      node.remove();
-      node.raws.before = input.css.slice(cursor, node.source!.start!.offset);
-      parent.append(node);
-      cursor = node.source!.end!.offset!;
-    };
     for (const statement of nodes) {
       const converted = this.buildStatement(statement);
       for (const node of converted) {
-        append(node);
+        const bounds = this.bounds(node);
+        node.remove();
+        node.raws.before = input.css.slice(cursor, bounds.start);
+        parent.append(node);
+        cursor = bounds.end;
       }
     }
     parent.raws.after = input.css.slice(cursor, end);
@@ -74,58 +73,13 @@ export class PostcssAstBuilder {
     const nested = node.nodes;
     const headerEnd = node.headerEnd;
     const header = input.css.slice(node.start, headerEnd).trimEnd();
-    let converted: ChildNode;
-    if (node.type === 'rule') {
-      converted = this.tokenizeHeader(`${header}{}`, node, 0).first!;
-      const raw = converted.raws.selector as { raw: string; scss?: string } | undefined;
-      if (raw?.scss !== undefined) raw.raw = raw.scss;
-    } else {
-      // SCSS shares Sass declaration/at-rule token syntax. Let its tokenizer retain raw values,
-      // comments and !important rather than duplicating those lexical rules here.
-      const shorthand = node.type === 'atrule' && (header[0] === '+' || header[0] === '=');
-      const normalized = shorthand
-        ? `@${header[0] === '+' ? 'include' : 'mixin'} ${header.slice(1)}`
-        : header;
-      // Without a value, SCSS interprets `font: {}` as a selector rather than a nested property.
-      const emptyNestedValue = node.type === 'decl' && nested && normalized.endsWith(':');
-      const parsed = this.tokenizeHeader(
-        normalized + (emptyNestedValue ? ' __sonar_sass_empty__' : '') + (nested ? '{}' : ''),
-        node,
-        normalized.length - header.length,
-      );
-      converted = parsed.first!;
-      // SCSS stores source-preserving inline comments separately from its CSS spelling.
-      for (const field of ['value', 'params']) {
-        const raw = converted.raws[field] as { raw: string; scss?: string } | undefined;
-        if (raw?.scss !== undefined) raw.raw = raw.scss;
-      }
-      if (emptyNestedValue) {
-        const declaration = converted as postcss.Declaration;
-        declaration.value = '';
-        declaration.raws.between = declaration.raws.between!.trimEnd();
-      }
-      if (shorthand) {
-        converted.raws.sassShorthand = header[0];
-      }
-      // Sass includes a trailing // comment in the declaration's span, rather than making it
-      // a separate statement. SCSS gives it its own node; retain it and its original location.
-      if (!nested && parsed.nodes.length > 1) {
-        const offsetAdjustment = node.start - (shorthand ? normalized.length - header.length : 0);
-        return parsed.nodes.map(child => {
-          child.raws.sassSemicolon = input.css
-            .slice(
-              offsetAdjustment + child.source!.start!.offset!,
-              offsetAdjustment + child.source!.end!.offset!,
-            )
-            .endsWith(';');
-          child.source = this.source({
-            start: Math.max(node.start, offsetAdjustment + child.source!.start!.offset!),
-            end: offsetAdjustment + child.source!.end!.offset!,
-          });
-          return child;
-        });
-      }
+    const { parsed, insertedPrefix } = this.buildHeader(node, header);
+    // A trailing // comment in a declaration's span becomes a separate SCSS node.
+    if (node.type !== 'rule' && !nested && parsed.nodes.length > 1) {
+      return parsed.nodes.map(child => this.locateHeaderChild(child, node, insertedPrefix));
     }
+    const converted = parsed.first;
+    assert.ok(converted, 'A Sass statement header must produce a PostCSS node.');
     converted.source = this.source(node);
     converted.raws.sassSemicolon = !nested && header.endsWith(';');
     if (nested) {
@@ -134,6 +88,71 @@ export class PostcssAstBuilder {
       this.buildChildren(container, nested, node.start + header.length, node.end);
     }
     return [converted];
+  }
+
+  private buildHeader(
+    statement: SassStatement,
+    header: string,
+  ): { parsed: Root; insertedPrefix: number } {
+    // SCSS shares Sass declaration/at-rule tokens, including comments and !important.
+    const normalized = this.normalizeHeader(statement, header);
+    const insertedPrefix = normalized.length - header.length;
+    // Without a value, SCSS interprets `font: {}` as a selector rather than a nested property.
+    const emptyNestedValue =
+      statement.type === 'decl' && statement.nodes !== undefined && normalized.endsWith(':');
+    const suffix = statement.type === 'rule' || statement.nodes ? '{}' : '';
+    const parsed = this.tokenizeHeader(
+      normalized + (emptyNestedValue ? ' __sonar_sass_empty__' : '') + suffix,
+      statement,
+      insertedPrefix,
+    );
+    const converted = parsed.first;
+    assert.ok(converted, 'A Sass statement header must produce a PostCSS node.');
+    // SCSS stores source-preserving spelling separately from its CSS spelling.
+    for (const field of ['selector', 'value', 'params']) {
+      const raw = converted.raws[field] as { raw: string; scss?: string } | undefined;
+      if (raw?.scss !== undefined) {
+        raw.raw = raw.scss;
+      }
+    }
+    if (emptyNestedValue) {
+      assert.ok(converted.type === 'decl', 'A nested property must produce a declaration.');
+      converted.value = '';
+      converted.raws.between = converted.raws.between?.trimEnd();
+    }
+    if (insertedPrefix !== 0) {
+      converted.raws.sassShorthand = header[0];
+    }
+    return { parsed, insertedPrefix };
+  }
+
+  private normalizeHeader(statement: SassStatement, header: string): string {
+    if (statement.type === 'atrule') {
+      if (header.startsWith('+')) {
+        return `@include ${header.slice(1)}`;
+      }
+      if (header.startsWith('=')) {
+        return `@mixin ${header.slice(1)}`;
+      }
+    }
+    return header;
+  }
+
+  private locateHeaderChild(
+    child: ChildNode,
+    statement: SassStatement,
+    insertedPrefix: number,
+  ): ChildNode {
+    const bounds = this.bounds(child);
+    const adjustment = statement.start - insertedPrefix;
+    child.raws.sassSemicolon = this.input.css
+      .slice(adjustment + bounds.start, adjustment + bounds.end)
+      .endsWith(';');
+    child.source = this.source({
+      start: Math.max(statement.start, adjustment + bounds.start),
+      end: adjustment + bounds.end,
+    });
+    return child;
   }
 
   private tokenizeHeader(text: string, statement: SassStatement, insertedPrefix: number): Root {
@@ -170,9 +189,12 @@ export class PostcssAstBuilder {
       const end = offset + line.trimEnd().length;
       if (match) {
         ranges.push({ start: offset + match[1].length, end });
-      } else if (ranges.length > 0) {
+      } else {
         // Indented Sass comments may continue on a line without another // marker.
-        ranges.at(-1)!.end = end;
+        const previous = ranges.at(-1);
+        if (previous) {
+          previous.end = end;
+        }
       }
       offset += line.length;
     }
@@ -206,9 +228,18 @@ export class PostcssAstBuilder {
     };
   }
 
+  private bounds(node: ChildNode): Bounds {
+    const start = node.source?.start?.offset;
+    const end = node.source?.end?.offset;
+    assert.ok(start !== undefined && end !== undefined, 'A parsed PostCSS node must have offsets.');
+    return { start, end };
+  }
+
   private position(offset: number): Position {
     const input = this.input;
-    const { line, col } = input.fromOffset(offset)!;
+    const position = input.fromOffset(offset);
+    assert.ok(position, 'A source offset must resolve to a position.');
+    const { line, col } = position;
     return { line, column: col, offset };
   }
 }
