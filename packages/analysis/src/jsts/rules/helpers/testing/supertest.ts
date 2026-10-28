@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { Rule, SourceCode } from 'eslint';
+import type { Rule, Scope, SourceCode } from 'eslint';
 import {
   getUniqueWriteReference,
   getVariableFromName,
@@ -94,7 +94,7 @@ function isLocalFactoryAssertion(context: Rule.RuleContext, node: estree.Node): 
     return false;
   }
   const factory = resolveLocalFactory(context, identifier);
-  if (!factory || factory.params.length !== 0 || factory.async || factory.generator) {
+  if (factory?.params.length !== 0 || factory?.async || factory?.generator) {
     return false;
   }
   const expression = getReturnedExpression(factory);
@@ -139,64 +139,63 @@ function computeStableAgentProperty(context: Rule.RuleContext): boolean {
   if (!scopes) {
     return false;
   }
-  for (const scope of scopes) {
-    for (const variable of scope.variables) {
-      if (
-        variable.defs.some(definition => {
-          if (definition.type === 'ImportBinding') {
-            return (
-              definition.parent.source.value === 'supertest' &&
-              (definition.node.type !== 'ImportSpecifier' ||
-                (definition.node.imported.type === 'Identifier' &&
-                  definition.node.imported.name === 'default'))
-            );
-          }
-          if (definition.type === 'Variable') {
-            const init = (definition.node as estree.VariableDeclarator).init;
-            return (
-              init != null &&
-              isRequire(init) &&
-              init.arguments[0].type === 'Literal' &&
-              init.arguments[0].value === 'supertest'
-            );
-          }
-          return false;
-        }) &&
-        !variable.references.every(
-          reference =>
-            reference.init ||
-            isTypeOnlyReference(reference) ||
-            isStableLoaderUse(reference.identifier),
-        )
-      ) {
-        return false;
-      }
+  return scopes.every(
+    scope => hasStableSupertestBindings(scope) && hasStableSupertestLoaders(scope),
+  );
+}
+
+function hasStableSupertestBindings(scope: Scope.Scope): boolean {
+  return scope.variables.every(variable => {
+    if (!variable.defs.some(isSupertestModuleBinding)) {
+      return true;
     }
-    // Inline require calls have no local binding whose uses can be checked.
-    for (const reference of [...scope.references, ...scope.through]) {
-      if (reference.identifier.name !== 'require') {
-        continue;
-      }
-      const call = (reference.identifier as estree.Identifier & { parent?: estree.Node }).parent;
-      if (
-        call?.type !== 'CallExpression' ||
-        !isRequire(call) ||
-        call.arguments[0].type !== 'Literal' ||
-        call.arguments[0].value !== 'supertest'
-      ) {
-        continue;
-      }
-      const parent = (call as estree.CallExpression & { parent?: estree.Node }).parent;
-      if (
-        parent?.type !== 'VariableDeclarator' ||
-        parent.init !== call ||
-        parent.id.type !== 'Identifier'
-      ) {
-        return false;
-      }
-    }
+    return variable.references.every(
+      reference =>
+        reference.init || isTypeOnlyReference(reference) || isStableLoaderUse(reference.identifier),
+    );
+  });
+}
+
+function isSupertestModuleBinding(definition: Scope.Definition): boolean {
+  if (definition.type === 'ImportBinding') {
+    return (
+      definition.parent.source.value === 'supertest' &&
+      (definition.node.type !== 'ImportSpecifier' ||
+        (definition.node.imported.type === 'Identifier' &&
+          definition.node.imported.name === 'default'))
+    );
   }
-  return true;
+  if (definition.type !== 'Variable') {
+    return false;
+  }
+  return isSupertestRequire((definition.node as estree.VariableDeclarator).init);
+}
+
+function hasStableSupertestLoaders(scope: Scope.Scope): boolean {
+  return [...scope.references, ...scope.through].every(isStableRequireUse);
+}
+
+function isStableRequireUse(reference: Scope.Reference): boolean {
+  if (reference.identifier.name !== 'require') {
+    return true;
+  }
+  const call = getParent(reference.identifier);
+  if (!isSupertestRequire(call)) {
+    return true;
+  }
+  const parent = getParent(call);
+  return (
+    parent?.type === 'VariableDeclarator' && parent.init === call && parent.id.type === 'Identifier'
+  );
+}
+
+function isSupertestRequire(node: estree.Node | null | undefined): node is estree.CallExpression {
+  return (
+    node != null &&
+    isRequire(node) &&
+    node.arguments[0].type === 'Literal' &&
+    node.arguments[0].value === 'supertest'
+  );
 }
 
 function isStableLoaderUse(node: estree.Identifier): boolean {
