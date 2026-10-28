@@ -417,7 +417,6 @@ describe('S6819', () => {
     });
   });
 
-  // JS-1465: inline SVG with role="img" and proper accessible name
   it('should not flag decorative SVG hidden from everyone', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 
@@ -440,6 +439,7 @@ describe('S6819', () => {
     });
   });
 
+  // JS-1465: inline SVG with role="img" and proper accessible name
   it('should not flag SVG with role="img" when it has an accessible name', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 
