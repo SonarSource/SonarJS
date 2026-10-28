@@ -1,45 +1,32 @@
 {
 "Ghost:core/client/app/components/gh-user-invited.js": [
-55,
-58
+55
 ],
 "Ghost:core/client/app/components/modals/invite-new-user.js": [
 58,
-106,
-116
+106
 ],
 "Ghost:core/client/app/components/modals/re-authenticate.js": [
-49,
-52
+49
 ],
 "Ghost:core/client/app/controllers/post-settings-menu.js": [
-74,
-78
+74
 ],
 "Ghost:core/client/app/controllers/reset.js": [
-52,
-56
-],
-"Ghost:core/client/app/controllers/settings/navigation.js": [
-119
+52
 ],
 "Ghost:core/client/app/controllers/setup/three.js": [
 187
 ],
 "Ghost:core/client/app/controllers/setup/two.js": [
-121,
-134,
-139
+121
 ],
 "Ghost:core/client/app/controllers/signin.js": [
-91,
-94
+91
 ],
 "Ghost:core/client/app/controllers/signup.js": [
 70,
-71,
-75,
-78
+71
 ],
 "Ghost:core/client/app/mixins/editor-base-controller.js": [
 323
@@ -53,16 +40,12 @@
 88,
 93,
 106,
-108,
 138,
 146,
-148,
 181,
 189,
 192,
-194,
-215,
-273
+215
 ],
 "Ghost:core/server/api/roles.js": [
 68
@@ -80,28 +63,15 @@
 340,
 341
 ],
-"Ghost:core/server/apps/index.js": [
-87
-],
-"Ghost:core/server/apps/loader.js": [
-68
-],
 "Ghost:core/server/apps/permissions.js": [
 22
 ],
 "Ghost:core/server/controllers/frontend/index.js": [
 128
 ],
-"Ghost:core/server/data/export/index.js": [
-56
-],
 "Ghost:core/server/data/import/data-importer.js": [
 89,
 155
-],
-"Ghost:core/server/data/import/utils.js": [
-201,
-314
 ],
 "Ghost:core/server/data/migration/fixtures/index.js": [
 194,
@@ -120,27 +90,20 @@
 212
 ],
 "Ghost:core/server/index.js": [
-40,
-204
+40
 ],
 "Ghost:core/server/middleware/auth-strategies.js": [
 43
-],
-"Ghost:core/server/middleware/oauth.js": [
-31,
-65
 ],
 "Ghost:core/server/models/index.js": [
 57
 ],
 "Ghost:core/server/models/user.js": [
 321,
-539,
-557
+539
 ],
 "Ghost:core/server/update-check.js": [
-199,
-200
+199
 ],
 "Ghost:core/test/functional/client/app_test.js": [
 218
@@ -153,31 +116,19 @@
 ],
 "Ghost:core/test/integration/api/api_notifications_spec.js": [
 89,
-95,
-105,
-111,
-132,
-153
+105
 ],
 "Ghost:core/test/integration/api/api_users_spec.js": [
 110,
-119,
 485,
 647,
 876,
-882,
 896,
-902,
 916,
-922,
 938,
-944,
 958,
-964,
 978,
-984,
-996,
-998
+996
 ],
 "Ghost:core/test/integration/import_spec.js": [
 255,
@@ -190,8 +141,7 @@
 24
 ],
 "Ghost:core/test/integration/model/model_tags_spec.js": [
-54,
-59
+54
 ],
 "Ghost:core/test/integration/model/model_users_spec.js": [
 83,
@@ -203,7 +153,6 @@
 171
 ],
 "Ghost:core/test/unit/permissions_spec.js": [
-236,
-238
+236
 ]
 }

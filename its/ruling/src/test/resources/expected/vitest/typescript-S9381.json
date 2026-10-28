@@ -1,6 +1,5 @@
 {
 "vitest:packages/vitest/src/node/pools/browser.ts": [
-375,
-379
+375
 ]
 }
