@@ -163,35 +163,26 @@ export class PostcssAstBuilder {
       return [comment];
     }
     // Separate consecutive // comments so NOSONAR and sonar-resolve retain their own line numbers.
-    const result: ChildNode[] = [];
+    const ranges: Bounds[] = [];
     let offset = range.start;
     for (const line of text.split(/(?<=\n)/)) {
       const match = /^([\t ]*)\/\/(.*?)[\r\n]*$/.exec(line);
+      const end = offset + line.trimEnd().length;
       if (match) {
-        const comment = this.createComment(match[2]);
-        comment.raws.inline = true;
-        const start = offset + match[1].length;
-        comment.source = this.source({ start, end: offset + line.trimEnd().length });
-        result.push(comment);
-      } else if (result.length > 0) {
+        ranges.push({ start: offset + match[1].length, end });
+      } else if (ranges.length > 0) {
         // Indented Sass comments may continue on a line without another // marker.
-        const previous = result.at(-1)! as postcss.Comment;
-        const end = offset + line.trimEnd().length;
-        // Rebuild from the source span so interior newlines and whitespace stay verbatim.
-        const merged = this.createComment(
-          input.css.slice(previous.source!.start!.offset! + 2, end),
-        );
-        previous.text = merged.text;
-        previous.raws.left = merged.raws.left;
-        previous.raws.right = merged.raws.right;
-        previous.source = this.source({
-          start: previous.source!.start!.offset!,
-          end,
-        });
+        ranges.at(-1)!.end = end;
       }
       offset += line.length;
     }
-    return result;
+    // Read each full comment once, retaining interior whitespace without repeated rescanning.
+    return ranges.map(bounds => {
+      const comment = this.createComment(input.css.slice(bounds.start + 2, bounds.end));
+      comment.raws.inline = true;
+      comment.source = this.source(bounds);
+      return comment;
+    });
   }
 
   private createComment(body: string): postcss.Comment {
