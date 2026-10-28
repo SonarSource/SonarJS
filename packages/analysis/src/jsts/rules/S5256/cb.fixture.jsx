@@ -166,7 +166,20 @@ React.createClass({
 </table>
 
 <table aria-hidden="true">
-  <table></table> {/* Noncompliant {{Add a valid header row or column to this "<table>".}} */}
+  <table></table> {/* Compliant: inherits aria-hidden from the outer table */}
+</table>
+
+<div aria-hidden="true">
+  <table></table> {/* Compliant: hidden by an ancestor */}
+</div>
+
+<table hidden></table>
+
+<table style={{ display: 'none' }}></table>
+
+<table aria-hidden={isHidden}></table> {/* Compliant: unresolvable aria-hidden is treated as hidden */}
+
+<table style={tableStyle}> {/* Noncompliant {{Add a valid header row or column to this "<table>".}} */}
 </table>
 
 <table> {/* Noncompliant {{Add a valid header row or column to this "<table>".}} */}

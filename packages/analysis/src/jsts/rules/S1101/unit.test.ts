@@ -64,7 +64,7 @@ describe('S1101', () => {
         errors: 1,
       },
       {
-        // An unresolvable dynamic `hidden` value is conservatively treated as NOT hidden.
+        // An unresolvable dynamic `hidden` value is NOT treated as hidden.
         code: `
           <div>
             <a href="/a" hidden={dynamicHidden}>Same</a>
@@ -74,7 +74,17 @@ describe('S1101', () => {
         errors: 1,
       },
       {
-        // An unresolvable dynamic style value is conservatively treated as NOT hidden.
+        // A call the resolver can't evaluate is unresolvable, even when it is falsy at runtime.
+        code: `
+          <div>
+            <a href="/a" hidden={Boolean(0)}>Same</a>
+            <a href="/b">Same</a>
+          </div>;
+        `,
+        errors: 1,
+      },
+      {
+        // An unresolvable dynamic style value is NOT treated as hidden: dynamic styles rarely hide.
         code: `
           <div>
             <a href="/a" style={dynamicStyle}>Same</a>
@@ -316,9 +326,19 @@ describe('S1101', () => {
     ],
     invalid: [
       {
-        // An unresolvable ancestor hidden-state is conservatively treated as NOT hidden.
+        // An unresolvable ancestor aria-hidden is NOT treated as hiding the anchor.
         code: `
           <div aria-hidden={dynamicHidden}>
+            <a href="/a">Same</a>
+            <a href="/b">Same</a>
+          </div>;
+        `,
+        errors: 1,
+      },
+      {
+        // An ancestor's unresolvable style is NOT treated as hiding the anchor.
+        code: `
+          <div style={wrapperStyle}>
             <a href="/a">Same</a>
             <a href="/b">Same</a>
           </div>;

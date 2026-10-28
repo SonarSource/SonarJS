@@ -20,10 +20,10 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { getElementType } from '../helpers/accessibility.js';
+import { getElementType, getOwnHiddenState } from '../helpers/accessibility.js';
 import * as meta from './generated-meta.js';
 import pkg from 'jsx-ast-utils-x';
-const { getLiteralPropValue, getProp, getPropValue } = pkg;
+const { getLiteralPropValue, getProp } = pkg;
 import type { JSXAttribute, JSXOpeningElement, JSXSpreadAttribute } from 'estree-jsx';
 
 export const rule: Rule.RuleModule = {
@@ -46,6 +46,7 @@ export const rule: Rule.RuleModule = {
             return !isHiddenFromScreenReader(
               elementType(child.openingElement),
               (child.openingElement as JSXOpeningElement).attributes,
+              context,
             );
           case 'JSXExpressionContainer':
             if (child.expression.type === 'Identifier') {
@@ -81,6 +82,7 @@ export const rule: Rule.RuleModule = {
 const isHiddenFromScreenReader = (
   type: string,
   attributes: (JSXAttribute | JSXSpreadAttribute)[],
+  context: Rule.RuleContext,
 ) => {
   if (type.toUpperCase() === 'INPUT') {
     const prop = getProp(attributes, 'type');
@@ -93,6 +95,7 @@ const isHiddenFromScreenReader = (
     }
   }
 
-  const prop = getProp(attributes, 'aria-hidden');
-  return prop && getPropValue(prop) === true;
+  // Ancestors are deliberately ignored: a hidden <object> or wrapper says nothing about whether
+  // the fallback content itself is visible. An unresolvable value is treated as visible content.
+  return getOwnHiddenState(attributes, context) === 'hidden';
 };

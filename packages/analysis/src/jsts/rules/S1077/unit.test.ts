@@ -93,6 +93,11 @@ describe('S1077 SVG accessible name', () => {
       invalid: [
         // aria-hidden="false" with no hidden ancestor means "not hidden", not "skip the check"
         { code: `<svg aria-hidden="false"><path d="M5 12h14"/></svg>`, errors: 1 },
+        // a locally resolvable value is evaluated rather than treated as dynamic
+        {
+          code: `const decorative = false; <svg aria-hidden={decorative}><path d="M5 12h14"/></svg>`,
+          errors: 1,
+        },
       ],
     });
   });
@@ -150,17 +155,24 @@ describe('S1077 SVG accessible name', () => {
     });
   });
 
-  it('known limitation: does not treat inline display/visibility CSS as hiding the element', () => {
+  it('should respect inline display: none, including inheritance from ancestors', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 
-    // CSS display:none/visibility:hidden also excludes elements from the a11y tree, but
-    // covering inline styling's many forms isn't worth it for this rarer pattern.
     ruleTester.run('alt-text - svg hidden via inline style', rule, {
-      valid: [],
+      valid: [
+        { code: `<svg style={{ display: 'none' }}><path d="M12 4v16"/></svg>` },
+        { code: `<div style={{ display: 'none' }}><svg><path d="M12 4v16"/></svg></div>` },
+      ],
       invalid: [
-        { code: `<svg style={{ display: 'none' }}><path d="M12 4v16"/></svg>`, errors: 1 },
-        { code: `<svg style={{ visibility: 'hidden' }}><path d="M12 4v16"/></svg>`, errors: 1 },
+        // An unresolvable style object is not treated as hiding: dynamic styles rarely hide.
+        { code: `<svg style={iconStyle}><path d="M12 4v16"/></svg>`, errors: 1 },
+        // String styles are invalid in React and are not treated as hiding.
         { code: `<svg style="display: none"><path d="M12 4v16"/></svg>`, errors: 1 },
+        // A custom property is not the `display` property.
+        { code: `<svg style={{ '--display': 'none' }}><path d="M12 4v16"/></svg>`, errors: 1 },
+        // Known limitation: visibility:hidden also excludes elements from the a11y tree, but
+        // it isn't covered by the shared "hidden from everyone" check.
+        { code: `<svg style={{ visibility: 'hidden' }}><path d="M12 4v16"/></svg>`, errors: 1 },
       ],
     });
   });

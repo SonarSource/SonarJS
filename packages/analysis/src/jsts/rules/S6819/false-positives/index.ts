@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
+import type { Rule } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { JSXOpeningElement } from 'estree-jsx';
 import { getRole } from '../../helpers/accessibility.js';
@@ -33,9 +34,12 @@ import {
  * Checks if the element uses a valid ARIA pattern where suggesting a semantic
  * element would be inappropriate.
  */
-export function isFalsePositive(node: TSESTree.JSXOpeningElement): boolean {
+export function isFalsePositive(
+  node: TSESTree.JSXOpeningElement,
+  context: Rule.RuleContext,
+): boolean {
   const role = getRole(node);
-  if (role === null) {
+  if (role === undefined) {
     return false;
   }
 
@@ -43,7 +47,7 @@ export function isFalsePositive(node: TSESTree.JSXOpeningElement): boolean {
   const elementName = node.name.type === 'JSXIdentifier' ? node.name.name.toLowerCase() : null;
 
   return (
-    isDecorativeSvg(elementName, role, attributes) ||
+    isDecorativeSvg(elementName, role, node, context) ||
     isSemanticSvgImg(elementName, role, node) ||
     isLiveRegionStatus(role, attributes) ||
     isCustomSlider(role, attributes) ||

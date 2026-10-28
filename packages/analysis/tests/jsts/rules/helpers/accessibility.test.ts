@@ -46,9 +46,9 @@ describe('getRole', () => {
     expect(getRole(parseOpeningElement('<div role={"OPTION"} />'))).toBe('option');
   });
 
-  it('returns null for absent and non-literal roles', () => {
-    expect(getRole(parseOpeningElement('<div />'))).toBeNull();
-    expect(getRole(parseOpeningElement('<div role={role} />'))).toBeNull();
+  it('returns undefined for absent and non-literal roles', () => {
+    expect(getRole(parseOpeningElement('<div />'))).toBeUndefined();
+    expect(getRole(parseOpeningElement('<div role={role} />'))).toBeUndefined();
   });
 });
 

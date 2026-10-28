@@ -18,9 +18,17 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import { roles } from 'aria-query';
 import type { JSXAttribute, JSXOpeningElement } from 'estree-jsx';
 import type { Rule } from 'eslint';
+import type estree from 'estree';
 import pkg from 'jsx-ast-utils-x';
+import { ancestorsChain } from './ancestor.js';
+import { getProperty, getValueOfExpression } from './ast.js';
 import { isJsxElementNamed } from './jsx.js';
 const { getProp, getLiteralPropValue, getPropValue, elementType } = pkg;
+
+/** Attributes that can hide an element from everyone; see {@link getOwnHiddenState}. */
+export const HIDING_ATTRIBUTES = ['aria-hidden', 'hidden', 'style'] as const;
+
+export type HiddenState = 'hidden' | 'visible' | 'unknown';
 
 const CONCRETE_ROLES = new Set<string>(
   roles
@@ -53,14 +61,14 @@ export function isPresentationTable(context: Rule.RuleContext, node: TSESTree.JS
   return DISALLOWED_VALUES.includes(roleValue?.toLowerCase());
 }
 
-export function getRole(node: TSESTree.JSXOpeningElement): string | null {
+export function getRole(node: TSESTree.JSXOpeningElement): string | undefined {
   const roleProp = getProp((node as JSXOpeningElement).attributes, 'role');
   if (!roleProp) {
-    return null;
+    return undefined;
   }
   const roleValue = getLiteralPropValue(roleProp);
   if (typeof roleValue !== 'string') {
-    return null;
+    return undefined;
   }
   return roleValue.toLowerCase();
 }
@@ -191,3 +199,110 @@ export const getElementType = (
       : rawType;
   };
 };
+
+/**
+ * Whether the element or an ancestor is hidden via `aria-hidden`, `hidden`, or `display: none`.
+ * `'unknown'` when none is known to hide it but some value can't be resolved; callers decide how
+ * to treat it.
+ */
+export function getHiddenState(
+  node: TSESTree.JSXOpeningElement,
+  context: Rule.RuleContext,
+): HiddenState {
+  let state: HiddenState = 'visible';
+  for (const ancestor of ancestorsChain(node as TSESTree.Node, new Set())) {
+    if (ancestor.type !== 'JSXElement') {
+      continue;
+    }
+    const attributes = (ancestor.openingElement as JSXOpeningElement).attributes;
+    const ownState = getOwnHiddenState(attributes, context);
+    if (ownState === 'hidden') {
+      return 'hidden';
+    }
+    if (ownState === 'unknown') {
+      state = 'unknown';
+    }
+  }
+  return state;
+}
+
+/**
+ * Like {@link getHiddenState}, but for the element's own attributes only. An unresolvable
+ * `aria-hidden` or `hidden` gives `'unknown'`; an unresolvable `style` never hides.
+ */
+export function getOwnHiddenState(
+  attributes: JSXOpeningElement['attributes'],
+  context: Rule.RuleContext,
+): HiddenState {
+  const states = new Set<HiddenState>([
+    resolveHiddenAttribute(attributes, 'aria-hidden', context, isAriaHiddenValue),
+    // React renders boolean attributes for any truthy value, e.g. `hidden="false"` still hides.
+    resolveHiddenAttribute(attributes, 'hidden', context, Boolean),
+    toHiddenState(isDisplayNone(attributes, context)),
+  ]);
+  if (states.has('hidden')) {
+    return 'hidden';
+  }
+  return states.has('unknown') ? 'unknown' : 'visible';
+}
+
+function isAriaHiddenValue(value: unknown): boolean {
+  return String(value).trim().toLowerCase() === 'true';
+}
+
+/** `'visible'` when the attribute is absent, `'unknown'` when its value can't be resolved. */
+function resolveHiddenAttribute(
+  attributes: JSXOpeningElement['attributes'],
+  name: string,
+  context: Rule.RuleContext,
+  isHidden: (value: unknown) => boolean,
+): HiddenState {
+  const attribute = getProp(attributes, name) as JSXAttribute | undefined;
+  if (!attribute) {
+    return 'visible';
+  }
+  const { value } = attribute;
+  if (value === null) {
+    return toHiddenState(isHidden(true));
+  }
+  if (value.type === 'Literal') {
+    return toHiddenState(isHidden(value.value));
+  }
+  if (value.type === 'JSXExpressionContainer') {
+    const literal = getValueOfExpression(
+      context,
+      value.expression as unknown as estree.Node,
+      'Literal',
+    );
+    if (literal) {
+      return toHiddenState(isHidden(literal.value));
+    }
+  }
+  return 'unknown';
+}
+
+function toHiddenState(hidden: boolean): HiddenState {
+  return hidden ? 'hidden' : 'visible';
+}
+
+function isDisplayNone(
+  attributes: JSXOpeningElement['attributes'],
+  context: Rule.RuleContext,
+): boolean {
+  const value = (getProp(attributes, 'style') as JSXAttribute | undefined)?.value;
+  // String styles are invalid in React, so only object styles are resolved.
+  if (value?.type !== 'JSXExpressionContainer') {
+    return false;
+  }
+  const resolvedStyle = getValueOfExpression(
+    context,
+    value.expression as unknown as estree.Node,
+    'ObjectExpression',
+  );
+  const displayProperty = resolvedStyle && getProperty(resolvedStyle, 'display', context);
+  const displayValue =
+    displayProperty && getValueOfExpression(context, displayProperty.value, 'Literal');
+  return (
+    typeof displayValue?.value === 'string' && displayValue.value.trim().toLowerCase() === 'none'
+  );
+}

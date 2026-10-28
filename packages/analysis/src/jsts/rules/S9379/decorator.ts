@@ -115,5 +115,5 @@ function isModalOpeningElement(
     return true;
   }
   const role = getRole(opening);
-  return role !== null && MODAL_ROLES.has(role);
+  return role !== undefined && MODAL_ROLES.has(role);
 }
