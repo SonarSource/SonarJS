@@ -60,6 +60,7 @@ function makeParsedSourceFileCacheKey(
  */
 let currentFilesByPath = new FileSystemMap<string, { fileContent?: string }>();
 let currentFilesContext: Record<string, { fileContent?: string }> | null = null;
+let sourceFilesContextVersion = 0;
 
 /**
  * Set the current files context for lazy loading
@@ -67,6 +68,12 @@ let currentFilesContext: Record<string, { fileContent?: string }> | null = null;
 export function setSourceFilesContext(files: Record<string, { fileContent?: string }>): void {
   currentFilesContext = files;
   currentFilesByPath = new FileSystemMap(Object.entries(files));
+  sourceFilesContextVersion++;
+}
+
+/** A new request can reuse the same files object with edited contents. */
+export function getSourceFilesContextVersion(): number {
+  return sourceFilesContextVersion;
 }
 
 /**
@@ -167,5 +174,6 @@ export function clearSourceFileContentCache(): void {
   parsedSourceFileCache.clear();
   currentFilesContext = null;
   currentFilesByPath.clear();
+  sourceFilesContextVersion++;
   debug('Cleared source file content cache and parsed SourceFile cache');
 }

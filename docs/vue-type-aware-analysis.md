@@ -28,6 +28,9 @@ Raw edits invalidate projections. IDE builders can retain the Program when gener
 and mode stay identical after a template/style edit. All supplied edits to Program members are
 applied before reusing a builder, including changes to imported dependencies. Script changes
 invalidate the SourceFile and rebuild the builder; analysis itself never patches Program text.
+Each cached host synchronizes dependency edits once per request, using the context revision
+rather than the files object's identity, so analyzing multiple files does not repeatedly scan
+the entire request.
 
 Vue remaps ESTree positions to the raw file, while mapped TypeScript nodes retain generated
 positions. S1874 maps compiler suggestion diagnostics back through the node maps before reporting.
@@ -40,6 +43,10 @@ the extra syntax-only pass without duplicating Vue's transformations in SonarJS.
 
 This is script analysis. Vue component export generation, full macro semantics and template type
 checking are not provided by this adapter. Explicit `disableTypeChecking` remains supported.
+Generic attributes are approximated as aliases of their constraints by Vue's parser. For example,
+`generic="T extends unknown"` produces `type T = unknown`, which can make S4157 incorrectly
+report a necessary `Option<T>` argument as the default `Option<unknown>`. These findings must
+be resolved before accepting the corresponding ruling changes.
 
 ## Vuetify performance and ruling changes
 
