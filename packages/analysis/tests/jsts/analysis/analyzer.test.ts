@@ -36,6 +36,7 @@ import { getPackageJsonManifests } from '../../../src/jsts/rules/helpers/depende
 import { createProgramOptions } from '../../../src/jsts/program/tsconfig/options.js';
 import { createStandardProgram } from '../../../src/jsts/program/factory.js';
 import { clearDependenciesCache } from '../../../src/jsts/rules/helpers/dependency-manifests/index.js';
+import { IncrementalCompilerHost } from '../../../src/jsts/program/compilerHost.js';
 import { DEFAULT_ECMA_VERSION } from '../../../src/jsts/parsers/options.js';
 
 const currentPath = normalizePath(import.meta.dirname);
@@ -224,13 +225,13 @@ describe('await analyzeJSTS', () => {
     ]);
   });
 
-  it('should not analyze Vue.js with type checking', async () => {
+  it('should analyze Vue.js scripts with supplied type information', async () => {
     const rules: RuleConfig[] = [
       {
         key: 'S3003',
         configurations: [],
         fileTypeTargets: ['MAIN'],
-        language: 'js',
+        language: 'ts',
         analysisModes: ['DEFAULT'],
       },
     ];
@@ -239,13 +240,23 @@ describe('await analyzeJSTS', () => {
 
     const tsConfigs = [normalizeToAbsolutePath(path.join(fixtures, 'vue_ts', 'tsconfig.json'))];
     const language = 'ts';
+    const config = createProgramOptions(tsConfigs[0], undefined, true);
+    const program = createStandardProgram({
+      ...config,
+      host: new IncrementalCompilerHost(
+        config.options,
+        normalizeToAbsolutePath(path.dirname(filePath)),
+      ),
+    });
 
-    const { issues } = await analyzeJSTS(await jsTsInput({ filePath, tsConfigs, language }));
-    expect(issues).toHaveLength(0);
-    const { issues: issues_sl } = await analyzeJSTS(
-      await jsTsInput({ filePath, tsConfigs, sonarlint: true, language }),
+    const { issues } = await analyzeJSTS(
+      await jsTsInput({ filePath, tsConfigs, language, program }),
     );
-    expect(issues_sl).toHaveLength(0);
+    expect(issues).toHaveLength(1);
+    const { issues: issues_sl } = await analyzeJSTS(
+      await jsTsInput({ filePath, tsConfigs, sonarlint: true, language, program }),
+    );
+    expect(issues_sl).toHaveLength(1);
   });
 
   it('should analyze main files', async () => {

@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { Linter } from 'eslint';
+import ts from 'typescript';
 import { parsersMap } from './eslint.js';
 import type { JsTsLanguage } from '../../common/configuration.js';
 
@@ -24,6 +25,11 @@ export const DEFAULT_ECMA_VERSION = 2018;
 export interface ParserContext {
   detectedEsYear?: number;
   jsx?: boolean;
+}
+
+/** Match JSX mode in both the compiler host and the ESLint parser. */
+export function jsxEnabledFor(options?: ts.CompilerOptions): boolean {
+  return options?.jsx !== ts.JsxEmit.None;
 }
 
 type BabelParserPlugin = string | [string, Record<string, boolean>];
@@ -54,7 +60,7 @@ function commonParserOptions(context: ParserContext = {}): Linter.ParserOptions 
 /** Overlay for @typescript-eslint/parser. */
 function typescriptParserOverlay(): Linter.ParserOptions {
   return {
-    // Keep watch programs alive so file content replacement works for .vue files.
+    // Preserve explicit lifecycle selection for legacy project-based parser callers.
     disallowAutomaticSingleRunInference: true,
     extraFileExtensions: ['.vue'],
   };

@@ -109,7 +109,7 @@ class SonarLintIntegrationTest {
   }
 
   @SonarLintTest
-  void should_analyze_js_with_typed_rules_except_vue(
+  void should_analyze_js_and_vue_with_typed_rules(
     SonarLintTestHarness harness,
     @TempDir Path baseDir
   ) {
@@ -121,8 +121,9 @@ class SonarLintIntegrationTest {
     triggerAnalysisByFileOpened(vueFileDTO);
 
     assertResults(results -> {
-      assertThat(results).hasSize(1);
+      assertThat(results).hasSize(2);
       assertThat(results.get(0).getRuleKey()).isEqualTo("javascript:S3504");
+      assertThat(results.get(1).getRuleKey()).isEqualTo("javascript:S2870");
     });
 
     triggerAnalysisByFileOpened(jsFileDTO);
