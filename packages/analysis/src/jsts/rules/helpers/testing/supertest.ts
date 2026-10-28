@@ -73,7 +73,8 @@ function extractFQNForCallExpression(context: Rule.RuleContext, node: estree.Nod
  * fakeHttp().get('/').expect(200); // rejected
  * ```
  *
- * The factory must have no parameters and use a stable Supertest import or `require('supertest')`.
+ * The factory has no parameters. The `http()` call has no arguments and uses a stable Supertest
+ * import or `require('supertest')`.
  */
 function isLocalFactoryAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
   const identifier = getFactoryIdentifier(node);
@@ -81,7 +82,7 @@ function isLocalFactoryAssertion(context: Rule.RuleContext, node: estree.Node): 
     return false;
   }
   const factory = resolveLocalFactory(context, identifier);
-  if (factory?.params.length !== 0 || factory?.async || factory?.generator) {
+  if (!factory || factory.params.length !== 0 || factory.async || factory.generator) {
     return false;
   }
   const returned = getReturnedExpression(factory);
@@ -149,6 +150,7 @@ function isTSLocalFactoryAssertion(
 
 /**
  * Extract `http` from `http().post('/').send(data).expect(201)`.
+ * Require at least two methods, no optional chaining, and no arguments to `http()`.
  * Reject computed members such as `http()['post']('/').expect(201)` and `.use(...)` calls.
  */
 function getFactoryIdentifier(node: estree.Node): estree.Identifier | undefined {

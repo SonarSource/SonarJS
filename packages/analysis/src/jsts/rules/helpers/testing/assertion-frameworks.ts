@@ -177,8 +177,8 @@ export function allAssertionFrameworks(
 }
 
 /**
- * Extra type-aware detection a rule can bolt onto the catalog's own detector.
- * The fallback runs when the matching catalog detector misses.
+ * Extra type-aware detection for framework calls that the catalog detector cannot resolve.
+ * A fallback can use AST scope information when TypeScript symbol resolution misses a call.
  */
 type AssertionEvidenceExtension = {
   isTSAssertionFallback?: (
@@ -239,9 +239,8 @@ export function isAssertionEvidence(
 
 /**
  * Type-checker-aware counterpart of {@link isAssertionEvidence}, operating on TypeScript AST nodes.
- * Used when parser services are available to follow resolved types across declarations, and falls
- * back to each profile entry's {@link AssertionEvidenceExtension.isTSAssertionFallback} when the
- * catalog's own type-aware detector misses.
+ * Used when parser services are available to follow resolved types across declarations, and calls
+ * a profile fallback when type-aware detection cannot resolve a framework call.
  */
 export function isTypeScriptAssertionEvidence(
   context: Rule.RuleContext,

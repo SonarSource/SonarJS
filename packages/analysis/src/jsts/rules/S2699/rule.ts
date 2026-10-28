@@ -49,7 +49,8 @@ import type { ParserServicesWithTypeInformation, TSESTree } from '@typescript-es
 import ts from 'typescript';
 
 /**
- * Any assertion clears this rule. The fallback also recognizes setup-assigned AWS CDK templates.
+ * Any assertion clears this rule. The AWS CDK fallback recognizes templates assigned in setup hooks,
+ * which the type-aware detector cannot follow.
  */
 const ASSERTION_EVIDENCE_PROFILE = allAssertionFrameworks({
   awsCdk: {
