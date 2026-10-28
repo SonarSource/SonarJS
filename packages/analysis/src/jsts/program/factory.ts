@@ -190,7 +190,15 @@ export function createOrGetCachedProgramForFile(
 
     // Found a match! Update host if file content changed
     // The host's updateFile() method compares content and returns whether it changed
-    const wasUpdated = host.updateFile(sourceFile, fileContent);
+    // Apply all supplied edits before selecting a cached Program. A dependency may
+    // have changed even if the file being analyzed has not.
+    let wasUpdated = host.updateFile(sourceFile, fileContent);
+    for (const [file, context] of Object.entries(getCurrentFilesContext() ?? {})) {
+      if (file !== sourceFile && tsProgram.getSourceFile(file)) {
+        wasUpdated =
+          host.updateFile(file as NormalizedAbsolutePath, context.fileContent) || wasUpdated;
+      }
+    }
 
     if (wasUpdated) {
       info(

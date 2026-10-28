@@ -39,6 +39,9 @@ import { intersects } from 'semver';
  */
 const PROGRAM_OPTIONS_BRAND: unique symbol = Symbol('ProgramOptions');
 
+// Internal option shared by configured, fallback and restored Programs.
+const VUE_COMPILER_OPTIONS = { allowNonTsExtensions: true } as const;
+
 /**
  * Program options that must be created via createProgramOptions().
  * The brand ensures compile-time type safety, preventing raw compiler options
@@ -478,8 +481,14 @@ export function createProgramOptionsFromJson(
   rootNames: NormalizedAbsolutePath[],
   baseDir: string,
 ): ProgramOptions {
+  const converted = ts.convertCompilerOptionsFromJson(json, baseDir);
   return {
-    ...ts.convertCompilerOptionsFromJson(json, baseDir),
+    ...converted,
+    // Internal TypeScript option: JSON conversion silently drops it.
+    options: {
+      ...converted.options,
+      ...VUE_COMPILER_OPTIONS,
+    },
     rootNames,
     missingTsConfig: false,
     [PROGRAM_OPTIONS_BRAND]: true,
@@ -496,7 +505,7 @@ export function createProgramOptionsFromEffectiveOptions(
   rootNames: NormalizedAbsolutePath[],
 ): ProgramOptions {
   return {
-    options,
+    options: { ...options, ...VUE_COMPILER_OPTIONS },
     rootNames,
     missingTsConfig: false,
     [PROGRAM_OPTIONS_BRAND]: true,
@@ -596,7 +605,7 @@ export function createProgramOptions(
     dirname(tsConfig),
     {
       noEmit: true,
-      allowNonTsExtensions: true,
+      ...VUE_COMPILER_OPTIONS,
     },
     tsConfig,
     undefined,

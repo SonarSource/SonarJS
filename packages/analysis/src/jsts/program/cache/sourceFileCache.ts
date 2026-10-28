@@ -16,6 +16,7 @@
  */
 import { debug } from '../../../../../shared/src/helpers/logging.js';
 import type ts from 'typescript';
+import { clearVueScriptCache } from '../../parsers/vue.js';
 
 /**
  * Global cache for source file contents
@@ -26,7 +27,7 @@ const sourceFileContentCache = new Map<string, string>();
 /**
  * Global cache for parsed TypeScript SourceFile ASTs
  *
- * This cache stores parsed ASTs keyed by (fileName, scriptTarget, jsx, importHelpers).
+ * This cache stores parsed ASTs keyed by (fileName, scriptTarget, jsx, importHelpers, scriptKind).
  * The contentHash is stored as a value to validate cache freshness.
  * Multiple programs can share the same parsed AST if they have the same options.
  *
@@ -48,8 +49,9 @@ function makeParsedSourceFileCacheKey(
   scriptTarget: ts.ScriptTarget,
   jsx: ts.JsxEmit | undefined,
   importHelpers = false,
+  scriptKind?: ts.ScriptKind,
 ): string {
-  return `${scriptTarget}:${jsx ?? -1}:${importHelpers ? 1 : 0}`;
+  return `${scriptTarget}:${jsx ?? -1}:${importHelpers ? 1 : 0}:${scriptKind ?? -1}`;
 }
 
 /**
@@ -93,13 +95,14 @@ export function getCachedSourceFile(
   contentHash: string,
   jsx?: ts.JsxEmit,
   importHelpers = false,
+  scriptKind?: ts.ScriptKind,
 ): ts.SourceFile | undefined {
   const fileCache = parsedSourceFileCache.get(fileName);
   if (!fileCache) {
     return undefined;
   }
 
-  const key = makeParsedSourceFileCacheKey(scriptTarget, jsx, importHelpers);
+  const key = makeParsedSourceFileCacheKey(scriptTarget, jsx, importHelpers, scriptKind);
   const cached = fileCache.get(key);
   // If hash doesn't match, return undefined (cache miss). The caller will parse
   // the file and call setCachedSourceFile, which overwrites the stale entry.
@@ -127,6 +130,7 @@ export function setCachedSourceFile(
   sourceFile: ts.SourceFile,
   jsx?: ts.JsxEmit,
   importHelpers = false,
+  scriptKind?: ts.ScriptKind,
 ): void {
   let fileCache = parsedSourceFileCache.get(fileName);
   if (!fileCache) {
@@ -134,7 +138,7 @@ export function setCachedSourceFile(
     parsedSourceFileCache.set(fileName, fileCache);
   }
 
-  const key = makeParsedSourceFileCacheKey(scriptTarget, jsx, importHelpers);
+  const key = makeParsedSourceFileCacheKey(scriptTarget, jsx, importHelpers, scriptKind);
   fileCache.set(key, { contentHash, sourceFile });
 }
 
@@ -151,6 +155,7 @@ export function invalidateParsedSourceFile(fileName: string): void {
  * Clear the source file content cache and parsed SourceFile cache
  */
 export function clearSourceFileContentCache(): void {
+  clearVueScriptCache();
   sourceFileContentCache.clear();
   parsedSourceFileCache.clear();
   currentFilesContext = null;

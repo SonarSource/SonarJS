@@ -15,7 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import ts from 'typescript';
+import { createVueSourceFile, getVueScript, isVueFile } from '../parsers/vue.js';
 import path from 'node:path/posix';
+import { jsxEnabledFor } from '../parsers/options.js';
 import {
   getSourceFileContentCache,
   getCurrentFilesContext,
@@ -51,6 +53,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
   // Used by TypeScript's builder programs for change detection.
   private readonly fileVersions = new Map<string, number>();
   private readonly modifiedFiles = new Set<string>();
+  private readonly vueContents = new Map<string, string>();
   private fsCallTracker: FsCall[] = [];
   private readonly baseHost: ts.CompilerHost;
 
@@ -72,13 +75,30 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     }
     const normalized = path.normalize(filePath);
     const cache = getSourceFileContentCache();
-    const oldContent = cache.get(normalized);
+    const oldContent = this.vueContents.get(normalized) ?? cache.get(normalized);
 
     if (oldContent === content) {
       return false; // No change
     }
 
     cache.set(normalized, content);
+    if (isVueFile(normalized)) {
+      this.vueContents.set(normalized, content);
+      const jsx = jsxEnabledFor(this.compilerOptions);
+      const previous =
+        oldContent === undefined ? undefined : getVueScript(normalized, oldContent, jsx);
+      const current = getVueScript(normalized, content, jsx);
+      if (
+        previous &&
+        current &&
+        previous.code === current.code &&
+        previous.scriptKind === current.scriptKind
+      ) {
+        // Raw template/style changes still need Vue analysis, but unchanged script
+        // projections can reuse the existing semantic Program and SourceFile.
+        return false;
+      }
+    }
     this.fileVersions.set(normalized, (this.fileVersions.get(normalized) || 0) + 1);
     this.modifiedFiles.add(normalized);
 
@@ -240,11 +260,28 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
         : languageVersionOrOptions.languageVersion;
 
     const { jsx, importHelpers } = this.compilerOptions;
+    const vue = isVueFile(fileName);
+    const rawVueContent = vue ? this.readFile(fileName) : undefined;
+    const script =
+      rawVueContent === undefined
+        ? undefined
+        : getVueScript(normalized, rawVueContent, jsxEnabledFor(this.compilerOptions));
+    const scriptKind = vue ? (script?.scriptKind ?? ts.ScriptKind.TS) : undefined;
+    if (rawVueContent !== undefined) {
+      this.vueContents.set(normalized, rawVueContent);
+    }
 
     // Check global cache (unless forced to create new)
     if (!shouldCreateNewSourceFile) {
-      const cached = getCachedSourceFile(normalized, scriptTarget, contentHash, jsx, importHelpers);
-      if (cached) {
+      const cached = getCachedSourceFile(
+        normalized,
+        scriptTarget,
+        contentHash,
+        jsx,
+        importHelpers,
+        scriptKind,
+      );
+      if (cached && (!vue || cached.text === (script?.code ?? ''))) {
         // Set version for builder programs
         (cached as ts.SourceFile & { version?: string }).version = contentHash;
         return cached;
@@ -252,19 +289,29 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     }
 
     // Try to read content (will use global cache or lazy load)
-    const content = this.readFile(fileName);
+    const content = vue ? rawVueContent : this.readFile(fileName);
     let sourceFile: (ts.SourceFile & { version?: string }) | undefined;
     if (content !== undefined) {
       // Parse the file
-      sourceFile = ts.createSourceFile(
-        fileName,
-        content,
-        scriptTarget,
-        true, // setNodeParents
-      );
+      sourceFile = vue
+        ? createVueSourceFile(fileName, script, languageVersionOrOptions)
+        : ts.createSourceFile(
+            fileName,
+            content,
+            scriptTarget,
+            true, // setNodeParents
+          );
 
       // Store in global cache for reuse across programs
-      setCachedSourceFile(normalized, scriptTarget, contentHash, sourceFile, jsx, importHelpers);
+      setCachedSourceFile(
+        normalized,
+        scriptTarget,
+        contentHash,
+        sourceFile,
+        jsx,
+        importHelpers,
+        scriptKind,
+      );
     } else {
       // Fallback to base host for files not in our cache/context (e.g., TypeScript lib files).
       // readFile returns undefined for these, but baseHost can resolve them.

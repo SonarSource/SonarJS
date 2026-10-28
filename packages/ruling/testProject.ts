@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { join, basename } from 'node:path/posix';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { writeResults } from './lits.js';
 import projects from './projects.json' with { type: 'json' };
 import { analyzeProject } from '../analysis/src/analyzeProject.js';
@@ -95,6 +96,7 @@ export async function testProject(projectName: string, options: TestProjectOptio
     baseDir,
   );
   let results: ProjectAnalysisOutput;
+  const started = performance.now();
   try {
     await initFileStores(configuration);
 
@@ -109,6 +111,38 @@ export async function testProject(projectName: string, options: TestProjectOptio
   } finally {
     filesystemCacheSession?.end();
   }
+
+  // Keep performance evidence even when restored type information changes the ruling issues.
+  const files = Object.entries(results.files);
+  const measurement = {
+    project: name,
+    node: process.version,
+    platform: process.platform,
+    arch: process.arch,
+    durationMs: performance.now() - started,
+    peakRssMiB: process.resourceUsage().maxRSS / 1024,
+    heapUsedMiB: process.memoryUsage().heapUsed / 1024 ** 2,
+    files: files.length,
+    vueFiles: files.filter(([file]) => file.toLowerCase().endsWith('.vue')).length,
+    errors: files.filter(([, result]) => 'error' in result).length,
+    parsingErrors: files.reduce(
+      (count, [, result]) =>
+        count + ('parsingErrors' in result ? (result.parsingErrors?.length ?? 0) : 0),
+      0,
+    ),
+    issues: files.reduce(
+      (count, [, result]) => count + ('issues' in result ? result.issues.length : 0),
+      0,
+    ),
+    programCreation: results.meta.telemetry?.programCreation,
+  };
+  const performanceDirectory = join(SONARJS_ROOT, 'target', 'ruling-performance');
+  await mkdir(performanceDirectory, { recursive: true });
+  await writeFile(
+    join(performanceDirectory, `${name}.json`),
+    JSON.stringify(measurement, null, 2) + '\n',
+  );
+  console.log(`RULING_PERFORMANCE ${JSON.stringify(measurement)}`);
 
   await writeResults(baseDir, name, results, actualPath);
 

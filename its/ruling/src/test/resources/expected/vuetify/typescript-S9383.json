@@ -2,6 +2,12 @@
 "vuetify:packages/api-generator/src/index.ts": [
 182
 ],
+"vuetify:packages/docs/src/components/about/TeamMember.vue": [
+212
+],
+"vuetify:packages/docs/src/components/api/Section.vue": [
+84
+],
 "vuetify:packages/docs/src/plugins/pwa.ts": [
 32,
 34
