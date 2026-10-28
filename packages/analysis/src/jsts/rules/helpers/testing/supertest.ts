@@ -224,10 +224,9 @@ function isTypeOnlyReference(reference: {
   isTypeReference?: boolean;
 }) {
   const parent = getParent(reference.identifier);
+  const parentType = (parent as { type: string } | undefined)?.type;
   return (
-    reference.isTypeReference ||
-    parent?.type === 'TSQualifiedName' ||
-    parent?.type === 'TSTypeQuery'
+    reference.isTypeReference || parentType === 'TSQualifiedName' || parentType === 'TSTypeQuery'
   );
 }
 
