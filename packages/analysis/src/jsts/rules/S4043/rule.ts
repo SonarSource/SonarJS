@@ -27,6 +27,7 @@ import {
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getSymbolAtLocation, isArray } from '../helpers/type.js';
 import { localAncestorsChain } from '../helpers/ancestor.js';
+import { unwrapTypeScriptExpression } from '../helpers/ast.js';
 import { sortLike } from '../helpers/collection.js';
 import * as meta from './generated-meta.js';
 
@@ -57,6 +58,7 @@ export const rule: Rule.RuleModule = {
             if (
               isIdentifierOrPropertyAccessExpression(mutatedArray, services) &&
               !isInSelfAssignment(mutatedArray, node) &&
+              !isForOfIterable(context, node) &&
               isForbiddenOperation(node)
             ) {
               const method = formatMethod(propertyText);
@@ -131,6 +133,15 @@ function isInSelfAssignment(mutatedArray: estree.Node, node?: estree.Node): bool
     mutatedArray.type === 'Identifier' &&
     parent.left.name === mutatedArray.name
   );
+}
+
+function isForOfIterable(context: Rule.RuleContext, node: estree.Node): boolean {
+  return context.sourceCode
+    .getAncestors(node)
+    .some(
+      ancestor =>
+        ancestor.type === 'ForOfStatement' && unwrapTypeScriptExpression(ancestor.right) === node,
+    );
 }
 
 function isForbiddenOperation(node: estree.Node) {
