@@ -21,6 +21,20 @@ import type ts from 'typescript';
 import { getUniqueWriteReference, getVariableFromName } from '../helpers/ast.js';
 import { getFullyQualifiedName, isRequire } from '../helpers/module.js';
 
+/**
+ * Recognize an assertion on a request from a local factory that directly returns a Supertest call.
+ *
+ * ```js
+ * import request from 'supertest';
+ * const http = () => request(app);
+ * http().get('/').expect(200); // accepted
+ *
+ * const fakeHttp = () => fakeRequest(app);
+ * fakeHttp().get('/').expect(200); // rejected
+ * ```
+ *
+ * The factory must have no parameters and use a stable Supertest import or `require('supertest')`.
+ */
 export function isLocalFactoryAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
   const identifier = getFactoryIdentifier(node);
   if (!identifier) {
@@ -93,6 +107,10 @@ export function isTSLocalFactoryAssertion(
   );
 }
 
+/**
+ * Extract `http` from `http().post('/').send(data).expect(201)`.
+ * Reject computed members such as `http()['post']('/').expect(201)` and `.use(...)` calls.
+ */
 function getFactoryIdentifier(node: estree.Node): estree.Identifier | undefined {
   if (node.type !== 'CallExpression') {
     return undefined;
@@ -153,6 +171,10 @@ function resolveLocalFactory(
   return undefined;
 }
 
+/**
+ * Accept an expression body or one `return request(app)` statement.
+ * Reject setup statements and conditional returns, which do not identify one direct request call.
+ */
 function getReturnedExpression(factory: estree.Function): estree.Expression | undefined {
   if (factory.body.type !== 'BlockStatement') {
     return factory.body;
