@@ -25,8 +25,6 @@ import { getProperty, getValueOfExpression } from './ast.js';
 import { isJsxElementNamed } from './jsx.js';
 const { getProp, getLiteralPropValue, getPropValue, elementType } = pkg;
 
-const DISPLAY_NONE_PATTERN = /display\s*:\s*none/i;
-
 /** Attributes that can hide an element from everyone; see {@link getOwnHiddenState}. */
 export const HIDING_ATTRIBUTES = ['aria-hidden', 'hidden', 'style'] as const;
 
@@ -292,13 +290,8 @@ function isDisplayNone(
   context: Rule.RuleContext,
 ): boolean {
   const value = (getProp(attributes, 'style') as JSXAttribute | undefined)?.value;
-  if (!value) {
-    return false;
-  }
-  if (value.type === 'Literal') {
-    return typeof value.value === 'string' && DISPLAY_NONE_PATTERN.test(value.value);
-  }
-  if (value.type !== 'JSXExpressionContainer') {
+  // String styles are invalid in React, so only object styles are resolved.
+  if (value?.type !== 'JSXExpressionContainer') {
     return false;
   }
   const resolvedStyle = getValueOfExpression(

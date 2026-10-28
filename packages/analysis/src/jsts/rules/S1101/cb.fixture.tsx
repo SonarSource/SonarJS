@@ -191,11 +191,15 @@ const hiddenDisplayNoneObject = (
   </div>
 );
 
-// Compliant: a link hidden via a raw style string is excluded from comparison.
+// String styles are invalid in React, so a raw style string does not hide the link: Noncompliant.
+// Kept as an example in case JSX frameworks that accept string styles are supported.
 const hiddenDisplayNoneString = (
   <div>
-    <a href="/rawstyle/1" style="display:none">Rawstyled</a>
-    <a href="/rawstyle/2">Rawstyled</a>
+    {[
+      <a href="/rawstyle/1" style="display:none">Rawstyled</a>,
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
+      <a href="/rawstyle/2">Rawstyled</a>, // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 199.}}
+    ]}
   </div>
 );
 
@@ -236,7 +240,7 @@ function NotAGuard({ condition }) {
     <a href="/notaguard/1">Track</a>;
   //^^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
   }
-  return <a href="/notaguard/2">Track</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 236.}}
+  return <a href="/notaguard/2">Track</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 240.}}
 }
 
 // Reports an issue: a conditional link is still compared against an unconditional sibling; wrapped in an array so trailing comments sit in expression position.
@@ -245,7 +249,7 @@ const conditionalVsBaseline = (
     {[
       <a href="/version/1">Version</a>,
     //^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
-      condition && <a href="/version/2">Version</a>, // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 246.}}
+      condition && <a href="/version/2">Version</a>, // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 250.}}
     ]}
   </div>
 );
@@ -257,7 +261,7 @@ const baselineVsConditional = (
     {[
       condition && <a href="/release/1">Release</a>,
                  //^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
-      <a href="/release/2">Release</a>, // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 258.}}
+      <a href="/release/2">Release</a>, // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 262.}}
     ]}
   </div>
 );
@@ -270,7 +274,7 @@ function RoleMenu({ isAdmin, loggedIn }) {
       {[
         isAdmin && <a href="/admin">Settings</a>,
                  //^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
-        loggedIn && <a href="/user">Settings</a>, // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 271.}}
+        loggedIn && <a href="/user">Settings</a>, // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 275.}}
       ]}
     </ul>
   );
@@ -286,7 +290,7 @@ function AfterGuard({ hasError }) {
   const first = <a href="/guard/1">Track</a>;
               //^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
   logAnalytics('track-shown');
-  return <a href="/guard/2">Track</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 286.}}
+  return <a href="/guard/2">Track</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 290.}}
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -297,7 +301,7 @@ function AfterGuard({ hasError }) {
 function Footer() {
   <a href="/footer/1">Contact</a>;
 //^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
-  return <a href="/footer/2">Contact</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 298.}}
+  return <a href="/footer/2">Contact</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 302.}}
 }
 
 // Compliant: anchors returned by two different components are never compared.
@@ -382,7 +386,7 @@ const jsxElementAriaLabel = (
     {[
       <a href="/jsx-label/1" aria-label=<Icon />>Jsx label</a>,
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
-      <a href="/jsx-label/2">Jsx label</a>, // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 383.}}
+      <a href="/jsx-label/2">Jsx label</a>, // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 387.}}
     ]}
   </div>
 );
@@ -412,7 +416,7 @@ const sameLabelledbyDifferentTarget = (
     {[
       <a href="/signup" aria-labelledby="cta-label">Sign up</a>,
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
-      <a href="/login" aria-labelledby="cta-label">Log in</a>, // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 413.}}
+      <a href="/login" aria-labelledby="cta-label">Log in</a>, // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 417.}}
     ]}
   </div>
 );
@@ -449,7 +453,7 @@ const hiddenByAncestor = (
 // A nested <svg aria-label> contributes its own name instead of its (empty) content.
   <a href="/export/csv"><svg aria-label="Export data" /></a>;
 //^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
-  <a href="/export/json"><svg aria-label="Export data" /></a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 450.}}
+  <a href="/export/json"><svg aria-label="Export data" /></a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 454.}}
 
 // Compliant: a nested aria-labelledby makes the anchor's name unresolvable, even though the
 // visible text matches - excluded rather than compared via that text, since the two labels

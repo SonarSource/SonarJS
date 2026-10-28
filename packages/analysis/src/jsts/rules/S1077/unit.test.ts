@@ -161,12 +161,15 @@ describe('S1077 SVG accessible name', () => {
     ruleTester.run('alt-text - svg hidden via inline style', rule, {
       valid: [
         { code: `<svg style={{ display: 'none' }}><path d="M12 4v16"/></svg>` },
-        { code: `<svg style="display: none"><path d="M12 4v16"/></svg>` },
         { code: `<div style={{ display: 'none' }}><svg><path d="M12 4v16"/></svg></div>` },
       ],
       invalid: [
         // An unresolvable style object is not treated as hiding: dynamic styles rarely hide.
         { code: `<svg style={iconStyle}><path d="M12 4v16"/></svg>`, errors: 1 },
+        // String styles are invalid in React and are not treated as hiding.
+        { code: `<svg style="display: none"><path d="M12 4v16"/></svg>`, errors: 1 },
+        // A custom property is not the `display` property.
+        { code: `<svg style={{ '--display': 'none' }}><path d="M12 4v16"/></svg>`, errors: 1 },
         // Known limitation: visibility:hidden also excludes elements from the a11y tree, but
         // it isn't covered by the shared "hidden from everyone" check.
         { code: `<svg style={{ visibility: 'hidden' }}><path d="M12 4v16"/></svg>`, errors: 1 },
