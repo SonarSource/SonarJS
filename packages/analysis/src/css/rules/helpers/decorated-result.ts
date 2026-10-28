@@ -77,6 +77,8 @@ export function createDecoratedRule(
   rewriteMessage: (
     message: DecoratedMessage,
     upstreamMessages: stylelint.RuleMessages,
+    root: PostCSS.Root,
+    result: PostcssResult,
   ) => string | undefined,
 ): stylelint.RuleBase {
   return (primary: unknown, secondaryOptions: unknown, context: stylelint.RuleContext) => {
@@ -92,7 +94,7 @@ export function createDecoratedRule(
           reported.push(message);
           continue;
         }
-        const rewritten = rewriteMessage(message, factory.messages);
+        const rewritten = rewriteMessage(message, factory.messages, root, scopedResult);
         if (rewritten === undefined) {
           continue;
         }
