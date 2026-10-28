@@ -23,12 +23,14 @@ import {
 } from './tsconfig/options.js';
 import { info } from '../../../../shared/src/helpers/logging.js';
 import { getProgramCacheManager } from './cache/programCache.js';
-import { getCurrentFilesContext } from './cache/sourceFileCache.js';
+import { getCurrentFilesContext, getSourceFilesContextVersion } from './cache/sourceFileCache.js';
 import {
   normalizeToAbsolutePath,
   type NormalizedAbsolutePath,
 } from '../../../../shared/src/helpers/files.js';
 import { getOptionalProjectAnalysisTelemetryCollector } from '../../telemetry.js';
+
+const synchronizedHostVersions = new WeakMap<IncrementalCompilerHost, number>();
 
 function createBuilderProgramWithHost(
   programOptions: ProgramOptions,
@@ -178,7 +180,9 @@ export function createOrGetCachedProgramForFile(
   skipNodeModuleLookupOutsideBaseDir = false,
 ) {
   const cacheManager = getProgramCacheManager();
-  const fileContent = getCurrentFilesContext()?.[sourceFile]?.fileContent;
+  const filesContext = getCurrentFilesContext();
+  const contextVersion = getSourceFilesContextVersion();
+  const fileContent = filesContext?.[sourceFile]?.fileContent;
 
   // Try to find an existing program containing this file
   const cachedProgram = cacheManager.findProgramForFile(sourceFile);
@@ -188,15 +192,15 @@ export function createOrGetCachedProgramForFile(
     const tsProgram = program.getProgram();
     const totalFiles = tsProgram.getSourceFiles().length;
 
-    // Found a match! Update host if file content changed
-    // The host's updateFile() method compares content and returns whether it changed
-    // Apply all supplied edits before selecting a cached Program. A dependency may
-    // have changed even if the file being analyzed has not.
+    // Apply all supplied dependency edits before the first type query, once per
+    // host and request rather than rescanning the request for each analyzed file.
     let wasUpdated = host.updateFile(sourceFile, fileContent);
-    for (const [file, context] of Object.entries(getCurrentFilesContext() ?? {})) {
-      if (file !== sourceFile && tsProgram.getSourceFile(file)) {
-        wasUpdated =
-          host.updateFile(file as NormalizedAbsolutePath, context.fileContent) || wasUpdated;
+    if (synchronizedHostVersions.get(host) !== contextVersion) {
+      for (const [file, context] of Object.entries(filesContext ?? {})) {
+        if (file !== sourceFile && tsProgram.getSourceFile(file)) {
+          wasUpdated =
+            host.updateFile(file as NormalizedAbsolutePath, context.fileContent) || wasUpdated;
+        }
       }
     }
 
@@ -213,9 +217,11 @@ export function createOrGetCachedProgramForFile(
 
       // Update cache with new program
       cacheManager.updateProgramInCache(cacheKey, updatedProgram);
+      synchronizedHostVersions.set(host, contextVersion);
 
       return updatedProgram.getProgram();
     } else {
+      synchronizedHostVersions.set(host, contextVersion);
       info(`Cache HIT: Reusing program for ${sourceFile} (${totalFiles} files, no changes)`);
       return program.getProgram();
     }
@@ -240,6 +246,7 @@ export function createOrGetCachedProgramForFile(
 
   // Store in cache
   cacheManager.storeProgram(programOptions, builderProgram, host);
+  synchronizedHostVersions.set(host, contextVersion);
 
   return builderProgram.getProgram();
 }
