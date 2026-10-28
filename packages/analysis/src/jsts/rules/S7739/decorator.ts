@@ -18,7 +18,7 @@
 
 import type { Rule } from 'eslint';
 import type { Node } from 'estree';
-import { getPropertyName } from '@eslint-community/eslint-utils';
+import { ASTUtils, type TSESTree } from '@typescript-eslint/utils';
 import { getNodeParent } from '../helpers/ancestor.js';
 import { isNumberLiteral } from '../helpers/ast.js';
 import { generateMeta } from '../helpers/generate-meta.js';
@@ -93,7 +93,8 @@ function isNumericThenProperty(node: Node): boolean {
     if (following.type !== 'Property' || following.computed) {
       return false;
     }
-    const name = getPropertyName(following);
+    // The helper reads the same noncomputed key shape in both AST types.
+    const name = ASTUtils.getPropertyName(following as TSESTree.Property);
     if (name == null || name === 'then') {
       return false;
     }
