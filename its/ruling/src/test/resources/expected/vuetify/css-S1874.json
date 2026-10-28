@@ -1,5 +1,8 @@
 {
 "vuetify:packages/vuetify/src/components/VMessages/VMessages.sass": [
 15
+],
+"vuetify:packages/vuetify/src/components/VSelectionControl/VSelectionControl.sass": [
+18
 ]
 }

@@ -1,4 +1,7 @@
 {
+"vuetify:packages/docs/src/components/Alert.vue": [
+23
+],
 "vuetify:packages/docs/src/components/api/Section.vue": [
 92,
 95,
@@ -6,6 +9,7 @@
 101
 ],
 "vuetify:packages/docs/src/components/app/Markup.vue": [
+155,
 166,
 221,
 231
@@ -33,11 +37,87 @@
 58,
 61
 ],
+"vuetify:packages/vuetify/src/components/VBtn/VBtn.sass": [
+90,
+101
+],
+"vuetify:packages/vuetify/src/components/VCalendar/VCalendarDaily.sass": [
+40
+],
+"vuetify:packages/vuetify/src/components/VCalendar/VCalendarWeekly.sass": [
+80
+],
+"vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-with-events.sass": [
+6
+],
 "vuetify:packages/vuetify/src/components/VCarousel/VCarousel.sass": [
 64
 ],
+"vuetify:packages/vuetify/src/components/VColorPicker/VColorPickerPreview.sass": [
+6,
+60
+],
+"vuetify:packages/vuetify/src/components/VCombobox/VCombobox.sass": [
+82
+],
+"vuetify:packages/vuetify/src/components/VExpansionPanel/VExpansionPanel.sass": [
+37,
+38,
+41,
+42,
+45,
+46,
+49,
+50,
+54,
+55,
+58,
+59,
+66
+],
+"vuetify:packages/vuetify/src/components/VList/VList.sass": [
+69
+],
+"vuetify:packages/vuetify/src/components/VList/VListItem.sass": [
+245
+],
+"vuetify:packages/vuetify/src/components/VOverflowBtn/VOverflowBtn.sass": [
+103
+],
+"vuetify:packages/vuetify/src/components/VOverlay/VOverlay.sass": [
+15
+],
+"vuetify:packages/vuetify/src/components/VProgressCircular/VProgressCircular.sass": [
+70
+],
+"vuetify:packages/vuetify/src/components/VTable/VTable.sass": [
+147,
+158
+],
+"vuetify:packages/vuetify/src/components/VTextarea/VTextarea.sass": [
+36,
+37
+],
+"vuetify:packages/vuetify/src/components/VTreeview/VTreeview.sass": [
+17,
+138,
+139
+],
+"vuetify:packages/vuetify/src/components/VTreeview/_mixins.sass": [
+4,
+5,
+14
+],
 "vuetify:packages/vuetify/src/components/VWindow/VWindow.sass": [
 52
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTable.sass": [
+73,
+74,
+77
+],
+"vuetify:packages/vuetify/src/styles/elements/_global.sass": [
+14
 ],
 "vuetify:packages/vuetify/src/styles/generic/_colors.scss": [
 7,
@@ -81,5 +161,25 @@
 344,
 349,
 362
+],
+"vuetify:packages/vuetify/src/styles/tools/_bootable.sass": [
+3
+],
+"vuetify:packages/vuetify/src/styles/tools/_display.sass": [
+5
+],
+"vuetify:packages/vuetify/src/styles/utilities/_display.sass": [
+8
+],
+"vuetify:packages/vuetify/src/styles/utilities/_screenreaders.sass": [
+7,
+8,
+9,
+10,
+11,
+12,
+13,
+14,
+15
 ]
 }
