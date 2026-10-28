@@ -25,6 +25,20 @@ describe('S4043', () => {
       valid: [
         {
           code: `
+          function wrapped(items: number[]) {
+            for (const item of (items.sort() as number[])) {}
+            for (const item of (items.reverse() satisfies number[])) {}
+            for (const item of items.reverse()!) {}
+            for (const item of ((items.sort() as number[]) satisfies number[])!) {}
+          }
+
+          async function wrappedAsync(items: number[]) {
+            for await (const item of ((items.reverse() as number[]) satisfies number[])!) {}
+          }
+          `,
+        },
+        {
+          code: `
           function visit(items: number[]) {
             for (const item of items.sort()) {
               console.log(item);
@@ -127,6 +141,21 @@ describe('S4043', () => {
         },
       ],
       invalid: [
+        {
+          code: `function chainedAssertion(items: number[]) {
+            for (const item of (items.sort() as number[]).map(value => value)) {}
+          }`,
+          errors: 1,
+        },
+        {
+          code: `function comparatorMutation(items: number[], other: number[]) {
+            for (const item of items.sort((a, b) => {
+              const reversed = other.reverse();
+              return a - b;
+            })) {}
+          }`,
+          errors: 1,
+        },
         {
           code: `function assigned(items: number[]) {
             const sorted = items.sort();

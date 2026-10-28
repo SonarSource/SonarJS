@@ -26,7 +26,8 @@ import {
 } from '../helpers/parser-services.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getSymbolAtLocation, isArray } from '../helpers/type.js';
-import { getParent, localAncestorsChain } from '../helpers/ancestor.js';
+import { localAncestorsChain } from '../helpers/ancestor.js';
+import { unwrapTypeScriptExpression } from '../helpers/ast.js';
 import { sortLike } from '../helpers/collection.js';
 import * as meta from './generated-meta.js';
 
@@ -134,10 +135,13 @@ function isInSelfAssignment(mutatedArray: estree.Node, node?: estree.Node): bool
   );
 }
 
-/** Matches the call in `for (const item of items.sort()) { ... }`. */
 function isForOfIterable(context: Rule.RuleContext, node: estree.Node): boolean {
-  const parent = getParent(context, node);
-  return parent?.type === 'ForOfStatement' && parent.right === node;
+  return context.sourceCode
+    .getAncestors(node)
+    .some(
+      ancestor =>
+        ancestor.type === 'ForOfStatement' && unwrapTypeScriptExpression(ancestor.right) === node,
+    );
 }
 
 function isForbiddenOperation(node: estree.Node) {
