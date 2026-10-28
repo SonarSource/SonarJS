@@ -27,6 +27,12 @@ import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils
 import ts from 'typescript';
 
 const stableAgentProperties = new WeakMap<SourceCode, boolean>();
+const typeScriptExpressionWrappers = new Set([
+  'TSNonNullExpression',
+  'TSAsExpression',
+  'TSSatisfiesExpression',
+  'TSTypeAssertion',
+]);
 
 export function isAssertion(context: Rule.RuleContext, node: estree.Node) {
   const fqn = extractFQNForCallExpression(context, node);
@@ -196,7 +202,11 @@ function computeStableAgentProperty(context: Rule.RuleContext): boolean {
 function isStableLoaderUse(node: estree.Identifier): boolean {
   let current: estree.Node = node;
   let parent = getParent(current);
-  while (parent && unwrapTypeScriptExpression(parent) === current) {
+  while (parent) {
+    const wrapper = parent as estree.Node & { type: string; expression?: estree.Node };
+    if (!typeScriptExpressionWrappers.has(wrapper.type) || wrapper.expression !== current) {
+      break;
+    }
     current = parent;
     parent = getParent(current);
   }
