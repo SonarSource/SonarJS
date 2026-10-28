@@ -25,6 +25,31 @@ describe('S4043', () => {
       valid: [
         {
           code: `
+          function visit(items: number[]) {
+            for (const item of items.sort()) {
+              console.log(item);
+            }
+            for (const item of (items.reverse())) {
+              console.log(item);
+            }
+            for (const item of items['sort']()) {
+              console.log(item);
+            }
+          }
+
+          async function visitAsync(items: number[]) {
+            for await (const item of items.reverse()) {
+              console.log(item);
+            }
+          }
+
+          function sortAndReturn(items: number[]) {
+            return items.sort((a, b) => a - b);
+          }
+          `,
+        },
+        {
+          code: `
         let a = [];
         let d;
       
@@ -102,6 +127,45 @@ describe('S4043', () => {
         },
       ],
       invalid: [
+        {
+          code: `function assigned(items: number[]) {
+            const sorted = items.sort();
+            return sorted;
+          }`,
+          errors: 1,
+        },
+        {
+          code: `function passed(items: number[]) {
+            consume(items.sort());
+          }
+          function consume(items: number[]) {}`,
+          errors: 1,
+        },
+        {
+          code: `function chained(items: number[]) {
+            for (const item of items.sort().map(value => value)) {
+              console.log(item);
+            }
+          }`,
+          errors: 1,
+        },
+        {
+          code: `function conditional(items: number[], useSorted: boolean) {
+            for (const item of useSorted ? items.sort() : items) {
+              console.log(item);
+            }
+          }`,
+          errors: 1,
+        },
+        {
+          code: `function inLoopBody(items: number[]) {
+            for (const item of items) {
+              const sorted = items.sort();
+              console.log(item, sorted);
+            }
+          }`,
+          errors: 1,
+        },
         {
           code: `
         let a = [];
