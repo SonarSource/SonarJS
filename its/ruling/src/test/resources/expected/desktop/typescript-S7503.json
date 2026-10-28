@@ -1,8 +1,4 @@
 {
-"desktop:app/src/lib/databases/pull-request-database.ts": [
-121,
-135
-],
 "desktop:app/src/lib/databases/repositories-database.ts": [
 167
 ],
@@ -17,33 +13,6 @@
 ],
 "desktop:app/src/lib/git/spawn.ts": [
 35
-],
-"desktop:app/src/lib/markdown-filters/close-keyword-filter.ts": [
-105
-],
-"desktop:app/src/lib/markdown-filters/commit-mention-filter.ts": [
-178
-],
-"desktop:app/src/lib/markdown-filters/commit-mention-link-filter.ts": [
-124
-],
-"desktop:app/src/lib/markdown-filters/issue-link-filter.ts": [
-106
-],
-"desktop:app/src/lib/markdown-filters/issue-mention-filter.ts": [
-127
-],
-"desktop:app/src/lib/markdown-filters/mention-filter.ts": [
-90
-],
-"desktop:app/src/lib/markdown-filters/team-mention-filter.ts": [
-75
-],
-"desktop:app/src/lib/markdown-filters/video-link-filter.ts": [
-45
-],
-"desktop:app/src/lib/markdown-filters/video-tag-filter.ts": [
-30
 ],
 "desktop:app/src/lib/ssh/ssh-secret-storage.ts": [
 39
@@ -83,12 +52,6 @@
 "desktop:app/src/lib/trampoline/trampoline-server.ts": [
 60
 ],
-"desktop:app/src/main-process/alive-origin-filter.ts": [
-8
-],
-"desktop:app/src/main-process/authenticated-avatar-filter.ts": [
-16
-],
 "desktop:app/src/main-process/main.ts": [
 210,
 485,
@@ -111,10 +74,6 @@
 675,
 678
 ],
-"desktop:app/src/main-process/same-origin-filter.ts": [
-40,
-54
-],
 "desktop:app/src/ui/add-repository/add-existing-repository.tsx": [
 238
 ],
@@ -124,9 +83,6 @@
 "desktop:app/src/ui/app.tsx": [
 928,
 2955
-],
-"desktop:app/src/ui/autocompletion/emoji-autocompletion-provider.tsx": [
-44
 ],
 "desktop:app/src/ui/banners/cherry-pick-conflicts-banner.tsx": [
 20

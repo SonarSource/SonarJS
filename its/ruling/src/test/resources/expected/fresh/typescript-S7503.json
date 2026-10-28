@@ -9,24 +9,12 @@
 "fresh:packages/fresh/src/context_test.tsx": [
 230
 ],
-"fresh:packages/fresh/src/dev/dev_build_cache.ts": [
-195,
-300
-],
-"fresh:packages/fresh/src/middlewares/mod_test.ts": [
-140
-],
-"fresh:packages/fresh/src/middlewares/static_files_test.ts": [
-49
-],
 "fresh:packages/fresh/src/middlewares/trailing_slashes_test.ts": [
 9,
 36
 ],
 "fresh:packages/fresh/src/test_utils.ts": [
-106,
-125,
-132
+106
 ],
 "fresh:packages/fresh/tests/fixture_update_check/mod.ts": [
 5
