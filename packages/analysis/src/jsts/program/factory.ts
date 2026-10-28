@@ -180,9 +180,7 @@ export function createOrGetCachedProgramForFile(
   skipNodeModuleLookupOutsideBaseDir = false,
 ) {
   const cacheManager = getProgramCacheManager();
-  const filesContext = getCurrentFilesContext();
   const contextVersion = getSourceFilesContextVersion();
-  const fileContent = filesContext?.[sourceFile]?.fileContent;
 
   // Try to find an existing program containing this file
   const cachedProgram = cacheManager.findProgramForFile(sourceFile);
@@ -192,19 +190,7 @@ export function createOrGetCachedProgramForFile(
     const tsProgram = program.getProgram();
     const totalFiles = tsProgram.getSourceFiles().length;
 
-    // Apply all supplied dependency edits before the first type query, once per
-    // host and request rather than rescanning the request for each analyzed file.
-    let wasUpdated = host.updateFile(sourceFile, fileContent);
-    if (synchronizedHostVersions.get(host) !== contextVersion) {
-      for (const [file, context] of Object.entries(filesContext ?? {})) {
-        if (file !== sourceFile && tsProgram.getSourceFile(file)) {
-          wasUpdated =
-            host.updateFile(file as NormalizedAbsolutePath, context.fileContent) || wasUpdated;
-        }
-      }
-    }
-
-    if (wasUpdated) {
+    if (updateCachedProgramFiles(host, tsProgram, sourceFile)) {
       info(
         `Cache HIT: Recreating program with changes from ${sourceFile} (${totalFiles} files, no changes)`,
       );
@@ -249,4 +235,24 @@ export function createOrGetCachedProgramForFile(
   synchronizedHostVersions.set(host, contextVersion);
 
   return builderProgram.getProgram();
+}
+
+/** Apply dependency edits before type queries, scanning the request once per host. */
+function updateCachedProgramFiles(
+  host: IncrementalCompilerHost,
+  program: ts.Program,
+  sourceFile: NormalizedAbsolutePath,
+): boolean {
+  const filesContext = getCurrentFilesContext();
+  let wasUpdated = host.updateFile(sourceFile, filesContext?.[sourceFile]?.fileContent);
+  if (synchronizedHostVersions.get(host) === getSourceFilesContextVersion()) {
+    return wasUpdated;
+  }
+  for (const [file, context] of Object.entries(filesContext ?? {})) {
+    if (file !== sourceFile && program.getSourceFile(file)) {
+      wasUpdated =
+        host.updateFile(file as NormalizedAbsolutePath, context.fileContent) || wasUpdated;
+    }
+  }
+  return wasUpdated;
 }
