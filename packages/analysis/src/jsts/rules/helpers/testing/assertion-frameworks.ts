@@ -40,6 +40,7 @@ type AssertionDetector = (context: Rule.RuleContext, node: estree.Node) => boole
 type TypeScriptAssertionDetector = (
   services: ParserServicesWithTypeInformation,
   node: ts.Node,
+  context: Rule.RuleContext,
 ) => boolean;
 
 type AssertionFrameworkDefinition = {
@@ -176,13 +177,10 @@ export function allAssertionFrameworks(
 }
 
 /**
- * Extra per-framework detection a rule can bolt onto the catalog's own detectors.
- *
- * Each fallback runs when the matching catalog detector misses. The profile limits a fallback to
- * the rules that need it.
+ * Extra type-aware detection a rule can bolt onto the catalog's own detector.
+ * The fallback runs when the matching catalog detector misses.
  */
 type AssertionEvidenceExtension = {
-  isAssertionFallback?: AssertionDetector;
   isTSAssertionFallback?: (
     context: Rule.RuleContext,
     services: ParserServicesWithTypeInformation,
@@ -236,10 +234,7 @@ export function isAssertionEvidence(
   node: estree.Node,
   profile: AssertionEvidenceProfile,
 ): boolean {
-  return getFrameworkEntries(profile).some(
-    ({ framework, extension }) =>
-      framework.isAssertion(context, node) || extension.isAssertionFallback?.(context, node),
-  );
+  return getFrameworkEntries(profile).some(({ framework }) => framework.isAssertion(context, node));
 }
 
 /**
@@ -256,7 +251,7 @@ export function isTypeScriptAssertionEvidence(
 ): boolean {
   return getFrameworkEntries(profile).some(
     ({ framework, extension }) =>
-      framework.isTSAssertion?.(services, node) ||
+      framework.isTSAssertion?.(services, node, context) ||
       extension.isTSAssertionFallback?.(context, services, node),
   );
 }
@@ -327,6 +322,6 @@ function getFrameworkEntries<T>(profile: AssertionFrameworkProfile<T>) {
 }
 
 type FrameworkEntry<T> = {
-  framework: (typeof assertionFrameworks)[AssertionFrameworkKey];
+  framework: AssertionFrameworkDefinition;
   extension: T;
 };

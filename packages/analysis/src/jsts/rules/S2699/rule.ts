@@ -29,7 +29,6 @@ import {
 import { isRequiredParserServices } from '../helpers/parser-services.js';
 import * as Mocha from '../helpers/testing/mocha.js';
 import * as Vitest from '../helpers/testing/vitest.js';
-import * as Supertest from './supertest.js';
 import {
   followCallToImplementation,
   followTypeScriptCallToImplementation,
@@ -50,14 +49,9 @@ import type { ParserServicesWithTypeInformation, TSESTree } from '@typescript-es
 import ts from 'typescript';
 
 /**
- * Any assertion clears this rule. The fallbacks also recognize local Supertest factories and
- * setup-assigned AWS CDK templates.
+ * Any assertion clears this rule. The fallback also recognizes setup-assigned AWS CDK templates.
  */
 const ASSERTION_EVIDENCE_PROFILE = allAssertionFrameworks({
-  supertest: {
-    isAssertionFallback: Supertest.isLocalFactoryAssertion,
-    isTSAssertionFallback: Supertest.isTSLocalFactoryAssertion,
-  },
   awsCdk: {
     isTSAssertionFallback: AwsCdk.isTSAssertionWithAssignmentFallback,
   },
