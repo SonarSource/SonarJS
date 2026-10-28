@@ -1907,28 +1907,81 @@ it('checks the response', async () => {
     }
   });
 
-  it('accepts typed local Supertest factories and reports a cast wrapper', () => {
-    const testCase = (factory: string) => `
+  it('accepts TypeScript wrappers only around proven local Supertest calls', () => {
+    const testCase = (factory: string, body = "await http().get('/items').expect(200);") => `
 import { it } from 'node:test';
 import request from 'supertest';
 ${factory}
 it('checks the response', async () => {
-  await http().get('/items').expect(200);
+  ${body}
 });
 `;
-    const valid = testCase('function http(): any { return request(app); }');
-    const invalid = testCase('const http = () => request(app) as any;');
+    const valid = [
+      testCase('function http(): any { return request(app); }'),
+      testCase('const http = () => request(app) as any;'),
+      testCase('const http = () => request(app) satisfies any;'),
+      testCase('const http = () => request(app)!;'),
+      testCase('const http = () => request(app);', "await http()!.get('/items').expect(200);"),
+      testCase(
+        'const http = () => request(app);',
+        "await ((http as any)() as any).get('/items')!.expect(200);",
+      ),
+      testCase(
+        'const http = () => request(app);',
+        "await ((http() satisfies any).get('/items').expect as any)(200);",
+      ),
+    ];
+    const invalid = [
+      {
+        name: 'rejects a cast fake request',
+        code: testCase('const http = () => fakeRequest(app) as any;'),
+      },
+      {
+        name: 'rejects a cast object-shaped fake request',
+        code: testCase('const http = () => ({ get: () => ({ expect: () => {} }) }) as any;'),
+      },
+      {
+        name: 'rejects a reassigned factory with a cast return',
+        code: testCase('let http = () => request(app) as any; http = () => fakeRequest(app);'),
+      },
+      {
+        name: 'rejects a wrapped plugin call',
+        code: testCase(
+          'const http = () => request(app) as any;',
+          "await (http() as any).get('/items').use(plugin)!.expect(200);",
+        ),
+      },
+      {
+        name: 'rejects an optional call with a cast return',
+        code: testCase(
+          'const http = () => request(app) as any;',
+          "await http()?.get('/items').expect(200);",
+        ),
+      },
+      {
+        name: 'rejects a computed member with a non-null wrapper',
+        code: testCase(
+          'const http = () => request(app) as any;',
+          "await http()!['get']('/items').expect(200);",
+        ),
+      },
+    ];
+
+    new NoTypeCheckingRuleTester().run(
+      'Local Supertest factory with a TypeScript type assertion',
+      rule,
+      {
+        valid: [
+          { code: testCase('const http = () => <any>request(app);'), filename: 'supertest.ts' },
+        ],
+        invalid: [],
+      },
+    );
 
     for (const Tester of [NoTypeCheckingRuleTester, RuleTester]) {
       new Tester().run(`Typed local Supertest factories (${Tester.name})`, rule, {
-        valid: [{ code: valid }],
-        invalid: [
-          {
-            name: 'reports a Supertest factory return cast as any in current behavior',
-            code: invalid,
-            errors: 1,
-          },
-        ],
+        valid: valid.map(code => ({ code })),
+        invalid: invalid.map(test => ({ ...test, errors: 1 })),
       });
     }
   });

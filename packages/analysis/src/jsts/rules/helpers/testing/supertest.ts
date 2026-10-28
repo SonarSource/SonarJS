@@ -15,7 +15,11 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { Rule } from 'eslint';
-import { getUniqueWriteReference, getVariableFromName } from '../ast.js';
+import {
+  getUniqueWriteReference,
+  getVariableFromName,
+  unwrapTypeScriptExpression,
+} from '../ast.js';
 import { getFullyQualifiedName, isRequire } from '../module.js';
 import { getFullyQualifiedNameTS } from '../module-ts.js';
 import type estree from 'estree';
@@ -85,7 +89,8 @@ function isLocalFactoryAssertion(context: Rule.RuleContext, node: estree.Node): 
   if (!factory || factory.params.length !== 0 || factory.async || factory.generator) {
     return false;
   }
-  const returned = getReturnedExpression(factory);
+  const expression = getReturnedExpression(factory);
+  const returned = expression && unwrapTypeScriptExpression(expression);
   return (
     returned?.type === 'CallExpression' &&
     getFullyQualifiedName(context, returned) === 'supertest' &&
@@ -159,14 +164,18 @@ function getFactoryIdentifier(node: estree.Node): estree.Identifier | undefined 
   }
   let current = node;
   let methodCount = 0;
-  while (current.callee.type === 'MemberExpression') {
-    const { callee } = current;
+  while (true) {
+    const callee = unwrapTypeScriptExpression(current.callee);
+    if (callee.type !== 'MemberExpression') {
+      break;
+    }
+    const object = unwrapTypeScriptExpression(callee.object);
     if (
       current.optional ||
       callee.optional ||
       callee.computed ||
       callee.property.type !== 'Identifier' ||
-      callee.object.type !== 'CallExpression' ||
+      object.type !== 'CallExpression' ||
       (methodCount === 0 && callee.property.name !== 'expect') ||
       // Plugins can replace expect.
       callee.property.name === 'use'
@@ -174,13 +183,14 @@ function getFactoryIdentifier(node: estree.Node): estree.Identifier | undefined 
       return undefined;
     }
     methodCount++;
-    current = callee.object;
+    current = object;
   }
+  const callee = unwrapTypeScriptExpression(current.callee);
   return methodCount >= 2 &&
     !current.optional &&
     current.arguments.length === 0 &&
-    current.callee.type === 'Identifier'
-    ? current.callee
+    callee.type === 'Identifier'
+    ? callee
     : undefined;
 }
 
