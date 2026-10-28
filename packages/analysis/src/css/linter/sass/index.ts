@@ -24,6 +24,7 @@ import postcss, {
 } from 'postcss';
 import { sass } from 'sass-parser';
 import { PostcssAstBuilder } from './postcss-ast-builder.js';
+import { SassSource } from './sass-source.js';
 
 /**
  * Parse Sass grammar and indentation, then build the PostCSS representation for Stylelint.
@@ -33,9 +34,10 @@ import { PostcssAstBuilder } from './postcss-ast-builder.js';
  */
 function parse(code: string | { toString(): string }, options?: ProcessOptions): Root {
   const input = new postcss.Input(code.toString(), options);
+  const source = new SassSource(input, typeof options?.document === 'string');
   let parsed: ReturnType<typeof sass.parse>;
   try {
-    parsed = sass.parse(input.css, { from: options?.from });
+    parsed = sass.parse(source.code, { from: options?.from });
   } catch (error) {
     // The parser export currently throws a Dart error without the public SassException fields.
     // Its diagnostic footer carries the original, one-based location even when the path has spaces.
@@ -46,10 +48,10 @@ function parse(code: string | { toString(): string }, options?: ProcessOptions):
     throw input.error(
       error.message.split('\n')[0].replace(/^Error:\s*/, ''),
       Number(location[1]),
-      Number(location[2]),
+      source.originalColumn(Number(location[1]), Number(location[2])),
     );
   }
-  return new PostcssAstBuilder(input).build(parsed);
+  return new PostcssAstBuilder(source).build(parsed);
 }
 
 /** Emit indentation and original token spelling, without introducing CSS braces or semicolons. */
@@ -68,7 +70,9 @@ const stringify: Stringifier = (node, builder) => {
       return;
     }
     if (current.type === 'rule') {
-      builder((current as postcss.Rule).selector, current, 'start');
+      const rule = current as postcss.Rule;
+      const raw = rule.raws.selector;
+      builder(raw?.value === rule.selector ? raw.raw : rule.selector, current, 'start');
     } else if (current.type === 'atrule') {
       const rule = current as postcss.AtRule;
       const params = rule.raws.params?.raw ?? rule.params;

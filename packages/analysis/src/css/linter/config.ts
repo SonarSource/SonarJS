@@ -16,7 +16,7 @@
  */
 import type stylelint from 'stylelint';
 import postcssHtml from 'postcss-html';
-import { postcssSass } from './sass.js';
+import { postcssSass } from './sass/index.js';
 import postcssScss from 'postcss-scss';
 import postcssLess from 'postcss-less';
 import postcssHtmlConfig from 'stylelint-config-html/html.js';
@@ -64,7 +64,15 @@ export function createStylelintConfig(rules: RuleConfig[]): stylelint.Config {
   const configRules: ConfigRules = {};
   const cssOnlyRules: ConfigRules = {};
   for (const { key, configurations } of rules) {
-    const value = configurations.length === 0 ? true : configurations;
+    let value = configurations.length === 0 ? true : configurations;
+    if (key === 'nesting-selector-no-missing-scoping-root') {
+      // Sass mixin bodies receive their selector scope at the include site.
+      const [primary = true, secondary = {}] = configurations;
+      value = [
+        primary,
+        { ...secondary, ignoreAtRules: ['mixin', 'include', ...(secondary.ignoreAtRules ?? [])] },
+      ];
+    }
     if (cssOnlyRuleKeys.has(key)) {
       cssOnlyRules[key] = value;
     } else {

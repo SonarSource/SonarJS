@@ -17,7 +17,7 @@
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import postcss, { type Root, type Declaration } from 'postcss';
-import { postcssSass } from '../../../src/css/linter/sass.js';
+import { postcssSass } from '../../../src/css/linter/sass/index.js';
 import { LinterWrapper } from '../../../src/css/linter/wrapper.js';
 import { normalizeToAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import { computeHighlighting } from '../../../src/css/analysis/highlighting.js';
@@ -28,6 +28,30 @@ const from = normalizeToAbsolutePath('/tmp/sonarjs-sass-parser/input.sass');
 const parse = (code: string) => postcssSass.parse!(code, { from }) as Root;
 
 describe('Sass syntax', () => {
+  it('preserves continuation comment text, whitespace and suppression locations', () => {
+    const code =
+      '// first  \r\n    continued  \r\n  \r\n    final\t \r\n// NOSONAR\r\na\r\n  color: red\r\n';
+    const root = parse(code);
+    expect(root.first).toMatchObject({
+      type: 'comment',
+      text: 'first  \r\n    continued  \r\n  \r\n    final',
+      source: { start: { line: 1, column: 1 }, end: { line: 4, column: 9 } },
+    });
+    expect(computeMetrics(root).nosonarLines).toEqual([5]);
+    expect(root.toString(postcssSass.stringify)).toBe(code);
+  });
+
+  it('keeps commented selector lists in one rule and exposes comment-free selector text', () => {
+    const code = 'a, // first\nb, // second\nc\n  color: red\n';
+    const root = parse(code);
+    expect(root.nodes).toHaveLength(1);
+    expect(root.first).toMatchObject({
+      selector: 'a, \nb, \nc',
+      nodes: [{ type: 'decl', prop: 'color', value: 'red' }],
+    });
+    expect(root.toString(postcssSass.stringify)).toBe(code);
+  });
+
   for (const code of [
     '@use "sass:math"\na\n  width: math.div(4, 2)\n',
     '@use "settings"\na\n  color: settings.$color\n  @include tools.rounded(2px)\n',
@@ -40,6 +64,20 @@ describe('Sass syntax', () => {
     '@each $x in red, blue\n  .#{$x}\n    color: $x\n',
     '=theme($x)\n  color: $x\na\n  +theme(red)\n',
     'a,\nb\n  color: red\n',
+    'a, // first\nb, // second\nc\n  color: red\n',
+    '@media screen // NOSONAR\n  a\n    color: red\n',
+    '@include theme // note\n  color: red\n',
+    '@include theme(url(//cdn.example/x.svg)) // note\n  color: red\n',
+    'a\n  @at-root & // note\n    color: red\n',
+    '@at-root .a\n  color: red\n',
+    '+theme // note\n  color: red\n',
+    '@if $x // note\n  a\n    color: red\n@else // other\n  b\n    color: blue\n',
+    '@each $x in red, blue // note\n  a\n    color: $x\n',
+    'a // note\n  color: red\n',
+    'a\n  font: 12px // note\n    family: serif\n',
+    '// first  \r\n    continued  \r\n  \r\n    final\t \r\na\r\n  color: red\r\n',
+    '$map: (\n  // explanation\n  color: red,\n)\n',
+    'a\n  content: "https://example.test//literal" // note\n',
     'a\n  font:\n    size: 12px\n',
     'a\n  font: 12px\n    family: serif\n',
     '$map: (red: #f00, blue: #00f)\na\n  color: map.get($map, red)\n',
@@ -83,6 +121,60 @@ describe('Sass syntax', () => {
       start: { line: 2, column: 3, offset: 4 },
       end: { line: 2, column: 12, offset: 14 },
     });
+  });
+
+  it('exposes trailing header comments as nodes with original locations', () => {
+    const code = '@media screen // NOSONAR\n  a // selector\n    color: red\n';
+    const root = parse(code);
+    expect(root.first).toMatchObject({
+      type: 'atrule',
+      name: 'media',
+      params: 'screen',
+      nodes: [
+        { type: 'comment', text: 'NOSONAR', source: { start: { line: 1, column: 15 } } },
+        {
+          type: 'rule',
+          selector: 'a',
+          nodes: [
+            { type: 'comment', text: 'selector', source: { start: { line: 2, column: 5 } } },
+            { type: 'decl', prop: 'color', source: { start: { line: 3, column: 5 } } },
+          ],
+        },
+      ],
+    });
+    expect(computeMetrics(root).nosonarLines).toEqual([1]);
+    expect(root.toString(postcssSass.stringify)).toBe(code);
+  });
+
+  it('keeps at-root selectors in their source header rather than inventing nested rules', async () => {
+    const code = 'a\n  @at-root &\n    color: red\n';
+    expect(parse(code).first).toMatchObject({
+      nodes: [
+        { type: 'atrule', name: 'at-root', params: '&', nodes: [{ type: 'decl', prop: 'color' }] },
+      ],
+    });
+    const linter = new LinterWrapper();
+    linter.initialize([{ key: 'block-no-redundant-nested-style-rules', configurations: [] }]);
+    expect((await linter.lint(from, code)).issues).toEqual([]);
+  });
+
+  it('dedents embedded modules without changing original source positions or formatting', () => {
+    const code = '\r\n  @use "sass:math"\r\n  a\r\n    width: math.div(4, 2)\r\n';
+    const root = postcssSass.parse!(code, {
+      from,
+      document: '<style lang="sass">...</style>',
+    }) as Root;
+    expect(root.first).toMatchObject({
+      name: 'use',
+      source: { start: { line: 2, column: 3, offset: 4 } },
+    });
+    expect(root.last).toMatchObject({
+      selector: 'a',
+      source: { start: { line: 3, column: 3 } },
+      nodes: [{ prop: 'width', source: { start: { line: 4, column: 5 } } }],
+    });
+    expect(root.source!.input.css).toBe(code);
+    expect(root.toString(postcssSass.stringify)).toBe(code);
   });
 
   it('retains mixin calls and bodies as at-rules', () => {
@@ -171,6 +263,93 @@ describe('Sass syntax', () => {
 });
 
 describe('Stylelint with Sass syntax', () => {
+  for (const indent of ['  ', '\t']) {
+    it(`handles embedded base indentation ${JSON.stringify(indent)} without shifting locations`, async () => {
+      const linter = new LinterWrapper();
+      linter.initialize(rules);
+      const childIndent = indent === '\t' ? '\t' : '  ';
+      const code = `<style lang="sass">\n${indent}a:not(:hover)\n${indent}${childIndent}color:#ggg\n${indent}b\n${indent}${childIndent}color: #hhh\n</style>`;
+      const { issues } = await linter.lint(normalizeToAbsolutePath('/tmp/input.vue'), code);
+      expect(issues).toEqual([
+        expect.objectContaining({
+          ruleId: 'color-no-invalid-hex',
+          line: 3,
+          column: indent.length + childIndent.length + 6,
+        }),
+        expect.objectContaining({
+          ruleId: 'color-no-invalid-hex',
+          line: 5,
+          column: indent.length + childIndent.length + 7,
+        }),
+      ]);
+    });
+  }
+
+  it('runs declaration rules on compact values', async () => {
+    const linter = new LinterWrapper();
+    linter.initialize(rules);
+    const { issues } = await linter.lint(
+      from,
+      'a\n  color:#ggg // invalid\n  margin:0\n  margin:0\n',
+    );
+    expect(issues).toEqual([
+      expect.objectContaining({ ruleId: 'color-no-invalid-hex', line: 2, column: 8 }),
+      expect.objectContaining({ ruleId: 'declaration-block-no-duplicate-properties', line: 3 }),
+    ]);
+  });
+
+  it('handles mixin scope, Sass import placement and interpolated calculations', async () => {
+    const linter = new LinterWrapper();
+    linter.initialize(
+      [
+        'nesting-selector-no-missing-scoping-root',
+        'no-invalid-position-at-import-rule',
+        'sonar/function-calc-no-invalid',
+      ].map(key => ({ key, configurations: [] })),
+    );
+    const code =
+      '=theme\n  &:hover\n    opacity: calc((#{$opacity} + #{map.get($states, "hover")}) * var(--multiplier))\na\n  +theme\n@import "other"\n';
+    expect((await linter.lint(from, code)).issues).toEqual([]);
+    expect(
+      (
+        await linter.lint(
+          normalizeToAbsolutePath('/tmp/input.vue'),
+          `<style lang="sass">\n${code}</style>`,
+        )
+      ).issues,
+    ).toEqual([]);
+    const { issues } = await linter.lint(from, '&:hover\n  width: calc(1px / 0)\n');
+    expect(issues.map(issue => issue.ruleId).sort()).toEqual([
+      'nesting-selector-no-missing-scoping-root',
+      'sonar/function-calc-no-invalid',
+    ]);
+    expect(
+      (await linter.lint(normalizeToAbsolutePath('/tmp/input.css'), 'a {}\n@import "other";'))
+        .issues,
+    ).toEqual([expect.objectContaining({ ruleId: 'no-invalid-position-at-import-rule' })]);
+  });
+
+  it('keeps directives, mixin calls, data URLs and important annotations visible to the right rules', async () => {
+    const linter = new LinterWrapper();
+    linter.initialize(
+      [
+        'no-empty-source',
+        'selector-type-no-unknown',
+        'unit-no-unknown',
+        'sonar/annotation-no-unknown',
+        'sonar/declaration-no-important',
+      ].map(key => ({ key, configurations: [] })),
+    );
+    expect((await linter.lint(from, '@use "theme"\n')).issues).toEqual([]);
+    const { issues } = await linter.lint(
+      from,
+      '+theme\n  background-image: url(data:image/svg+xml,%3Csvg%20width%3D%2224%22%3E%3C/svg%3E)\n  margin: 0 !important\n',
+    );
+    expect(issues).toEqual([
+      expect.objectContaining({ ruleId: 'sonar/declaration-no-important', line: 3 }),
+    ]);
+  });
+
   const rules = [
     'color-no-invalid-hex',
     'declaration-block-no-duplicate-properties',
@@ -227,6 +406,18 @@ describe('Stylelint with Sass syntax', () => {
     );
     expect(issues).toEqual([
       expect.objectContaining({ ruleId: 'CssSyntaxError', line: 3, column: 10 }),
+    ]);
+  });
+
+  it('maps syntax errors in indented embedded blocks back to document columns', async () => {
+    const linter = new LinterWrapper();
+    linter.initialize(rules);
+    const { issues } = await linter.lint(
+      normalizeToAbsolutePath('/tmp/input.vue'),
+      '<style lang="sass">\n  a\n    color: (\n</style>',
+    );
+    expect(issues).toEqual([
+      expect.objectContaining({ ruleId: 'CssSyntaxError', line: 3, column: 12 }),
     ]);
   });
 });

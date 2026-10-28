@@ -24,6 +24,8 @@ import postcss, {
 } from 'postcss';
 import type { AnyStatement, Root as SassRoot } from 'sass-parser';
 import scss from 'postcss-scss';
+import { SassSource } from './sass-source.js';
+import { trailingComment } from './sass-header.js';
 
 type Bounds = { start: number; end: number };
 
@@ -33,7 +35,11 @@ type Bounds = { start: number; end: number };
  * so statement headers are read from the source and tokenized with postcss-scss.
  */
 export class PostcssAstBuilder {
-  constructor(private readonly input: Input) {}
+  private readonly input: Input;
+
+  constructor(private readonly sassSource: SassSource) {
+    this.input = sassSource.input;
+  }
 
   /** Build a PostCSS root whose nodes and locations refer to the original Sass source. */
   build(sassRoot: SassRoot): Root {
@@ -90,13 +96,28 @@ export class PostcssAstBuilder {
     if (node.type === 'comment') {
       return this.buildComments(node.sassType === 'sass-comment', range);
     }
-    const nested = 'nodes' in node ? node.nodes : undefined;
+    let nested = 'nodes' in node ? node.nodes : undefined;
+    const inlineSelector = nested?.[0];
+    if (
+      node.type === 'atrule' &&
+      node.name === 'at-root' &&
+      inlineSelector?.type === 'rule' &&
+      this.position(this.bounds(inlineSelector).start).line === this.position(range.start).line
+    ) {
+      // Dart Sass turns `@at-root &` into an implicit rule. Keep its selector in the
+      // source header instead, so CSS rules do not report a redundant nested `&`.
+      nested = inlineSelector.nodes;
+    }
     const firstChild = nested?.[0];
     const headerEnd = firstChild ? this.bounds(firstChild).start : range.end;
-    const header = input.css.slice(range.start, headerEnd).trimEnd();
+    const originalHeader = input.css.slice(range.start, headerEnd).trimEnd();
+    const comment = trailingComment(originalHeader);
+    const header = (
+      comment === undefined ? originalHeader : originalHeader.slice(0, comment)
+    ).trimEnd();
     let converted: ChildNode;
     if (node.type === 'rule') {
-      converted = postcss.rule({ selector: header });
+      converted = this.tokenizeHeader(`${header}{}`, range, 0).first!;
     } else {
       // SCSS shares Sass declaration/at-rule token syntax. Let its tokenizer retain raw values,
       // comments and !important rather than duplicating those lexical rules here.
@@ -106,8 +127,10 @@ export class PostcssAstBuilder {
         : header;
       // Without a value, SCSS interprets `font: {}` as a selector rather than a nested property.
       const emptyNestedValue = node.type === 'decl' && nested && normalized.endsWith(':');
-      const parsed: Root = scss.parse(
+      const parsed = this.tokenizeHeader(
         normalized + (emptyNestedValue ? ' __sonar_sass_empty__' : '') + (nested ? '{}' : ''),
+        range,
+        normalized.length - header.length,
       );
       converted = parsed.first!;
       if (emptyNestedValue) {
@@ -137,14 +160,37 @@ export class PostcssAstBuilder {
         });
       }
     }
-    converted.source = this.source(range);
+    for (const field of ['selector', 'value', 'params']) {
+      const raw = converted.raws[field] as { raw: string; scss?: string } | undefined;
+      if (raw?.scss !== undefined) raw.raw = raw.scss;
+    }
+    converted.source = this.source(
+      comment !== undefined && !nested
+        ? { start: range.start, end: range.start + header.length }
+        : range,
+    );
     converted.raws.sassSemicolon = !nested && header.endsWith(';');
     if (nested) {
       const container = converted as Container;
       container.removeAll();
       this.buildChildren(container, nested, range.start + header.length, range.end);
     }
-    return [converted];
+    return comment !== undefined && !nested
+      ? [converted, ...this.buildComments(true, { start: range.start + comment, end: range.end })]
+      : [converted];
+  }
+
+  private tokenizeHeader(text: string, range: Bounds, insertedPrefix: number): Root {
+    try {
+      return scss.parse(text);
+    } catch (error) {
+      if (error.name !== 'CssSyntaxError' || typeof error.input?.offset !== 'number') throw error;
+      const offset = Math.max(
+        range.start,
+        Math.min(range.end, range.start + error.input.offset - insertedPrefix),
+      );
+      throw this.input.error(error.reason, offset);
+    }
   }
 
   private buildComments(inline: boolean, range: Bounds): ChildNode[] {
@@ -158,28 +204,26 @@ export class PostcssAstBuilder {
       return [comment];
     }
     // Separate consecutive // comments so NOSONAR and sonar-resolve retain their own line numbers.
-    const result: ChildNode[] = [];
+    const ranges: Bounds[] = [];
     let offset = range.start;
     for (const line of text.split(/(?<=\n)/)) {
       const match = /^([\t ]*)\/\/(.*?)[\r\n]*$/.exec(line);
+      const end = offset + line.trimEnd().length;
       if (match) {
-        const comment = this.createComment(match[2]);
-        comment.raws.inline = true;
-        const start = offset + match[1].length;
-        comment.source = this.source({ start, end: offset + line.trimEnd().length });
-        result.push(comment);
-      } else if (result.length > 0) {
+        ranges.push({ start: offset + match[1].length, end });
+      } else if (ranges.length > 0) {
         // Indented Sass comments may continue on a line without another // marker.
-        const previous = result.at(-1)! as postcss.Comment;
-        previous.text += '\n' + line.trimEnd();
-        previous.source = this.source({
-          start: previous.source!.start!.offset!,
-          end: offset + line.trimEnd().length,
-        });
+        ranges.at(-1)!.end = end;
       }
       offset += line.length;
     }
-    return result;
+    // Read each full comment once, retaining interior whitespace without repeated rescanning.
+    return ranges.map(bounds => {
+      const comment = this.createComment(input.css.slice(bounds.start + 2, bounds.end));
+      comment.raws.inline = true;
+      comment.source = this.source(bounds);
+      return comment;
+    });
   }
 
   private createComment(body: string): postcss.Comment {
@@ -237,8 +281,8 @@ export class PostcssAstBuilder {
   }
 
   private bounds(node: AnyStatement): Bounds {
-    let start = node.source!.start!.offset!;
-    const code = node.source!.input.css;
+    let start = this.sassSource.originalOffset(node.source!.start!.offset!);
+    const code = this.input.css;
     // A leading backslash disambiguates selectors such as \::selection in indented Sass.
     // Sass's statement span starts after that marker; keep it out of the parent's header.
     if (
@@ -248,7 +292,7 @@ export class PostcssAstBuilder {
     ) {
       start--;
     }
-    return { start, end: node.source!.end!.offset! };
+    return { start, end: this.sassSource.originalOffset(node.source!.end!.offset!) };
   }
 
   private source({ start, end }: Bounds): Source {
