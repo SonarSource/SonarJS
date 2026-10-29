@@ -105,11 +105,11 @@ function getReturnedCall(factory: estree.Function): estree.CallExpression | unde
 }
 
 function isSupertestCall(context: Rule.RuleContext, returned: estree.CallExpression): boolean {
-  const fqn = getFullyQualifiedName(context, returned);
+  const callee = unwrapTypeScriptExpression(returned.callee);
+  const fqn = getFullyQualifiedName(context, callee) ?? getFullyQualifiedName(context, returned);
   if (fqn !== 'supertest' && fqn !== 'supertest.agent') {
     return false;
   }
-  const callee = unwrapTypeScriptExpression(returned.callee);
   // Example: const http = () => request(app); http().get('/').expect(200);
   // Example: import { agent } from 'supertest'; const http = () => agent(app);
   return hasDirectSupertestOrigin(context, callee, fqn);

@@ -1963,6 +1963,9 @@ it('checks the response', async () => {
       ),
       testCase('const http = () => request(app) as any;'),
       testCase('const http = () => request(app) satisfies any;'),
+      testCase('const http = () => (request as any)(app);'),
+      testCase('const http = () => (request satisfies any)(app);'),
+      testCase('const http = () => (request! as any)(app);'),
       testCase('const http = () => request(app)!;'),
       testCase('const http = () => request(app);', "await http()!.get('/items').expect(200);"),
       testCase(
@@ -1978,6 +1981,10 @@ it('checks the response', async () => {
       {
         name: 'rejects a cast fake request',
         code: testCase('const http = () => fakeRequest(app) as any;'),
+      },
+      {
+        name: 'rejects a cast fake request callee',
+        code: testCase('const http = () => (fakeRequest as any)(app);'),
       },
       {
         name: 'rejects a cast object-shaped fake request',
