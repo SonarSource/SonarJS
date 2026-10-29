@@ -26,6 +26,7 @@ import type { AnyStatement, Root as SassRoot } from 'sass-parser';
 import scss from 'postcss-scss';
 import { SassSource } from './sass-source.js';
 import { trailingComment } from './sass-header.js';
+import assert from 'node:assert';
 
 type Bounds = { start: number; end: number };
 
@@ -59,10 +60,11 @@ export class PostcssAstBuilder {
     const ranges = this.childBounds(nodes);
     let cursor = start;
     const append = (node: ChildNode): void => {
+      const bounds = this.nodeOffsets(node);
       node.remove();
-      node.raws.before = input.css.slice(cursor, node.source!.start!.offset);
+      node.raws.before = input.css.slice(cursor, bounds.start);
       parent.append(node);
-      cursor = node.source!.end!.offset!;
+      cursor = bounds.end;
     };
     const retainSkippedStatements = (until: number): void => {
       const text = input.css.slice(cursor, until);
@@ -71,10 +73,13 @@ export class PostcssAstBuilder {
       }
       // Sass omits @charset from its AST. Keep such source-only statements for metrics/highlighting.
       const offset = cursor;
-      for (const node of [...scss.parse(text).nodes]) {
+      // Snapshot the children: append removes each node from its parsed parent.
+      const skipped = scss.parse(text).nodes.slice();
+      for (const node of skipped) {
+        const bounds = this.nodeOffsets(node);
         node.source = this.source({
-          start: offset + node.source!.start!.offset!,
-          end: offset + node.source!.end!.offset!,
+          start: offset + bounds.start,
+          end: offset + bounds.end,
         });
         append(node);
       }
@@ -96,18 +101,7 @@ export class PostcssAstBuilder {
     if (node.type === 'comment') {
       return this.buildComments(node.sassType === 'sass-comment', range);
     }
-    let nested = 'nodes' in node ? node.nodes : undefined;
-    const inlineSelector = nested?.[0];
-    if (
-      node.type === 'atrule' &&
-      node.name === 'at-root' &&
-      inlineSelector?.type === 'rule' &&
-      this.position(this.bounds(inlineSelector).start).line === this.position(range.start).line
-    ) {
-      // Dart Sass turns `@at-root &` into an implicit rule. Keep its selector in the
-      // source header instead, so CSS rules do not report a redundant nested `&`.
-      nested = inlineSelector.nodes;
-    }
+    const nested = this.statementChildren(node, range);
     const firstChild = nested?.[0];
     const headerEnd = firstChild ? this.bounds(firstChild).start : range.end;
     const originalHeader = input.css.slice(range.start, headerEnd).trimEnd();
@@ -115,55 +109,13 @@ export class PostcssAstBuilder {
     const header = (
       comment === undefined ? originalHeader : originalHeader.slice(0, comment)
     ).trimEnd();
-    let converted: ChildNode;
-    if (node.type === 'rule') {
-      converted = this.tokenizeHeader(`${header}{}`, range, 0).first!;
-    } else {
-      // SCSS shares Sass declaration/at-rule token syntax. Let its tokenizer retain raw values,
-      // comments and !important rather than duplicating those lexical rules here.
-      const shorthand = node.type === 'atrule' && (header[0] === '+' || header[0] === '=');
-      const normalized = shorthand
-        ? `@${header[0] === '+' ? 'include' : 'mixin'} ${header.slice(1)}`
-        : header;
-      // Without a value, SCSS interprets `font: {}` as a selector rather than a nested property.
-      const emptyNestedValue = node.type === 'decl' && nested && normalized.endsWith(':');
-      const parsed = this.tokenizeHeader(
-        normalized + (emptyNestedValue ? ' __sonar_sass_empty__' : '') + (nested ? '{}' : ''),
-        range,
-        normalized.length - header.length,
-      );
-      converted = parsed.first!;
-      if (emptyNestedValue) {
-        const declaration = converted as postcss.Declaration;
-        declaration.value = '';
-        declaration.raws.between = declaration.raws.between!.trimEnd();
-      }
-      if (shorthand) {
-        converted.raws.sassShorthand = header[0];
-      }
-      // Sass includes a trailing // comment in the declaration's span, rather than making it
-      // a separate statement. SCSS gives it its own node; retain it and its original location.
-      if (!nested && parsed.nodes.length > 1) {
-        const offsetAdjustment = range.start - (shorthand ? normalized.length - header.length : 0);
-        return parsed.nodes.map(child => {
-          child.raws.sassSemicolon = input.css
-            .slice(
-              offsetAdjustment + child.source!.start!.offset!,
-              offsetAdjustment + child.source!.end!.offset!,
-            )
-            .endsWith(';');
-          child.source = this.source({
-            start: offsetAdjustment + child.source!.start!.offset!,
-            end: offsetAdjustment + child.source!.end!.offset!,
-          });
-          return child;
-        });
-      }
+    const { parsed, insertedPrefix } = this.buildHeader(node, header, nested !== undefined, range);
+    // SCSS gives comments inside a leaf header their own nodes. Retain their original locations.
+    if (node.type !== 'rule' && !nested && parsed.nodes.length > 1) {
+      return parsed.nodes.map(child => this.locateHeaderChild(child, range, insertedPrefix));
     }
-    for (const field of ['selector', 'value', 'params']) {
-      const raw = converted.raws[field] as { raw: string; scss?: string } | undefined;
-      if (raw?.scss !== undefined) raw.raw = raw.scss;
-    }
+    const converted = parsed.first;
+    assert.ok(converted, 'A Sass statement header must produce a PostCSS node.');
     converted.source = this.source(
       comment !== undefined && !nested
         ? { start: range.start, end: range.start + header.length }
@@ -180,11 +132,86 @@ export class PostcssAstBuilder {
       : [converted];
   }
 
+  private statementChildren(node: AnyStatement, range: Bounds): AnyStatement[] | undefined {
+    const nested = 'nodes' in node ? node.nodes : undefined;
+    const inlineSelector = nested?.[0];
+    if (
+      node.type === 'atrule' &&
+      node.name === 'at-root' &&
+      inlineSelector?.type === 'rule' &&
+      this.position(this.bounds(inlineSelector).start).line === this.position(range.start).line
+    ) {
+      // Dart Sass turns `@at-root &` into an implicit rule. Keep its selector in the
+      // source header instead, so CSS rules do not report a redundant nested `&`.
+      return inlineSelector.nodes;
+    }
+    return nested;
+  }
+
+  private buildHeader(
+    node: AnyStatement,
+    header: string,
+    nested: boolean,
+    range: Bounds,
+  ): { parsed: Root; insertedPrefix: number } {
+    // SCSS shares Sass declaration/at-rule tokens, including comments and !important.
+    const normalized = this.normalizeHeader(node, header);
+    const insertedPrefix = normalized.length - header.length;
+    // Without a value, SCSS interprets `font: {}` as a selector rather than a nested property.
+    const emptyNestedValue = node.type === 'decl' && nested && normalized.endsWith(':');
+    const suffix = node.type === 'rule' || nested ? '{}' : '';
+    const parsed = this.tokenizeHeader(
+      normalized + (emptyNestedValue ? ' __sonar_sass_empty__' : '') + suffix,
+      range,
+      insertedPrefix,
+    );
+    const converted = parsed.first;
+    assert.ok(converted, 'A Sass statement header must produce a PostCSS node.');
+    for (const field of ['selector', 'value', 'params']) {
+      const raw = converted.raws[field] as { raw: string; scss?: string } | undefined;
+      if (raw?.scss !== undefined) {
+        raw.raw = raw.scss;
+      }
+    }
+    if (emptyNestedValue) {
+      assert.ok(converted.type === 'decl', 'A nested property must produce a declaration.');
+      converted.value = '';
+      converted.raws.between = converted.raws.between?.trimEnd();
+    }
+    if (insertedPrefix !== 0) {
+      converted.raws.sassShorthand = header[0];
+    }
+    return { parsed, insertedPrefix };
+  }
+
+  private normalizeHeader(node: AnyStatement, header: string): string {
+    if (node.type === 'atrule') {
+      if (header.startsWith('+')) {
+        return `@include ${header.slice(1)}`;
+      }
+      if (header.startsWith('=')) {
+        return `@mixin ${header.slice(1)}`;
+      }
+    }
+    return header;
+  }
+
+  private locateHeaderChild(child: ChildNode, range: Bounds, insertedPrefix: number): ChildNode {
+    const bounds = this.nodeOffsets(child);
+    const adjustment = range.start - insertedPrefix;
+    const located = { start: adjustment + bounds.start, end: adjustment + bounds.end };
+    child.raws.sassSemicolon = this.input.css.slice(located.start, located.end).endsWith(';');
+    child.source = this.source(located);
+    return child;
+  }
+
   private tokenizeHeader(text: string, range: Bounds, insertedPrefix: number): Root {
     try {
       return scss.parse(text);
     } catch (error) {
-      if (error.name !== 'CssSyntaxError' || typeof error.input?.offset !== 'number') throw error;
+      if (error.name !== 'CssSyntaxError' || typeof error.input?.offset !== 'number') {
+        throw error;
+      }
       const offset = Math.max(
         range.start,
         Math.min(range.end, range.start + error.input.offset - insertedPrefix),
@@ -211,9 +238,12 @@ export class PostcssAstBuilder {
       const end = offset + line.trimEnd().length;
       if (match) {
         ranges.push({ start: offset + match[1].length, end });
-      } else if (ranges.length > 0) {
+      } else {
         // Indented Sass comments may continue on a line without another // marker.
-        ranges.at(-1)!.end = end;
+        const previous = ranges.at(-1);
+        if (previous) {
+          previous.end = end;
+        }
       }
       offset += line.length;
     }
@@ -247,8 +277,10 @@ export class PostcssAstBuilder {
         end: range.start + input.css.slice(range.start, range.end).trimEnd().length,
       };
     });
-    for (let i = 0; i < nodes.length; i++) {
+    let i = 0;
+    while (i < nodes.length) {
       if (nodes[i].sassType !== 'if-rule') {
+        i++;
         continue;
       }
       const range = ranges[i];
@@ -257,6 +289,7 @@ export class PostcssAstBuilder {
         last++;
       }
       if (last === i) {
+        i++;
         continue;
       }
       const column = this.position(range.start).column;
@@ -275,13 +308,14 @@ export class PostcssAstBuilder {
           end: range.start + input.css.slice(range.start, next).trimEnd().length,
         };
       }
-      i = last;
+      i = last + 1;
     }
     return ranges;
   }
 
   private bounds(node: AnyStatement): Bounds {
-    let start = this.sassSource.originalOffset(node.source!.start!.offset!);
+    const offsets = this.nodeOffsets(node);
+    let start = this.sassSource.originalOffset(offsets.start);
     const code = this.input.css;
     // A leading backslash disambiguates selectors such as \::selection in indented Sass.
     // Sass's statement span starts after that marker; keep it out of the parent's header.
@@ -292,7 +326,14 @@ export class PostcssAstBuilder {
     ) {
       start--;
     }
-    return { start, end: this.sassSource.originalOffset(node.source!.end!.offset!) };
+    return { start, end: this.sassSource.originalOffset(offsets.end) };
+  }
+
+  private nodeOffsets(node: { source?: Source }): Bounds {
+    const start = node.source?.start?.offset;
+    const end = node.source?.end?.offset;
+    assert.ok(start !== undefined && end !== undefined, 'A parsed node must have source offsets.');
+    return { start, end };
   }
 
   private source({ start, end }: Bounds): Source {
@@ -307,7 +348,9 @@ export class PostcssAstBuilder {
 
   private position(offset: number): Position {
     const input = this.input;
-    const { line, col } = input.fromOffset(offset)!;
+    const position = input.fromOffset(offset);
+    assert.ok(position, 'A source offset must resolve to a position.');
+    const { line, col } = position;
     return { line, column: col, offset };
   }
 }

@@ -54,6 +54,14 @@ function parse(code: string | { toString(): string }, options?: ProcessOptions):
   return new PostcssAstBuilder(source).build(parsed);
 }
 
+function atRuleHeader(rule: postcss.AtRule): string {
+  const params = rule.raws.params?.raw ?? rule.params;
+  const shorthand = rule.raws.sassShorthand;
+  return typeof shorthand === 'string'
+    ? shorthand + params
+    : `@${rule.name}${rule.raws.afterName ?? ''}${params}`;
+}
+
 /** Emit indentation and original token spelling, without introducing CSS braces or semicolons. */
 const stringify: Stringifier = (node, builder) => {
   function write(current: AnyNode): void {
@@ -74,15 +82,7 @@ const stringify: Stringifier = (node, builder) => {
       const raw = rule.raws.selector;
       builder(raw?.value === rule.selector ? raw.raw : rule.selector, current, 'start');
     } else if (current.type === 'atrule') {
-      const rule = current as postcss.AtRule;
-      const params = rule.raws.params?.raw ?? rule.params;
-      builder(
-        rule.raws.sassShorthand
-          ? rule.raws.sassShorthand + params
-          : `@${rule.name}${rule.raws.afterName ?? ''}${params}`,
-        current,
-        'start',
-      );
+      builder(atRuleHeader(current as postcss.AtRule), current, 'start');
     } else {
       postcss.stringify(current, builder);
     }

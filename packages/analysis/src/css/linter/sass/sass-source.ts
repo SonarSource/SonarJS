@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { Input } from 'postcss';
+import assert from 'node:assert';
 
 /** Dedent embedded styles for Dart Sass, keeping a mapping to the original source. */
 export class SassSource {
@@ -43,7 +44,9 @@ export class SassSource {
   }
 
   originalOffset(offset: number): number {
-    const { line, col } = this.parsedInput.fromOffset(offset)!;
+    const position = this.parsedInput.fromOffset(offset);
+    assert.ok(position, 'A parsed source offset must resolve to a position.');
+    const { line, col } = position;
     return this.lineOffsets[line - 1] + this.originalColumn(line, col) - 1;
   }
 

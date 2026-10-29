@@ -44,15 +44,18 @@ const ruleImpl: stylelint.RuleBase = () => {
 
       postcssValueParser(decl.value).walk(node => {
         if (!isCalcFunction(node)) {
-          return;
+          return undefined;
         }
 
         const calc = node as postcssValueParser.FunctionNode;
         // Interpolation can insert arbitrary tokens; its expanded expression is unknown here.
-        if (postcssValueParser.stringify(calc).includes('#{')) return false;
+        if (postcssValueParser.stringify(calc).includes('#{')) {
+          return false;
+        }
         checkDivisionByZero(calc.nodes, () => report(messages.divByZero));
         checkMissingOperator(calc.nodes, () => report(messages.malformed));
         checkEmpty(calc.nodes, () => report(messages.empty));
+        return undefined;
       });
     });
   };
