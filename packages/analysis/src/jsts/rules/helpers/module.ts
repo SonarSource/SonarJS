@@ -345,10 +345,7 @@ export function hasDirectModuleOrigin(
     }
     const specifier = definition.node;
     if (importedMember === undefined) {
-      if (
-        getFullyQualifiedName(context, node) !== name ||
-        specifier.type === 'ImportNamespaceSpecifier'
-      ) {
+      if (getFullyQualifiedName(context, node) !== name) {
         return false;
       }
       if (specifier.type === 'ImportSpecifier') {

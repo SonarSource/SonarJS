@@ -228,7 +228,7 @@ describe('hasDirectModuleOrigin', () => {
     ).toEqual(['request()', 'client()', "require('probe')()"]);
     expect(
       collectDirectModuleCalls("import * as namespace from 'probe'; namespace();", 'probe'),
-    ).toEqual([]);
+    ).toEqual(['namespace()']);
     expect(
       collectDirectModuleCalls("import { 'other' as value } from 'probe'; value();", 'probe'),
     ).toEqual([]);
