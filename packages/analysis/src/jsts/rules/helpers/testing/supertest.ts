@@ -207,6 +207,12 @@ function getFactoryIdentifier(node: estree.Node): estree.Identifier | undefined 
     : undefined;
 }
 
+/**
+ * Resolve `http()` only when `http` names one local function definition.
+ * Accept `function http() { ... }` with no writes to `http`.
+ * Accept `const http = () => ...` or `let http = function () { ... }` with one initializer write.
+ * Reject imported functions, aliases, and reassigned factories.
+ */
 function resolveLocalFactory(
   context: Rule.RuleContext,
   identifier: estree.Identifier,
