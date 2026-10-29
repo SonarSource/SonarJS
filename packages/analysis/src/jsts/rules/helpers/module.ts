@@ -331,59 +331,75 @@ export function hasDirectModuleOrigin(
   if (node.type !== 'Identifier') {
     return importedMember === undefined && isStableRequireCall(context, node, moduleName);
   }
-  const name = removeNodePrefixIfExists(moduleName.replaceAll('/', '.'));
   const variable = getVariableFromScope(context.sourceCode.getScope(node), node.name);
   if (variable?.defs.length !== 1) {
     return false;
   }
+  return (
+    isDirectImportBinding(context, node, variable, moduleName, importedMember) ||
+    isDirectRequireBinding(context, node, variable, moduleName, importedMember)
+  );
+}
+
+function isDirectImportBinding(
+  context: Rule.RuleContext,
+  node: estree.Identifier,
+  variable: Scope.Variable,
+  moduleName: string,
+  importedMember: string | undefined,
+): boolean {
   const definition = variable.defs[0];
-  if (definition.type === 'ImportBinding') {
-    if (
-      getReferencedModuleName(context.sourceCode, definition.parent as estree.Node) !== moduleName
-    ) {
-      return false;
-    }
-    const specifier = definition.node;
-    if (importedMember === undefined) {
-      if (getFullyQualifiedName(context, node) !== name) {
-        return false;
-      }
-      if (specifier.type === 'ImportSpecifier') {
-        const imported = specifier.imported;
-        if (
-          imported.type === 'Identifier'
-            ? imported.name !== 'default'
-            : imported.value !== 'default'
-        ) {
-          return false;
-        }
-      }
-    } else {
-      if (specifier.type !== 'ImportSpecifier') {
-        return false;
-      }
-      const imported = specifier.imported;
-      if (
-        isTypeOnlyImportBinding(specifier as TSESTree.Node, definition.parent as TSESTree.Node) ||
-        (imported.type === 'Identifier' ? imported.name : imported.value) !== importedMember
-      ) {
-        return false;
-      }
-    }
-    return !variable.references.some(reference => reference.isWrite());
+  if (
+    definition.type !== 'ImportBinding' ||
+    getReferencedModuleName(context.sourceCode, definition.parent as estree.Node) !== moduleName
+  ) {
+    return false;
   }
-  if (definition.type === 'Variable') {
-    const { id, init } = definition.node as estree.VariableDeclarator;
+  const specifier = definition.node;
+  if (importedMember !== undefined) {
     return (
-      importedMember === undefined &&
-      getFullyQualifiedName(context, node) === name &&
-      id.type === 'Identifier' &&
-      init != null &&
-      getUniqueWriteReference(variable) === init &&
-      isStableRequireCall(context, init, moduleName)
+      specifier.type === 'ImportSpecifier' &&
+      !isTypeOnlyImportBinding(specifier as TSESTree.Node, definition.parent as TSESTree.Node) &&
+      getImportedName(specifier) === importedMember &&
+      !variable.references.some(reference => reference.isWrite())
     );
   }
-  return false;
+  return (
+    getFullyQualifiedName(context, node) ===
+      removeNodePrefixIfExists(moduleName.replaceAll('/', '.')) &&
+    (specifier.type !== 'ImportSpecifier' || getImportedName(specifier) === 'default') &&
+    !variable.references.some(reference => reference.isWrite())
+  );
+}
+
+function getImportedName(specifier: estree.ImportSpecifier) {
+  const imported = specifier.imported;
+  return imported.type === 'Identifier' ? imported.name : imported.value;
+}
+
+function isDirectRequireBinding(
+  context: Rule.RuleContext,
+  node: estree.Identifier,
+  variable: Scope.Variable,
+  moduleName: string,
+  importedMember: string | undefined,
+): boolean {
+  const definition = variable.defs[0];
+  if (
+    definition.type !== 'Variable' ||
+    importedMember !== undefined ||
+    getFullyQualifiedName(context, node) !==
+      removeNodePrefixIfExists(moduleName.replaceAll('/', '.'))
+  ) {
+    return false;
+  }
+  const { id, init } = definition.node as estree.VariableDeclarator;
+  return (
+    id.type === 'Identifier' &&
+    init != null &&
+    getUniqueWriteReference(variable) === init &&
+    isStableRequireCall(context, init, moduleName)
+  );
 }
 
 function isStableRequireCall(
