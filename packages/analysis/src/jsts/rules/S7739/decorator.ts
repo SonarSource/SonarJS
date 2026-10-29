@@ -18,6 +18,9 @@
 
 import type { Rule } from 'eslint';
 import type { Node } from 'estree';
+import { ASTUtils, type TSESTree } from '@typescript-eslint/utils';
+import { getNodeParent } from '../helpers/ancestor.js';
+import { isNumberLiteral } from '../helpers/ast.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import * as meta from './generated-meta.js';
@@ -27,11 +30,7 @@ import {
 } from './false-positives/index.js';
 
 /**
- * Decorates the upstream unicorn 'no-thenable' rule so that reports are suppressed for the
- * false-positive patterns tracked in ./false-positives: validation-library conditional
- * configs (Yup/Joi), Promise/Deferred delegation and definitions, prototype extension,
- * sibling then/catch/finally implementations, JSON Schema conditionals, interface shape
- * descriptors, and classes with an explicit thenable contract.
+ * Suppresses numeric data properties and the established exceptions in ./false-positives.
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
@@ -43,6 +42,10 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       const node = (descriptor as { node?: Node }).node;
       if (!node) {
         context.report(descriptor);
+        return;
+      }
+
+      if (isNumericThenProperty(node)) {
         return;
       }
 
@@ -59,4 +62,42 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       context.report(descriptor);
     },
   );
+}
+
+/**
+ * Checks that a numeric `then` property cannot be replaced by a later object property.
+ */
+function isNumericThenProperty(node: Node): boolean {
+  const property = getNodeParent(node);
+  if (
+    property?.type !== 'Property' ||
+    property.key !== node ||
+    property.kind !== 'init' ||
+    !isNumberLiteral(property.value)
+  ) {
+    return false;
+  }
+
+  const object = getNodeParent(property);
+  if (object?.type !== 'ObjectExpression') {
+    return false;
+  }
+
+  const propertyIndex = object.properties.indexOf(property);
+  if (propertyIndex === -1) {
+    return false;
+  }
+
+  for (let index = propertyIndex + 1; index < object.properties.length; index++) {
+    const following = object.properties[index];
+    if (following.type !== 'Property' || following.computed) {
+      return false;
+    }
+    // The helper reads the same noncomputed key shape in both AST types.
+    const name = ASTUtils.getPropertyName(following as TSESTree.Property);
+    if (name == null || name === 'then') {
+      return false;
+    }
+  }
+  return true;
 }
