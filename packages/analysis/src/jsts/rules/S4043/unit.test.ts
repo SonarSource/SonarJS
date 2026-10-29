@@ -17,12 +17,38 @@
 import { rule } from './rule.js';
 import { RuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
+import path from 'node:path';
 
 describe('S4043', () => {
   it('S4043', () => {
     const ruleTester = new RuleTester();
     ruleTester.run('Array-mutating methods should not be used misleadingly.', rule, {
       valid: [
+        {
+          code: `function dynamic(items: number[], method: 'sort' | 'reverse') {
+            const result = items[method]();
+          }`,
+        },
+        {
+          code: 'function interpolated(items: number[], method: string) { const result = items[`${method}`](); }',
+        },
+        {
+          code: `function unproven(items: number[] | { sort(): number[] }) {
+            const result = items.sort();
+          }
+          function unknown(items: any) {
+            const result = items.sort();
+          }`,
+        },
+        {
+          code: 'function exempt(items: number[]) { items[`sort`](); return items[`reverse`](); }',
+        },
+        {
+          code: 'function self(items: number[]) { items = items[`sort`](); }',
+        },
+        {
+          code: 'function iterate(items: number[]) { for (const item of items[`sort`]()) {} }',
+        },
         {
           code: `
           function wrapped(items: number[]) {
@@ -141,6 +167,40 @@ describe('S4043', () => {
         },
       ],
       invalid: [
+        {
+          code: 'function staticKey(items: number[]) { const result = items[`sort`](); }',
+          errors: [
+            {
+              messageId: 'moveMethod',
+              suggestions: [
+                {
+                  desc: 'Replace with "toSorted" method',
+                  output:
+                    'function staticKey(items: number[]) { const result = items[`toSorted`](); }',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `function escapedKey(items: number[]) { const result = items['\\x72everse'](); }`,
+          errors: [
+            {
+              messageId: 'moveMethod',
+              suggestions: [
+                {
+                  desc: 'Replace with "toReversed" method',
+                  output:
+                    "function escapedKey(items: number[]) { const result = items['toReversed'](); }",
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `function generic<T extends number[]>(items: T) { const result = items.sort(); }`,
+          errors: 1,
+        },
         {
           code: `function chainedAssertion(items: number[]) {
             for (const item of (items.sort() as number[]).map(value => value)) {}
@@ -456,6 +516,43 @@ const y = x.toSorted((a, b) => true);`,
               ],
             },
           ],
+        },
+      ],
+    });
+  });
+});
+
+describe('S4043 with strict null checks', () => {
+  it('reports optional calls on nullable arrays', () => {
+    const ruleTester = new RuleTester({
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
+      },
+    });
+    const filename = path.join(import.meta.dirname, 'fixtures/index.ts');
+    ruleTester.run('S4043 strict nullable arrays', rule, {
+      valid: [
+        {
+          code: `function optionalMethod(items: number[] | undefined) {
+            const result = items.sort?.();
+          }`,
+          filename,
+        },
+        {
+          code: `function unproven(items: number[] | { sort(): number[] } | undefined) {
+            const result = items?.sort();
+          }`,
+          filename,
+        },
+      ],
+      invalid: [
+        {
+          code: `function nullable(items: number[] | undefined) {
+            const sorted = items?.sort();
+          }`,
+          filename,
+          errors: 1,
         },
       ],
     });
