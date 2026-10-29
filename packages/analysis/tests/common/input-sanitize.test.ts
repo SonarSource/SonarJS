@@ -58,12 +58,15 @@ describe('sanitizeInputFiles fileType resolution', () => {
       'src/main.ts': { filePath: 'src/main.ts', fileContent: 'const x = 1;' },
     };
     const { files, pathMap, excludedFiles } = await sanitizeInputFiles(input, configuration);
+    const excludedPath = normalizeToAbsolutePath('src/excluded.js', configuration.baseDir);
+    const largePath = normalizeToAbsolutePath('src/large.js', configuration.baseDir);
+    const mainPath = normalizeToAbsolutePath('src/main.ts', configuration.baseDir);
     expect(excludedFiles).toEqual({
-      '/project/src/excluded.js': 'configuration',
-      '/project/src/large.js': 'size',
+      [excludedPath]: 'configuration',
+      [largePath]: 'size',
     });
-    expect(pathMap.get('/project/src/excluded.js')).toBe('src/excluded.js');
-    expect(Object.keys(files)).toEqual(['/project/src/main.ts']);
+    expect(pathMap.get(excludedPath)).toBe('src/excluded.js');
+    expect(Object.keys(files)).toEqual([mainPath]);
   });
   it('strips a BOM from explicitly supplied file content', async () => {
     const filePath = '/project/src/file.js';

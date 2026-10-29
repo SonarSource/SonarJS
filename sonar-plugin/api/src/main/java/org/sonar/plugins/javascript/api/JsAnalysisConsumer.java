@@ -41,10 +41,12 @@ public interface JsAnalysisConsumer {
 
   /**
    * Called with the AST delivery outcomes for this sensor invocation.
-   * Existing consumers continue to receive the original completion callback.
+   * Existing consumers receive the original callback only when the invocation completed.
    */
   default void doneAnalysis(SensorContext context, JsAnalysisSummary summary) {
-    doneAnalysis(context);
+    if (summary.complete()) {
+      doneAnalysis(context);
+    }
   }
 
   /**

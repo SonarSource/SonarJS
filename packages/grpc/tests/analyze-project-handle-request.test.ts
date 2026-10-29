@@ -81,13 +81,14 @@ describe('analyze-project request handler', () => {
     const request = createAnalyzeProjectRequest();
     request.configuration!.jsTsExclusions = { values: ['**/excluded.js'] };
     request.files = { 'excluded.js': { fileContent: 'const x = 1;' } };
+    const excludedPath = normalizeToAbsolutePath('/project/excluded.js');
     const unary = await handleAnalyzeProjectRequest(
       { type: 'on-analyze-project', data: request },
       workerData,
     );
     expect(unary).toMatchObject({
       type: 'success',
-      result: { output: { meta: { excludedFiles: { '/project/excluded.js': 'configuration' } } } },
+      result: { output: { meta: { excludedFiles: { [excludedPath]: 'configuration' } } } },
     });
     const events: AnalyzeProjectIncrementalEvent[] = [];
     await handleAnalyzeProjectRequest(
@@ -98,7 +99,7 @@ describe('analyze-project request handler', () => {
     expect(events.map(({ event }) => event)).toContainEqual(
       expect.objectContaining({
         messageType: 'meta',
-        excludedFiles: { '/project/excluded.js': 'configuration' },
+        excludedFiles: { [excludedPath]: 'configuration' },
       }),
     );
   });

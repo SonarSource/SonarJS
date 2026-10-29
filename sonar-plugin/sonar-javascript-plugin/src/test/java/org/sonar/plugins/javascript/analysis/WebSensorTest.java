@@ -1748,6 +1748,89 @@ class WebSensorTest {
   }
 
   @Test
+  void no_input_files_do_not_dispatch_completion() throws IOException {
+    var consumer = createConsumer();
+    createSensorWithConsumer(consumer).execute(createSensorContext(baseDir));
+    assertThat(consumer.done).isFalse();
+    assertThat(consumer.summary).isNull();
+  }
+
+  @org.junit.jupiter.params.ParameterizedTest
+  @org.junit.jupiter.params.provider.ValueSource(strings = { "css", "html" })
+  void successful_non_js_inputs_still_dispatch_completion(String extension) throws IOException {
+    context = createSensorContext(baseDir);
+    context.fileSystem().add(
+      new TestInputFileBuilder("project", "main." + extension)
+        .setProjectBaseDir(baseDir)
+        .setModuleBaseDir(baseDir)
+        .setLanguage(extension.equals("css") ? "css" : "web")
+        .setContents("")
+        .build()
+    );
+    var consumer = createConsumer();
+    executeSensorMockingResponse(
+      createSensorWithConsumer(consumer),
+      createProjectResponse(Map.of())
+    );
+    assertThat(consumer.done).isTrue();
+    assertThat(consumer.summary.complete()).isTrue();
+    assertThat(consumer.summary.files()).isEmpty();
+  }
+
+  @Test
+  void consumer_failure_still_clears_module_configuration() {
+    var configuration = mock(WebSensorModuleConfiguration.class);
+    var consumerFailure = new IllegalStateException("consumer failure");
+    var consumer = new TestJsAnalysisConsumer() {
+      @Override
+      public void doneAnalysis(SensorContext context, JsAnalysisSummary summary) {
+        throw consumerFailure;
+      }
+    };
+    var sensor = createSensor(
+      checks(),
+      new AnalysisConsumers(List.of(consumer)),
+      null,
+      configuration
+    );
+
+    assertThatThrownBy(() -> executeSensorMockingResponse(sensor, createProjectResponse(Map.of())))
+      .isInstanceOf(IllegalStateException.class)
+      .hasCause(consumerFailure);
+
+    verify(configuration).clear();
+  }
+
+  @Test
+  void analysis_failure_is_preserved_when_a_consumer_also_fails() {
+    var configuration = mock(WebSensorModuleConfiguration.class);
+    var consumerFailure = new IllegalStateException("consumer failure");
+    var consumer = new TestJsAnalysisConsumer() {
+      @Override
+      public void doneAnalysis(SensorContext context, JsAnalysisSummary summary) {
+        throw consumerFailure;
+      }
+    };
+    var sensor = createSensor(
+      checks(),
+      new AnalysisConsumers(List.of(consumer)),
+      null,
+      configuration
+    );
+
+    assertThatThrownBy(() ->
+      executeSensorMockingEvents(sensor, handler ->
+        dispatchAnalysisStreamError(handler, "stream failure")
+      )
+    )
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Analysis of JS/TS files failed")
+      .satisfies(failure -> assertThat(failure.getSuppressed()).containsExactly(consumerFailure));
+
+    verify(configuration).clear();
+  }
+
+  @Test
   void completion_reports_whole_analysis_failure() {
     var consumer = createConsumer();
     assertThatThrownBy(() ->

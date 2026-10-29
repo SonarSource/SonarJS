@@ -32,8 +32,9 @@ public class AnalysisConsumersTest {
   @org.junit.jupiter.api.extension.RegisterExtension
   LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
-  @Test
-  void completion_overload_keeps_existing_consumers_compatible() {
+  @org.junit.jupiter.params.ParameterizedTest
+  @org.junit.jupiter.params.provider.ValueSource(booleans = { true, false })
+  void completion_overload_keeps_existing_consumers_compatible(boolean complete) {
     boolean[] done = { false };
     var consumer = new Consumer(true) {
       @Override
@@ -43,9 +44,9 @@ public class AnalysisConsumersTest {
     };
     new AnalysisConsumers(List.of(consumer)).doneAnalysis(
       null,
-      new JsAnalysisSummary(List.of(), true)
+      new JsAnalysisSummary(List.of(), complete)
     );
-    assertThat(done[0]).isTrue();
+    assertThat(done[0]).isEqualTo(complete);
   }
 
   @Test
