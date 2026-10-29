@@ -1831,6 +1831,60 @@ class WebSensorTest {
   }
 
   @Test
+  void analysis_error_is_preserved_when_a_consumer_also_errors() {
+    var configuration = mock(WebSensorModuleConfiguration.class);
+    var analysisError = new AssertionError("analysis failed");
+    var consumerError = new AssertionError("consumer failed");
+    var consumer = new TestJsAnalysisConsumer() {
+      @Override
+      public void doneAnalysis(SensorContext context, JsAnalysisSummary summary) {
+        assertThat(summary.complete()).isFalse();
+        throw consumerError;
+      }
+    };
+    var sensor = createSensor(
+      checks(),
+      new AnalysisConsumers(List.of(consumer)),
+      null,
+      configuration
+    );
+
+    assertThatThrownBy(() ->
+      executeSensorMockingEvents(sensor, handler -> {
+        throw analysisError;
+      })
+    )
+      .isSameAs(analysisError)
+      .satisfies(failure -> assertThat(failure.getSuppressed()).containsExactly(consumerError));
+
+    verify(configuration).clear();
+  }
+
+  @Test
+  void consumer_error_still_clears_module_configuration() {
+    var configuration = mock(WebSensorModuleConfiguration.class);
+    var consumerError = new AssertionError("consumer failed");
+    var consumer = new TestJsAnalysisConsumer() {
+      @Override
+      public void doneAnalysis(SensorContext context, JsAnalysisSummary summary) {
+        throw consumerError;
+      }
+    };
+    var sensor = createSensor(
+      checks(),
+      new AnalysisConsumers(List.of(consumer)),
+      null,
+      configuration
+    );
+
+    assertThatThrownBy(() ->
+      executeSensorMockingResponse(sensor, createProjectResponse(Map.of()))
+    ).isSameAs(consumerError);
+
+    verify(configuration).clear();
+  }
+
+  @Test
   void completion_reports_whole_analysis_failure() {
     var consumer = createConsumer();
     assertThatThrownBy(() ->

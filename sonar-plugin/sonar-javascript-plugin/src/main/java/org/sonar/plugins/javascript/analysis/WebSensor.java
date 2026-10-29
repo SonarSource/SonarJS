@@ -99,6 +99,7 @@ public class WebSensor implements ProjectSensor {
   private final FilesystemCacheContext filesystemCacheContext;
   private ProjectConfiguration.Builder configurationBuilder;
   private JsTsContext<?> context;
+  private JsAnalysisSummary analysisSummary = new JsAnalysisSummary(List.of(), false);
 
   @Nullable
   private Path filesystemCacheArchivePath;
@@ -168,107 +169,126 @@ public class WebSensor implements ProjectSensor {
       .name("JavaScript/TypeScript/CSS analysis");
   }
 
-  private JsAnalysisSummary analysisSummary = new JsAnalysisSummary(List.of(), false);
-
   @Override
   public void execute(SensorContext sensorContext) {
     analysisSummary = new JsAnalysisSummary(List.of(), false);
     CacheStrategies.reset();
     this.context = new JsTsContext<>(sensorContext);
 
-    Throwable primaryFailure = null;
-    boolean notifyConsumers = true;
+    try (var completion = new AnalysisCompletion(sensorContext)) {
+      executeAnalysis(sensorContext, completion);
+      completion.finishedNormally = true;
+    }
+  }
+
+  private void executeAnalysis(SensorContext sensorContext, AnalysisCompletion completion) {
     try {
-      try {
-        List<InputFile> inputFiles = getInputFiles();
-        analysisSummary = new JsAnalysisSummary(
-          inputFiles
-            .stream()
-            .filter(AnalyzeProjectHandler::isJsTsFile)
-            .map(file ->
-              new JsAnalysisSummary.FileResult(
-                file,
-                JsAnalysisSummary.Status.FAILED,
-                "Analysis did not complete"
-              )
+      List<InputFile> inputFiles = getInputFiles();
+      analysisSummary = new JsAnalysisSummary(
+        inputFiles
+          .stream()
+          .filter(AnalyzeProjectHandler::isJsTsFile)
+          .map(file ->
+            new JsAnalysisSummary.FileResult(
+              file,
+              JsAnalysisSummary.Status.FAILED,
+              "Analysis did not complete"
             )
-            .toList(),
-          false
+          )
+          .toList(),
+        false
+      );
+      if (inputFiles.isEmpty()) {
+        LOG.info("No input files found for analysis");
+        completion.notifyConsumers = false;
+        return;
+      }
+      if (context.getSensorContext().isCancelled()) {
+        throw new CancellationException(
+          "Analysis interrupted because the SensorContext is in cancelled state"
         );
-        if (inputFiles.isEmpty()) {
-          LOG.info("No input files found for analysis");
-          notifyConsumers = false;
-          return;
-        }
-        if (context.getSensorContext().isCancelled()) {
-          throw new CancellationException(
-            "Analysis interrupted because the SensorContext is in cancelled state"
-          );
-        }
-        configureFilesystemCache(sensorContext);
-        this.context = contextWithCollectedTsConfigPaths(sensorContext);
-        var msg =
-          context.getAnalysisMode() == AnalysisMode.SKIP_UNCHANGED
-            ? "Files which didn't change will only be analyzed for architecture rules, other rules will not be executed"
-            : "Analysis of unchanged files will not be skipped (current analysis requires all files to be analyzed)";
-        LOG.debug(msg);
-        configurationBuilder = AnalyzeProjectMessages.newProjectConfigurationBuilder(
-          replayProjectPaths == null
-            ? sensorContext.fileSystem().baseDir().getAbsolutePath()
-            : replayProjectPaths.baseDir(),
-          context
-        );
-        bridgeServer.startServerLazily(BridgeServerConfig.fromSensorContext(sensorContext));
-        analyzeFiles(inputFiles);
-        collectFilesystemCache();
-      } catch (CancellationException e) {
-        // do not propagate the exception
-        LOG.info(e.toString());
-      } catch (ServerAlreadyFailedException e) {
-        if (bridgeServer.isExternalNodeProcessConfigured()) {
-          throw analysisFailure(e);
-        }
-        LOG.debug(
-          "Skipping the start of the bridge server " +
-            "as it failed to start during the first analysis or it's not answering anymore"
-        );
-        LOG.debug("No rules will be executed");
-      } catch (NodeCommandException e) {
-        LOG.error(e.getMessage(), e);
-        throw new IllegalStateException(
-          "Error while running Node.js. A supported version of Node.js is required for running the analysis of " +
-            LANG +
-            " files. Please make sure a supported version of Node.js is available in the PATH or an executable path is provided via '" +
-            NODE_EXECUTABLE_PROPERTY +
-            "' property. Alternatively, you can exclude " +
-            LANG +
-            " files from your analysis using the 'sonar.exclusions' configuration property. " +
-            "See the docs for configuring the analysis environment: https://docs.sonarsource.com/sonarqube/latest/analyzing-source-code/languages/javascript-typescript-css/",
-          e
-        );
-      } catch (Exception e) {
+      }
+      configureFilesystemCache(sensorContext);
+      this.context = contextWithCollectedTsConfigPaths(sensorContext);
+      var msg =
+        context.getAnalysisMode() == AnalysisMode.SKIP_UNCHANGED
+          ? "Files which didn't change will only be analyzed for architecture rules, other rules will not be executed"
+          : "Analysis of unchanged files will not be skipped (current analysis requires all files to be analyzed)";
+      LOG.debug(msg);
+      configurationBuilder = AnalyzeProjectMessages.newProjectConfigurationBuilder(
+        replayProjectPaths == null
+          ? sensorContext.fileSystem().baseDir().getAbsolutePath()
+          : replayProjectPaths.baseDir(),
+        context
+      );
+      bridgeServer.startServerLazily(BridgeServerConfig.fromSensorContext(sensorContext));
+      analyzeFiles(inputFiles);
+      collectFilesystemCache();
+    } catch (CancellationException e) {
+      // do not propagate the exception
+      LOG.info(e.toString());
+    } catch (ServerAlreadyFailedException e) {
+      if (bridgeServer.isExternalNodeProcessConfigured()) {
         throw analysisFailure(e);
       }
-    } catch (RuntimeException | Error e) {
-      primaryFailure = e;
-      analysisSummary = new JsAnalysisSummary(analysisSummary.files(), false);
-      throw e;
-    } finally {
+      LOG.debug(
+        "Skipping the start of the bridge server " +
+          "as it failed to start during the first analysis or it's not answering anymore"
+      );
+      LOG.debug("No rules will be executed");
+    } catch (NodeCommandException e) {
+      LOG.error(e.getMessage(), e);
+      throw new IllegalStateException(
+        "Error while running Node.js. A supported version of Node.js is required for running the analysis of " +
+          LANG +
+          " files. Please make sure a supported version of Node.js is available in the PATH or an executable path is provided via '" +
+          NODE_EXECUTABLE_PROPERTY +
+          "' property. Alternatively, you can exclude " +
+          LANG +
+          " files from your analysis using the 'sonar.exclusions' configuration property. " +
+          "See the docs for configuring the analysis environment: https://docs.sonarsource.com/sonarqube/latest/analyzing-source-code/languages/javascript-typescript-css/",
+        e
+      );
+    } catch (Exception e) {
+      throw analysisFailure(e);
+    }
+  }
+
+  private final class AnalysisCompletion implements AutoCloseable {
+
+    private final SensorContext sensorContext;
+    private boolean notifyConsumers = true;
+    private boolean finishedNormally;
+
+    private AnalysisCompletion(SensorContext sensorContext) {
+      this.sensorContext = sensorContext;
+    }
+
+    @Override
+    public void close() {
+      if (!finishedNormally) {
+        analysisSummary = new JsAnalysisSummary(analysisSummary.files(), false);
+      }
       try {
-        if (notifyConsumers) {
-          consumers.doneAnalysis(sensorContext, analysisSummary);
-        }
-      } catch (RuntimeException | Error e) {
-        if (primaryFailure != null) {
-          primaryFailure.addSuppressed(e);
-        } else if (e instanceof RuntimeException callbackFailure) {
-          throw analysisFailure(callbackFailure);
-        } else {
-          throw e;
-        }
+        notifyAnalysisConsumers();
       } finally {
         moduleConfiguration.clear();
         CacheStrategies.logReport();
+      }
+    }
+
+    private void notifyAnalysisConsumers() {
+      if (!notifyConsumers) {
+        return;
+      }
+      if (!finishedNormally) {
+        consumers.doneAnalysis(sensorContext, analysisSummary);
+        return;
+      }
+      try {
+        consumers.doneAnalysis(sensorContext, analysisSummary);
+      } catch (RuntimeException e) {
+        throw analysisFailure(e);
       }
     }
   }
