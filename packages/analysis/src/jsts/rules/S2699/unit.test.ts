@@ -1654,8 +1654,6 @@ it('checks the response', async () => {
 `;
     const validFactories = [
       'const http = () => request(app);',
-      'const http = () => request.agent(app);',
-      "const client = require('supertest'); const http = () => client.agent(app);",
       "import { agent } from 'supertest'; const http = () => agent(app);",
       "import { agent as createAgent } from 'supertest'; const http = () => createAgent(app);",
       'const http = function () { return request(app); };',
@@ -1667,13 +1665,14 @@ it('checks the response', async () => {
     const invalidCases = [
       ...[
         'const http = () => fakeRequest.agent(app);',
+        'const http = () => request.agent(app);',
+        "const client = require('supertest'); const http = () => client.agent(app);",
         'request.agent = fakeAgent; const http = () => request.agent(app);',
         "import other from 'supertest'; other.agent = fakeAgent; const http = () => request.agent(app);",
         "import { default as other } from 'supertest'; other.agent = fakeAgent; const http = () => request.agent(app);",
         "const other = require('supertest'); other.agent = fakeAgent; const http = () => request.agent(app);",
         "let other = require('supertest'); other.agent = fakeAgent; other = fakeRequest; const http = () => request.agent(app);",
         "require('supertest').agent = fakeAgent; const http = () => request.agent(app);",
-        "import { agent } from 'supertest'; request.agent = fakeAgent; const http = () => agent(app);",
         "request['agent'] = fakeAgent; const http = () => request.agent(app);",
         'delete request.agent; const http = () => request.agent(app);',
         'Object.assign(request, { agent: fakeAgent }); const http = () => request.agent(app);',
@@ -1696,13 +1695,16 @@ it('checks the response', async () => {
       {
         name: 'rejects an agent request with a plugin',
         code: testCase(
-          'const http = () => request.agent(app);',
+          "import { agent } from 'supertest'; const http = () => agent(app);",
           "await http().get('/items').use(plugin).expect(200);",
         ),
       },
       {
         name: 'rejects an agent request without an assertion',
-        code: testCase('const http = () => request.agent(app);', "await http().get('/items');"),
+        code: testCase(
+          "import { agent } from 'supertest'; const http = () => agent(app);",
+          "await http().get('/items');",
+        ),
       },
       {
         name: 'rejects an object-shaped fake request',
@@ -1961,13 +1963,8 @@ it('checks the response', async () => {
 `;
     const valid = [
       testCase('function http(): any { return request(app); }'),
-      testCase('const http = (): request.SuperAgentTest => request.agent(app);'),
       testCase(
-        `
-const wrapped = (request! as any)(app);
-const wrappedAgent = (request as any)!.agent(app);
-const http = () => request.agent(app);
-`,
+        "import { agent } from 'supertest'; const http = (): request.SuperAgentTest => agent(app);",
       ),
       testCase('const http = () => request(app) as any;'),
       testCase('const http = () => request(app) satisfies any;'),

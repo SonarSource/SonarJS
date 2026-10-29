@@ -1,7 +1,7 @@
-import supertest from 'supertest';
+import supertest, { agent as createAgent } from 'supertest';
 
 const http = () => supertest(app);
-const agent = () => supertest.agent(app);
+const agent = () => createAgent(app);
 const fakeHttp = () => fakeRequest(app);
 
 // flagged: top-level local Supertest factory assertion in a file with test structure.

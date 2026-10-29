@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { Rule, Scope, SourceCode } from 'eslint';
+import type { Rule } from 'eslint';
 import {
   getUniqueWriteReference,
   getVariableFromName,
@@ -25,14 +25,6 @@ import { getFullyQualifiedNameTS } from '../module-ts.js';
 import type estree from 'estree';
 import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 import ts from 'typescript';
-
-const stableAgentProperties = new WeakMap<SourceCode, boolean>();
-const typeScriptExpressionWrappers = new Set([
-  'TSNonNullExpression',
-  'TSAsExpression',
-  'TSSatisfiesExpression',
-  'TSTypeAssertion',
-]);
 
 export function isAssertion(context: Rule.RuleContext, node: estree.Node) {
   const fqn = extractFQNForCallExpression(context, node);
@@ -86,7 +78,7 @@ function extractFQNForCallExpression(context: Rule.RuleContext, node: estree.Nod
  * ```
  *
  * The factory has no parameters. The `http()` call has no arguments and uses a stable Supertest
- * import or `require('supertest')`.
+ * import or `require('supertest')`. Agent factories must use a named `agent` import.
  */
 function isLocalFactoryAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
   const identifier = getFactoryIdentifier(node);
@@ -108,138 +100,11 @@ function isLocalFactoryAssertion(context: Rule.RuleContext, node: estree.Node): 
     // Example: const http = () => request(app); http().get('/').expect(200);
     return hasDirectSupertestOrigin(context, callee);
   }
-  if (fqn !== 'supertest.agent' || !hasStableAgentProperty(context)) {
-    return false;
-  }
-  if (callee.type === 'Identifier') {
+  if (fqn === 'supertest.agent' && callee.type === 'Identifier') {
     // Example: import { agent } from 'supertest'; const http = () => agent(app); http().get('/').expect(200);
     return hasDirectSupertestOrigin(context, callee);
   }
-  // Example: const http = () => request.agent(app); http().get('/').expect(200);
-  return (
-    callee.type === 'MemberExpression' &&
-    !callee.computed &&
-    !callee.optional &&
-    callee.property.type === 'Identifier' &&
-    callee.property.name === 'agent' &&
-    hasDirectSupertestOrigin(context, unwrapTypeScriptExpression(callee.object))
-  );
-}
-
-/** Check all local module bindings because imports share the mutable agent property. */
-function hasStableAgentProperty(context: Rule.RuleContext): boolean {
-  const cached = stableAgentProperties.get(context.sourceCode);
-  if (cached !== undefined) {
-    return cached;
-  }
-  const stable = computeStableAgentProperty(context);
-  stableAgentProperties.set(context.sourceCode, stable);
-  return stable;
-}
-
-function computeStableAgentProperty(context: Rule.RuleContext): boolean {
-  const scopes = context.sourceCode.scopeManager?.scopes;
-  if (!scopes) {
-    return false;
-  }
-  return scopes.every(
-    scope => hasStableSupertestBindings(scope) && hasStableSupertestLoaders(scope),
-  );
-}
-
-function hasStableSupertestBindings(scope: Scope.Scope): boolean {
-  return scope.variables.every(variable => {
-    if (!variable.defs.some(isSupertestModuleBinding)) {
-      return true;
-    }
-    return variable.references.every(
-      reference =>
-        reference.init || isTypeOnlyReference(reference) || isStableLoaderUse(reference.identifier),
-    );
-  });
-}
-
-function isSupertestModuleBinding(definition: Scope.Definition): boolean {
-  if (definition.type === 'ImportBinding') {
-    return (
-      definition.parent.source.value === 'supertest' &&
-      (definition.node.type !== 'ImportSpecifier' ||
-        (definition.node.imported.type === 'Identifier' &&
-          definition.node.imported.name === 'default'))
-    );
-  }
-  if (definition.type !== 'Variable') {
-    return false;
-  }
-  return isSupertestRequire((definition.node as estree.VariableDeclarator).init);
-}
-
-function hasStableSupertestLoaders(scope: Scope.Scope): boolean {
-  return [...scope.references, ...scope.through].every(isStableRequireUse);
-}
-
-function isStableRequireUse(reference: Scope.Reference): boolean {
-  if (reference.identifier.name !== 'require') {
-    return true;
-  }
-  const call = getParent(reference.identifier);
-  if (!isSupertestRequire(call)) {
-    return true;
-  }
-  const parent = getParent(call);
-  return (
-    parent?.type === 'VariableDeclarator' && parent.init === call && parent.id.type === 'Identifier'
-  );
-}
-
-function isSupertestRequire(node: estree.Node | null | undefined): node is estree.CallExpression {
-  return (
-    node != null &&
-    isRequire(node) &&
-    node.arguments[0].type === 'Literal' &&
-    node.arguments[0].value === 'supertest'
-  );
-}
-
-function isStableLoaderUse(node: estree.Identifier): boolean {
-  let current: estree.Node = node;
-  let parent = getParent(current);
-  while (parent) {
-    const wrapper = parent as estree.Node & { type: string; expression?: estree.Node };
-    if (!typeScriptExpressionWrappers.has(wrapper.type) || wrapper.expression !== current) {
-      break;
-    }
-    current = parent;
-    parent = getParent(current);
-  }
-  if (parent?.type === 'CallExpression' && parent.callee === current) {
-    return true;
-  }
-  if (
-    parent?.type !== 'MemberExpression' ||
-    parent.computed ||
-    parent.property.type !== 'Identifier' ||
-    parent.property.name !== 'agent'
-  ) {
-    return false;
-  }
-  const call = (parent as estree.MemberExpression & { parent?: estree.Node }).parent;
-  return call?.type === 'CallExpression' && call.callee === parent;
-}
-
-function getParent(node: estree.Node): estree.Node | undefined {
-  return (node as estree.Node & { parent?: estree.Node }).parent;
-}
-
-function isTypeOnlyReference(reference: {
-  identifier: estree.Identifier;
-  isTypeReference?: boolean;
-}) {
-  const parent = getParent(reference.identifier);
-  const parentType = (parent as { type: string } | undefined)?.type;
-  return (
-    reference.isTypeReference || parentType === 'TSQualifiedName' || parentType === 'TSTypeQuery'
-  );
+  return false;
 }
 
 function hasDirectSupertestOrigin(context: Rule.RuleContext, callee: estree.Node): boolean {
