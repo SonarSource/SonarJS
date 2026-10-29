@@ -357,6 +357,24 @@ describe('S6845', () => {
 
 const upstreamRule = rules['no-noninteractive-tabindex'];
 
+const editableHtmlHosts = [
+  '<div contentEditable tabIndex={0} />',
+  '<div contentEditable={true} tabIndex={0} />',
+  '<div contentEditable={""} tabIndex={0} />',
+  '<div contentEditable={`true`} tabIndex={0} />',
+  '<span contentEditable="true" tabIndex="0" />',
+  '<span contentEditable="plaintext-only" tabIndex="0" />',
+  '<svg><foreignObject><div contentEditable tabIndex={0} /></foreignObject></svg>',
+  '<div contentEditable={true as const} tabIndex={0} />',
+  '<div contentEditable={"true" satisfies string} tabIndex={0} />',
+  '<div contentEditable={true!} tabIndex={0} />',
+  '<div contentEditable={(true as const)!} tabIndex={0} />',
+  '<div contentEditable={"" as const} tabIndex={0} />',
+  '<div contentEditable={"true"!} tabIndex={0} />',
+  '<div contentEditable={"plaintext-only" satisfies string} tabIndex={0} />',
+  '<div contentEditable={((`true` as const) satisfies string)!} tabIndex={0} />',
+];
+
 const programmaticFocusTargets = [
   `function DialogTitle({ closed }) {
     const titleRef = useRef(null);
@@ -404,9 +422,19 @@ describe('S6845 upstream sentinel', () => {
           code: `<div tabIndex={disabled ? null : -1} />`,
           errors: 1,
         },
-        { code: '<div contentEditable tabIndex={0} />', errors: 1 },
-        { code: '<span contentEditable="plaintext-only" tabIndex="0" />', errors: 1 },
       ],
+    });
+  });
+});
+
+// Keep every accepted editing host covered by an upstream report.
+// If upstream accepts these hosts, the editing-host exception can be removed.
+describe('S6845 editing host upstream sentinel', () => {
+  it('upstream no-noninteractive-tabindex reports editable hosts', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+    ruleTester.run('no-noninteractive-tabindex', upstreamRule, {
+      valid: [],
+      invalid: editableHtmlHosts.map(code => ({ code, errors: 1 })),
     });
   });
 });
@@ -415,15 +443,7 @@ describe('S6845', () => {
   it('allows tabIndex on statically editable HTML hosts only', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
     ruleTester.run('no-noninteractive-tabindex', rule, {
-      valid: [
-        { code: '<div contentEditable tabIndex={0} />' },
-        { code: '<div contentEditable={true} tabIndex={0} />' },
-        { code: '<div contentEditable={""} tabIndex={0} />' },
-        { code: '<div contentEditable={`true`} tabIndex={0} />' },
-        { code: '<span contentEditable="true" tabIndex="0" />' },
-        { code: '<span contentEditable="plaintext-only" tabIndex="0" />' },
-        { code: '<svg><foreignObject><div contentEditable tabIndex={0} /></foreignObject></svg>' },
-      ],
+      valid: editableHtmlHosts.map(code => ({ code })),
       invalid: [
         { code: '<div tabIndex={0} />', errors: 1 },
         { code: '<div contenteditable tabIndex={0} />', errors: 1 },
@@ -433,7 +453,15 @@ describe('S6845', () => {
         { code: '<div ContentEditable="true" tabIndex={0} />', errors: 1 },
         { code: '<div contentEditable={false} tabIndex={0} />', errors: 1 },
         { code: '<div contentEditable="false" tabIndex={0} />', errors: 1 },
+        { code: '<div contentEditable={false as const} tabIndex={0} />', errors: 1 },
+        { code: '<div contentEditable={"false" satisfies string} tabIndex={0} />', errors: 1 },
+        { code: '<div contentEditable={null!} tabIndex={0} />', errors: 1 },
+        { code: '<div contentEditable={0 as const} tabIndex={0} />', errors: 1 },
         { code: '<div contentEditable={editable} tabIndex={0} />', errors: 1 },
+        { code: '<div contentEditable={editable as boolean} tabIndex={0} />', errors: 1 },
+        { code: '<div contentEditable={editable!} tabIndex={0} />', errors: 1 },
+        { code: '<div contentEditable={editable satisfies boolean} tabIndex={0} />', errors: 1 },
+        { code: '<div contentEditable={(`true${editable}` as const)!} tabIndex={0} />', errors: 1 },
         {
           code: 'const editable = false; <div contentEditable={!!editable} tabIndex={0} />',
           errors: 1,
@@ -447,8 +475,12 @@ describe('S6845', () => {
         { code: '<div contentEditable={`false`} tabIndex={0} />', errors: 1 },
         { code: '<svg><title contentEditable tabIndex={0}>x</title></svg>', errors: 1 },
         { code: '<svg><a contentEditable tabIndex={0} /></svg>', errors: 1 },
+        { code: '<svg><div contentEditable tabIndex={0} /></svg>', errors: 1 },
         { code: '<title contentEditable tabIndex={0}>x</title>', errors: 1 },
         { code: '<a contentEditable tabIndex={0}>edit</a>', errors: 1 },
+        { code: '<font contentEditable tabIndex={0} />', errors: 1 },
+        { code: '<script contentEditable tabIndex={0} />', errors: 1 },
+        { code: '<style contentEditable tabIndex={0} />', errors: 1 },
         {
           code: 'function Svg({ children }) { return <svg>{children}</svg>; } <Svg><title contentEditable tabIndex={0}>x</title></Svg>',
           errors: 1,
@@ -458,8 +490,13 @@ describe('S6845', () => {
           errors: 1,
         },
         { code: '<math><a contentEditable tabIndex={0} /></math>', errors: 1 },
+        { code: '<math><span contentEditable tabIndex={0} /></math>', errors: 1 },
         {
           code: '<svg><foreignObject><svg><title contentEditable tabIndex={0} /></svg></foreignObject></svg>',
+          errors: 1,
+        },
+        {
+          code: '<svg><foreignObject><svg><div contentEditable tabIndex={0} /></svg></foreignObject></svg>',
           errors: 1,
         },
         { code: '<div {...{ contentEditable: true }} tabIndex={0} />', errors: 1 },
@@ -468,11 +505,14 @@ describe('S6845', () => {
           errors: 1,
         },
         { code: '<div contentEditable {...props} tabIndex={0} />', errors: 1 },
+        { code: '<div contentEditable {...{ tabIndex: 0 }} />', errors: 1 },
         {
           code: 'const props = { contentEditable: false }; <div contentEditable {...props} tabIndex={0} />',
           errors: 1,
         },
         { code: '<div contentEditable contentEditable={false} tabIndex={0} />', errors: 1 },
+        { code: '<div contentEditable contenteditable={false} tabIndex={0} />', errors: 1 },
+        { code: '<div CONTENTEDITABLE={false} contentEditable tabIndex={0} />', errors: 1 },
         {
           code: '<Editable contentEditable tabIndex={0} />',
           settings: { 'jsx-a11y': { components: { Editable: 'div' } } },

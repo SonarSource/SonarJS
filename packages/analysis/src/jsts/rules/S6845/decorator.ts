@@ -20,6 +20,7 @@ import type { Node } from 'estree';
 import type { JSXAttribute, JSXOpeningElement } from 'estree-jsx';
 import { getFirstConcreteRole } from '../helpers/accessibility.js';
 import {
+  cookTemplateLiteral,
   getUniqueWriteUsageOrNode,
   getVariableFromName,
   unwrapTypeScriptExpression,
@@ -404,17 +405,20 @@ function isEditableHtmlHost(opening: TSESTree.JSXOpeningElement): boolean {
   if (attribute.value === null) {
     return true;
   }
-  const expression =
+  const expression = unwrapTypeScriptExpression(
     attribute.value.type === 'JSXExpressionContainer'
       ? attribute.value.expression
-      : attribute.value;
+      : attribute.value,
+  );
   // A template without expressions is a literal value. Other expressions may be dynamic.
-  const value =
-    expression.type === 'Literal'
-      ? expression.value
-      : expression.type === 'TemplateLiteral' && expression.expressions.length === 0
-        ? expression.quasis[0].value.cooked
-        : null;
+  let value: unknown;
+  if (expression.type === 'Literal') {
+    value = expression.value;
+  } else if (expression.type === 'TemplateLiteral') {
+    value = cookTemplateLiteral(expression);
+  } else {
+    return false;
+  }
   return (
     value === true ||
     (typeof value === 'string' && ['', 'true', 'plaintext-only'].includes(value.toLowerCase()))
