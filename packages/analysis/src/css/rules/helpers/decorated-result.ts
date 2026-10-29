@@ -96,7 +96,8 @@ export function createDecoratedRule(
             return;
           }
           // Filtered warnings still consume their arguments.
-          const messageArgs = capturedArgs[warningIndex++];
+          const messageArgs = capturedArgs[warningIndex];
+          warningIndex++;
           const rewritten = rewriteMessage(message, factory.messages, root, result);
           if (rewritten !== undefined) {
             stylelint.utils.report({
