@@ -177,8 +177,12 @@ export function allAssertionFrameworks(
 }
 
 /**
- * Extra type-aware detection for framework calls that the catalog detector cannot resolve.
- * A fallback can use AST scope information when TypeScript symbol resolution misses a call.
+ * Extra per-framework detection a rule can bolt onto the catalog's own detectors.
+ *
+ * `isTSAssertionFallback` runs when the catalog's type-aware detector misses. It is
+ * library-agnostic by design: the type-aware resolver only follows declaration initializers, so
+ * any framework whose assertion object is *assigned* in test setup rather than declared with an
+ * initializer needs it. AWS CDK is simply the only one that does today.
  */
 type AssertionEvidenceExtension = {
   isTSAssertionFallback?: (
@@ -239,8 +243,9 @@ export function isAssertionEvidence(
 
 /**
  * Type-checker-aware counterpart of {@link isAssertionEvidence}, operating on TypeScript AST nodes.
- * Used when parser services are available to follow resolved types across declarations, and calls
- * a profile fallback when type-aware detection cannot resolve a framework call.
+ * Used when parser services are available to follow resolved types across declarations, and falls
+ * back to each profile entry's {@link AssertionEvidenceExtension.isTSAssertionFallback} when the
+ * catalog's own type-aware detector misses.
  */
 export function isTypeScriptAssertionEvidence(
   context: Rule.RuleContext,
