@@ -179,6 +179,9 @@ From the project root, run: `npm run ruling-sync`
 
 You can review the Ruling difference by running `sh tools/ruling-debug-script.sh`.
 
+For Vue script integration and repeatable Vuetify performance measurements, see
+[Type-aware analysis of Vue scripts](vue-type-aware-analysis.md).
+
 #### Java ruling (old way)
 
 ```sh

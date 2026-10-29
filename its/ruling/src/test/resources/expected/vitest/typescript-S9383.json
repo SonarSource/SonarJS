@@ -21,6 +21,16 @@
 "vitest:packages/runner/src/run.ts": [
 381
 ],
+"vitest:packages/ui/client/components/FailureScreenshot.vue": [
+37
+],
+"vitest:packages/ui/client/components/FileDetails.vue": [
+66,
+152
+],
+"vitest:packages/ui/client/components/explorer/ExplorerItem.vue": [
+161
+],
 "vitest:packages/ui/client/composables/client/static.ts": [
 88,
 109

@@ -49,6 +49,19 @@
 501,
 520
 ],
+"vitest:packages/ui/client/components/FailureScreenshot.vue": [
+27
+],
+"vitest:packages/ui/client/components/FileDetails.vue": [
+45
+],
+"vitest:packages/ui/client/components/views/ViewEditor.vue": [
+39,
+302
+],
+"vitest:packages/ui/client/components/views/ViewTestReport.vue": [
+19
+],
 "vitest:packages/utils/src/diff/cleanupSemantic.ts": [
 70,
 106

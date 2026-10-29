@@ -1268,6 +1268,13 @@ jobs:
           npm run generate-meta
           npm run proto:generate
           npm run ruling:cache
+      - name: Upload JS/TS ruling performance
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: js-ts-ruling-performance-${{ github.sha }}
+          path: target/ruling-performance/
+          retention-days: 14
       - name: Upload JS/TS ruling filesystem snapshots
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
