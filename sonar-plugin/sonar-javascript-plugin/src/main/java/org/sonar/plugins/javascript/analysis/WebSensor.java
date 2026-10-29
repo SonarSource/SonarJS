@@ -58,6 +58,7 @@ import org.sonar.plugins.javascript.analyzeproject.grpc.ProjectAnalysisTelemetry
 import org.sonar.plugins.javascript.analyzeproject.grpc.ProjectConfiguration;
 import org.sonar.plugins.javascript.analyzeproject.grpc.ProjectFileInput;
 import org.sonar.plugins.javascript.api.AnalysisMode;
+import org.sonar.plugins.javascript.api.JsAnalysisSummary;
 import org.sonar.plugins.javascript.api.JsFile;
 import org.sonar.plugins.javascript.api.estree.ESTree;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
@@ -167,15 +168,33 @@ public class WebSensor implements ProjectSensor {
       .name("JavaScript/TypeScript/CSS analysis");
   }
 
+  private JsAnalysisSummary analysisSummary = new JsAnalysisSummary(List.of(), false);
+
   @Override
   public void execute(SensorContext sensorContext) {
+    analysisSummary = new JsAnalysisSummary(List.of(), false);
     CacheStrategies.reset();
     this.context = new JsTsContext<>(sensorContext);
 
     try {
       List<InputFile> inputFiles = getInputFiles();
+      analysisSummary = new JsAnalysisSummary(
+        inputFiles
+          .stream()
+          .filter(AnalyzeProjectHandler::isJsTsFile)
+          .map(file ->
+            new JsAnalysisSummary.FileResult(
+              file,
+              JsAnalysisSummary.Status.FAILED,
+              "Analysis did not complete"
+            )
+          )
+          .toList(),
+        false
+      );
       if (inputFiles.isEmpty()) {
         LOG.info("No input files found for analysis");
+        analysisSummary = new JsAnalysisSummary(List.of(), !sensorContext.isCancelled());
         return;
       }
       if (context.getSensorContext().isCancelled()) {
@@ -227,6 +246,7 @@ public class WebSensor implements ProjectSensor {
     } catch (Exception e) {
       throw analysisFailure(e);
     } finally {
+      consumers.doneAnalysis(sensorContext, analysisSummary);
       moduleConfiguration.clear();
       CacheStrategies.logReport();
     }
@@ -438,15 +458,16 @@ public class WebSensor implements ProjectSensor {
       context,
       moduleConfiguration.eslintReports(context.getSensorContext())
     );
+    var handler = new AnalyzeProjectHandler(context, inputFiles, externalIssues);
+    boolean complete = false;
     try {
-      var handler = new AnalyzeProjectHandler(context, inputFiles, externalIssues);
       bridgeServer.analyzeProject(handler);
       new PluginTelemetry(
         context,
         bridgeServer,
         handler.getProjectAnalysisTelemetry()
       ).reportTelemetry();
-      consumers.doneAnalysis(context.getSensorContext());
+      complete = true;
     } catch (CompletionException e) {
       if (e.getCause() instanceof CancellationException nestedException) {
         throw nestedException;
@@ -460,6 +481,8 @@ public class WebSensor implements ProjectSensor {
     } catch (Exception e) {
       LOG.error("Failed to get response from analysis", e);
       throw e;
+    } finally {
+      analysisSummary = handler.summary(complete);
     }
   }
 
@@ -472,6 +495,8 @@ public class WebSensor implements ProjectSensor {
     private final Map<String, InputFile> fileToInputFile = new HashMap<>();
     private final HashMap<String, CacheStrategy> fileToCacheStrategy = new HashMap<>();
     private final CompletableFuture<Void> handle;
+    private final Map<InputFile, JsAnalysisSummary.FileResult> astResults =
+      new java.util.LinkedHashMap<>();
 
     @Nullable
     private ProjectAnalysisTelemetry projectAnalysisTelemetry;
@@ -482,12 +507,32 @@ public class WebSensor implements ProjectSensor {
       Map<String, List<ExternalIssue>> externalIssues
     ) {
       this.inputFiles = inputFiles;
+      inputFiles
+        .stream()
+        .filter(AnalyzeProjectHandler::isJsTsFile)
+        .forEach(file ->
+          astResults.put(
+            file,
+            new JsAnalysisSummary.FileResult(
+              file,
+              JsAnalysisSummary.Status.FAILED,
+              "No AST received"
+            )
+          )
+        );
       this.handlerContext = context;
       this.projectMetadataFiles = context.canAccessFileSystem()
         ? List.of()
         : collectProjectMetadataFiles();
       this.handle = new CompletableFuture<>();
       this.externalIssues = externalIssues;
+    }
+
+    JsAnalysisSummary summary(boolean complete) {
+      return new JsAnalysisSummary(
+        List.copyOf(astResults.values()),
+        complete && !handlerContext.getSensorContext().isCancelled()
+      );
     }
 
     @Override
@@ -677,6 +722,19 @@ public class WebSensor implements ProjectSensor {
     }
 
     private void handleMeta(ProjectAnalysisMeta meta) {
+      meta.getExcludedFilesMap().forEach((path, reason) -> {
+        var file = fileToInputFile.get(path);
+        if (
+          file != null &&
+          astResults.containsKey(file) &&
+          astResults.get(file).status() == JsAnalysisSummary.Status.FAILED
+        ) {
+          astResults.put(
+            file,
+            new JsAnalysisSummary.FileResult(file, JsAnalysisSummary.Status.EXCLUDED, reason)
+          );
+        }
+      });
       meta.getWarningsList().forEach(analysisWarnings::addUnique);
       projectAnalysisTelemetry = meta.hasTelemetry() ? meta.getTelemetry() : null;
       handle.complete(null);
@@ -741,6 +799,12 @@ public class WebSensor implements ProjectSensor {
         try {
           ESTree.Program program = ESTreeFactory.from(responseAst, ESTree.Program.class);
           consumers.accept(new JsFile(file, program));
+          if (astResults.containsKey(file)) {
+            astResults.put(
+              file,
+              new JsAnalysisSummary.FileResult(file, JsAnalysisSummary.Status.DELIVERED, "")
+            );
+          }
         } catch (Exception e) {
           LOG.debug("Failed to deserialize AST for file: {}", file.uri(), e);
         }

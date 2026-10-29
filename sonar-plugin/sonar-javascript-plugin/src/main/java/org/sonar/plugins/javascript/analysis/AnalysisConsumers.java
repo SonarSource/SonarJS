@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.plugins.javascript.api.JsAnalysisConsumer;
+import org.sonar.plugins.javascript.api.JsAnalysisSummary;
 import org.sonar.plugins.javascript.api.JsFile;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
@@ -52,6 +53,11 @@ public class AnalysisConsumers implements JsAnalysisConsumer {
   @Override
   public void doneAnalysis(SensorContext context) {
     consumers.forEach(c -> c.doneAnalysis(context));
+  }
+
+  @Override
+  public void doneAnalysis(SensorContext context, JsAnalysisSummary summary) {
+    consumers.forEach(c -> c.doneAnalysis(context, summary));
   }
 
   @Override

@@ -27,6 +27,7 @@ import type { ProgramSelectionArchive } from './program-selection/archive.js';
 
 export type ProjectAnalysisMeta = {
   warnings: string[];
+  excludedFiles?: Record<string, string>;
   telemetry?: ProjectAnalysisTelemetry;
 };
 

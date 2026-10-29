@@ -289,6 +289,7 @@ message SonarResolveComment {
 message ProjectAnalysisMeta {
   repeated string warnings = 1;
   ProjectAnalysisTelemetry telemetry = 2;
+  map<string, string> excluded_files = 3;
 }
 
 message ProjectAnalysisTelemetry {

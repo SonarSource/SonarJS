@@ -23,7 +23,7 @@ import {
 import type { FileType } from '../contracts/file.js';
 import { type Configuration, getFilterPathParams, getShouldIgnoreParams } from './configuration.js';
 import { filterPathAndGetFileType, getFileTypeForRules } from './filter/filter-path.js';
-import { shouldIgnoreFile } from './filter/filter.js';
+import { fileExclusionReason, type FileExclusionReason } from './filter/filter.js';
 import { type FileStatus, JSTS_ANALYSIS_DEFAULTS } from '../jsts/analysis/analysis.js';
 import type { RuleConfig as CssRuleConfig } from '../css/linter/config.js';
 import type { RuleConfig } from '../jsts/linter/config/rule-config.js';
@@ -37,6 +37,7 @@ export interface SanitizedProjectAnalysisInput {
   rulesWorkdir?: NormalizedAbsolutePath;
   configuration: Configuration;
   pathMap: Map<string, string>;
+  excludedFiles?: Record<string, FileExclusionReason>;
 }
 
 export type ProjectAnalysisFileInput = {
@@ -48,6 +49,7 @@ export type ProjectAnalysisFileInput = {
 
 type SanitizedInputFiles = {
   files: AnalyzableFiles;
+  excludedFiles: Record<string, FileExclusionReason>;
   pathMap: Map<string, string>;
 };
 
@@ -57,11 +59,13 @@ export async function sanitizeInputFiles(
 ): Promise<SanitizedInputFiles> {
   const { baseDir } = configuration;
   const files = createAnalyzableFiles();
+  const excludedFiles: Record<string, FileExclusionReason> = {};
   const pathMap = new Map<string, string>();
 
   if (!inputFiles) {
     return {
       files,
+      excludedFiles,
       pathMap,
     };
   }
@@ -86,7 +90,13 @@ export async function sanitizeInputFiles(
     const fileType = rawFileType ?? JSTS_ANALYSIS_DEFAULTS.fileType;
     const rawFileStatus = fileInput.fileStatus;
 
-    if (await shouldIgnoreFile({ filePath, fileContent }, getShouldIgnoreParams(configuration))) {
+    pathMap.set(filePath, key);
+    const exclusion = fileExclusionReason(
+      { filePath, fileContent },
+      getShouldIgnoreParams(configuration),
+    );
+    if (exclusion !== undefined) {
+      excludedFiles[filePath] = exclusion;
       continue;
     }
 
@@ -97,11 +107,11 @@ export async function sanitizeInputFiles(
       ruleFileType: getFileTypeForRules(filePath, fileType, filterPathParams),
       fileStatus: rawFileStatus ?? JSTS_ANALYSIS_DEFAULTS.fileStatus,
     };
-    pathMap.set(filePath, key);
   }
 
   return {
     files,
+    excludedFiles,
     pathMap,
   };
 }

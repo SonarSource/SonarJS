@@ -24,12 +24,29 @@ import org.slf4j.event.Level;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.plugins.javascript.api.JsAnalysisConsumer;
+import org.sonar.plugins.javascript.api.JsAnalysisSummary;
 import org.sonar.plugins.javascript.api.JsFile;
 
 public class AnalysisConsumersTest {
 
   @org.junit.jupiter.api.extension.RegisterExtension
   LogTesterJUnit5 logTester = new LogTesterJUnit5();
+
+  @Test
+  void completion_overload_keeps_existing_consumers_compatible() {
+    boolean[] done = { false };
+    var consumer = new Consumer(true) {
+      @Override
+      public void doneAnalysis(SensorContext context) {
+        done[0] = true;
+      }
+    };
+    new AnalysisConsumers(List.of(consumer)).doneAnalysis(
+      null,
+      new JsAnalysisSummary(List.of(), true)
+    );
+    assertThat(done[0]).isTrue();
+  }
 
   @Test
   void empty_consumer_list_is_disabled() {

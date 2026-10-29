@@ -40,6 +40,14 @@ public interface JsAnalysisConsumer {
   void doneAnalysis(SensorContext context);
 
   /**
+   * Called with the AST delivery outcomes for this sensor invocation.
+   * Existing consumers continue to receive the original completion callback.
+   */
+  default void doneAnalysis(SensorContext context, JsAnalysisSummary summary) {
+    doneAnalysis(context);
+  }
+
+  /**
    * Called only once per analysis.
    * If the consumer returns false it will be ignored for the analysis.
    * @return

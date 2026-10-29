@@ -71,7 +71,7 @@ export function toAnalyzeProjectUnaryResponse(
   }
   return {
     files,
-    meta: toProjectAnalysisMeta(output.meta),
+    meta: toProjectAnalysisMeta(output.meta, pathMap),
   };
 }
 
@@ -89,7 +89,7 @@ export function toAnalyzeProjectStreamResponse(
       };
     case 'meta':
       return {
-        meta: toProjectAnalysisMeta(result),
+        meta: toProjectAnalysisMeta(result, pathMap),
       };
     case 'cancelled':
       return {
@@ -140,12 +140,22 @@ function toProjectAnalysisFileResult(
   };
 }
 
-function toProjectAnalysisMeta(meta: {
-  warnings: string[];
-  telemetry?: ProjectAnalysisTelemetry;
-}): ProjectAnalysisMeta {
+function toProjectAnalysisMeta(
+  meta: {
+    warnings: string[];
+    telemetry?: ProjectAnalysisTelemetry;
+    excludedFiles?: Record<string, string>;
+  },
+  pathMap: AnalyzeProjectPathMap,
+): ProjectAnalysisMeta {
   return {
     warnings: [...meta.warnings],
+    excludedFiles: Object.fromEntries(
+      Object.entries(meta.excludedFiles ?? {}).map(([file, reason]) => [
+        restorePath(file, pathMap),
+        reason,
+      ]),
+    ),
     telemetry: meta.telemetry ? toTelemetry(meta.telemetry) : undefined,
   };
 }

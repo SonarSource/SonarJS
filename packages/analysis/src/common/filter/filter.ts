@@ -19,7 +19,10 @@ import { filterMinified, hasExcessiveAverageLineLength } from './filter-minified
 import { filterSize } from './filter-size.js';
 import { isCssFile, isJsTsFile, type FilterFileParams } from '../configuration.js';
 import { isJsTsExcluded } from './filter-path.js';
+
 import { type NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
+
+export type FileExclusionReason = 'configuration' | 'bundle' | 'minified' | 'size';
 
 /**
  * Determines whether a given file should be accepted for further processing based on its content.
@@ -36,18 +39,7 @@ export function accept(
   fileContent: string,
   params: FilterFileParams,
 ): boolean {
-  const { detectBundles, maxFileSize, jsSuffixes, tsSuffixes, cssSuffixes } = params;
-  if (isJsTsFile(filePath, { jsSuffixes, tsSuffixes })) {
-    return (
-      (!detectBundles || filterBundle(filePath, fileContent)) &&
-      filterMinified(filePath, fileContent) &&
-      filterSize(filePath, fileContent, maxFileSize)
-    );
-  } else if (isCssFile(filePath, cssSuffixes)) {
-    // We ignore the size limit for CSS files because analyzing large CSS files takes a reasonable amount of time
-    return filterMinified(filePath, fileContent);
-  }
-  return true;
+  return contentExclusionReason(filePath, fileContent, params) === undefined;
 }
 
 /**
@@ -83,9 +75,37 @@ export async function shouldIgnoreFile(
   },
   params: FilterFileParams,
 ): Promise<boolean> {
-  const { filePath, fileContent } = file;
-  if (isJsTsExcluded(filePath, params.jsTsExclusions) || !accept(filePath, fileContent, params)) {
-    return true;
+  return fileExclusionReason(file, params) !== undefined;
+}
+
+export function fileExclusionReason(
+  file: { filePath: NormalizedAbsolutePath; fileContent: string },
+  params: FilterFileParams,
+): FileExclusionReason | undefined {
+  if (isJsTsExcluded(file.filePath, params.jsTsExclusions)) {
+    return 'configuration';
   }
-  return false;
+  return contentExclusionReason(file.filePath, file.fileContent, params);
+}
+
+function contentExclusionReason(
+  filePath: NormalizedAbsolutePath,
+  fileContent: string,
+  params: FilterFileParams,
+): FileExclusionReason | undefined {
+  const { detectBundles, maxFileSize, jsSuffixes, tsSuffixes, cssSuffixes } = params;
+  if (isJsTsFile(filePath, { jsSuffixes, tsSuffixes })) {
+    if (detectBundles && !filterBundle(filePath, fileContent)) {
+      return 'bundle';
+    }
+    if (!filterMinified(filePath, fileContent)) {
+      return 'minified';
+    }
+    if (!filterSize(filePath, fileContent, maxFileSize)) {
+      return 'size';
+    }
+  } else if (isCssFile(filePath, cssSuffixes) && !filterMinified(filePath, fileContent)) {
+    return 'minified';
+  }
+  return undefined;
 }

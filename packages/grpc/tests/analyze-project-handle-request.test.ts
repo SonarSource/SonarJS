@@ -77,6 +77,31 @@ function createAnalyzeProjectRequest(): AnalyzeProjectRequest {
 }
 
 describe('analyze-project request handler', () => {
+  it('reports intentional input exclusions in unary and streamed completion', async () => {
+    const request = createAnalyzeProjectRequest();
+    request.configuration!.jsTsExclusions = { values: ['**/excluded.js'] };
+    request.files = { 'excluded.js': { fileContent: 'const x = 1;' } };
+    const unary = await handleAnalyzeProjectRequest(
+      { type: 'on-analyze-project', data: request },
+      workerData,
+    );
+    expect(unary).toMatchObject({
+      type: 'success',
+      result: { output: { meta: { excludedFiles: { '/project/excluded.js': 'configuration' } } } },
+    });
+    const events: AnalyzeProjectIncrementalEvent[] = [];
+    await handleAnalyzeProjectRequest(
+      { type: 'on-analyze-project', data: request },
+      workerData,
+      event => events.push(event),
+    );
+    expect(events.map(({ event }) => event)).toContainEqual(
+      expect.objectContaining({
+        messageType: 'meta',
+        excludedFiles: { '/project/excluded.js': 'configuration' },
+      }),
+    );
+  });
   for (const origin of ['C:/CI/Project', '//server/share/project', '/home/ci/project']) {
     for (const kind of ['configured', 'orphan', 'no-program']) {
       it(`replays ${kind} from ${origin} with native contents absent and submitted edits authoritative`, async () => {

@@ -72,6 +72,7 @@ export async function normalizeAnalyzeProjectRequest(
     rulesWorkdir,
     configuration,
     pathMap: sanitizedFiles?.pathMap ?? new Map(),
+    excludedFiles: sanitizedFiles?.excludedFiles,
   };
 }
 

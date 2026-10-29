@@ -46,6 +46,25 @@ async function resolveFileTypes(
 }
 
 describe('sanitizeInputFiles fileType resolution', () => {
+  it('records actual intentional exclusions and retains their original paths', async () => {
+    const configuration = createConfiguration({
+      baseDir: '/project',
+      jsTsExclusions: ['**/excluded.js'],
+      maxFileSize: 1,
+    });
+    const input = {
+      'src/excluded.js': { filePath: 'src/excluded.js', fileContent: 'const x = 1;' },
+      'src/large.js': { filePath: 'src/large.js', fileContent: '// large\n'.repeat(500) },
+      'src/main.ts': { filePath: 'src/main.ts', fileContent: 'const x = 1;' },
+    };
+    const { files, pathMap, excludedFiles } = await sanitizeInputFiles(input, configuration);
+    expect(excludedFiles).toEqual({
+      '/project/src/excluded.js': 'configuration',
+      '/project/src/large.js': 'size',
+    });
+    expect(pathMap.get('/project/src/excluded.js')).toBe('src/excluded.js');
+    expect(Object.keys(files)).toEqual(['/project/src/main.ts']);
+  });
   it('strips a BOM from explicitly supplied file content', async () => {
     const filePath = '/project/src/file.js';
     const configuration = createConfiguration({ baseDir: '/project', sources: ['src'] });

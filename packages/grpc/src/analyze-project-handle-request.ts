@@ -247,7 +247,8 @@ async function analyzeNormalizedProject(
   const wrappedIncrementalResultsChannel = incrementalResultsChannel
     ? (event: AnalyzeProjectIncrementalEvent['event']) =>
         incrementalResultsChannel({
-          event,
+          event:
+            event.messageType === 'meta' ? { ...event, excludedFiles: input.excludedFiles } : event,
           pathMap: input.pathMap,
         })
     : undefined;
@@ -262,6 +263,7 @@ async function analyzeNormalizedProject(
     input.configuration,
     wrappedIncrementalResultsChannel,
   );
+  output.meta.excludedFiles = input.excludedFiles;
   return { output, pathMap: input.pathMap };
 }
 

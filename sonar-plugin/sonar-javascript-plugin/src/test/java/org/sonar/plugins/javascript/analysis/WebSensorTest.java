@@ -84,6 +84,9 @@ import org.sonar.api.utils.Version;
 import org.sonar.css.CssRules;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
+import org.sonar.plugins.javascript.analysis.cache.CacheAnalysis;
+import org.sonar.plugins.javascript.analysis.cache.CacheStrategies;
+import org.sonar.plugins.javascript.analysis.cache.CacheStrategy;
 import org.sonar.plugins.javascript.analysis.cache.CacheTestUtils;
 import org.sonar.plugins.javascript.analyzeproject.grpc.AnalysisLanguage;
 import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectStreamResponse;
@@ -102,6 +105,7 @@ import org.sonar.plugins.javascript.analyzeproject.grpc.QuickFix;
 import org.sonar.plugins.javascript.analyzeproject.grpc.QuickFixEdit;
 import org.sonar.plugins.javascript.analyzeproject.grpc.TextType;
 import org.sonar.plugins.javascript.api.JsAnalysisConsumer;
+import org.sonar.plugins.javascript.api.JsAnalysisSummary;
 import org.sonar.plugins.javascript.api.JsFile;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
@@ -1602,6 +1606,9 @@ class WebSensorTest {
     var expectedResponse = createProjectResponseWithAst(inputFile, erroneousNode);
     executeSensorMockingResponse(createSensorWithConsumer(consumer), expectedResponse);
     assertThat(consumer.files).isEmpty();
+    assertThat(consumer.summary.files())
+      .singleElement()
+      .satisfies(result -> assertThat(result.status()).isEqualTo(JsAnalysisSummary.Status.FAILED));
     assertThat(consumer.done).isTrue();
 
     assertThat(logTester.logs(Level.DEBUG)).contains(
@@ -1630,6 +1637,10 @@ class WebSensorTest {
     );
     assertThat(consumer.files).hasSize(1);
     assertThat(consumer.files.get(0).inputFile()).isEqualTo(inputFile);
+    assertThat(consumer.summary.complete()).isTrue();
+    assertThat(consumer.summary.files()).containsExactly(
+      new JsAnalysisSummary.FileResult(inputFile, JsAnalysisSummary.Status.DELIVERED, "")
+    );
     assertThat(consumer.done).isTrue();
   }
 
@@ -1649,6 +1660,105 @@ class WebSensorTest {
     assertThat(logTester.logs(Level.DEBUG)).contains(
       "Failed to deserialize AST for file: " + inputFile.uri()
     );
+  }
+
+  @Test
+  void completion_distinguishes_missing_asts_from_explicit_exclusions() {
+    var consumer = createConsumer();
+    executeSensorMockingEvents(createSensorWithConsumer(consumer), handler ->
+      handler.handleMessage(
+        AnalyzeProjectStreamResponse.newBuilder()
+          .setMeta(
+            ProjectAnalysisMeta.newBuilder().putExcludedFiles(inputFile.absolutePath(), "size")
+          )
+          .build()
+      )
+    );
+    assertThat(consumer.summary.complete()).isTrue();
+    assertThat(consumer.summary.files()).containsExactly(
+      new JsAnalysisSummary.FileResult(inputFile, JsAnalysisSummary.Status.EXCLUDED, "size")
+    );
+  }
+
+  @Test
+  void completion_rejects_a_null_ast_or_missing_file_result() {
+    var consumer = createConsumer();
+    executeSensorMockingEvents(createSensorWithConsumer(consumer), handler ->
+      handler.handleMessage(
+        AnalyzeProjectStreamResponse.newBuilder()
+          .setMeta(ProjectAnalysisMeta.getDefaultInstance())
+          .build()
+      )
+    );
+    assertThat(consumer.summary.files())
+      .singleElement()
+      .satisfies(result -> assertThat(result.status()).isEqualTo(JsAnalysisSummary.Status.FAILED));
+    var noAstConsumer = createConsumer();
+    executeSensorMockingResponse(
+      createSensorWithConsumer(noAstConsumer),
+      createProjectResponse(
+        Map.of(inputFile.absolutePath(), ProjectAnalysisFileResult.getDefaultInstance())
+      )
+    );
+    assertThat(noAstConsumer.summary.files())
+      .singleElement()
+      .satisfies(result -> assertThat(result.status()).isEqualTo(JsAnalysisSummary.Status.FAILED));
+  }
+
+  @Test
+  void completion_tracks_cached_ast_delivery_and_missing_cached_asts() {
+    Node ast = Node.newBuilder()
+      .setType(NodeType.ProgramType)
+      .setProgram(Program.newBuilder())
+      .setLoc(
+        SourceLocation.newBuilder()
+          .setStart(Position.newBuilder().setLine(1).setColumn(1))
+          .setEnd(Position.newBuilder().setLine(1).setColumn(1))
+      )
+      .build();
+    for (boolean hasAst : List.of(false, true)) {
+      try (var strategies = org.mockito.Mockito.mockStatic(CacheStrategies.class)) {
+        var strategy = mock(CacheStrategy.class);
+        when(strategy.isAnalysisRequired()).thenReturn(false);
+        when(strategy.readAnalysisFromCache()).thenReturn(
+          CacheAnalysis.fromResponse(List.of(), hasAst ? ast : null)
+        );
+        strategies
+          .when(() ->
+            CacheStrategies.getStrategyFor(any(), org.mockito.ArgumentMatchers.eq(inputFile))
+          )
+          .thenReturn(strategy);
+        var consumer = createConsumer();
+        executeSensorMockingEvents(createSensorWithConsumer(consumer), handler ->
+          handler.handleMessage(
+            AnalyzeProjectStreamResponse.newBuilder()
+              .setMeta(ProjectAnalysisMeta.getDefaultInstance())
+              .build()
+          )
+        );
+        assertThat(consumer.summary.files())
+          .singleElement()
+          .satisfies(result ->
+            assertThat(result.status()).isEqualTo(
+              hasAst ? JsAnalysisSummary.Status.DELIVERED : JsAnalysisSummary.Status.FAILED
+            )
+          );
+      }
+    }
+  }
+
+  @Test
+  void completion_reports_whole_analysis_failure() {
+    var consumer = createConsumer();
+    assertThatThrownBy(() ->
+      executeSensorMockingEvents(createSensorWithConsumer(consumer), handler ->
+        dispatchAnalysisStreamError(handler, "failure")
+      )
+    ).isInstanceOf(IllegalStateException.class);
+    assertThat(consumer.summary.complete()).isFalse();
+    assertThat(consumer.summary.files())
+      .singleElement()
+      .satisfies(result -> assertThat(result.status()).isEqualTo(JsAnalysisSummary.Status.FAILED));
   }
 
   @Test
@@ -2864,6 +2974,7 @@ class WebSensorTest {
 
     public final List<JsFile> files = new ArrayList<>();
     public boolean done;
+    public JsAnalysisSummary summary;
     public boolean enabled;
 
     TestJsAnalysisConsumer() {
@@ -2882,6 +2993,12 @@ class WebSensorTest {
     @Override
     public void doneAnalysis(SensorContext context) {
       done = true;
+    }
+
+    @Override
+    public void doneAnalysis(SensorContext context, JsAnalysisSummary summary) {
+      this.summary = summary;
+      doneAnalysis(context);
     }
 
     @Override
