@@ -18,9 +18,10 @@ import type { Rule } from 'eslint';
 import {
   getUniqueWriteReference,
   getVariableFromName,
+  isRequireModule,
   unwrapTypeScriptExpression,
 } from '../ast.js';
-import { getFullyQualifiedName, isRequire } from '../module.js';
+import { getFullyQualifiedName } from '../module.js';
 import { getFullyQualifiedNameTS } from '../module-ts.js';
 import type estree from 'estree';
 import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
@@ -154,11 +155,7 @@ function hasDirectSupertestOrigin(
 }
 
 function isStableSupertestRequire(context: Rule.RuleContext, node: estree.Node): boolean {
-  if (
-    !isRequire(node) ||
-    node.arguments[0].type !== 'Literal' ||
-    node.arguments[0].value !== 'supertest'
-  ) {
+  if (node.type !== 'CallExpression' || !isRequireModule(node, 'supertest')) {
     return false;
   }
   const variable = getVariableFromName(context, 'require', node.callee);
