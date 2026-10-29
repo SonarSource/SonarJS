@@ -20,7 +20,7 @@ import {
   getVariableFromName,
   unwrapTypeScriptExpression,
 } from '../ast.js';
-import { getFullyQualifiedName, hasDirectModuleOrigin } from '../module.js';
+import { getFullyQualifiedName, isRequire } from '../module.js';
 import { getFullyQualifiedNameTS } from '../module-ts.js';
 import type estree from 'estree';
 import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
@@ -94,19 +94,82 @@ function isLocalFactoryAssertion(context: Rule.RuleContext, node: estree.Node): 
   if (returned?.type !== 'CallExpression' || returned.optional) {
     return false;
   }
-  const callee = unwrapTypeScriptExpression(returned.callee);
-  if (hasDirectModuleOrigin(context, callee, 'supertest')) {
-    // Example: const http = () => request(app); http().get('/').expect(200);
-    return true;
+  const fqn = getFullyQualifiedName(context, returned);
+  if (fqn !== 'supertest' && fqn !== 'supertest.agent') {
+    return false;
   }
-  if (
-    callee.type === 'Identifier' &&
-    hasDirectModuleOrigin(context, callee, 'supertest', 'agent')
-  ) {
-    // Example: import { agent } from 'supertest'; const http = () => agent(app); http().get('/').expect(200);
+  const callee = unwrapTypeScriptExpression(returned.callee);
+  if (hasDirectSupertestOrigin(context, callee, fqn)) {
+    // Example: const http = () => request(app); http().get('/').expect(200);
+    // Example: import { agent } from 'supertest'; const http = () => agent(app);
     return true;
   }
   return false;
+}
+
+/** Accept a direct Supertest import or an unchanged `require('supertest')` binding. */
+function hasDirectSupertestOrigin(
+  context: Rule.RuleContext,
+  callee: estree.Node,
+  fqn: string,
+): boolean {
+  if (callee.type !== 'Identifier') {
+    return fqn === 'supertest' && isStableSupertestRequire(context, callee);
+  }
+  const variable = getVariableFromName(context, callee.name, callee);
+  if (variable?.defs.length !== 1) {
+    return false;
+  }
+  const definition = variable.defs[0];
+  if (definition.type === 'ImportBinding') {
+    const specifier = definition.node;
+    if (specifier.type === 'ImportSpecifier') {
+      const imported = specifier.imported;
+      const name = imported.type === 'Identifier' ? imported.name : imported.value;
+      if (
+        definition.parent?.type !== 'ImportDeclaration' ||
+        definition.parent.source.value !== 'supertest' ||
+        (name !== 'default' && name !== 'agent')
+      ) {
+        return false;
+      }
+    } else if (
+      fqn !== 'supertest' ||
+      (specifier.type !== 'ImportDefaultSpecifier' && specifier.type !== 'ImportNamespaceSpecifier')
+    ) {
+      return false;
+    }
+    return !variable.references.some(reference => reference.isWrite());
+  }
+  if (definition.type === 'Variable' && fqn === 'supertest') {
+    const { id, init } = definition.node as estree.VariableDeclarator;
+    return (
+      id.type === 'Identifier' &&
+      init != null &&
+      getUniqueWriteReference(variable) === init &&
+      isStableSupertestRequire(context, init)
+    );
+  }
+  return false;
+}
+
+function isStableSupertestRequire(context: Rule.RuleContext, node: estree.Node): boolean {
+  if (
+    !isRequire(node) ||
+    node.arguments[0].type !== 'Literal' ||
+    node.arguments[0].value !== 'supertest'
+  ) {
+    return false;
+  }
+  const variable = getVariableFromName(context, 'require', node.callee);
+  if (variable?.defs.length) {
+    return false;
+  }
+  const references = variable?.references ?? context.sourceCode.scopeManager?.globalScope?.through;
+  return (
+    references !== undefined &&
+    !references.some(reference => reference.identifier.name === 'require' && reference.isWrite())
+  );
 }
 
 function isTSLocalFactoryAssertion(

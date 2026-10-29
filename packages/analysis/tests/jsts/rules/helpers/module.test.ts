@@ -23,7 +23,6 @@ import tsParser from '@typescript-eslint/parser';
 import {
   getCurrentFileModuleReferences,
   getFullyQualifiedName,
-  hasDirectModuleOrigin,
   importsOrDependsOnModule,
   isGlobalShadowed,
 } from '../../../../src/jsts/rules/helpers/module.js';
@@ -109,34 +108,6 @@ function collectFullyQualifiedNames(
   return fullyQualifiedNames;
 }
 
-function collectDirectModuleCalls(
-  source: string,
-  moduleName: string,
-  importedMember?: string,
-  parser?: LinterNS.Parser,
-): string[] {
-  const calls: string[] = [];
-  const captureCalls: Rule.RuleModule = {
-    create(context) {
-      return {
-        CallExpression(node) {
-          if (hasDirectModuleOrigin(context, node.callee, moduleName, importedMember)) {
-            calls.push(context.sourceCode.getText(node));
-          }
-        },
-      };
-    },
-  };
-
-  new Linter().verify(source, {
-    languageOptions: { ecmaVersion: 'latest', sourceType: 'module', parser },
-    plugins: { test: { rules: { captureCalls } } },
-    rules: { 'test/captureCalls': 'error' },
-  });
-
-  return calls;
-}
-
 describe('getCurrentFileModuleReferences', () => {
   it('collects literal module references throughout a file', () => {
     const imports = collectModuleReferences(`
@@ -207,76 +178,6 @@ describe('getFullyQualifiedName', () => {
         ['EqualsType', null],
       ]),
     );
-  });
-});
-
-describe('hasDirectModuleOrigin', () => {
-  it('accepts direct imports and stable require calls', () => {
-    expect(
-      collectDirectModuleCalls(
-        `
-          import request from 'probe';
-          const client = require('probe');
-          const alias = request;
-          request();
-          client();
-          require('probe')();
-          alias();
-        `,
-        'probe',
-      ),
-    ).toEqual(['request()', 'client()', "require('probe')()"]);
-    expect(
-      collectDirectModuleCalls("import * as namespace from 'probe'; namespace();", 'probe'),
-    ).toEqual(['namespace()']);
-    expect(
-      collectDirectModuleCalls("import { 'other' as value } from 'probe'; value();", 'probe'),
-    ).toEqual([]);
-    expect(
-      collectDirectModuleCalls("import request from '@scope/probe'; request();", '@scope/probe'),
-    ).toEqual(['request()']);
-    expect(collectDirectModuleCalls("import value from 'a.b'; value();", 'a/b')).toEqual([]);
-  });
-
-  it('accepts a direct named import', () => {
-    expect(
-      collectDirectModuleCalls(
-        "import { agent as createAgent } from 'probe'; createAgent();",
-        'probe',
-        'agent',
-      ),
-    ).toEqual(['createAgent()']);
-    expect(
-      collectDirectModuleCalls(
-        "import { 'agent' as createAgent } from 'probe'; createAgent();",
-        'probe',
-        'agent',
-      ),
-    ).toEqual(['createAgent()']);
-    expect(
-      collectDirectModuleCalls(
-        "import type { agent } from 'probe'; agent();",
-        'probe',
-        'agent',
-        tsParser,
-      ),
-    ).toEqual([]);
-    expect(
-      collectDirectModuleCalls("import agent from 'probe.agent'; agent();", 'probe', 'agent'),
-    ).toEqual([]);
-  });
-
-  it('rejects shadowed, reassigned, and indirect loaders', () => {
-    expect(
-      collectDirectModuleCalls("function load(require) { require('probe')(); }", 'probe'),
-    ).toEqual([]);
-    expect(collectDirectModuleCalls("require = fake; require('probe')();", 'probe')).toEqual([]);
-    expect(
-      collectDirectModuleCalls("let client = require('probe'); client = fake; client();", 'probe'),
-    ).toEqual([]);
-    expect(
-      collectDirectModuleCalls("import request from 'probe'; request = fake; request();", 'probe'),
-    ).toEqual([]);
   });
 });
 

@@ -1686,6 +1686,7 @@ it('checks the response', async () => {
         "require = fakeLoader; const client = require('supertest'); const http = () => client.agent(app);",
         "import { agent } from 'other-client'; const http = () => agent(app);",
         "import agent from 'supertest.agent'; const http = () => agent(app);",
+        "import { 'agent' as createAgent } from 'supertest.agent'; const http = () => createAgent(app);",
         "import { 'other' as value } from 'supertest'; const http = () => value(app);",
         'const http = () => request.agent(app); http = () => fakeRequest(app);',
       ].map(factory => ({ name: factory, code: testCase(factory) })),
