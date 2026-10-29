@@ -107,8 +107,10 @@ function isLocalFactoryAssertion(context: Rule.RuleContext, node: estree.Node): 
   return false;
 }
 
+/** Check the callee's direct origin after the caller checks its Supertest name. */
 function hasDirectSupertestOrigin(context: Rule.RuleContext, callee: estree.Node): boolean {
   if (callee.type !== 'Identifier') {
+    // Example: const http = () => require('supertest')(app);
     return isSupertestLoader(context, callee);
   }
   const variable = getVariableFromName(context, callee.name, callee);
@@ -117,10 +119,12 @@ function hasDirectSupertestOrigin(context: Rule.RuleContext, callee: estree.Node
   }
   const definition = variable.defs[0];
   if (definition.type === 'ImportBinding') {
+    // Examples: import request from 'supertest'; import { agent } from 'supertest';
     return !variable.references.some(reference => reference.isWrite());
   }
   if (definition.type === 'Variable') {
     const { id, init } = definition.node as estree.VariableDeclarator;
+    // Example: const client = require('supertest'); const http = () => client(app);
     return (
       id.type === 'Identifier' &&
       init != null &&
