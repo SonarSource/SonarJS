@@ -102,6 +102,13 @@ export class SassStatementParser {
       }
       this.validateChildren(statement);
       normalized.push(statement);
+      // A leaf declaration cannot own a block. Keep its comments as following siblings
+      // so the SCSS tokenizer does not reinterpret a compact value as a selector.
+      if (statement.type === 'decl' && statement.nodes?.every(child => child.type === 'comment')) {
+        normalized.push(...statement.nodes);
+        delete statement.nodes;
+        statement.end = statement.headerEnd;
+      }
       if (siblingComment) {
         normalized.push(siblingComment);
       }

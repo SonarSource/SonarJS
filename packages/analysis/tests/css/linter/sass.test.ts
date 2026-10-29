@@ -143,6 +143,35 @@ describe('Sass syntax', () => {
     expect(root.toString(postcssSass.stringify)).toBe(code);
   });
 
+  for (const value of ['#ggg', '-1px']) {
+    it(`keeps compact ${value} declarations with an indented comment as declarations`, () => {
+      const code = `a\n  color:${value}\n    // child\n  margin:0\n`;
+      const root = parse(code);
+      expect(root.first).toMatchObject({
+        nodes: [
+          { type: 'decl', prop: 'color', value },
+          { type: 'comment', text: 'child', source: { start: { line: 3, column: 5 } } },
+          { type: 'decl', prop: 'margin', value: '0' },
+        ],
+      });
+      expect(root.toString(postcssSass.stringify)).toBe(code);
+    });
+
+    it(`keeps compact ${value} declarations with comment-only children as declarations`, () => {
+      const code = `a\n  color:${value} // trailing\n    // child\n  margin:0\n`;
+      const root = parse(code);
+      expect(root.first).toMatchObject({
+        nodes: [
+          { type: 'decl', prop: 'color', value, source: { start: { line: 2, column: 3 } } },
+          { type: 'comment', text: 'trailing', source: { start: { line: 2 } } },
+          { type: 'comment', text: 'child', source: { start: { line: 3, column: 5 } } },
+          { type: 'decl', prop: 'margin', value: '0' },
+        ],
+      });
+      expect(root.toString(postcssSass.stringify)).toBe(code);
+    });
+  }
+
   it('preserves continuation comment text, whitespace and suppression locations', () => {
     const code =
       '// first  \r\n    continued  \r\n  \r\n    final\t \r\n// NOSONAR\r\na\r\n  color: red\r\n';
@@ -375,11 +404,11 @@ describe('Stylelint with Sass syntax', () => {
     linter.initialize(rules);
     const { issues } = await linter.lint(
       from,
-      'a\n  color:#ggg // invalid\n  margin:0\n  margin:0\n',
+      'a\n  color:#ggg // invalid\n    // explanation\n  margin:0\n  margin:0\n',
     );
     expect(issues).toEqual([
       expect.objectContaining({ ruleId: 'color-no-invalid-hex', line: 2, column: 8 }),
-      expect.objectContaining({ ruleId: 'declaration-block-no-duplicate-properties', line: 3 }),
+      expect.objectContaining({ ruleId: 'declaration-block-no-duplicate-properties', line: 4 }),
     ]);
   });
 

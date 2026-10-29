@@ -52,7 +52,7 @@ const sourceFiles = [
 
 function corpus() {
   return globSync(['its/**/*.sass', 'packages/**/*.sass'], {
-    exclude: ['**/node_modules/**', '**/.git/**'],
+    exclude: path => /(^|[\\/])(node_modules|\.git)([\\/]|$)/.test(path),
   })
     .sort()
     .map(file => ({ file: resolve(file), code: readFileSync(file, 'utf8') }));
