@@ -49,8 +49,10 @@ import type { ParserServicesWithTypeInformation, TSESTree } from '@typescript-es
 import ts from 'typescript';
 
 /**
- * Any assertion clears this rule. The AWS CDK fallback recognizes templates assigned in setup hooks,
- * which the type-aware detector cannot follow.
+ * Every known assertion framework: any assertion at all clears this rule, so it has no reason to be
+ * selective. AWS CDK additionally needs the assignment fallback, because a CDK template is
+ * conventionally assigned in `beforeEach` rather than declared with an initializer, which is all
+ * the type-aware resolver follows.
  */
 const ASSERTION_EVIDENCE_PROFILE = allAssertionFrameworks({
   awsCdk: {
