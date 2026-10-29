@@ -317,6 +317,98 @@ export function isRequire(node: Node): node is estree.CallExpression {
 }
 
 /**
+ * Check a callee's direct module origin.
+ * Accept `import value from 'pkg'`; with `importedMember`, accept `import { member } from 'pkg'`.
+ * For the module itself, accept `const value = require('pkg')` or inline `require('pkg')()`.
+ * Reject aliases, shadowed or reassigned `require`, and reassigned bindings.
+ */
+export function hasDirectModuleOrigin(
+  context: Rule.RuleContext,
+  node: estree.Node,
+  moduleName: string,
+  importedMember?: string,
+): boolean {
+  if (node.type !== 'Identifier') {
+    return importedMember === undefined && isStableRequireCall(context, node, moduleName);
+  }
+  const name = removeNodePrefixIfExists(moduleName.replaceAll('/', '.'));
+  const variable = getVariableFromScope(context.sourceCode.getScope(node), node.name);
+  if (variable?.defs.length !== 1) {
+    return false;
+  }
+  const definition = variable.defs[0];
+  if (definition.type === 'ImportBinding') {
+    if (
+      getReferencedModuleName(context.sourceCode, definition.parent as estree.Node) !== moduleName
+    ) {
+      return false;
+    }
+    const specifier = definition.node;
+    if (importedMember === undefined) {
+      if (
+        getFullyQualifiedName(context, node) !== name ||
+        specifier.type === 'ImportNamespaceSpecifier'
+      ) {
+        return false;
+      }
+      if (specifier.type === 'ImportSpecifier') {
+        const imported = specifier.imported;
+        if (
+          imported.type === 'Identifier'
+            ? imported.name !== 'default'
+            : imported.value !== 'default'
+        ) {
+          return false;
+        }
+      }
+    } else {
+      if (specifier.type !== 'ImportSpecifier') {
+        return false;
+      }
+      const imported = specifier.imported;
+      if (
+        isTypeOnlyImportBinding(specifier as TSESTree.Node, definition.parent as TSESTree.Node) ||
+        (imported.type === 'Identifier' ? imported.name : imported.value) !== importedMember
+      ) {
+        return false;
+      }
+    }
+    return !variable.references.some(reference => reference.isWrite());
+  }
+  if (definition.type === 'Variable') {
+    const { id, init } = definition.node as estree.VariableDeclarator;
+    return (
+      importedMember === undefined &&
+      getFullyQualifiedName(context, node) === name &&
+      id.type === 'Identifier' &&
+      init != null &&
+      getUniqueWriteReference(variable) === init &&
+      isStableRequireCall(context, init, moduleName)
+    );
+  }
+  return false;
+}
+
+function isStableRequireCall(
+  context: Rule.RuleContext,
+  node: estree.Node,
+  moduleName: string,
+): boolean {
+  if (!isRequire(node) || getUnshadowedRequireModuleName(context.sourceCode, node) !== moduleName) {
+    return false;
+  }
+  const variable = getVariableFromScope(context.sourceCode.getScope(node), 'require');
+  if (variable?.defs.length) {
+    return false;
+  }
+  const references = variable?.references ?? context.sourceCode.scopeManager?.globalScope?.through;
+  return (
+    references !== undefined &&
+    !references.some(reference => reference.identifier.name === 'require' && reference.isWrite())
+  );
+}
+
+/**
  * Returns 'module' if `node` is a `require('module')` CallExpression
  *
  * For usage inside rules, prefer getFullyQualifiedName()

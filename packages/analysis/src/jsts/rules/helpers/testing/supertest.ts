@@ -20,7 +20,7 @@ import {
   getVariableFromName,
   unwrapTypeScriptExpression,
 } from '../ast.js';
-import { getFullyQualifiedName, isRequire } from '../module.js';
+import { getFullyQualifiedName, hasDirectModuleOrigin } from '../module.js';
 import { getFullyQualifiedNameTS } from '../module-ts.js';
 import type estree from 'estree';
 import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
@@ -94,64 +94,19 @@ function isLocalFactoryAssertion(context: Rule.RuleContext, node: estree.Node): 
   if (returned?.type !== 'CallExpression' || returned.optional) {
     return false;
   }
-  const fqn = getFullyQualifiedName(context, returned);
   const callee = unwrapTypeScriptExpression(returned.callee);
-  if (fqn === 'supertest') {
+  if (hasDirectModuleOrigin(context, callee, 'supertest')) {
     // Example: const http = () => request(app); http().get('/').expect(200);
-    return hasDirectSupertestOrigin(context, callee);
+    return true;
   }
-  if (fqn === 'supertest.agent' && callee.type === 'Identifier') {
-    // Example: import { agent } from 'supertest'; const http = () => agent(app); http().get('/').expect(200);
-    return hasDirectSupertestOrigin(context, callee);
-  }
-  return false;
-}
-
-/** Check the callee's direct origin after the caller checks its Supertest name. */
-function hasDirectSupertestOrigin(context: Rule.RuleContext, callee: estree.Node): boolean {
-  if (callee.type !== 'Identifier') {
-    // Example: const http = () => require('supertest')(app);
-    return isSupertestLoader(context, callee);
-  }
-  const variable = getVariableFromName(context, callee.name, callee);
-  if (variable?.defs.length !== 1) {
-    return false;
-  }
-  const definition = variable.defs[0];
-  if (definition.type === 'ImportBinding') {
-    // Examples: import request from 'supertest'; import { agent } from 'supertest';
-    return !variable.references.some(reference => reference.isWrite());
-  }
-  if (definition.type === 'Variable') {
-    const { id, init } = definition.node as estree.VariableDeclarator;
-    // Example: const client = require('supertest'); const http = () => client(app);
-    return (
-      id.type === 'Identifier' &&
-      init != null &&
-      getUniqueWriteReference(variable) === init &&
-      isSupertestLoader(context, init)
-    );
-  }
-  return false;
-}
-
-function isSupertestLoader(context: Rule.RuleContext, node: estree.Node): boolean {
   if (
-    !isRequire(node) ||
-    node.arguments[0].type !== 'Literal' ||
-    node.arguments[0].value !== 'supertest'
+    callee.type === 'Identifier' &&
+    hasDirectModuleOrigin(context, callee, 'supertest', 'agent')
   ) {
-    return false;
+    // Example: import { agent } from 'supertest'; const http = () => agent(app); http().get('/').expect(200);
+    return true;
   }
-  const variable = getVariableFromName(context, 'require', node.callee);
-  if (variable?.defs.length) {
-    return false;
-  }
-  const references = variable?.references ?? context.sourceCode.scopeManager?.globalScope?.through;
-  return (
-    references !== undefined &&
-    !references.some(reference => reference.identifier.name === 'require' && reference.isWrite())
-  );
+  return false;
 }
 
 function isTSLocalFactoryAssertion(

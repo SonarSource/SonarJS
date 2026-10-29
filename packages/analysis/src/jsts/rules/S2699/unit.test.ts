@@ -1656,6 +1656,7 @@ it('checks the response', async () => {
       'const http = () => request(app);',
       "import { agent } from 'supertest'; const http = () => agent(app);",
       "import { agent as createAgent } from 'supertest'; const http = () => createAgent(app);",
+      "import { 'agent' as createAgent } from 'supertest'; const http = () => createAgent(app);",
       'const http = function () { return request(app); };',
       'function http() { return request(app); }',
       'let http = () => request(app);',
@@ -1683,6 +1684,9 @@ it('checks the response', async () => {
         "const require = fakeLoader; const client = require('supertest'); const http = () => client.agent(app);",
         "require = fakeLoader; const client = require('supertest'); const http = () => client.agent(app);",
         "import { agent } from 'other-client'; const http = () => agent(app);",
+        "import agent from 'supertest.agent'; const http = () => agent(app);",
+        "import * as namespace from 'supertest'; const http = () => namespace(app);",
+        "import { 'other' as value } from 'supertest'; const http = () => value(app);",
         'const http = () => request.agent(app); http = () => fakeRequest(app);',
       ].map(factory => ({ name: factory, code: testCase(factory) })),
       {
