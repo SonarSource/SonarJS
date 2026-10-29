@@ -33,7 +33,7 @@ export function isHidden(
   return !!hidden || ariaHidden === true || ariaHidden === 'true';
 }
 
-export function getAttributeValue(
+function getAttributeValue(
   attribute: JSXAttribute | null | undefined,
   context: Rule.RuleContext,
 ): unknown {
