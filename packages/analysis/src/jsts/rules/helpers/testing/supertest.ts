@@ -125,6 +125,7 @@ function hasDirectSupertestOrigin(
   fqn: string,
 ): boolean {
   if (callee.type !== 'Identifier') {
+    // Example: const http = () => require('supertest')(app);
     return fqn === 'supertest' && isStableSupertestRequire(context, callee);
   }
   const variable = getVariableFromName(context, callee.name, callee);
@@ -150,10 +151,12 @@ function hasDirectSupertestOrigin(
     ) {
       return false;
     }
+    // Example: import { agent } from 'supertest'; const http = () => agent(app);
     return !variable.references.some(reference => reference.isWrite());
   }
   if (definition.type === 'Variable' && fqn === 'supertest') {
     const { id, init } = definition.node as estree.VariableDeclarator;
+    // Example: const client = require('supertest'); const http = () => client(app);
     return (
       id.type === 'Identifier' &&
       init != null &&
