@@ -105,14 +105,17 @@ function isLocalFactoryAssertion(context: Rule.RuleContext, node: estree.Node): 
   const fqn = getFullyQualifiedName(context, returned);
   const callee = unwrapTypeScriptExpression(returned.callee);
   if (fqn === 'supertest') {
+    // Example: const http = () => request(app); http().get('/').expect(200);
     return hasDirectSupertestOrigin(context, callee);
   }
   if (fqn !== 'supertest.agent' || !hasStableAgentProperty(context)) {
     return false;
   }
   if (callee.type === 'Identifier') {
+    // Example: import { agent } from 'supertest'; const http = () => agent(app); http().get('/').expect(200);
     return hasDirectSupertestOrigin(context, callee);
   }
+  // Example: const http = () => request.agent(app); http().get('/').expect(200);
   return (
     callee.type === 'MemberExpression' &&
     !callee.computed &&
