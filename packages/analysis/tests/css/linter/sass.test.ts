@@ -326,6 +326,29 @@ describe('Sass syntax', () => {
 });
 
 describe('Stylelint with Sass syntax', () => {
+  it('reports empty Sass rules within their original selector range', async () => {
+    const linter = new LinterWrapper();
+    linter.initialize([{ key: 'block-no-empty', configurations: [] }]);
+    const code = 'a\n  :background-color #ace\n  :background url(http://example.com/image.png)\n';
+    const { issues } = await linter.lint(from, code);
+    expect(issues).toEqual([
+      expect.objectContaining({
+        ruleId: 'block-no-empty',
+        line: 2,
+        column: 23,
+        endLine: 2,
+        endColumn: 24,
+      }),
+      expect.objectContaining({
+        ruleId: 'block-no-empty',
+        line: 3,
+        column: 46,
+        endLine: 3,
+        endColumn: 47,
+      }),
+    ]);
+  });
+
   const rules = [
     'color-no-invalid-hex',
     'declaration-block-no-duplicate-properties',

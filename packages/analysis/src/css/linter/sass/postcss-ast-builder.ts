@@ -87,6 +87,11 @@ export class PostcssAstBuilder {
       container.removeAll();
       this.buildChildren(container, nested, node.start + header.length, node.end);
     }
+    if (converted.type === 'rule' && converted.nodes.length === 0) {
+      // Sass has no braces. Stylelint uses this marker to locate an empty block
+      // on the selector instead of beyond the end of its source line.
+      delete converted.raws.between;
+    }
     return [converted];
   }
 
