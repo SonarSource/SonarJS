@@ -51,10 +51,7 @@ function isFQNAssertion(fqn: string | null | undefined) {
 
   const names = fqn.split('.');
 
-  /**
-   * Supertest assertions end in `.expect(...)` after the request's HTTP verb and
-   * any intermediate request methods, such as `.send(...)` or `.set(...)`.
-   */
+  // A Supertest chain can include another `.expect(...)` before its final `.expect(...)`.
   return names.length >= 3 && names[0] === 'supertest' && names.at(-1) === 'expect';
 }
 
