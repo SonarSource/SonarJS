@@ -165,7 +165,8 @@ describe('analyze-project worker', () => {
           const key = `${baseDir}/${logical && isWindowsProjectPath(origin) ? 'MAIN.TEST.ts' : 'main.test.ts'}`;
           const timer = setTimeout(
             () => finish(new Error('Portable replay worker timed out')),
-            30_000,
+            // Allow for cold worker startup under coverage instrumentation.
+            60_000,
           );
           const onError = (error: Error) => finish(error);
           const onMessage = (message: AnalyzeProjectWorkerOutMessage) => {
