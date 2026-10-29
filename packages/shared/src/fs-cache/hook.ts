@@ -832,6 +832,25 @@ function isPassthroughDescriptor(fileDescriptors: FileDescriptorMap, descriptor:
   return tracked?.virtual === false && tracked.passthrough;
 }
 
+/** Compiler IPC carries protocol messages, not project filesystem observations. */
+function isTransportDescriptor(descriptor: number): boolean {
+  try {
+    const stat = originalFs.fstatSync(descriptor);
+    // Node's Stats.isFIFO()/isSocket() always return false on Windows even
+    // when libuv reports a pipe in st_mode. Inspect the native mode directly.
+    const type = stat.mode & fs.constants.S_IFMT;
+    return type === fs.constants.S_IFIFO || type === fs.constants.S_IFSOCK;
+  } catch {
+    return false;
+  }
+}
+
+function isNamedPipe(input: fs.PathLike): boolean {
+  return (
+    process.platform === 'win32' && typeof input === 'string' && /^\\\\\.\\pipe\\/i.test(input)
+  );
+}
+
 function isPassthroughInput(
   archive: ArchiveFacade,
   fileDescriptors: FileDescriptorMap,
@@ -1636,6 +1655,11 @@ function createOpenPatches(archive: ArchiveFacade, fileDescriptors: FileDescript
   }
 
   function openSync(input: fs.PathLike, flags: fs.OpenMode = 'r', mode?: fs.Mode): number {
+    if (isNamedPipe(input)) {
+      const fd = originalFs.openSync(input, flags, mode);
+      fileDescriptors.set(fd, { passthrough: true, position: 0, virtual: false });
+      return fd;
+    }
     if (!readonlyFlags(flags)) {
       if (archive.isPassthrough(input)) {
         const fd = originalFs.openSync(input, flags, mode);
@@ -1782,7 +1806,7 @@ function createDescriptorPatches(
 
   function readSync(fd: number, buffer: NodeJS.ArrayBufferView, ...args: ReadArguments): number {
     const tracked = fileDescriptors.get(fd);
-    if (!tracked) {
+    if (!tracked && !isTransportDescriptor(fd)) {
       throw unsupportedFilesystemOperation('fs', 'readSync with an unknown descriptor');
     }
     return (
@@ -2090,7 +2114,12 @@ function installPatches(archive: ArchiveFacade) {
   // Node stdout and stderr use this primitive. Limit the native pass-through to their standard
   // descriptors and descriptors opened below a native passthrough tree.
   patch(fs, patchedProperties, 'writeSync', (fd: number, ...args: unknown[]) => {
-    if (fd !== 1 && fd !== 2 && !isPassthroughDescriptor(fileDescriptors, fd)) {
+    if (
+      fd !== 1 &&
+      fd !== 2 &&
+      !isPassthroughDescriptor(fileDescriptors, fd) &&
+      !isTransportDescriptor(fd)
+    ) {
       throw unsupportedFilesystemOperation('fs', 'writeSync outside stdout or stderr');
     }
     return (originalFs.writeSync as unknown as (fd: number, ...args: unknown[]) => number)(

@@ -20,6 +20,7 @@ import {
   createFileResults,
 } from './projectAnalysis.js';
 import { analyzeWithProgram } from './analyzeWithProgram.js';
+import { withProgramScope } from 'typescript/lifecycle';
 import { analyzeWithIncrementalProgram } from './analyzeWithIncrementalProgram.js';
 import { analyzeWithoutProgram } from './analyzeWithoutProgram.js';
 import { Linter } from './jsts/linter/linter.js';
@@ -97,23 +98,26 @@ export async function analyzeProject(
   configuration: Configuration,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ): Promise<ProjectAnalysisOutput> {
-  try {
-    if (!analysisStatus) {
-      // Keep the outer finally below pending until the nested analysis has settled.
-      return await withAnalysisCancellation(() =>
-        analyzeProjectWithCancellation(input, configuration, incrementalResultsChannel),
-      );
+  const analyze = async () => {
+    try {
+      if (!analysisStatus) {
+        // Keep the outer finally below pending until the nested analysis has settled.
+        return await withAnalysisCancellation(() =>
+          analyzeProjectWithCancellation(input, configuration, incrementalResultsChannel),
+        );
+      }
+      return await analyzeProjectWithCancellation(input, configuration, incrementalResultsChannel);
+    } finally {
+      // Scanner requests are independent. The last ESLint SourceCode retains its parser services,
+      // including the entire TypeScript Program; the parsed SourceFile cache also remains live.
+      // Release both before the next request loads another filesystem archive or TS program.
+      if (!configuration.sonarlint) {
+        Linter.releaseAfterAnalysis();
+        clearSourceFileContentCache();
+      }
     }
-    return await analyzeProjectWithCancellation(input, configuration, incrementalResultsChannel);
-  } finally {
-    // Scanner requests are independent. The last ESLint SourceCode retains its parser services,
-    // including the entire TypeScript Program; the parsed SourceFile cache also remains live.
-    // Release both before the next request loads another filesystem archive or TS program.
-    if (!configuration.sonarlint) {
-      Linter.releaseAfterAnalysis();
-      clearSourceFileContentCache();
-    }
-  }
+  };
+  return configuration.sonarlint ? analyze() : withProgramScope(analyze);
 }
 
 async function analyzeProjectWithCancellation(

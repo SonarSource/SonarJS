@@ -17,7 +17,7 @@
 import { describe, it } from 'node:test';
 import { DefaultParserRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { RuleTester as ESLintRuleTester } from 'eslint';
-import tsParser from '@typescript-eslint/parser';
+import { ruleTestParser as tsParser } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { rule } from './rule.js';
 
 const LODASH_MESSAGE =

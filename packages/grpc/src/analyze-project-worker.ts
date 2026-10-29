@@ -43,11 +43,16 @@ export function registerAnalyzeProjectWorkerMessageHandler(
   parentThread: AnalyzeProjectWorkerParentThread,
   data: WorkerData,
   handleRequest: typeof handleAnalyzeProjectRequest,
+  closeCompiler: () => void = () => {},
 ) {
   parentThread.on('message', async (message: AnalyzeProjectWorkerInMessage) => {
     switch (message.type) {
       case 'close':
-        parentThread.close();
+        try {
+          closeCompiler();
+        } finally {
+          parentThread.close();
+        }
         return;
       case 'cancel': {
         const result = toVoidResult(await handleRequest({ type: 'on-cancel-analysis' }, data));
@@ -103,10 +108,12 @@ async function startAnalyzeProjectWorker(workerParentPort: NonNullable<typeof pa
   installFsCache();
   // Do not make this a static import: the cache hook must be installed first.
   const { handleAnalyzeProjectRequest } = await import('./analyze-project-handle-request.js');
+  const { close } = await import('typescript/lifecycle');
   registerAnalyzeProjectWorkerMessageHandler(
     workerParentPort,
     workerData as WorkerData,
     handleAnalyzeProjectRequest,
+    close,
   );
 }
 

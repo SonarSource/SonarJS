@@ -50,6 +50,9 @@ import {
 import { isWindowsProjectPath } from '../../shared/src/helpers/project-paths.js';
 import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
 
+// A cold worker imports and instruments the analyzer under coverage before serving requests.
+const REAL_WORKER_TIMEOUT_MS = 60_000;
+
 class FakeParentThread {
   private readonly events = new EventEmitter();
   closed = false;
@@ -165,7 +168,7 @@ describe('analyze-project worker', () => {
           const key = `${baseDir}/${logical && isWindowsProjectPath(origin) ? 'MAIN.TEST.ts' : 'main.test.ts'}`;
           const timer = setTimeout(
             () => finish(new Error('Portable replay worker timed out')),
-            30_000,
+            REAL_WORKER_TIMEOUT_MS,
           );
           const onError = (error: Error) => finish(error);
           const onMessage = (message: AnalyzeProjectWorkerOutMessage) => {
@@ -302,7 +305,10 @@ describe('analyze-project worker', () => {
     const analyze = (baseDir: string, mode: number, content?: string) =>
       new Promise<AnalyzeProjectWorkerOutMessage>((resolve, reject) => {
         const requestId = String(++sequence);
-        const timer = setTimeout(() => finish(new Error('CSS replay worker timed out')), 30_000);
+        const timer = setTimeout(
+          () => finish(new Error('CSS replay worker timed out')),
+          REAL_WORKER_TIMEOUT_MS,
+        );
         const onMessage = (message: AnalyzeProjectWorkerOutMessage) => {
           if (
             'requestId' in message &&
@@ -414,6 +420,32 @@ describe('analyze-project worker', () => {
 
     expect(parentThread.closed).toBe(true);
     expect(parentThread.postedMessages).toEqual([]);
+  });
+
+  it('closes the compiler before its parent port, even when cleanup fails', async () => {
+    const failure = new Error('cleanup failed');
+    const calls: string[] = [];
+    let listener: (message: AnalyzeProjectWorkerInMessage) => void | Promise<void>;
+    const parent = {
+      on(_event: 'message', callback: typeof listener) {
+        listener = callback;
+      },
+      postMessage() {},
+      close() {
+        calls.push('port');
+      },
+    };
+    registerAnalyzeProjectWorkerMessageHandler(
+      parent,
+      workerData,
+      async () => ({ result: undefined, type: 'success' }),
+      () => {
+        calls.push('compiler');
+        throw failure;
+      },
+    );
+    await expect(listener!({ type: 'close' })).rejects.toBe(failure);
+    expect(calls).toEqual(['compiler', 'port']);
   });
 
   it('should forward cancel messages to the request handler', async () => {

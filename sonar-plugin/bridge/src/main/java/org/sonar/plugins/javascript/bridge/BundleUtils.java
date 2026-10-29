@@ -42,7 +42,7 @@ class BundleUtils {
       InputStream stream = new GZIPInputStream(new BufferedInputStream(resource));
       ArchiveInputStream<TarArchiveEntry> archive = new TarArchiveInputStream(stream)
     ) {
-      ArchiveEntry entry;
+      TarArchiveEntry entry;
       while ((entry = archive.getNextEntry()) != null) {
         if (!archive.canReadEntryData(entry)) {
           throw new IllegalStateException("Failed to extract bundle");
@@ -55,6 +55,10 @@ class BundleUtils {
           Files.createDirectories(parent);
           try (OutputStream os = Files.newOutputStream(entryFile)) {
             IOUtils.copy(archive, os);
+          }
+          // Native compiler assets must remain executable after scanner deployment.
+          if ((entry.getMode() & 0111) != 0 && !entryFile.toFile().setExecutable(true, false)) {
+            throw new IOException("Could not make bundle asset executable: " + entryFile);
           }
         }
       }
