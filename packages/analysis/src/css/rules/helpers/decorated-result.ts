@@ -21,12 +21,25 @@ export type DecoratedMessage = PostCSS.Warning & {
   stylelintType?: stylelint.WarningOptions['stylelintType'];
 };
 
+type MessageArgs = NonNullable<stylelint.Problem['messageArgs']>;
+
 /** Collect upstream warnings without applying rule settings or changing shared reporting state. */
-function isolatedResult(result: PostcssResult): PostcssResult {
+function isolatedResult(
+  result: PostcssResult,
+  upstreamRule: string,
+  capturedArgs: MessageArgs[],
+): PostcssResult {
   const scopedResult = Object.create(result) as PostcssResult;
   scopedResult.stylelint = {
     ...result.stylelint,
-    ruleSeverities: {},
+    // checkAgainstRule returns formatted warnings without messageArgs. The
+    // severity callback receives those arguments before each warning is built.
+    ruleSeverities: {
+      [upstreamRule]: (...args: MessageArgs) => {
+        capturedArgs.push(args);
+        return 'error';
+      },
+    },
     customMessages: {},
     customUrls: {},
     ruleMetadata: {},
@@ -37,11 +50,16 @@ function isolatedResult(result: PostcssResult): PostcssResult {
     stylelintError: false,
     stylelintWarning: false,
     quiet: false,
+    config: { ...result.stylelint.config, fix: false, computeEditInfo: false },
   };
   return scopedResult;
 }
 
-/** Run an upstream rule in isolation, then report accepted warnings under the Sonar rule. */
+/**
+ * Run an upstream rule in isolation, then report accepted warnings under the Sonar rule.
+ * CSS autofixes are not supported: collection disables fixes and edit info, and
+ * publishing does not forward upstream fix information.
+ */
 export function createDecoratedRule(
   sonarRule: string,
   upstreamRule: keyof typeof stylelint.rules,
@@ -55,13 +73,15 @@ export function createDecoratedRule(
   return (primary, secondaryOptions, context) => {
     return async (root: PostCSS.Root, result: PostcssResult): Promise<void> => {
       const factory = (await stylelint.rules[upstreamRule]) as stylelint.Rule;
+      const capturedArgs: MessageArgs[] = [];
+      let warningIndex = 0;
       await stylelint.utils.checkAgainstRule(
         {
           ruleName: upstreamRule,
           ruleSettings: [primary, secondaryOptions],
           root,
-          result: isolatedResult(result),
-          context,
+          result: isolatedResult(result, upstreamRule, capturedArgs),
+          context: { ...context, fix: false },
         },
         warning => {
           const message = warning as DecoratedMessage;
@@ -75,12 +95,17 @@ export function createDecoratedRule(
             }
             return;
           }
+          // Filtered warnings still consume their arguments.
+          const messageArgs = capturedArgs[warningIndex++];
           const rewritten = rewriteMessage(message, factory.messages, root, result);
           if (rewritten !== undefined) {
             stylelint.utils.report({
               ruleName: sonarRule,
               result,
-              message: rewritten,
+              // The rewrite is already formatted; only a configured custom
+              // message should interpolate the original arguments again.
+              message: () => rewritten,
+              messageArgs,
               node: message.node,
               start: { line: message.line, column: message.column },
               end: {

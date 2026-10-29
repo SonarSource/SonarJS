@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { describe, it } from 'node:test';
+import { describe, it, mock } from 'node:test';
 import { expect } from 'expect';
 import stylelint from 'stylelint';
 import { rule as annotations } from '../../../src/css/rules/S8757/rule.js';
@@ -27,6 +27,7 @@ import { rule as media } from '../../../src/css/rules/S9452/rule.js';
 import { meta as mediaMeta } from '../../../src/css/rules/S9452/meta.js';
 import { rule as customProperties } from '../../../src/css/rules/S9450/rule.js';
 import { meta as customPropertyMeta } from '../../../src/css/rules/S9450/meta.js';
+import { createStylelintConfig } from '../../../src/css/linter/config.js';
 
 const cases = [
   {
@@ -36,6 +37,7 @@ const cases = [
     filtered: '$color: red !default;',
     codeFilename: 'test.scss',
     customSyntax: 'postcss-scss',
+    messageArgs: ['!typo'],
   },
   {
     plugin: important,
@@ -43,6 +45,7 @@ const cases = [
     code: 'a { color: red !important; }',
     filtered: '@keyframes foo { from { color: red !important; } }',
     codeFilename: 'test.css',
+    messageArgs: [],
   },
   {
     plugin: grid,
@@ -50,6 +53,7 @@ const cases = [
     code: 'a { grid-template-areas: "a a" "a b"; }',
     filtered: 'a { grid-template-areas: "... a" "b ..."; }',
     codeFilename: 'test.css',
+    messageArgs: ['a'],
   },
   {
     plugin: media,
@@ -57,6 +61,7 @@ const cases = [
     code: '@media (orientation: sideways) {}',
     filtered: '@media (grid: calc(1)) {}',
     codeFilename: 'test.css',
+    messageArgs: ['orientation', 'sideways'],
   },
   {
     plugin: customProperties,
@@ -64,10 +69,11 @@ const cases = [
     code: 'a { --color: red; --color: blue; }',
     filtered: '@keyframes foo { from { --color: red !important; --color: blue; } }',
     codeFilename: 'test.css',
+    messageArgs: ['--color'],
   },
 ];
 
-for (const { plugin, upstream, code, filtered, codeFilename, customSyntax } of cases) {
+for (const { plugin, upstream, code, filtered, codeFilename, customSyntax, messageArgs } of cases) {
   const sonarRule = plugin.ruleName;
   const lint = (
     settings: stylelint.ConfigRuleSettings<unknown, object> = true,
@@ -125,6 +131,61 @@ for (const { plugin, upstream, code, filtered, codeFilename, customSyntax } of c
       const filteredResult = await lint(settings, {}, filtered);
       expect(filteredResult.results[0].warnings).toEqual([]);
       expect(filteredResult.errored).toBe(false);
+    });
+
+    it('interpolates parameterized custom messages like the upstream rule', async () => {
+      const settings = [true, { message: 'Finding: %s / %d' }];
+      const native = await lint(settings, { rules: { [upstream]: settings } });
+      const decorated = await lint(settings);
+      expect(decorated.results[0].warnings).toEqual(
+        native.results[0].warnings.map(warning => ({
+          ...warning,
+          rule: sonarRule,
+          text: warning.text.replace(` (${upstream})`, ` (${sonarRule})`),
+        })),
+      );
+    });
+
+    it('passes the original arguments to custom message callbacks once', async () => {
+      const message = mock.fn((...args: unknown[]) => JSON.stringify(args));
+      const result = await lint([true, { message }]);
+      expect(message.mock.calls.map(call => call.arguments)).toEqual([messageArgs]);
+      expect(result.results[0].warnings).toEqual([
+        expect.objectContaining({ text: `${JSON.stringify(messageArgs)} (${sonarRule})` }),
+      ]);
+    });
+
+    it('passes the original arguments to severity callbacks once', async () => {
+      const severity = mock.fn((...args: unknown[]) => {
+        expect(args).toEqual(messageArgs);
+        return 'warning' as const;
+      });
+      const result = await lint([true, { severity }]);
+      expect(severity.mock.calls).toHaveLength(1);
+      expect(result.results[0].warnings).toEqual([
+        expect.objectContaining({ rule: sonarRule, severity: 'warning' }),
+      ]);
+      expect(result.errored).toBe(false);
+    });
+
+    it('keeps arguments aligned when earlier warnings are filtered', async () => {
+      const message = mock.fn((...args: unknown[]) => JSON.stringify(args));
+      const severity = mock.fn(() => 'warning' as const);
+      const result = await lint([true, { message, severity }], {}, `${filtered}\n${code}`);
+      expect(message.mock.calls.map(call => call.arguments)).toEqual([messageArgs]);
+      expect(severity.mock.calls.map(call => call.arguments)).toEqual([messageArgs]);
+      expect(result.results[0].warnings).toEqual([
+        expect.objectContaining({ text: `${JSON.stringify(messageArgs)} (${sonarRule})` }),
+      ]);
+      expect(result.errored).toBe(false);
+    });
+
+    it('does not apply or publish autofixes', async () => {
+      const result = await lint(true, { fix: true });
+      expect(result.code).toBe(code);
+      expect(result.results[0].warnings).toEqual([
+        expect.objectContaining({ rule: sonarRule, fix: undefined }),
+      ]);
     });
 
     it('records a used disable under the Sonar key', async () => {
@@ -190,3 +251,42 @@ for (const { plugin, upstream, code, filtered, codeFilename, customSyntax } of c
     });
   });
 }
+
+describe('decorated reporting argument boundaries', () => {
+  it('does not interpolate placeholders inside an already formatted message', async () => {
+    const source = 'a { color: red !foo%s%d; }';
+    const config = createStylelintConfig([{ key: annotations.ruleName, configurations: [] }]);
+    const result = await stylelint.lint({ code: source, codeFilename: 'test.css', config });
+    expect(result.results[0].warnings).toEqual([
+      expect.objectContaining({
+        text: `Unknown annotation "!foo%s%d" (${annotations.ruleName})`,
+      }),
+    ]);
+  });
+
+  it('keeps arguments local to each embedded block and warning', async () => {
+    const message = mock.fn((annotation: string) => `Bad annotation: ${annotation}`);
+    const config = createStylelintConfig([
+      { key: annotations.ruleName, configurations: [true, { message }] },
+    ]);
+    const result = await stylelint.lint({
+      code: `<style lang="scss">
+$color: red !default;
+a { color: red !first; }
+</style>
+<style>
+b { color: red !default !second; }
+</style>`,
+      codeFilename: 'component.vue',
+      config,
+    });
+    expect(result.results[0].warnings.map(({ text }) => text).sort()).toEqual(
+      ['!first', '!default', '!second']
+        .map(annotation => `Bad annotation: ${annotation} (${annotations.ruleName})`)
+        .sort(),
+    );
+    expect(message.mock.calls.map(call => call.arguments).sort()).toEqual(
+      [['!first'], ['!default'], ['!second']].sort(),
+    );
+  });
+});
