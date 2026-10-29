@@ -17,34 +17,43 @@
 import { ASTUtils, type TSESLint, type TSESTree } from '@typescript-eslint/utils';
 import type { Rule, Scope } from 'eslint';
 import type { Node } from 'estree';
+import type { JSXAttribute, JSXOpeningElement } from 'estree-jsx';
 import { getFirstConcreteRole } from '../helpers/accessibility.js';
 import {
+  cookTemplateLiteral,
   getUniqueWriteUsageOrNode,
   getVariableFromName,
   unwrapTypeScriptExpression,
 } from '../helpers/ast.js';
-import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
+import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isJsxIdentifierNamed } from '../helpers/jsx.js';
+import { isHtmlElement } from '../helpers/isHtmlElement.js';
+import { isInHtmlNamespace, openingElementOf } from './helpers.js';
 import * as meta from './generated-meta.js';
 
-const ARIA_NUMBER = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/;
+// These names can also identify SVG elements rendered through a component.
+const SHARED_HTML_SVG_TAG_NAMES = new Set(['a', 'font', 'image', 'script', 'style', 'title']);
 
+const ARIA_NUMBER = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/;
 /**
- * Allows intrinsic div separator widgets with a supplied current value.
- * @param rule the upstream accessibility rule
- * @return the rule with separator reports filtered
+ * Suppresses reports for proven editing hosts, focusable separators, and conditional values
+ * that cannot add an element to sequential keyboard navigation.
+ *
+ * @example Pseudocode
+ * report(<div contentEditable tabIndex={0} />.tabIndex) -> suppress
+ * report(<div tabIndex={disabled ? null : -1} />.tabIndex) -> suppress
+ * report(<div tabIndex={0} />.tabIndex) -> forward
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  return interceptReportForReact(
+  return interceptReport(
     { ...rule, meta: generateMeta(meta, rule.meta) },
     (context, descriptor) => {
       if (isTabIndexOutsideSequentialFocusOrder(descriptor)) {
         return;
       }
-      const node = 'node' in descriptor ? (descriptor.node as TSESTree.Node) : undefined;
-      const opening = node?.type === 'JSXAttribute' ? node.parent : undefined;
-      if (opening?.type === 'JSXOpeningElement' && isSeparatorWidget(context, opening)) {
+      const opening = openingElementOf(descriptor);
+      if (opening && (isEditableHtmlHost(opening) || isSeparatorWidget(context, opening))) {
         return;
       }
       context.report(descriptor);
@@ -213,6 +222,10 @@ function isNumericCurrentValue(value: unknown): boolean {
 /**
  * Matches: <div tabIndex={disabled ? null : -1} />
  * Requires no spreads or later tabIndex attributes.
+ *
+ * @example
+ * <div tabIndex={disabled ? null : -1} /> -> true
+ * <div tabIndex={disabled ? null : 0} />  -> false
  */
 function isTabIndexOutsideSequentialFocusOrder(reportDescriptor: Rule.ReportDescriptor): boolean {
   if (!('node' in reportDescriptor) || reportDescriptor.node.type !== 'JSXAttribute') {
@@ -233,6 +246,11 @@ function isTabIndexOutsideSequentialFocusOrder(reportDescriptor: Rule.ReportDesc
 /**
  * Matches: <div id="title" tabIndex={value} title="Title" />
  * Rejects any spread or later tabIndex attribute, including case variants.
+ *
+ * @example For the first tabIndex
+ * <div tabIndex={value} title="Title" /> -> true
+ * <div tabIndex={value} tabIndex={0} />  -> false
+ * <div tabIndex={value} {...props} />    -> false
  */
 function hasNoTabIndexOverrides(node: TSESTree.JSXAttribute): boolean {
   const parent = node.parent;
@@ -260,6 +278,10 @@ function hasNoTabIndexOverrides(node: TSESTree.JSXAttribute): boolean {
  *   -1
  *   condition ? null : nested ? -1 : -2
  * Every leaf must be null or a negative integer literal.
+ *
+ * @example
+ * condition ? null : nested ? -1 : -2 -> true
+ * condition ? null : 0                -> false
  */
 function isNonSequentialTabIndexValue(expression: TSESTree.Expression): boolean {
   if (expression.type === 'ConditionalExpression') {
@@ -350,6 +372,84 @@ function isDefinitelyNonNumericExpression(
     default:
       return false;
   }
+}
+
+/**
+ * Requires a proven HTML editing host with an exact JSX attribute name.
+ *
+ * @example Pseudocode
+ * <div contentEditable="plaintext-only" /> -> true
+ * <div contenteditable="true" />           -> false
+ * <svg><div contentEditable /></svg>        -> false
+ */
+function isEditableHtmlHost(opening: TSESTree.JSXOpeningElement): boolean {
+  const element = {
+    type: 'JSXElement' as const,
+    openingElement: opening,
+  } as TSESTree.JSXElement;
+  if (
+    !isHtmlElement(element) ||
+    opening.name.type !== 'JSXIdentifier' ||
+    opening.name.name === 'svg' ||
+    opening.name.name === 'math' ||
+    SHARED_HTML_SVG_TAG_NAMES.has(opening.name.name) ||
+    !isInHtmlNamespace(opening)
+  ) {
+    return false;
+  }
+
+  const attribute = directContentEditableAttribute(opening);
+  if (attribute?.name.name !== 'contentEditable') {
+    return false;
+  }
+  if (attribute.value === null) {
+    return true;
+  }
+  const expression = unwrapTypeScriptExpression(
+    attribute.value.type === 'JSXExpressionContainer'
+      ? attribute.value.expression
+      : attribute.value,
+  );
+  // A template without expressions is a literal value. Other expressions may be dynamic.
+  let value: unknown;
+  if (expression.type === 'Literal') {
+    value = expression.value;
+  } else if (expression.type === 'TemplateLiteral') {
+    value = cookTemplateLiteral(expression);
+  } else {
+    return false;
+  }
+  return (
+    value === true ||
+    (typeof value === 'string' && ['', 'true', 'plaintext-only'].includes(value.toLowerCase()))
+  );
+}
+
+/**
+ * Finds one direct contentEditable attribute without a spread.
+ *
+ * @example
+ * <div contentEditable="true" />            -> attribute
+ * <div {...props} contentEditable="true" /> -> undefined
+ * <div contentEditable contenteditable />   -> undefined
+ */
+function directContentEditableAttribute(
+  opening: TSESTree.JSXOpeningElement,
+): JSXAttribute | undefined {
+  const attributes = (opening as unknown as JSXOpeningElement).attributes;
+  const contentEditableAttributes = attributes.filter(
+    (attribute): attribute is JSXAttribute =>
+      attribute.type === 'JSXAttribute' &&
+      attribute.name.type === 'JSXIdentifier' &&
+      attribute.name.name.toLowerCase() === 'contenteditable',
+  );
+  if (contentEditableAttributes.length !== 1) {
+    return undefined;
+  }
+  // A spread can add a case variant or override the direct contenteditable attribute.
+  return attributes.some(candidate => candidate.type === 'JSXSpreadAttribute')
+    ? undefined
+    : contentEditableAttributes[0];
 }
 
 function getSimpleBindingValue(
