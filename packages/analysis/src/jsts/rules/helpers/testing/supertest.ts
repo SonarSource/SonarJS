@@ -87,25 +87,35 @@ function isLocalFactoryAssertion(context: Rule.RuleContext, node: estree.Node): 
     return false;
   }
   const factory = resolveLocalFactory(context, identifier);
-  if (factory?.params.length !== 0 || factory?.async || factory?.generator) {
+  return factory !== undefined && isSupertestFactory(context, factory);
+}
+
+function isSupertestFactory(context: Rule.RuleContext, factory: estree.Function): boolean {
+  if (factory.params.length !== 0 || factory.async || factory.generator) {
     return false;
   }
+  const returned = getReturnedCall(factory);
+  return returned !== undefined && isSupertestCall(context, returned);
+}
+
+function getReturnedCall(factory: estree.Function): estree.CallExpression | undefined {
   const expression = getReturnedExpression(factory);
-  const returned = expression && unwrapTypeScriptExpression(expression);
-  if (returned?.type !== 'CallExpression' || returned.optional) {
-    return false;
+  if (!expression) {
+    return undefined;
   }
+  const returned = unwrapTypeScriptExpression(expression);
+  return returned.type === 'CallExpression' && !returned.optional ? returned : undefined;
+}
+
+function isSupertestCall(context: Rule.RuleContext, returned: estree.CallExpression): boolean {
   const fqn = getFullyQualifiedName(context, returned);
   if (fqn !== 'supertest' && fqn !== 'supertest.agent') {
     return false;
   }
   const callee = unwrapTypeScriptExpression(returned.callee);
-  if (hasDirectSupertestOrigin(context, callee, fqn)) {
-    // Example: const http = () => request(app); http().get('/').expect(200);
-    // Example: import { agent } from 'supertest'; const http = () => agent(app);
-    return true;
-  }
-  return false;
+  // Example: const http = () => request(app); http().get('/').expect(200);
+  // Example: import { agent } from 'supertest'; const http = () => agent(app);
+  return hasDirectSupertestOrigin(context, callee, fqn);
 }
 
 /** Accept a direct Supertest import or an unchanged `require('supertest')` binding. */
