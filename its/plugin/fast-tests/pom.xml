@@ -25,11 +25,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.sonarsource.analyzer-commons</groupId>
-      <artifactId>sonar-analyzer-commons</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>com.sonarsource.scanner.integrationtester</groupId>
       <artifactId>sonar-scanner-integration-tester</artifactId>
       <version>1.5.0.1412</version>

@@ -56,10 +56,6 @@
       <artifactId>sonar-plugin-api-test-fixtures</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sonarsource.sonarlint.core</groupId>
-      <artifactId>sonarlint-analysis-engine</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
       <scope>test</scope>
