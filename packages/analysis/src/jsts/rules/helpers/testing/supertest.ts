@@ -118,6 +118,9 @@ function isSupertestCall(context: Rule.RuleContext, returned: estree.CallExpress
   return hasDirectSupertestOrigin(context, callee, fqn);
 }
 
+type SupertestVariable = NonNullable<ReturnType<typeof getVariableFromName>>;
+type SupertestDefinition = SupertestVariable['defs'][number];
+
 /** Accept a direct Supertest import or an unchanged `require('supertest')` binding. */
 function hasDirectSupertestOrigin(
   context: Rule.RuleContext,
@@ -134,37 +137,53 @@ function hasDirectSupertestOrigin(
   }
   const definition = variable.defs[0];
   if (definition.type === 'ImportBinding') {
-    const specifier = definition.node;
-    if (specifier.type === 'ImportSpecifier') {
-      const imported = specifier.imported;
-      const name = imported.type === 'Identifier' ? imported.name : imported.value;
-      if (
-        definition.parent?.type !== 'ImportDeclaration' ||
-        definition.parent.source.value !== 'supertest' ||
-        (name !== 'default' && name !== 'agent')
-      ) {
-        return false;
-      }
-    } else if (
-      fqn !== 'supertest' ||
-      (specifier.type !== 'ImportDefaultSpecifier' && specifier.type !== 'ImportNamespaceSpecifier')
-    ) {
-      return false;
-    }
-    // Example: import { agent } from 'supertest'; const http = () => agent(app);
-    return !variable.references.some(reference => reference.isWrite());
+    return isStableSupertestImport(variable, definition, fqn);
   }
-  if (definition.type === 'Variable' && fqn === 'supertest') {
-    const { id, init } = definition.node as estree.VariableDeclarator;
-    // Example: const client = require('supertest'); const http = () => client(app);
+  return isStableSupertestRequireBinding(context, variable, definition, fqn);
+}
+
+function isStableSupertestImport(
+  variable: SupertestVariable,
+  definition: SupertestDefinition,
+  fqn: string,
+): boolean {
+  const specifier = definition.node;
+  if (specifier.type === 'ImportSpecifier') {
+    const imported = specifier.imported;
+    const name = imported.type === 'Identifier' ? imported.name : imported.value;
     return (
-      id.type === 'Identifier' &&
-      init != null &&
-      getUniqueWriteReference(variable) === init &&
-      isStableSupertestRequire(context, init)
+      definition.parent?.type === 'ImportDeclaration' &&
+      definition.parent.source.value === 'supertest' &&
+      (name === 'default' || name === 'agent') &&
+      !variable.references.some(reference => reference.isWrite())
     );
   }
-  return false;
+  // Example: import * as request from 'supertest'; const http = () => request(app);
+  return (
+    fqn === 'supertest' &&
+    (specifier.type === 'ImportDefaultSpecifier' ||
+      specifier.type === 'ImportNamespaceSpecifier') &&
+    !variable.references.some(reference => reference.isWrite())
+  );
+}
+
+function isStableSupertestRequireBinding(
+  context: Rule.RuleContext,
+  variable: SupertestVariable,
+  definition: SupertestDefinition,
+  fqn: string,
+): boolean {
+  if (definition.type !== 'Variable' || fqn !== 'supertest') {
+    return false;
+  }
+  const { id, init } = definition.node as estree.VariableDeclarator;
+  // Example: const client = require('supertest'); const http = () => client(app);
+  return (
+    id.type === 'Identifier' &&
+    init != null &&
+    getUniqueWriteReference(variable) === init &&
+    isStableSupertestRequire(context, init)
+  );
 }
 
 function isStableSupertestRequire(context: Rule.RuleContext, node: estree.Node): boolean {
