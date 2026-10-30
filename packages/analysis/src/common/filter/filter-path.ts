@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { Minimatch } from 'minimatch';
-import { type NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
+import { dirnamePath, type NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import { debug } from '../../../../shared/src/helpers/logging.js';
 import type { FileType } from '../../contracts/file.js';
 import { type FilterPathParams } from '../configuration.js';
@@ -54,20 +54,6 @@ export function matchesJsTsExclusion(
   return jsTsExclusions?.some(exclusion => exclusion.match(filePath)) ?? false;
 }
 
-export type ExcludedFileTypes = Readonly<Record<FileType, boolean>>;
-
-/** Only explicit exclusions propagate to descendants; source roots and inclusions do not. */
-export function getExcludedFileTypes(
-  filePath: NormalizedAbsolutePath,
-  params: FilterPathParams,
-  parentExclusions?: ExcludedFileTypes,
-): ExcludedFileTypes {
-  return {
-    MAIN: parentExclusions?.MAIN || params.exclusions.some(pattern => pattern.match(filePath)),
-    TEST: parentExclusions?.TEST || params.testExclusions.some(pattern => pattern.match(filePath)),
-  };
-}
-
 /**
  * Filters a given file path based on inclusion and exclusion rules and determines its type.
  * This mimics the scanner engine implementation of "sources", "tests" and its inclusion/exclusion
@@ -85,18 +71,31 @@ export function getExcludedFileTypes(
 export function filterPathAndGetFileType(
   filePath: NormalizedAbsolutePath,
   params: FilterPathParams,
-  parentExclusions?: ExcludedFileTypes,
 ): FileType | undefined {
-  const excludedTypes = getExcludedFileTypes(filePath, params, parentExclusions);
-  if (!excludedTypes.TEST && matchesTestPath(filePath, params)) {
+  if (matchesTestPath(filePath, params)) {
     return 'TEST';
   }
 
-  if (!excludedTypes.MAIN && matchesMainPath(filePath, params)) {
+  if (matchesMainPath(filePath, params)) {
     return 'MAIN';
   }
 
   debug(`File ignored due to analysis scope filters: ${filePath}`);
+}
+
+export function isDirectoryExcluded(
+  dir: NormalizedAbsolutePath,
+  params: FilterPathParams,
+): boolean {
+  const canContainFiles = (roots: NormalizedAbsolutePath[]) =>
+    fileIsUnder(dir, roots) || roots.some(root => fileIsUnder(root, [dir]));
+  return !filterPathAndGetFileType(dir, {
+    ...params,
+    sourcesPaths: canContainFiles(params.sourcesPaths) ? [dir] : [],
+    testPaths: canContainFiles(params.testPaths) ? [dir] : [],
+    inclusions: [],
+    testInclusions: [],
+  });
 }
 
 /**
@@ -128,10 +127,31 @@ function fileIsUnder(filePath: NormalizedAbsolutePath, paths: NormalizedAbsolute
   });
 }
 
+function matchesExclusion(
+  filePath: NormalizedAbsolutePath,
+  exclusions: Minimatch[],
+  baseDir: NormalizedAbsolutePath,
+): boolean {
+  if (!exclusions.length) {
+    return false;
+  }
+  let path = filePath;
+  do {
+    if (exclusions.some(exclusion => exclusion.match(path))) {
+      return true;
+    }
+    path = dirnamePath(path);
+  } while (path !== baseDir && fileIsUnder(path, [baseDir]));
+  return false;
+}
+
 function matchesTestPath(filePath: NormalizedAbsolutePath, params: FilterPathParams): boolean {
-  const { testPaths, testInclusions } = params;
+  const { testPaths, testExclusions, testInclusions } = params;
 
   if (!fileIsUnder(filePath, testPaths)) {
+    return false;
+  }
+  if (matchesExclusion(filePath, testExclusions, params.baseDir)) {
     return false;
   }
   if (testInclusions?.length) {
@@ -180,8 +200,12 @@ function matchesTestFileHeuristic(
 }
 
 function matchesMainPath(filePath: NormalizedAbsolutePath, params: FilterPathParams): boolean {
-  const { sourcesPaths, inclusions } = params;
+  const { sourcesPaths, exclusions, inclusions } = params;
   if (!fileIsUnder(filePath, sourcesPaths)) {
+    return false;
+  }
+
+  if (matchesExclusion(filePath, exclusions, params.baseDir)) {
     return false;
   }
 

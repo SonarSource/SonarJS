@@ -31,16 +31,15 @@ import type { FileStore } from './store-type.js';
 import { accept } from '../common/filter/filter.js';
 import {
   DirectoryIndex,
-  dirnamePath,
   type NormalizedAbsolutePath,
   type File,
 } from '../../../shared/src/helpers/files.js';
 import {
-  type ExcludedFileTypes,
   filterPathAndGetFileType,
-  getExcludedFileTypes,
   getFileTypeForRules,
+  isDirectoryExcluded,
 } from '../common/filter/filter-path.js';
+import { dirname } from 'node:path/posix';
 import type { FileType } from '../contracts/file.js';
 
 export const UNINITIALIZED_ERROR = 'Files cache has not been initialized. Call loadFiles() first.';
@@ -54,10 +53,9 @@ type ResolvedFileTypes = {
 function resolveFileTypes(
   filename: NormalizedAbsolutePath,
   configuration: Configuration,
-  parentExclusions?: ExcludedFileTypes,
 ): ResolvedFileTypes | undefined {
   const filterPathParams = getFilterPathParams(configuration);
-  const fileType = filterPathAndGetFileType(filename, filterPathParams, parentExclusions);
+  const fileType = filterPathAndGetFileType(filename, filterPathParams);
   if (!fileType) {
     return;
   }
@@ -73,7 +71,7 @@ export class SourceFileStore implements FileStore {
   private baseDir: NormalizedAbsolutePath | undefined = undefined;
   private canAccessFileSystem: boolean | undefined = undefined;
   private analyzableFilesConfigKey: string | undefined = undefined;
-  private readonly excludedDirectories = new Map<NormalizedAbsolutePath, ExcludedFileTypes>();
+  private readonly ignoredPaths = new Set<string>();
   private pendingFileTypes: ResolvedFileTypes | undefined = undefined;
   private files: AnalyzableFiles | undefined = undefined;
   private readonly directoryIndex = new DirectoryIndex();
@@ -126,7 +124,7 @@ export class SourceFileStore implements FileStore {
     this.canAccessFileSystem = undefined;
     this.analyzableFilesConfigKey = undefined;
     this.files = undefined;
-    this.excludedDirectories.clear();
+    this.ignoredPaths.clear();
     this.pendingFileTypes = undefined;
     this.directoryIndex.clear();
   }
@@ -140,15 +138,11 @@ export class SourceFileStore implements FileStore {
 
   wantsFile(filename: NormalizedAbsolutePath, configuration: Configuration) {
     const shouldIgnoreParams = getShouldIgnoreParams(configuration);
-    if (!isAnalyzableFile(filename, shouldIgnoreParams)) {
+    if (!isAnalyzableFile(filename, shouldIgnoreParams) || this.anyParentIsIgnored(filename)) {
       return false;
     }
 
-    const fileTypes = resolveFileTypes(
-      filename,
-      configuration,
-      this.excludedDirectories.get(dirnamePath(filename)),
-    );
+    const fileTypes = resolveFileTypes(filename, configuration);
     if (!fileTypes) {
       return false;
     }
@@ -163,11 +157,7 @@ export class SourceFileStore implements FileStore {
     const fileTypes =
       pendingFileTypes?.filePath === filename
         ? pendingFileTypes
-        : resolveFileTypes(
-            filename,
-            configuration,
-            this.excludedDirectories.get(dirnamePath(filename)),
-          );
+        : resolveFileTypes(filename, configuration);
     // we don't call shouldIgnoreFile because the isJsTsExcluded method has already been
     // called while walking the project tree
     if (
@@ -187,17 +177,17 @@ export class SourceFileStore implements FileStore {
   }
 
   processDirectory(dir: NormalizedAbsolutePath, configuration: Configuration) {
-    const exclusions = getExcludedFileTypes(
-      dir,
-      getFilterPathParams(configuration),
-      this.excludedDirectories.get(dirnamePath(dir)),
-    );
-    if (exclusions.MAIN || exclusions.TEST) {
-      this.excludedDirectories.set(dir, exclusions);
+    const isExcludedPath = isDirectoryExcluded(dir, getFilterPathParams(configuration));
+    if (this.anyParentIsIgnored(dir) || isExcludedPath) {
+      this.ignoredPaths.add(dir);
     }
   }
 
   async postProcess(_configuration: Configuration) {
     this.pendingFileTypes = undefined;
+  }
+
+  private anyParentIsIgnored(filePath: NormalizedAbsolutePath) {
+    return this.ignoredPaths.has(dirname(filePath));
   }
 }

@@ -71,11 +71,6 @@ That walk is intentionally broader than the current analyzable source-file set.
 
 Its job is not only to find source files. It also needs to discover helper files such as `tsconfig.json` and dependency manifests. The `source-files` store applies source/test scope filtering itself during processing.
 
-Source/test roots and inclusions are checked on each file: an ancestor outside a source root, or one
-that does not match a file inclusion pattern, can still contain eligible files. Explicit directory
-exclusions propagate to descendants, tracked separately for MAIN and TEST files. These source/test
-exclusions do not narrow helper-file discovery.
-
 In some direct filesystem-discovery request flows, callers clear the stores before calling `initFileStores()` so a same-`baseDir` rediscovery starts from empty state.
 
 ### Simulated Traversal From Explicit Request Files
@@ -106,7 +101,7 @@ The analyzer models those domains explicitly because different stores depend on 
 It stores:
 
 - the normalized `AnalyzableFiles` map
-- inherited source/test exclusions for directories
+- ignored directories
 - a directory index used by TypeScript config resolution when filesystem access is unavailable
 
 It depends on:

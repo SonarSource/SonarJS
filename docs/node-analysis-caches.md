@@ -87,7 +87,7 @@ It stores:
 - file content for request-provided files and for files read during discovery
 - file type and file status
 - a `DirectoryIndex` used by the no-filesystem tsconfig path
-- inherited source/test exclusions for directories
+- ignored directories derived from path filtering
 
 Two usage patterns matter:
 
