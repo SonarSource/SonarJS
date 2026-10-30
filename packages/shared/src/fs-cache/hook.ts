@@ -140,9 +140,9 @@ type ArchiveFacade = Pick<
   | 'set'
 > & { readonly mode: FsCacheArchive['mode'] | undefined };
 export type FsCacheSession = { end(): void; mode?: FsCacheArchive['mode'] };
-/** Filesystem capability, not product identity: absent without an active replay filesystem. */
+/** Filesystem capability, not product identity: absent without an active cache filesystem. */
 export function getFileSystemCaseSensitivity(): boolean | undefined {
-  return activeArchive?.mode === 'replay' ? activeArchive.caseSensitivePaths : undefined;
+  return activeArchive?.caseSensitivePaths;
 }
 export type FsCacheInstallation = {
   beginAnalysis(options: ArchiveOptions): FsCacheSession;

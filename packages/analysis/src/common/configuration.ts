@@ -16,6 +16,8 @@
  */
 import { extname } from 'node:path/posix';
 import { Minimatch } from 'minimatch';
+import { getFileSystemCaseSensitivity } from '../../../shared/src/fs-cache/hook.js';
+import { escapeGlobPath, parsePathPattern } from './path-pattern.js';
 import {
   type NormalizedAbsolutePath,
   isAbsolutePath,
@@ -428,7 +430,7 @@ export function getFilterPathParams(configuration: Configuration): FilterPathPar
 }
 
 function serializeMinimatchPatterns(patterns: Minimatch[]) {
-  return patterns.map(({ pattern }) => pattern);
+  return patterns.map(({ pattern, options }) => [pattern, options.nocase]);
 }
 
 /**
@@ -581,22 +583,18 @@ export function isAnalyzableFile(
 
 function normalizeGlobs(globs: unknown, baseDir: NormalizedAbsolutePath) {
   return (isStringArray(globs) ? globs : []).map(pattern => {
-    const trimmed = pattern.trim();
-    // Scanner PathPattern uses "file:" (case-insensitive) to match the absolute path.
-    // Its pattern may itself start with a wildcard, so do not resolve it against baseDir.
-    const normalized = /^file:/i.test(trimmed)
-      ? normalizePath(trimmed.slice('file:'.length))
-      : normalizeToAbsolutePath(trimmed, baseDir);
+    const { prefix, value, isDirectory } = parsePathPattern(pattern.trim());
+    // Scanner `file:` patterns may start with a wildcard and must not resolve against baseDir.
+    const normalized =
+      prefix && !isDirectory ? normalizePath(value) : normalizeToAbsolutePath(value, baseDir);
+    const glob = isDirectory ? `${escapeGlobPath(normalized)}{,/**}` : normalized;
     // Brace expansion runs before character-class parsing in minimatch. Translate
     // bracket-escaped literal braces after path normalization to preserve them.
-    return new Minimatch(
-      normalized.replaceAll('[{]', String.raw`\{`).replaceAll('[}]', String.raw`\}`),
-      {
-        nocase: true,
-        matchBase: true,
-        dot: true,
-      },
-    );
+    return new Minimatch(glob.replaceAll('[{]', String.raw`\{`).replaceAll('[}]', String.raw`\}`), {
+      nocase: !isDirectory || !(getFileSystemCaseSensitivity() ?? process.platform !== 'win32'),
+      matchBase: true,
+      dot: true,
+    });
   });
 }
 

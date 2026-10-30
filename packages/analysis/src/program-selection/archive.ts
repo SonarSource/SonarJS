@@ -18,7 +18,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { gzipSync, gunzipSync } from 'node:zlib';
 import type ts from 'typescript';
-import { escape as escapeGlob } from 'minimatch';
+import { escapeGlobPath, parsePathPattern } from '../common/path-pattern.js';
 import {
   isAbsolutePath,
   normalizeToAbsolutePath,
@@ -397,13 +397,13 @@ export class ProgramSelectionArchive {
   private relocateConfigurationPath(
     item: unknown,
     recordedBaseDir: NormalizedAbsolutePath,
-    isGlob: boolean,
+    isGlobSetting: boolean,
   ): unknown {
     if (typeof item !== 'string') {
       return item;
     }
-    const prefix = /^file:/i.exec(item)?.[0] ?? '';
-    const original = item.slice(prefix.length);
+    const { prefix, value: original, isDirectory } = parsePathPattern(item);
+    const isGlob = isGlobSetting && !isDirectory;
     if (!isAbsolutePath(original)) {
       return item;
     }
@@ -645,10 +645,4 @@ function unknownFromValue(value: unknown): unknown {
     return objectFromStruct(typed.structValue);
   }
   throw new Error('Invalid compiler option value in program selection archive');
-}
-
-function escapeGlobPath(value: NormalizedAbsolutePath): NormalizedAbsolutePath {
-  return normalizeProjectRoot(
-    escapeGlob(value, { windowsPathsNoEscape: true, magicalBraces: true }),
-  );
 }

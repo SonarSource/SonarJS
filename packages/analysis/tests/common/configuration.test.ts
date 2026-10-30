@@ -16,6 +16,10 @@
  */
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { installFsCache } from '../../../shared/src/fs-cache/hook.js';
 import {
   createConfiguration,
   isAlsoCssFile,
@@ -30,10 +34,7 @@ describe('createConfiguration', () => {
     const root = normalizeToAbsolutePath('/ci/project');
     const configuration = createConfiguration({
       baseDir: root,
-      jsTsExclusions: [
-        `file:${root}/.build/[[]scanner[]]{,/**}`,
-        `file:${root}/.literal/[{]a,b[}]{,/**}`,
-      ],
+      jsTsExclusions: [`directory:${root}/.build/[scanner]`, `directory:${root}/.literal/{a,b}`],
     });
     const excluded = (relative: string) =>
       configuration.jsTsExclusions.some(pattern =>
@@ -47,6 +48,50 @@ describe('createConfiguration', () => {
     expect(excluded('.literal/a/runtime.js')).toBe(false);
     expect(createConfiguration({ baseDir: root, jsTsExclusions: [] }).jsTsExclusions).toEqual([]);
   });
+
+  for (const caseSensitivePaths of [true, false]) {
+    it(`matches generated directory exclusions with filesystem case sensitivity ${caseSensitivePaths}`, () => {
+      const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'directory-exclusions-'));
+      const root = normalizeToAbsolutePath(temporary);
+      const source = path.join(temporary, 'source.ts');
+      fs.writeFileSync(source, 'const x = 1;');
+      const installation = installFsCache();
+      try {
+        for (const mode of ['record', 'replay'] as const) {
+          const session = installation.beginAnalysis({
+            archivePath: path.join(temporary, 'fs.pb.gz'),
+            rootDir: root,
+            mode,
+            // Replay must use the producer capability even when the consumer differs.
+            caseSensitivePaths: mode === 'record' ? caseSensitivePaths : !caseSensitivePaths,
+          });
+          try {
+            expect(fs.readFileSync(source, 'utf8')).toBe('const x = 1;');
+            const configuration = createConfiguration({
+              baseDir: root,
+              jsTsExclusions: [
+                `directory:${root}/.build/Runtime`,
+                '**/UserExcluded/**',
+                `file:${root}/AbsoluteExcluded/**`,
+              ],
+            });
+            const excluded = (relative: string) =>
+              configuration.jsTsExclusions.some(pattern => pattern.match(`${root}/${relative}`));
+            expect(excluded('.build/Runtime')).toBe(true);
+            expect(excluded('.build/Runtime/main.ts')).toBe(true);
+            expect(excluded('.build/runtime/main.ts')).toBe(!caseSensitivePaths);
+            expect(excluded('.build/Runtime-sources/main.ts')).toBe(false);
+            expect(excluded('userexcluded/main.ts')).toBe(true);
+            expect(excluded('absoluteexcluded/main.ts')).toBe(true);
+          } finally {
+            session.end();
+          }
+        }
+      } finally {
+        fs.rmSync(temporary, { recursive: true, force: true });
+      }
+    });
+  }
 
   for (const prefix of ['file:', 'FILE:']) {
     it(`supports scanner absolute scope patterns with ${prefix}`, () => {

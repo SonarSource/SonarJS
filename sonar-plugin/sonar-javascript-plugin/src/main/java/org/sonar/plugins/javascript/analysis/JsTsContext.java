@@ -297,16 +297,14 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
     if (isSonarLint()) {
       return Arrays.asList(getJsTsExcludedPaths(context.config()));
     }
-    // Bracket escapes preserve literal directory names when Node normalizes path separators.
     var workDir = context
       .fileSystem()
       .workDir()
       .getAbsolutePath()
-      .replace('\\', '/')
-      .replaceAll("([*?\\[\\]{}()])", "[$1]");
+      .replace('\\', '/');
     return concat(
       stream(getJsTsExcludedPaths(context.config())),
-      Stream.of("file:" + workDir + "{,/**}")
+      Stream.of("directory:" + workDir)
     ).toList();
   }
 

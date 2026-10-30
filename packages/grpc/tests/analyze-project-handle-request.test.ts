@@ -30,7 +30,6 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import ts from 'typescript';
-import { escape } from 'minimatch';
 import { ProgramSelectionArchive } from '../../analysis/src/program-selection/archive.js';
 import { toAnalyzeProjectUnaryResponse } from '../src/analyze-project-convert.js';
 import { gunzipSync, gzipSync } from 'node:zlib';
@@ -154,12 +153,7 @@ describe('analyze-project request handler', () => {
             configuration: {
               baseDir,
               jsTsExclusions: {
-                values: [
-                  `file:${escape(normalizeToAbsolutePath(rulesWorkdir), {
-                    windowsPathsNoEscape: true,
-                    magicalBraces: true,
-                  })}{,/**}`,
-                ],
+                values: [`directory:${normalizeToAbsolutePath(rulesWorkdir)}`],
               },
               canAccessFileSystem: true,
               sources: [path.join(ci, 'src')],

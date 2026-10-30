@@ -43,9 +43,9 @@ class JsTsContextTest {
     );
     for (var entry : Map.of(
       "C:\\pa\\.sonarqube\\out\\.sonar",
-      "file:C:/pa/.sonarqube/out/.sonar{,/**}",
+      "directory:C:/pa/.sonarqube/out/.sonar",
       "/ci/.build/[scanner]{one}(x)",
-      "file:/ci/.build/[[]scanner[]][{]one[}][(]x[)]{,/**}"
+      "directory:/ci/.build/[scanner]{one}(x)"
     ).entrySet()) {
       when(context.fileSystem().workDir().getAbsolutePath()).thenReturn(entry.getKey());
       assertThat(new JsTsContext<>(context).getJsTsExcludedPaths()).containsExactly(

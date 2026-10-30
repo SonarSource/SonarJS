@@ -61,7 +61,7 @@ describe('ProgramSelectionArchive', () => {
           exclusions: [`${origin}/src/generated/**`],
           testInclusions: [`FILE:${origin}/tests/**/*.ts`],
           testExclusions: [`${origin}/tests/generated/**`],
-          jsTsExclusions: [`${origin}/vendor/**`, `file:${origin}/.sonarqube/out/.sonar{,/**}`],
+          jsTsExclusions: [`${origin}/vendor/**`, `directory:${origin}/.sonarqube/out/.sonar`],
           globals: ['window'],
         },
       });
@@ -96,7 +96,7 @@ describe('ProgramSelectionArchive', () => {
         exclusions: [`${root}/src/generated/**`],
         testInclusions: [`FILE:${root}/tests/**/*.ts`],
         testExclusions: [`${root}/tests/generated/**`],
-        jsTsExclusions: [`${root}/vendor/**`, `file:${root}/.sonarqube/out/.sonar{,/**}`],
+        jsTsExclusions: [`${root}/vendor/**`, `directory:${root}/.sonarqube/out/.sonar`],
         globals: ['window'],
       });
       const main = normalizeToAbsolutePath('src/Main.ts', root);
@@ -157,7 +157,10 @@ describe('ProgramSelectionArchive', () => {
                 baseDir: origin,
                 sources: [`${origin}/src`],
                 tests: [`${origin}/tests`],
-                jsTsExclusions: [`file:${escapedOrigin}${escapedWorkDir}{,/**}`],
+                jsTsExclusions: [
+                  `directory:${origin}${workDir}`,
+                  `file:${escapedOrigin}${escapedWorkDir}{,/**}`,
+                ],
                 inclusions: [`FILE:${escapedOrigin}/src/**/*.ts`],
                 exclusions: [`${origin}/generated/**`, 'file:/outside/project/**'],
               },
@@ -170,10 +173,14 @@ describe('ProgramSelectionArchive', () => {
           });
           const configuration = createConfiguration({ ...restored, baseDir: target });
           const excluded = (file: string) =>
-            configuration.jsTsExclusions.some(pattern => pattern.match(`${target}${file}`));
+            configuration.jsTsExclusions.every(pattern => pattern.match(`${target}${file}`));
           expect(excluded(workDir)).toBe(true);
           expect(excluded(`${workDir}/runtime.js`)).toBe(true);
-          expect(excluded(`${workDir}-sources/main.ts`)).toBe(false);
+          expect(
+            configuration.jsTsExclusions.some(pattern =>
+              pattern.match(`${target}${workDir}-sources/main.ts`),
+            ),
+          ).toBe(false);
           expect(configuration.inclusions[0].match(`${target}/src/main.ts`)).toBe(true);
           expect(configuration.exclusions[0].match(`${target}/generated/main.ts`)).toBe(true);
           expect(restored?.exclusions).toContain('file:/outside/project/**');
