@@ -1,6 +1,9 @@
 import supertest from 'supertest';
 import foo from 'supertest';
 
+const http = () => foo(app);
+const fakeHttp = () => fakeRequest(app);
+
 describe('supertest', function () { // Compliant
   it('should work when assigned to a variable named "supertest" and the "get" HTTP verb', function () {
     return supertest(app).get(`/foo/bar`).expect('Content-Type', /json/u).expect(200);
@@ -26,6 +29,14 @@ describe('supertest', function () { // Compliant
     await supertest(app).post('/foo').set('Authorization', 'token').send({ a: 1 }).expect(201);
   });
 
+  it('recognizes an assertion through a local request factory', async function () { // Compliant
+    await http().post('/foo').send({ a: 1 }).expect(201);
+  });
+
+  it('should fail when a factory request has no assertion', async function () { // Noncompliant {{Add at least one assertion to this test case.}}
+    await http().post('/foo').send({ a: 1 });
+  });
+
   it('should fail when no assertion', function () { // Noncompliant {{Add at least one assertion to this test case.}}
     return supertest(app).get(`/foo/bar`);
   });
@@ -36,6 +47,10 @@ describe('supertest', function () { // Compliant
 
   it('should fail when a request only sets a header', function () { // Noncompliant {{Add at least one assertion to this test case.}}
     return supertest(app).get('/foo').set('Authorization', 'token');
+  });
+
+  it('should not treat an unrelated request factory as Supertest', async function () { // Noncompliant {{Add at least one assertion to this test case.}}
+    await fakeHttp().get('/foo').expect(200);
   });
 });
 

@@ -16,6 +16,7 @@
  */
 import {
   DefaultParserRuleTester,
+  NoTypeCheckingRuleTester,
   RuleTester,
 } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { rule } from './rule.js';
@@ -25,6 +26,17 @@ import { join } from 'node:path';
 // The file itself never has to exist: the path only anchors the nearest-`package.json`
 // lookup to a manifest with no dependencies, so uvu is detected from imports alone.
 const uvuOnlyFixture = join(import.meta.dirname, 'fixtures', 'uvu-only', 'test.js');
+
+function supertestFactoryTestCase(factory: string, body: string): string {
+  return `
+import { it } from 'node:test';
+import request from 'supertest';
+${factory}
+it('checks the response', async () => {
+  ${body}
+});
+`;
+}
 
 describe('S2699', () => {
   it('S2699', () => {
@@ -1637,5 +1649,394 @@ describe('typed unrelated should chains', () => {
         },
       ],
     });
+  });
+
+  it('recognizes only proven local Supertest request factories', () => {
+    const testCase = (
+      factory: string,
+      body = "await http().post('/items').send({}).expect(401);",
+    ) => supertestFactoryTestCase(factory, body);
+    const validFactories = [
+      'const http = () => request(app);',
+      "import { agent } from 'supertest'; const http = () => agent(app);",
+      "import { agent as createAgent } from 'supertest'; const http = () => createAgent(app);",
+      "import { 'agent' as createAgent } from 'supertest'; const http = () => createAgent(app);",
+      "import * as namespace from 'supertest'; const http = () => namespace(app);",
+      'const http = function () { return request(app); };',
+      'function http() { return request(app); }',
+      'let http = () => request(app);',
+      "const http = () => require('supertest')(app);",
+      "const client = require('supertest'); const http = () => client(app);",
+    ];
+    const invalidCases = [
+      ...[
+        'const http = () => request.agent(app);',
+        "import { agent } from 'supertest'; agent = fakeAgent; const http = () => agent(app);",
+        "import { agent } from 'other-client'; const http = () => agent(app);",
+        "import agent from 'supertest.agent'; const http = () => agent(app);",
+        "import { 'agent' as createAgent } from 'supertest.agent'; const http = () => createAgent(app);",
+        "import { 'other' as value } from 'supertest'; const http = () => value(app);",
+      ].map(factory => ({ name: factory, code: testCase(factory) })),
+      {
+        name: 'rejects an agent request with a plugin',
+        code: testCase(
+          "import { agent } from 'supertest'; const http = () => agent(app);",
+          "await http().get('/items').use(plugin).expect(200);",
+        ),
+      },
+      {
+        name: 'rejects an agent request without an assertion',
+        code: testCase(
+          "import { agent } from 'supertest'; const http = () => agent(app);",
+          "await http().get('/items');",
+        ),
+      },
+      {
+        name: 'rejects an object-shaped fake request',
+        code: testCase(
+          'const http = () => ({ post: () => ({ send: () => ({ expect: () => undefined }) }) });',
+        ),
+      },
+      {
+        name: 'rejects a factory shadowed by a fake factory',
+        code: testCase(
+          'const http = () => request(app);',
+          "const http = () => fakeRequest(app); await http().get('/items').expect(401);",
+        ),
+      },
+      {
+        name: 'rejects a reassigned arrow factory',
+        code: testCase('let http = () => request(app); http = () => fakeRequest(app);'),
+      },
+      {
+        name: 'rejects a reassigned function factory',
+        code: testCase('function http() { return request(app); } http = () => fakeRequest(app);'),
+      },
+      {
+        name: 'rejects a factory with parameters',
+        code: testCase('const http = server => request(app);'),
+      },
+      {
+        name: 'rejects a factory call with arguments',
+        code: testCase(
+          'const http = () => request(app);',
+          "await http(app).get('/items').expect(401);",
+        ),
+      },
+      {
+        name: 'rejects an async factory',
+        code: testCase('const http = async () => request(app);'),
+      },
+      {
+        name: 'rejects a generator factory',
+        code: testCase('function* http() { return request(app); }'),
+      },
+      {
+        name: 'rejects an aliased factory',
+        code: testCase('const factory = () => request(app); const http = factory;'),
+      },
+      {
+        name: 'rejects a factory used as a property',
+        code: testCase(
+          'const client = { http: () => request(app) };',
+          "await client.http().get('/items').expect(401);",
+        ),
+      },
+      {
+        name: 'rejects conditional factory returns',
+        code: testCase(
+          'function http() { if (flag) return request(app); return fakeRequest(app); }',
+        ),
+      },
+      {
+        name: 'rejects a factory with setup statements',
+        code: testCase('function http() { log(); return request(app); }'),
+      },
+      {
+        name: 'rejects a factory with multiple returns',
+        code: testCase('function http() { return request(app); return fakeRequest(app); }'),
+      },
+      {
+        name: 'rejects a nested factory call',
+        code: testCase('const factory = () => request(app); const http = () => factory();'),
+      },
+      {
+        name: 'rejects a request chain that uses a plugin',
+        code: testCase(
+          'const http = () => request(app); const plugin = req => { req.expect = () => req; };',
+          "await http().get('/items').use(plugin).expect(401);",
+        ),
+      },
+      {
+        name: 'rejects a bare expect member',
+        code: testCase('const http = () => request(app);', "await http().get('/items').expect;"),
+      },
+      {
+        name: 'rejects a computed HTTP method',
+        code: testCase(
+          'const http = () => request(app);',
+          "await http()['get']('/items').expect(401);",
+        ),
+      },
+      {
+        name: 'rejects a computed HTTP method name',
+        code: testCase(
+          'const http = () => request(app);',
+          "await http()[method]('/items').expect(401);",
+        ),
+      },
+      {
+        name: 'rejects a computed expect method',
+        code: testCase(
+          'const http = () => request(app);',
+          "await http().get('/items')['expect'](401);",
+        ),
+      },
+      {
+        name: 'rejects a chain with only one method',
+        code: testCase('const http = () => request(app);', 'await http().expect(401);'),
+      },
+      {
+        name: 'rejects a shadowed require loader',
+        code: testCase(
+          `
+const require = () => () => ({ get: () => ({ expect: () => undefined }) });
+const http = () => require('supertest')(app);
+`,
+          "await http().get('/items').expect(401);",
+        ),
+      },
+      {
+        name: 'rejects a parameter require loader',
+        code: `
+import { it } from 'node:test';
+import request from 'supertest';
+function register(require) {
+  const http = () => require('supertest')(app);
+  it('does not resolve a parameter loader', async () => {
+    await http().get('/items').expect(401);
+  });
+}
+register(fakeLoader);
+`,
+      },
+      {
+        name: 'rejects a shadowed require client',
+        code: testCase(
+          `
+const require = () => () => ({ get: () => ({ expect: () => undefined }) });
+const client = require('supertest');
+const http = () => client(app);
+`,
+          "await http().get('/items').expect(401);",
+        ),
+      },
+      {
+        name: 'rejects a reassigned require loader',
+        code: testCase(
+          `
+require = fakeLoader;
+const http = () => require('supertest')(app);
+`,
+          "await http().get('/items').expect(401);",
+        ),
+      },
+      {
+        name: 'rejects a reassigned require client',
+        code: testCase(
+          `
+require = fakeLoader;
+const client = require('supertest');
+const http = () => client(app);
+`,
+          "await http().get('/items').expect(401);",
+        ),
+      },
+      {
+        name: 'rejects an aliased Supertest import',
+        code: testCase('const client = request; const http = () => client(app);'),
+      },
+      {
+        name: 'rejects an overwritten Supertest require binding',
+        code: `
+import { it } from 'node:test';
+let request = require('supertest');
+request = fakeRequest;
+const http = () => request(app);
+it('does not resolve an overwritten request binding', async () => {
+  await http().get('/items').expect(401);
+});
+`,
+      },
+      {
+        name: 'rejects a request without an assertion',
+        code:
+          testCase('const http = () => request(app);') +
+          `
+it('only sends a request from the same factory', async () => {
+  await http().post('/items').send({});
+});
+`,
+      },
+    ];
+    for (const Tester of [DefaultParserRuleTester, NoTypeCheckingRuleTester, RuleTester]) {
+      new Tester().run(`Local Supertest factories (${Tester.name})`, rule, {
+        valid: [
+          ...validFactories.map(factory => ({ name: factory, code: testCase(factory) })),
+          {
+            name: 'uses a writable global require without changing it',
+            code: testCase("const http = () => require('supertest')(app);"),
+            languageOptions: { globals: { require: 'writable' } },
+          },
+        ],
+        invalid: [
+          ...invalidCases.map(({ name, code }) => ({ name, code, errors: 1 })),
+          {
+            name: 'rejects optional chaining on the HTTP method',
+            code: testCase(
+              'const http = () => request(app);',
+              "await http()?.post('/items').expect(401);",
+            ),
+            errors: 1,
+          },
+          {
+            name: 'rejects an optional intermediate call',
+            code: testCase(
+              'const http = () => request(app);',
+              "await http().get?.('/items').expect(401);",
+            ),
+            errors: 1,
+          },
+          {
+            name: 'rejects optional factory calls',
+            code: testCase(
+              'const http = () => request(app);',
+              "await http?.().get('/items').expect(401);",
+            ),
+            errors: 1,
+          },
+          {
+            name: 'rejects an undeclared factory',
+            code: testCase('', "await http().get('/items').expect(401);"),
+            errors: 1,
+          },
+          {
+            name: 'rejects a redeclared var factory',
+            code: testCase('var http = () => request(app); var http = () => request(app);'),
+            errors: 1,
+          },
+          {
+            name: 'rejects a factory with an empty return',
+            code: testCase('function http() { return; }'),
+            errors: 1,
+          },
+          {
+            name: 'rejects a destructured Supertest require',
+            code: `
+import { it } from 'node:test';
+const { request } = require('supertest');
+const http = () => request(app);
+it('checks the response', async () => {
+  await http().get('/items').expect(401);
+});
+`,
+            errors: 1,
+          },
+          {
+            name: 'rejects a reassigned require loader with writable require',
+            code: testCase("require = fakeLoader; const http = () => require('supertest')(app);"),
+            languageOptions: { globals: { require: 'writable' } },
+            errors: 1,
+          },
+        ],
+      });
+    }
+  });
+
+  it('accepts TypeScript wrappers only around proven local Supertest calls', () => {
+    const testCase = (factory: string, body = "await http().get('/items').expect(200);") =>
+      supertestFactoryTestCase(factory, body);
+    const valid = [
+      testCase('function http(): any { return request(app); }'),
+      testCase(
+        "import { agent } from 'supertest'; const http = (): request.SuperAgentTest => agent(app);",
+      ),
+      testCase('const http = () => request(app) as any;'),
+      testCase('const http = () => request(app) satisfies any;'),
+      testCase('const http = () => (request as any)(app);'),
+      testCase('const http = () => (request satisfies any)(app);'),
+      testCase('const http = () => (request! as any)(app);'),
+      testCase('const http = () => request(app)!;'),
+      testCase('const http = () => request(app);', "await http()!.get('/items').expect(200);"),
+      testCase(
+        'const http = () => request(app);',
+        "await ((http as any)() as any).get('/items')!.expect(200);",
+      ),
+      testCase(
+        'const http = () => request(app);',
+        "await ((http() satisfies any).get('/items').expect as any)(200);",
+      ),
+    ];
+    const invalid = [
+      {
+        name: 'rejects a cast fake request',
+        code: testCase('const http = () => fakeRequest(app) as any;'),
+      },
+      {
+        name: 'rejects a cast fake request callee',
+        code: testCase('const http = () => (fakeRequest as any)(app);'),
+      },
+      {
+        name: 'rejects a cast object-shaped fake request',
+        code: testCase('const http = () => ({ get: () => ({ expect: () => {} }) }) as any;'),
+      },
+      {
+        name: 'rejects a reassigned factory with a cast return',
+        code: testCase('let http = () => request(app) as any; http = () => fakeRequest(app);'),
+      },
+      {
+        name: 'rejects a wrapped plugin call',
+        code: testCase(
+          'const http = () => request(app) as any;',
+          "await (http() as any).get('/items').use(plugin)!.expect(200);",
+        ),
+      },
+      {
+        name: 'rejects an optional call with a cast return',
+        code: testCase(
+          'const http = () => request(app) as any;',
+          "await http()?.get('/items').expect(200);",
+        ),
+      },
+      {
+        name: 'rejects a computed member with a non-null wrapper',
+        code: testCase(
+          'const http = () => request(app) as any;',
+          "await http()!['get']('/items').expect(200);",
+        ),
+      },
+      {
+        name: 'rejects a TypeScript import-equals factory',
+        code: testCase("import client = require('supertest'); const http = () => client(app);"),
+      },
+    ];
+
+    new NoTypeCheckingRuleTester().run(
+      'Local Supertest factory with a TypeScript type assertion',
+      rule,
+      {
+        valid: [
+          { code: testCase('const http = () => <any>request(app);'), filename: 'supertest.ts' },
+        ],
+        invalid: [],
+      },
+    );
+
+    for (const Tester of [NoTypeCheckingRuleTester, RuleTester]) {
+      new Tester().run(`Typed local Supertest factories (${Tester.name})`, rule, {
+        valid: valid.map(code => ({ code })),
+        invalid: invalid.map(test => ({ ...test, errors: 1 })),
+      });
+    }
   });
 });
