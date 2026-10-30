@@ -18,6 +18,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { gzipSync, gunzipSync } from 'node:zlib';
 import type ts from 'typescript';
+import { escape } from 'minimatch';
 import {
   isAbsolutePath,
   normalizeToAbsolutePath,
@@ -371,6 +372,7 @@ export class ProgramSelectionArchive {
         this.configuration[field] = this.relocateConfigurationValue(
           this.configuration[field],
           recordedBaseDir,
+          field !== 'sources' && field !== 'tests',
         );
       }
     }
@@ -379,8 +381,10 @@ export class ProgramSelectionArchive {
   private relocateConfigurationValue(
     value: unknown,
     recordedBaseDir: NormalizedAbsolutePath,
+    isGlob: boolean,
   ): unknown {
-    const relocate = (item: unknown) => this.relocateConfigurationPath(item, recordedBaseDir);
+    const relocate = (item: unknown) =>
+      this.relocateConfigurationPath(item, recordedBaseDir, isGlob);
     if (Array.isArray(value)) {
       return value.map(relocate);
     }
@@ -393,6 +397,7 @@ export class ProgramSelectionArchive {
   private relocateConfigurationPath(
     item: unknown,
     recordedBaseDir: NormalizedAbsolutePath,
+    isGlob: boolean,
   ): unknown {
     if (typeof item !== 'string') {
       return item;
@@ -402,10 +407,14 @@ export class ProgramSelectionArchive {
     if (!isAbsolutePath(original)) {
       return item;
     }
-    const relative = relativeProjectPath(original, recordedBaseDir);
+    // Literal absolute globs can contain a bracket-escaped project root. Relocate only
+    // that root, preserving the pattern suffix and escaping the new root as well.
+    const relative =
+      relativeProjectPath(original, isGlob ? escapeGlobPath(recordedBaseDir) : recordedBaseDir) ??
+      relativeProjectPath(original, recordedBaseDir);
     return relative === undefined
       ? item
-      : `${prefix}${normalizeToAbsolutePath(relative, this.baseDir)}`;
+      : `${prefix}${normalizeToAbsolutePath(relative, isGlob ? escapeGlobPath(this.baseDir) : this.baseDir)}`;
   }
 
   private restoreProgram(entry: sonarjs.programselection.IProgram): RecordedProgram {
@@ -635,4 +644,8 @@ function unknownFromValue(value: unknown): unknown {
     return objectFromStruct(typed.structValue);
   }
   throw new Error('Invalid compiler option value in program selection archive');
+}
+
+function escapeGlobPath(value: NormalizedAbsolutePath): NormalizedAbsolutePath {
+  return normalizeProjectRoot(escape(value, { windowsPathsNoEscape: true, magicalBraces: true }));
 }

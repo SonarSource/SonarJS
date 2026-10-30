@@ -587,7 +587,9 @@ function normalizeGlobs(globs: unknown, baseDir: NormalizedAbsolutePath) {
     const normalized = /^file:/i.test(trimmed)
       ? normalizePath(trimmed.slice('file:'.length))
       : normalizeToAbsolutePath(trimmed, baseDir);
-    return new Minimatch(normalized, {
+    // Brace expansion runs before character-class parsing in minimatch. Translate
+    // bracket-escaped literal braces after path normalization to preserve them.
+    return new Minimatch(normalized.replaceAll('[{]', '\\{').replaceAll('[}]', '\\}'), {
       nocase: true,
       matchBase: true,
       dot: true,

@@ -21,6 +21,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { gunzipSync, gzipSync } from 'node:zlib';
 import ts from 'typescript';
+import { escape } from 'minimatch';
+import { createConfiguration } from '../src/common/configuration.js';
 import { ProgramSelectionArchive } from '../src/program-selection/archive.js';
 import { sonarjs } from '../src/program-selection/analysis-metadata-proto.js';
 import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
@@ -122,6 +124,62 @@ describe('ProgramSelectionArchive', () => {
         expect(replay.hasNoProgram(normalizeToAbsolutePath('SRC/untyped.ts', root))).toBe(true);
       } else {
         expect(replay.hasSelection(normalizeToAbsolutePath('src/main.ts', root))).toBe(false);
+      }
+    });
+  }
+  for (const originalRoot of [
+    'C:/CI/project',
+    'C:/Program Files (x86)/Jenkins/workspace/[project]/{a,b}',
+    '//server/share/[project]/{a,b}',
+    '/home/ci/[project]/{a,b}/(sources)',
+  ]) {
+    it(`relocates literal glob roots from ${originalRoot} without changing source paths`, () => {
+      const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'escaped-metadata-'));
+      try {
+        const metadataPath = path.join(temporary, 'metadata.pb.gz');
+        const origin = normalizeProjectRoot(originalRoot);
+        new ProgramSelectionArchive(metadataPath, origin, 'record').end();
+        const escapedOrigin = escape(origin, { windowsPathsNoEscape: true, magicalBraces: true });
+        const workDir = '/.build/[scanner]/{cache}/(runtime)';
+        const escapedWorkDir = escape(workDir, {
+          windowsPathsNoEscape: true,
+          magicalBraces: true,
+        });
+        for (const directory of ['sqaa', 'sqaa [project] (replay) {a,b}']) {
+          const target = normalizeToAbsolutePath(path.join(temporary, directory));
+          const replay = new ProgramSelectionArchive(
+            metadataPath,
+            target,
+            'replay',
+            false,
+            JSON.stringify({
+              configuration: {
+                baseDir: origin,
+                sources: [`${origin}/src`],
+                tests: [`${origin}/tests`],
+                jsTsExclusions: [`file:${escapedOrigin}${escapedWorkDir}{,/**}`],
+                inclusions: [`FILE:${escapedOrigin}/src/**/*.ts`],
+                exclusions: [`${origin}/generated/**`, 'file:/outside/project/**'],
+              },
+            }),
+          );
+          const restored = replay.restoredConfiguration();
+          expect(restored).toMatchObject({
+            sources: [`${target}/src`],
+            tests: [`${target}/tests`],
+          });
+          const configuration = createConfiguration({ ...restored, baseDir: target });
+          const excluded = (file: string) =>
+            configuration.jsTsExclusions.some(pattern => pattern.match(`${target}${file}`));
+          expect(excluded(workDir)).toBe(true);
+          expect(excluded(`${workDir}/runtime.js`)).toBe(true);
+          expect(excluded(`${workDir}-sources/main.ts`)).toBe(false);
+          expect(configuration.inclusions[0].match(`${target}/src/main.ts`)).toBe(true);
+          expect(configuration.exclusions[0].match(`${target}/generated/main.ts`)).toBe(true);
+          expect(restored?.exclusions).toContain('file:/outside/project/**');
+        }
+      } finally {
+        fs.rmSync(temporary, { recursive: true, force: true });
       }
     });
   }

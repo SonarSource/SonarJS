@@ -30,7 +30,10 @@ describe('createConfiguration', () => {
     const root = normalizeToAbsolutePath('/ci/project');
     const configuration = createConfiguration({
       baseDir: root,
-      jsTsExclusions: [`file:${root}/.build/[[]scanner[]]{,/**}`],
+      jsTsExclusions: [
+        `file:${root}/.build/[[]scanner[]]{,/**}`,
+        `file:${root}/.literal/[{]a,b[}]{,/**}`,
+      ],
     });
     const excluded = (relative: string) =>
       configuration.jsTsExclusions.some(pattern =>
@@ -40,6 +43,8 @@ describe('createConfiguration', () => {
     expect(excluded('.build/[scanner]/runtime.js')).toBe(true);
     expect(excluded('.build/s')).toBe(false);
     expect(excluded('.build/[scanner]-sources/source.js')).toBe(false);
+    expect(excluded('.literal/{a,b}/runtime.js')).toBe(true);
+    expect(excluded('.literal/a/runtime.js')).toBe(false);
     expect(createConfiguration({ baseDir: root, jsTsExclusions: [] }).jsTsExclusions).toEqual([]);
   });
 
