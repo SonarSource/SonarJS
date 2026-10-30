@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { Minimatch } from 'minimatch';
-import { type NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
+import { dirnamePath, type NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import { debug } from '../../../../shared/src/helpers/logging.js';
 import type { FileType } from '../../contracts/file.js';
 import { type FilterPathParams } from '../configuration.js';
@@ -25,6 +25,16 @@ import {
 } from '../../jsts/rules/helpers/test-file-pattern.js';
 import { isAngularProject } from '../../jsts/rules/helpers/dependency-manifests/dependencies.js';
 import { getFileSystemCaseSensitivity } from '../../../../shared/src/fs-cache/hook.js';
+
+// Normalized configurations own their pattern arrays, so old caches can be garbage-collected.
+const directoryExclusionCaches = new WeakMap<
+  Minimatch[],
+  {
+    baseDir: NormalizedAbsolutePath;
+    caseSensitive: boolean | undefined;
+    directories: Map<NormalizedAbsolutePath, boolean>;
+  }
+>();
 
 /**
  * Checks whether a given file path is excluded based on JavaScript/TypeScript exclusion
@@ -83,6 +93,23 @@ export function filterPathAndGetFileType(
   debug(`File ignored due to analysis scope filters: ${filePath}`);
 }
 
+export function isDirectoryExcluded(
+  dir: NormalizedAbsolutePath,
+  params: FilterPathParams,
+): boolean {
+  return !filterPathAndGetFileType(dir, {
+    ...params,
+    sourcesPaths: canContainFiles(dir, params.sourcesPaths) ? [dir] : [],
+    testPaths: canContainFiles(dir, params.testPaths) ? [dir] : [],
+    inclusions: [],
+    testInclusions: [],
+  });
+}
+
+function canContainFiles(dir: NormalizedAbsolutePath, roots: NormalizedAbsolutePath[]): boolean {
+  return fileIsUnder(dir, roots) || roots.some(root => fileIsUnder(root, [dir]));
+}
+
 /**
  * Returns the file type used for rule selection. The filename heuristic deliberately affects only
  * this classification: metrics and other file artifacts continue to use the scanner/path-derived
@@ -112,13 +139,54 @@ function fileIsUnder(filePath: NormalizedAbsolutePath, paths: NormalizedAbsolute
   });
 }
 
+function matchesExclusion(
+  filePath: NormalizedAbsolutePath,
+  exclusions: Minimatch[],
+  baseDir: NormalizedAbsolutePath,
+): boolean {
+  if (!exclusions.length) {
+    return false;
+  }
+  if (exclusions.some(exclusion => exclusion.match(filePath))) {
+    return true;
+  }
+
+  const caseSensitive = getFileSystemCaseSensitivity();
+  let cache = directoryExclusionCaches.get(exclusions);
+  if (cache?.baseDir !== baseDir || cache.caseSensitive !== caseSensitive) {
+    cache = { baseDir, caseSensitive, directories: new Map() };
+    directoryExclusionCaches.set(exclusions, cache);
+  }
+
+  let path = dirnamePath(filePath);
+  const parents: NormalizedAbsolutePath[] = [];
+  let excluded = false;
+  while (path !== baseDir && fileIsUnder(path, [baseDir])) {
+    const cached = cache.directories.get(path);
+    if (cached !== undefined) {
+      excluded = cached;
+      break;
+    }
+    parents.push(path);
+    if (exclusions.some(exclusion => exclusion.match(path))) {
+      excluded = true;
+      break;
+    }
+    path = dirnamePath(path);
+  }
+  for (const parent of parents) {
+    cache.directories.set(parent, excluded);
+  }
+  return excluded;
+}
+
 function matchesTestPath(filePath: NormalizedAbsolutePath, params: FilterPathParams): boolean {
   const { testPaths, testExclusions, testInclusions } = params;
 
   if (!fileIsUnder(filePath, testPaths)) {
     return false;
   }
-  if (testExclusions?.some(exclusion => exclusion.match(filePath))) {
+  if (matchesExclusion(filePath, testExclusions, params.baseDir)) {
     return false;
   }
   if (testInclusions?.length) {
@@ -172,7 +240,7 @@ function matchesMainPath(filePath: NormalizedAbsolutePath, params: FilterPathPar
     return false;
   }
 
-  if (exclusions?.some(exclusion => exclusion.match(filePath))) {
+  if (matchesExclusion(filePath, exclusions, params.baseDir)) {
     return false;
   }
 
