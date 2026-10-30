@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { opendir } from 'node:fs/promises';
-import type { Dirent } from 'node:fs';
+import type { Dir, Dirent } from 'node:fs';
 import type { Minimatch } from 'minimatch';
 import {
   type NormalizedAbsolutePath,
@@ -23,17 +23,29 @@ import {
   joinPaths,
 } from '../../../shared/src/helpers/files.js';
 import { isJsTsExcluded } from './filter/filter-path.js';
+import { warn } from '../../../shared/src/helpers/logging.js';
 
 export async function findFiles(
   dir: string,
   jsTsExclusions: Minimatch[],
   onEntry: (file: Dirent, filePath: NormalizedAbsolutePath) => Promise<void>,
 ) {
-  const directories: NormalizedAbsolutePath[] = [normalizeToAbsolutePath(dir)];
+  const root = normalizeToAbsolutePath(dir);
+  const directories: NormalizedAbsolutePath[] = [root];
 
   while (directories.length > 0) {
     const directory = directories.pop()!;
-    for await (const file of await opendir(directory)) {
+    let entries: Dir;
+    try {
+      entries = await opendir(directory);
+    } catch (error) {
+      if (directory === root || !['EACCES', 'EPERM'].includes(error?.code)) {
+        throw error;
+      }
+      warn(`Skipping directory '${directory}' because it cannot be read (${error.code}).`);
+      continue;
+    }
+    for await (const file of entries) {
       const filePath = joinPaths(normalizeToAbsolutePath(file.parentPath), file.name);
       if (!isJsTsExcluded(filePath, jsTsExclusions)) {
         if (file.isDirectory()) {
