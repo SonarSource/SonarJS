@@ -15,7 +15,10 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { describe, it, afterEach } from 'node:test';
-import { setArchivedFileSystemCaseSensitivity } from '../src/jsts/rules/helpers/filesystem-case.js';
+import {
+  setArchivedFileSystemCaseSensitivity,
+  setOsCaseSensitivity,
+} from '../src/jsts/rules/helpers/filesystem-case.js';
 import { expect } from 'expect';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -30,7 +33,7 @@ import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
 import { normalizeProjectRoot, replayProjectRoot } from '../../shared/src/helpers/project-paths.js';
 
 describe('ProgramSelectionArchive', () => {
-  afterEach(() => setArchivedFileSystemCaseSensitivity(undefined));
+  afterEach(() => setOsCaseSensitivity());
   it('rejects malformed collector configuration and ignores unsupported context', () => {
     const root = normalizeToAbsolutePath(fs.mkdtempSync(path.join(os.tmpdir(), 'collector-json-')));
     const archive = path.join(root, 'selection.pb.gz');

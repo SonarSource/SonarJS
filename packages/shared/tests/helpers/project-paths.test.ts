@@ -15,7 +15,10 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { describe, it, afterEach } from 'node:test';
-import { setArchivedFileSystemCaseSensitivity } from '../../../analysis/src/jsts/rules/helpers/filesystem-case.js';
+import {
+  setArchivedFileSystemCaseSensitivity,
+  setOsCaseSensitivity,
+} from '../../../analysis/src/jsts/rules/helpers/filesystem-case.js';
 import { expect } from 'expect';
 import {
   normalizeProjectRoot,
@@ -24,7 +27,7 @@ import {
 } from '../../src/helpers/project-paths.js';
 
 describe('portable project namespaces (host independent)', () => {
-  afterEach(() => setArchivedFileSystemCaseSensitivity(undefined));
+  afterEach(() => setOsCaseSensitivity());
   for (const [input, expected] of [
     ['C:\\ci\\project\\', 'C:/ci/project'],
     ['d:/ci/./project/sub/..', 'd:/ci/project'],

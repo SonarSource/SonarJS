@@ -17,7 +17,13 @@
 // Kept free of analyzer dependencies: the fs hook must load before TypeScript.
 let archivedCaseSensitivity: boolean | undefined;
 
-export function setArchivedFileSystemCaseSensitivity(value: boolean | undefined = undefined): void {
+/** Select native filesystem behavior for normal analysis and after archive replay. */
+export function setOsCaseSensitivity(): void {
+  archivedCaseSensitivity = undefined;
+}
+
+/** Use the snapshot producer's filesystem behavior during replay. */
+export function setArchivedFileSystemCaseSensitivity(value: boolean): void {
   archivedCaseSensitivity = value;
 }
 

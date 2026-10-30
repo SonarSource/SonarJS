@@ -28,6 +28,7 @@ import {
   pathsEqual,
   pathIsUnder,
 } from '../../src/common/filesystem.js';
+import { setArchivedFileSystemCaseSensitivity } from '../../src/jsts/rules/helpers/filesystem-case.js';
 import { installFsCache } from '../../../shared/src/fs-cache/hook.js';
 import { DirectoryIndex, normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
 import { relativeProjectPath } from '../../../shared/src/helpers/project-paths.js';
@@ -80,12 +81,16 @@ describe('filesystem identity across analysis layers', () => {
       const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'filesystem-identity-'));
       const root = normalizeToAbsolutePath(temporary);
       const installation = installFsCache();
+      setArchivedFileSystemCaseSensitivity(!ts.sys.useCaseSensitiveFileNames);
       const session = installation.beginAnalysis({
         archivePath: path.join(root, 'fs.pb.gz'),
         rootDir: root,
         mode: 'record',
         caseSensitivePaths,
       });
+      expect(isFileSystemCaseSensitive()).toBe(ts.sys.useCaseSensitiveFileNames);
+      // Simulate the producer filesystem independently of the test host.
+      setArchivedFileSystemCaseSensitivity(caseSensitivePaths);
       const file = normalizeToAbsolutePath('src/Main.ts', root);
       const alternate = normalizeToAbsolutePath('SRC/main.ts', root);
       const responsePaths = new FileSystemMap<string, string>();
@@ -227,6 +232,8 @@ describe('filesystem identity across analysis layers', () => {
           mode: 'record',
           caseSensitivePaths,
         });
+        // Simulate the producer filesystem independently of the test host.
+        setArchivedFileSystemCaseSensitivity(caseSensitivePaths);
         let recorded: string[];
         try {
           recorded = await inspect();
@@ -246,6 +253,7 @@ describe('filesystem identity across analysis layers', () => {
           expect(await inspect()).toEqual(recorded);
         } finally {
           replay.end();
+          expect(isFileSystemCaseSensitive()).toBe(ts.sys.useCaseSensitiveFileNames);
         }
       } finally {
         fs.rmSync(temporary, { recursive: true, force: true });

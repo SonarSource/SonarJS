@@ -15,14 +15,17 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { describe, it, afterEach } from 'node:test';
-import { setArchivedFileSystemCaseSensitivity } from '../../analysis/src/jsts/rules/helpers/filesystem-case.js';
+import {
+  setArchivedFileSystemCaseSensitivity,
+  setOsCaseSensitivity,
+} from '../../analysis/src/jsts/rules/helpers/filesystem-case.js';
 import { expect } from 'expect';
 import { ReplayProjectPaths } from '../src/replay-project-paths.js';
 import type { AnalyzeProjectProtoRequest } from '../src/analyze-project-request.js';
 import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
 
 describe('ReplayProjectPaths', () => {
-  afterEach(() => setArchivedFileSystemCaseSensitivity(undefined));
+  afterEach(() => setOsCaseSensitivity());
   const logicalRoot = normalizeToAbsolutePath('/original/ci');
   const physicalRoot = normalizeToAbsolutePath('/physical/workspace');
 

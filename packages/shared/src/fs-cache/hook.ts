@@ -15,7 +15,10 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import fs from 'node:fs';
-import { setArchivedFileSystemCaseSensitivity } from '../../../analysis/src/jsts/rules/helpers/filesystem-case.js';
+import {
+  setArchivedFileSystemCaseSensitivity,
+  setOsCaseSensitivity,
+} from '../../../analysis/src/jsts/rules/helpers/filesystem-case.js';
 import { syncBuiltinESMExports } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -2168,7 +2171,11 @@ export function installFsCache(): FsCacheInstallation {
         archive.load();
       }
       activeArchive = archive;
-      setArchivedFileSystemCaseSensitivity(archive.caseSensitivePaths);
+      if (archive.mode === 'replay') {
+        setArchivedFileSystemCaseSensitivity(archive.caseSensitivePaths);
+      } else {
+        setOsCaseSensitivity();
+      }
       let ended = false;
       return {
         mode: archive.mode,
@@ -2188,7 +2195,7 @@ export function installFsCache(): FsCacheInstallation {
           } finally {
             patches.reset();
             activeArchive = undefined;
-            setArchivedFileSystemCaseSensitivity(undefined);
+            setOsCaseSensitivity();
             ended = true;
           }
         },
