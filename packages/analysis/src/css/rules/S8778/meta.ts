@@ -22,6 +22,8 @@ export const meta = {
   bindings: [
     {
       stylelintKey: 'no-invalid-position-at-import-rule',
+      // Sass imports may legally follow declarations, mixins and selectors.
+      cssOnly: true,
       listParam: [
         {
           sqKey: 'ignoreAtRules',

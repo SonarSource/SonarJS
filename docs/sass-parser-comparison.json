@@ -1,0 +1,279 @@
+{
+  "environment": {
+    "node": "v24.14.1",
+    "platform": "darwin",
+    "arch": "arm64",
+    "cpu": "Apple M5 Pro"
+  },
+  "corpus": {
+    "files": 226,
+    "bytes": 407527,
+    "sha256": "9eba4c36dae177ea561f09577497268b15a4e54b8c9c7042b89550d8e84e0824"
+  },
+  "methodology": "Separate processes per variant and mode. 3 full-corpus warmups; 15 parse samples; 7 lint samples. Cold module loading: 7 fresh processes, median. File IO excluded from warm timings. Compression: gzip level 9, Brotli quality 5. Lint results use all non-CSS-only rules, except no-empty-source, with default options. Heap/RSS deltas measure syntax loading and are approximate.",
+  "variants": {
+    "sass-parser": {
+      "revision": "eea7badd1a735b4022034441c253196430e65f8e",
+      "branch": "codex/sass-parser-postcss",
+      "workingTree": false,
+      "sources": [
+        {
+          "file": "packages/analysis/src/css/linter/sass.ts",
+          "lines": 102,
+          "hash": "6cb7c6e239bdc616530500abbd0b61c17e8170eb557a9bddfd32aa1564f891cb"
+        },
+        {
+          "file": "packages/analysis/src/css/linter/postcss-ast-builder.ts",
+          "lines": 269,
+          "hash": "d793f7a052d9922f9c5731b36e208be8d933d5eaba91b2b56f2d5a1c03aada6d"
+        }
+      ],
+      "sizes": {
+        "syntax": {
+          "bytes": 3731194,
+          "gzipBytes": 793578,
+          "brotliBytes": 556955
+        },
+        "linter": {
+          "bytes": 8845960,
+          "gzipBytes": 2300937,
+          "brotliBytes": 1906265
+        },
+        "bridge": {
+          "bytes": 25822046,
+          "gzipBytes": 6557386,
+          "brotliBytes": 5475499
+        }
+      },
+      "cold": {
+        "loadMs": 110.45229200000001,
+        "rssDeltaBytes": 67567616,
+        "heapUsedDeltaBytes": 14277632
+      },
+      "parse": {
+        "medianMs": 58.62458300000003,
+        "minMs": 57.39800000000014,
+        "maxMs": 63.731457999999975,
+        "samplesMs": [
+          63.53033400000004, 60.641166999999996, 63.731457999999975, 59.50066699999991,
+          59.77229200000011, 58.6345, 58.79945799999996, 58.20779100000004, 58.04291699999999,
+          57.75170899999989, 58.219916999999896, 58.62458300000003, 57.39800000000014,
+          57.92008299999998, 57.78925000000004
+        ],
+        "parsed": 226,
+        "roundtrips": 226,
+        "probes": [
+          {
+            "name": "comment inside map",
+            "code": "$map: (\n  // explanation\n  color: red,\n)\n",
+            "accepted": true,
+            "roundtrip": false
+          },
+          {
+            "name": "comment on conditional header",
+            "code": "@if $x // note\n  a\n    color: red\n",
+            "accepted": false,
+            "error": "this.proxyOf.nodes is not iterable"
+          },
+          {
+            "name": "invalid annotation",
+            "code": "a\n  color: red !imprtant\n",
+            "accepted": false,
+            "error": "Expected \"important\"."
+          },
+          {
+            "name": "missing arithmetic operand",
+            "code": "$x: 1 +\n",
+            "accepted": false,
+            "error": "Expected expression."
+          },
+          {
+            "name": "invalid for clause",
+            "code": "@for $i from 1 till 3\n  a\n    color: red\n",
+            "accepted": false,
+            "error": "Expected \"to\" or \"through\"."
+          },
+          {
+            "name": "unquoted use URL",
+            "code": "@use theme\n",
+            "accepted": false,
+            "error": "Expected string."
+          },
+          {
+            "name": "unbalanced expression",
+            "code": "a\n  color: (\n",
+            "accepted": false,
+            "error": "expected \")\"."
+          }
+        ]
+      },
+      "lint": {
+        "medianMs": 439.6843339999996,
+        "minMs": 435.41158300000006,
+        "maxMs": 452.2957919999999,
+        "samplesMs": [
+          445.2204590000001, 436.57249999999976, 452.2957919999999, 435.41158300000006, 436.194833,
+          449.393916, 439.6843339999996
+        ],
+        "parsingErrors": 0,
+        "exceptions": 0,
+        "issues": 605
+      }
+    },
+    "statement-parser": {
+      "revision": "eea7badd1a735b4022034441c253196430e65f8e",
+      "branch": "codex/sass-statement-parser",
+      "workingTree": true,
+      "sources": [
+        {
+          "file": "packages/analysis/src/css/linter/sass/index.ts",
+          "lines": 82,
+          "hash": "15b040484a8e6c1816f4ad1bc10740b7537a00f4b89727be6a87218032c5c01a"
+        },
+        {
+          "file": "packages/analysis/src/css/linter/sass/postcss-ast-builder.ts",
+          "lines": 214,
+          "hash": "7512e42cd30969203bd6ccf4128d1010117679051c221cb2a3f1daa95517b44b"
+        },
+        {
+          "file": "packages/analysis/src/css/linter/sass/sass-statement-parser.ts",
+          "lines": 114,
+          "hash": "1a139b874fcb85c4894c62cbba8de3a0543120f11213bd0e8c0f7969a18f679d"
+        },
+        {
+          "file": "packages/analysis/src/css/linter/sass/sass-statement-scanner.ts",
+          "lines": 269,
+          "hash": "4313cee31dbe09359c8997bf291280062fa77e1333770310b9955b50fedf8ab1"
+        },
+        {
+          "file": "packages/analysis/src/css/linter/sass/sass-statement-rules.ts",
+          "lines": 59,
+          "hash": "6eb8e13208e0f7ba984669e246423e3728754db08962e41f24fa6e6751e45326"
+        },
+        {
+          "file": "packages/analysis/src/css/linter/sass/sass-statement.ts",
+          "lines": 34,
+          "hash": "56b8af58cdfbdf3f1a49bfd39bdc8a491016759f5585fba4ed4e93784e1efb28"
+        }
+      ],
+      "sizes": {
+        "syntax": {
+          "bytes": 107525,
+          "gzipBytes": 33980,
+          "brotliBytes": 32533
+        },
+        "linter": {
+          "bytes": 5171157,
+          "gzipBytes": 1526605,
+          "brotliBytes": 1360742
+        },
+        "bridge": {
+          "bytes": 22129692,
+          "gzipBytes": 5779639,
+          "brotliBytes": 4947266
+        }
+      },
+      "cold": {
+        "loadMs": 3.2215830000000025,
+        "rssDeltaBytes": 1114112,
+        "heapUsedDeltaBytes": 360464
+      },
+      "parse": {
+        "medianMs": 18.09187499999996,
+        "minMs": 17.808625000000006,
+        "maxMs": 19.44062500000001,
+        "samplesMs": [
+          19.241542000000038, 19.44062500000001, 18.092084, 18.23612499999996, 18.165166999999997,
+          17.91512499999999, 17.897166999999968, 18.005667000000017, 17.969209000000035, 18.30525,
+          17.941040999999984, 18.09187499999996, 18.13020800000004, 17.856458999999973,
+          17.808625000000006
+        ],
+        "parsed": 226,
+        "roundtrips": 226,
+        "probes": [
+          {
+            "name": "comment inside map",
+            "code": "$map: (\n  // explanation\n  color: red,\n)\n",
+            "accepted": true,
+            "roundtrip": true
+          },
+          {
+            "name": "comment on conditional header",
+            "code": "@if $x // note\n  a\n    color: red\n",
+            "accepted": true,
+            "roundtrip": true
+          },
+          {
+            "name": "invalid annotation",
+            "code": "a\n  color: red !imprtant\n",
+            "accepted": true,
+            "roundtrip": true
+          },
+          {
+            "name": "missing arithmetic operand",
+            "code": "$x: 1 +\n",
+            "accepted": true,
+            "roundtrip": true
+          },
+          {
+            "name": "invalid for clause",
+            "code": "@for $i from 1 till 3\n  a\n    color: red\n",
+            "accepted": true,
+            "roundtrip": true
+          },
+          {
+            "name": "unquoted use URL",
+            "code": "@use theme\n",
+            "accepted": true,
+            "roundtrip": true
+          },
+          {
+            "name": "unbalanced expression",
+            "code": "a\n  color: (\n",
+            "accepted": false,
+            "error": "expected \")\"."
+          }
+        ]
+      },
+      "lint": {
+        "medianMs": 365.33337500000016,
+        "minMs": 356.43158300000005,
+        "maxMs": 405.59275000000025,
+        "samplesMs": [
+          405.59275000000025, 364.91591700000026, 356.43158300000005, 361.6264170000004,
+          393.84074999999984, 379.4420839999998, 365.33337500000016
+        ],
+        "parsingErrors": 0,
+        "exceptions": 0,
+        "issues": 604
+      }
+    }
+  },
+  "astDifferences": [
+    "its/sources/projects/vuetify/packages/vuetify/src/components/VBtn/VBtn.sass",
+    "its/sources/projects/vuetify/packages/vuetify/src/components/VBtnGroup/VBtnGroup.sass",
+    "its/sources/projects/vuetify/packages/vuetify/src/components/VColorPicker/VColorPicker.sass",
+    "its/sources/projects/vuetify/packages/vuetify/src/components/VField/VField.sass",
+    "its/sources/projects/vuetify/packages/vuetify/src/components/VOverlay/VOverlay.sass",
+    "its/sources/projects/vuetify/packages/vuetify/src/components/VSnackbar/VSnackbar.sass",
+    "its/sources/projects/vuetify/packages/vuetify/src/components/VTextField/VTextField.sass",
+    "its/sources/projects/vuetify/packages/vuetify/src/components/VTimeline/_mixins.sass"
+  ],
+  "lintDifferences": [
+    {
+      "file": "its/sources/projects/vuetify/packages/vuetify/src/components/VBtn/VBtn.sass",
+      "removed": [
+        {
+          "ruleId": "block-no-redundant-nested-style-rules",
+          "line": 62,
+          "column": 13,
+          "message": "Redundant nested style rule",
+          "language": "css",
+          "endLine": 63,
+          "endColumn": 72
+        }
+      ],
+      "added": []
+    }
+  ]
+}
