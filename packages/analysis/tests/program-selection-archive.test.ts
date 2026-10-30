@@ -14,7 +14,8 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { describe, it } from 'node:test';
+import { describe, it, afterEach } from 'node:test';
+import { setArchivedFileSystemCaseSensitivity } from '../src/jsts/rules/helpers/filesystem-case.js';
 import { expect } from 'expect';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -29,6 +30,7 @@ import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
 import { normalizeProjectRoot, replayProjectRoot } from '../../shared/src/helpers/project-paths.js';
 
 describe('ProgramSelectionArchive', () => {
+  afterEach(() => setArchivedFileSystemCaseSensitivity(undefined));
   it('rejects malformed collector configuration and ignores unsupported context', () => {
     const root = normalizeToAbsolutePath(fs.mkdtempSync(path.join(os.tmpdir(), 'collector-json-')));
     const archive = path.join(root, 'selection.pb.gz');
@@ -40,92 +42,119 @@ describe('ProgramSelectionArchive', () => {
       new ProgramSelectionArchive(archive, root, 'replay', true, '{}').replayBaseDir(),
     ).toBeUndefined();
   });
+  it('retains case-distinct metadata until the producer filesystem is active', () => {
+    const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'metadata-case-startup-'));
+    const root = normalizeToAbsolutePath(temporary);
+    const archive = path.join(root, 'selection.pb.gz');
+    const upper = normalizeToAbsolutePath('src/Main.ts', root);
+    const lower = normalizeToAbsolutePath('src/main.ts', root);
+    try {
+      setArchivedFileSystemCaseSensitivity(true);
+      const record = new ProgramSelectionArchive(archive, root, 'record');
+      record.recordConfigured(upper, normalizeToAbsolutePath('tsconfig.json', root), {});
+      record.recordNoProgram(lower);
+      record.end();
+      // Metadata is decoded before project replay is installed on a case-insensitive host.
+      setArchivedFileSystemCaseSensitivity(false);
+      const replay = new ProgramSelectionArchive(archive, root, 'replay');
+      setArchivedFileSystemCaseSensitivity(true);
+      expect(replay.hasSelection(upper)).toBe(true);
+      expect(replay.hasSelection(lower)).toBe(false);
+      expect(replay.hasNoProgram(lower)).toBe(true);
+      expect(replay.hasNoProgram(upper)).toBe(false);
+    } finally {
+      fs.rmSync(temporary, { recursive: true, force: true });
+    }
+  });
   for (const originalRoot of [
     'C:/CI/Project',
     'd:/agent/work/project',
     '//server/share/project',
     '/home/ci/project',
   ]) {
-    it(`replays normalized project settings and all program outcomes from ${originalRoot}`, () => {
-      const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'foreign-metadata-'));
-      const metadataPath = path.join(temporary, 'metadata.pb.gz');
-      const origin = normalizeProjectRoot(originalRoot);
-      const target = normalizeToAbsolutePath(path.join(temporary, 'sqaa'));
-      const recorder = new ProgramSelectionArchive(metadataPath, origin, 'record');
-      const contextMetadata = JSON.stringify({
-        configuration: {
-          baseDir: origin,
-          sources: [`${origin}/src`],
-          tests: [`${origin}/tests`],
-          inclusions: { values: [`file:${origin}/src/**/*.ts`, '**/*.vue'] },
-          exclusions: [`${origin}/src/generated/**`],
-          testInclusions: [`FILE:${origin}/tests/**/*.ts`],
-          testExclusions: [`${origin}/tests/generated/**`],
-          jsTsExclusions: [`${origin}/vendor/**`, `directory:${origin}/.sonarqube/out/.sonar`],
+    for (const caseSensitive of [true, false]) {
+      it(`replays normalized project settings and all program outcomes from ${originalRoot} (case sensitive: ${caseSensitive})`, () => {
+        setArchivedFileSystemCaseSensitivity(caseSensitive);
+        const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'foreign-metadata-'));
+        const metadataPath = path.join(temporary, 'metadata.pb.gz');
+        const origin = normalizeProjectRoot(originalRoot);
+        const target = normalizeToAbsolutePath(path.join(temporary, 'sqaa'));
+        const recorder = new ProgramSelectionArchive(metadataPath, origin, 'record');
+        const contextMetadata = JSON.stringify({
+          configuration: {
+            baseDir: origin,
+            sources: [`${origin}/src`],
+            tests: [`${origin}/tests`],
+            inclusions: { values: [`file:${origin}/src/**/*.ts`, '**/*.vue'] },
+            exclusions: [`${origin}/src/generated/**`],
+            testInclusions: [`FILE:${origin}/tests/**/*.ts`],
+            testExclusions: [`${origin}/tests/generated/**`],
+            jsTsExclusions: [`${origin}/vendor/**`, `directory:${origin}/.sonarqube/out/.sonar`],
+            globals: ['window'],
+          },
+        });
+        recorder.recordConfigured(
+          normalizeProjectRoot(`${origin}/src/Main.ts`),
+          normalizeProjectRoot(`${origin}/tsconfig.json`),
+          {
+            baseUrl: origin,
+            paths: { '@/*': [normalizeProjectRoot(`${origin}/src/*`)], '@root': [origin] },
+            rootDirs: [origin],
+          },
+        );
+        recorder.recordOrphanGroup([normalizeProjectRoot(`${origin}/src/Orphan.ts`)], {
+          allowJs: true,
+        });
+        recorder.recordNoProgram(normalizeProjectRoot(`${origin}/src/Untyped.ts`));
+        recorder.end();
+        const replay = new ProgramSelectionArchive(
+          metadataPath,
+          target,
+          'replay',
+          true,
+          contextMetadata,
+        );
+        const root = replayProjectRoot(origin, target);
+        expect(replay.restoredBaseDir()).toBe(origin);
+        expect(replay.replayBaseDir()).toBe(root);
+        expect(replay.restoredConfiguration()).toMatchObject({
+          sources: [`${root}/src`],
+          tests: [`${root}/tests`],
+          inclusions: { values: [`file:${root}/src/**/*.ts`, '**/*.vue'] },
+          exclusions: [`${root}/src/generated/**`],
+          testInclusions: [`FILE:${root}/tests/**/*.ts`],
+          testExclusions: [`${root}/tests/generated/**`],
+          jsTsExclusions: [`${root}/vendor/**`, `directory:${root}/.sonarqube/out/.sonar`],
           globals: ['window'],
-        },
-      });
-      recorder.recordConfigured(
-        normalizeProjectRoot(`${origin}/src/Main.ts`),
-        normalizeProjectRoot(`${origin}/tsconfig.json`),
-        {
-          baseUrl: origin,
-          paths: { '@/*': [normalizeProjectRoot(`${origin}/src/*`)], '@root': [origin] },
-          rootDirs: [origin],
-        },
-      );
-      recorder.recordOrphanGroup([normalizeProjectRoot(`${origin}/src/Orphan.ts`)], {
-        allowJs: true,
-      });
-      recorder.recordNoProgram(normalizeProjectRoot(`${origin}/src/Untyped.ts`));
-      recorder.end();
-      const replay = new ProgramSelectionArchive(
-        metadataPath,
-        target,
-        'replay',
-        true,
-        contextMetadata,
-      );
-      const root = replayProjectRoot(origin, target);
-      expect(replay.restoredBaseDir()).toBe(origin);
-      expect(replay.replayBaseDir()).toBe(root);
-      expect(replay.restoredConfiguration()).toMatchObject({
-        sources: [`${root}/src`],
-        tests: [`${root}/tests`],
-        inclusions: { values: [`file:${root}/src/**/*.ts`, '**/*.vue'] },
-        exclusions: [`${root}/src/generated/**`],
-        testInclusions: [`FILE:${root}/tests/**/*.ts`],
-        testExclusions: [`${root}/tests/generated/**`],
-        jsTsExclusions: [`${root}/vendor/**`, `directory:${root}/.sonarqube/out/.sonar`],
-        globals: ['window'],
-      });
-      const main = normalizeToAbsolutePath('src/Main.ts', root);
-      const orphan = normalizeToAbsolutePath('src/Orphan.ts', root);
-      expect(replay.getRestoredSelections([main, orphan])).toMatchObject([
-        {
-          program: {
-            kind: 'configured',
-            tsconfig: `${root}/tsconfig.json`,
-            compilerOptions: {
-              baseUrl: root,
-              paths: { '@/*': [`${root}/src/*`], '@root': [root] },
-              rootDirs: [root],
+        });
+        const main = normalizeToAbsolutePath('src/Main.ts', root);
+        const orphan = normalizeToAbsolutePath('src/Orphan.ts', root);
+        expect(replay.getRestoredSelections([main, orphan])).toMatchObject([
+          {
+            program: {
+              kind: 'configured',
+              tsconfig: `${root}/tsconfig.json`,
+              compilerOptions: {
+                baseUrl: root,
+                paths: { '@/*': [`${root}/src/*`], '@root': [root] },
+                rootDirs: [root],
+              },
             },
           },
-        },
-        { program: { kind: 'orphan', compilerOptions: { allowJs: true } } },
-      ]);
-      expect(replay.hasNoProgram(normalizeToAbsolutePath('src/Untyped.ts', root))).toBe(true);
-      if (!origin.startsWith('/') || origin.startsWith('//')) {
-        expect(replay.hasSelection(normalizeToAbsolutePath('SRC/main.ts', root))).toBe(true);
-        expect(replay.canonicalRequestedFile(normalizeToAbsolutePath('SRC/main.ts', root))).toBe(
-          main,
-        );
-        expect(replay.hasNoProgram(normalizeToAbsolutePath('SRC/untyped.ts', root))).toBe(true);
-      } else {
-        expect(replay.hasSelection(normalizeToAbsolutePath('src/main.ts', root))).toBe(false);
-      }
-    });
+          { program: { kind: 'orphan', compilerOptions: { allowJs: true } } },
+        ]);
+        expect(replay.hasNoProgram(normalizeToAbsolutePath('src/Untyped.ts', root))).toBe(true);
+        if (!caseSensitive) {
+          expect(replay.hasSelection(normalizeToAbsolutePath('SRC/main.ts', root))).toBe(true);
+          expect(replay.canonicalRequestedFile(normalizeToAbsolutePath('SRC/main.ts', root))).toBe(
+            main,
+          );
+          expect(replay.hasNoProgram(normalizeToAbsolutePath('SRC/untyped.ts', root))).toBe(true);
+        } else {
+          expect(replay.hasSelection(normalizeToAbsolutePath('src/main.ts', root))).toBe(false);
+        }
+      });
+    }
   }
   for (const originalRoot of [
     'C:/CI/project',

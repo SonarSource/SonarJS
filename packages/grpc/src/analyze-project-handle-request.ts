@@ -70,6 +70,7 @@ function normalizeCacheMode(mode: number | null | undefined): CacheMode {
 function beginFilesystemCacheAnalysis(
   request: AnalyzeProjectProtoRequest,
   mode: CacheMode | undefined,
+  replayRoot?: string,
 ): FsCacheSession | undefined {
   const cache = request.filesystemCache;
   if (cache == null) {
@@ -112,7 +113,7 @@ function beginFilesystemCacheAnalysis(
         ? [normalizeToAbsolutePath(request.rulesWorkdir, normalizeToAbsolutePath(baseDir))]
         : []),
     ],
-    rootDir: baseDir,
+    rootDir: replayRoot ?? baseDir,
   });
 }
 
@@ -182,11 +183,17 @@ function beginAnalysisSessions(
         sessions.paths.restoreSourceOnlyRequest();
         return;
       }
+      sessions.filesystemCacheSession = beginFilesystemCacheAnalysis(
+        request,
+        cacheMode,
+        recordedBaseDir,
+      );
       sessions.paths.useRecordedBaseDir(recordedBaseDir, file =>
         programSelection.canonicalRequestedFile(file),
       );
+    } else {
+      sessions.filesystemCacheSession = beginFilesystemCacheAnalysis(request, cacheMode);
     }
-    sessions.filesystemCacheSession = beginFilesystemCacheAnalysis(request, cacheMode);
   } catch (error) {
     if (cacheMode === 'replay' && !(error instanceof InvalidAnalyzeProjectRequestError)) {
       throw new InvalidAnalyzeProjectRequestError('Invalid restored JavaScript context', {

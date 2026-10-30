@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { isFileSystemCaseSensitive } from '../../../analysis/src/common/filesystem.js';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -51,6 +52,7 @@ function temporaryDirectory() {
 
 function loadArchive(archivePath: string, rootDir: string) {
   const archive = new FsCacheArchive({
+    caseSensitivePaths: isFileSystemCaseSensitive(),
     archivePath,
     rootDir,
   });
@@ -255,7 +257,7 @@ describe('filesystem cache hook', () => {
           originalEntry.parentPath);
         record.end();
         fs.rmSync(ci, {recursive:true});
-        const replay = cache.beginAnalysis({archivePath: filesystemCacheArchive, rootDir: target, mode: 'replay', restrictNativeReads: true});
+        const replay = cache.beginAnalysis({ caseSensitivePaths: true, archivePath: filesystemCacheArchive, rootDir: target, mode: 'replay', restrictNativeReads: true});
         const alias = path.join(target, 'sRC/vALUES.ts');
         assert.equal(fs.readFileSync(alias, 'utf8'), 'snapshot contents');
         assert.equal(await fs.promises.readFile(alias, 'utf8'), 'snapshot contents');
@@ -298,10 +300,10 @@ describe('filesystem cache hook', () => {
       import { installFsCache } from ${JSON.stringify(hookModule)};
       const cache = installFsCache();
       const options = { rootDir: ${JSON.stringify(root)}, archivePath: ${JSON.stringify(archive)} };
-      const record = cache.beginAnalysis({ ...options, mode: 'record' });
+      const record = cache.beginAnalysis({ caseSensitivePaths: true, ...options, mode: 'record' });
       fs.readFileSync(${JSON.stringify(path.join(root, 'source.ts'))}, 'utf8');
       record.end();
-      const replay = cache.beginAnalysis({ ...options, mode: 'replay', restrictNativeReads: true, passthroughDirs: [${JSON.stringify(runtime)}] });
+      const replay = cache.beginAnalysis({ caseSensitivePaths: true, ...options, mode: 'replay', restrictNativeReads: true, passthroughDirs: [${JSON.stringify(runtime)}] });
       const outside = ${JSON.stringify(outside)};
       const error = async operation => { try { await operation(); return 'unexpected success'; } catch (failure) { return failure.code; } };
       const result = {
@@ -349,12 +351,12 @@ describe('filesystem cache hook', () => {
       `import fs from 'node:fs';
        import { installFsCache, captureProvidedFile } from ${JSON.stringify(hookModule)};
        const installation = installFsCache();
-       const record = installation.beginAnalysis({rootDir: ${JSON.stringify(root)}, archivePath: ${JSON.stringify(archive)}, mode: 'record'});
+       const record = installation.beginAnalysis({ caseSensitivePaths: true, rootDir: ${JSON.stringify(root)}, archivePath: ${JSON.stringify(archive)}, mode: 'record'});
        const native = fs.readFileSync(${JSON.stringify(path.join(root, 'native.ts'))});
        fs.readFileSync(${JSON.stringify(path.join(root, 'supplied.ts'))});
        captureProvidedFile(${JSON.stringify(path.join(root, 'supplied.ts'))}, ${JSON.stringify(supplied)});
        record.end();
-       const replay = installation.beginAnalysis({rootDir: ${JSON.stringify(replayRoot)}, archivePath: ${JSON.stringify(archive)}, mode: 'replay'});
+       const replay = installation.beginAnalysis({ caseSensitivePaths: true, rootDir: ${JSON.stringify(replayRoot)}, archivePath: ${JSON.stringify(archive)}, mode: 'replay'});
        const replayed = fs.readFileSync(${JSON.stringify(path.join(replayRoot, 'native.ts'))});
        const decoded = fs.readFileSync(${JSON.stringify(path.join(replayRoot, 'supplied.ts'))}, 'utf8');
        replay.end();
@@ -397,6 +399,7 @@ describe('filesystem cache hook', () => {
     const temporary = temporaryDirectory();
     const root = path.join(temporary, 'root');
     const archive = new FsCacheArchive({
+      caseSensitivePaths: isFileSystemCaseSensitive(),
       archivePath: path.join(temporary, 'analysis.fscache'),
       rootDir: root,
     });
@@ -414,6 +417,7 @@ describe('filesystem cache hook', () => {
     const temporary = temporaryDirectory();
     const root = path.join(temporary, 'root');
     const archive = new FsCacheArchive({
+      caseSensitivePaths: isFileSystemCaseSensitive(),
       archivePath: path.join(temporary, 'analysis.fscache'),
       rootDir: root,
     });
@@ -426,6 +430,7 @@ describe('filesystem cache hook', () => {
     const temporary = temporaryDirectory();
     const root = path.join(temporary, 'missing-root');
     const archive = new FsCacheArchive({
+      caseSensitivePaths: isFileSystemCaseSensitive(),
       archivePath: path.join(temporary, 'analysis.fscache'),
       rootDir: root,
     });
@@ -489,6 +494,7 @@ describe('filesystem cache hook', () => {
       const readFileSync = fs.readFileSync;
       fs.writeFileSync(${JSON.stringify(inactiveFile)}, 'before');
       const record = installation.beginAnalysis({
+        caseSensitivePaths: true,
         archivePath: ${JSON.stringify(archive)},
         rootDir: ${JSON.stringify(recordRoot)},
       });
@@ -503,6 +509,7 @@ describe('filesystem cache hook', () => {
       fs.rmSync(${JSON.stringify(recordRoot)}, { force: true, recursive: true });
       fs.mkdirSync(${JSON.stringify(replayRoot)});
       const replay = installation.beginAnalysis({
+        caseSensitivePaths: true,
         archivePath: ${JSON.stringify(archive)},
         rootDir: ${JSON.stringify(replayRoot)},
       });
@@ -828,10 +835,10 @@ describe('filesystem cache hook', () => {
       import { installFsCache } from ${JSON.stringify(hookModule)};
       const cache = installFsCache();
       const rootDir = ${JSON.stringify(root)};
-      const session = cache.beginAnalysis({ rootDir, archivePath: ${JSON.stringify(archive)}, mode: 'record' });
+      const session = cache.beginAnalysis({ caseSensitivePaths: true, rootDir, archivePath: ${JSON.stringify(archive)}, mode: 'record' });
       const pending = fs.promises.stat(rootDir + '/late.txt');
       session.end();
-      const next = cache.beginAnalysis({ rootDir, archivePath: ${JSON.stringify(nextArchive)}, mode: 'record' });
+      const next = cache.beginAnalysis({ caseSensitivePaths: true, rootDir, archivePath: ${JSON.stringify(nextArchive)}, mode: 'record' });
       fs.readFileSync(rootDir + '/marker.txt');
       await pending;
       next.end();
@@ -859,10 +866,10 @@ describe('filesystem cache hook', () => {
         const cache = installFsCache();
         const rootDir = ${JSON.stringify(root)};
         const archivePath = ${JSON.stringify(archive)};
-        const record = cache.beginAnalysis({ rootDir, archivePath, mode: 'record' });
+        const record = cache.beginAnalysis({ caseSensitivePaths: true, rootDir, archivePath, mode: 'record' });
         fs.closeSync(fs.openSync(rootDir + '/marker.txt', 'r'));
         record.end();
-        const replay = cache.beginAnalysis({ rootDir, archivePath, mode: 'replay' });
+        const replay = cache.beginAnalysis({ caseSensitivePaths: true, rootDir, archivePath, mode: 'replay' });
         const pending = ${api === 'callback' ? `new Promise(resolve => fs.open(rootDir + '/marker.txt', 'r', error => resolve(error?.code)))` : `fs.promises.open(rootDir + '/marker.txt', 'r').then(() => undefined, error => error.code)`};
         replay.end();
         console.log(JSON.stringify({ error: await pending }));
@@ -894,6 +901,7 @@ describe('filesystem cache hook', () => {
           const rootDir = ${JSON.stringify(root)};
           const output = ${JSON.stringify(path.join(work, 'output.udg'))};
           const session = cache.beginAnalysis({
+        caseSensitivePaths: true,
             rootDir,
             archivePath: ${JSON.stringify(archive)},
             mode: 'record',
@@ -915,6 +923,7 @@ describe('filesystem cache hook', () => {
           const next = ${
             nextSession
               ? `cache.beginAnalysis({
+        caseSensitivePaths: true,
             rootDir,
             archivePath: ${JSON.stringify(nextArchive)},
             mode: 'record',
@@ -1264,6 +1273,7 @@ describe('filesystem cache hook', () => {
       import { installFsCache } from ${JSON.stringify(hookModule)};
       const [filesystemCacheRoot, filesystemCacheArchive] = process.argv.slice(2);
       installFsCache().beginAnalysis({
+        caseSensitivePaths: true,
         archivePath: filesystemCacheArchive,
         rootDir: filesystemCacheRoot,
       });
@@ -1304,6 +1314,7 @@ describe('filesystem cache hook', () => {
       import { installFsCache } from ${JSON.stringify(hookModule)};
       const [filesystemCacheRoot, filesystemCacheArchive, afterSession] = process.argv.slice(2);
       const session = installFsCache().beginAnalysis({
+        caseSensitivePaths: true,
         archivePath: filesystemCacheArchive,
         rootDir: filesystemCacheRoot,
       });

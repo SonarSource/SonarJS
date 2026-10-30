@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { pathIsUnder, pathsEqual } from '../../common/filesystem.js';
 import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import type { GeneratedSourceFileMatcher, GeneratedSourceProjectSnapshot } from './contracts.js';
 import { isSafeGeneratedSourceChildPath, isSourceFile } from './shared.js';
@@ -42,7 +43,7 @@ export function listSourceFilesInSnapshot(
   const sourceFiles: NormalizedAbsolutePath[] = [];
 
   for (const filePath of projectSnapshot.sourceFiles) {
-    if (!filePath.startsWith(childPrefix)) {
+    if (!pathIsUnder(filePath, directory) || pathsEqual(filePath, directory)) {
       continue;
     }
 

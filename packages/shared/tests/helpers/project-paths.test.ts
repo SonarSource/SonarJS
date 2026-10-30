@@ -14,7 +14,8 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { describe, it } from 'node:test';
+import { describe, it, afterEach } from 'node:test';
+import { setArchivedFileSystemCaseSensitivity } from '../../../analysis/src/jsts/rules/helpers/filesystem-case.js';
 import { expect } from 'expect';
 import {
   normalizeProjectRoot,
@@ -23,6 +24,7 @@ import {
 } from '../../src/helpers/project-paths.js';
 
 describe('portable project namespaces (host independent)', () => {
+  afterEach(() => setArchivedFileSystemCaseSensitivity(undefined));
   for (const [input, expected] of [
     ['C:\\ci\\project\\', 'C:/ci/project'],
     ['d:/ci/./project/sub/..', 'd:/ci/project'],
@@ -49,24 +51,27 @@ describe('portable project namespaces (host independent)', () => {
       expect(() => normalizeProjectRoot(root)).toThrow();
     });
   }
-  for (const [root, file, relative] of [
-    ['C:/CI/Project', 'c:/ci/project/src/a.ts', 'src/a.ts'],
-    ['C:/ci/project', 'C:\\ci\\project\\src\\a.ts', 'src/a.ts'],
-    ['C:/ci/project', 'src\\a.ts', 'src/a.ts'],
-    ['C:/CI/Prójèct 空', 'C:/CI/Prójèct 空/src/ä.ts', 'src/ä.ts'],
-    ['//server/share/project', '//SERVER/SHARE/project/src/a.ts', 'src/a.ts'],
-    ['/ci/project', '/ci/project/src/a.ts', 'src/a.ts'],
-    ['/ci/project', './src/sub/../a.ts', 'src/a.ts'],
-    ['/ci/project', '/CI/project/src/a.ts', undefined],
-    ['C:/ci/project', 'D:/ci/project/src/a.ts', undefined],
-    ['C:/ci/project', 'C:/ci/project-other/a.ts', undefined],
-    ['C:/ci/project', 'C:a.ts', undefined],
-    ['C:/ci/project', '/ci/project/a.ts', undefined],
-    ['/ci/project', 'C:/ci/project/a.ts', undefined],
-    ['/ci/project', '../outside.ts', undefined],
-    ['C:/ci/project', '..\\outside.ts', undefined],
-  ]) {
+  for (const [root, file, caseSensitivePaths, relative] of [
+    ['C:/CI/Project', 'c:/ci/project/src/a.ts', false, 'src/a.ts'],
+    ['C:/ci/project', 'C:\\ci\\project\\src\\a.ts', false, 'src/a.ts'],
+    ['C:/ci/project', 'src\\a.ts', false, 'src/a.ts'],
+    ['C:/CI/Prójèct 空', 'C:/CI/Prójèct 空/src/ä.ts', false, 'src/ä.ts'],
+    ['//server/share/project', '//SERVER/SHARE/project/src/a.ts', false, 'src/a.ts'],
+    ['/ci/project', '/ci/project/src/a.ts', true, 'src/a.ts'],
+    ['/ci/project', './src/sub/../a.ts', true, 'src/a.ts'],
+    ['/ci/project', '/CI/project/src/a.ts', true, undefined],
+    ['/ci/project', '/CI/project/src/a.ts', false, 'src/a.ts'],
+    ['C:/CI/Project', 'c:/ci/project/src/a.ts', true, undefined],
+    ['C:/ci/project', 'D:/ci/project/src/a.ts', false, undefined],
+    ['C:/ci/project', 'C:/ci/project-other/a.ts', false, undefined],
+    ['C:/ci/project', 'C:a.ts', false, undefined],
+    ['C:/ci/project', '/ci/project/a.ts', false, undefined],
+    ['/ci/project', 'C:/ci/project/a.ts', true, undefined],
+    ['/ci/project', '../outside.ts', true, undefined],
+    ['C:/ci/project', '..\\outside.ts', false, undefined],
+  ] as const) {
     it(`bounds ${file} inside ${root}`, () => {
+      setArchivedFileSystemCaseSensitivity(caseSensitivePaths);
       expect(relativeProjectPath(file!, root!)).toBe(relative);
     });
   }

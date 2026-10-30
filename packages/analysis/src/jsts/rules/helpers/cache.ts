@@ -17,8 +17,11 @@
 export class ComputedCache<K, V, TContext = null> {
   private readonly cache: Map<K, V>;
 
-  constructor(private readonly computeFn: (key: K, context?: TContext) => V) {
-    this.cache = new Map();
+  constructor(
+    private readonly computeFn: (key: K, context?: TContext) => V,
+    cache: Map<K, V> = new Map(),
+  ) {
+    this.cache = cache;
   }
 
   get(key: K, context?: TContext) {

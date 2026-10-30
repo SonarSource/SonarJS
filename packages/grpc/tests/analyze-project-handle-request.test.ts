@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
+import { isFileSystemCaseSensitive } from '../../analysis/src/common/filesystem.js';
 import { afterEach, describe, it, mock } from 'node:test';
 import { expect } from 'expect';
 import {
@@ -37,7 +38,7 @@ import {
   deserializeProtobufDocument,
   serializeProtobufDocument,
 } from '../../shared/src/fs-cache/archive-serialization.js';
-import { isWindowsProjectPath, replayProjectRoot } from '../../shared/src/helpers/project-paths.js';
+import { replayProjectRoot } from '../../shared/src/helpers/project-paths.js';
 
 const workerData: WorkerData = { debugMemory: false };
 // Simulate Java recording its raw request configuration, then the collector/hub handoff.
@@ -77,9 +78,14 @@ function createAnalyzeProjectRequest(): AnalyzeProjectRequest {
 }
 
 describe('analyze-project request handler', () => {
-  for (const origin of ['C:/CI/Project', '//server/share/project', '/home/ci/project']) {
+  for (const [origin, caseSensitivePaths] of [
+    ['C:/CI/Project', false],
+    ['//server/share/project', false],
+    ['/home/ci/project', true],
+    ['/home/ci/project', false],
+  ] as const) {
     for (const kind of ['configured', 'orphan', 'no-program'] as const) {
-      it(`replays ${kind} from ${origin} with native contents absent and submitted edits authoritative`, async () => {
+      it(`replays ${kind} from ${origin} (case sensitive: ${caseSensitivePaths}) with native contents absent and submitted edits authoritative`, async () => {
         const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'cross-platform-replay-'));
         const ci = path.join(temporary, 'ci');
         const physical = path.join(temporary, 'sqaa');
@@ -217,8 +223,8 @@ describe('analyze-project request handler', () => {
             }
           };
           rewrite(metadata.configuration);
-          if (isWindowsProjectPath(origin)) {
-            // Windows source roots may use a different spelling from the stored file names.
+          if (!caseSensitivePaths) {
+            // Case-insensitive source roots may use a different spelling from the stored file names.
             const uppercaseScope = (value: unknown): void => {
               if (value && typeof value === 'object') {
                 for (const [key, item] of Object.entries(value)) {
@@ -234,7 +240,7 @@ describe('analyze-project request handler', () => {
           }
           collectedMetadata.set(analysisMetadataPath, JSON.stringify(metadata));
           const document = deserializeProtobufDocument(gunzipSync(fs.readFileSync(archivePath)));
-          document.caseSensitivePaths = !isWindowsProjectPath(origin);
+          document.caseSensitivePaths = caseSensitivePaths;
           fs.writeFileSync(archivePath, gzipSync(serializeProtobufDocument(document)));
           fs.rmSync(ci, { recursive: true });
           const metadataBefore = fs.readFileSync(analysisMetadataPath);
@@ -263,7 +269,7 @@ describe('analyze-project request handler', () => {
           );
           logical.filesystemCache!.fallbackBaseDir = physical;
           await analyze(logical, 1);
-          if (isWindowsProjectPath(origin)) {
+          if (!caseSensitivePaths) {
             const caseAlias = `${origin}/SRC/main.TEST.ts`;
             const caseContents =
               kind === 'configured' ? original.replace('@shared/Values', '@shared/VALUES') : source;
@@ -830,7 +836,11 @@ describe('analyze-project request handler', () => {
       );
       expect(recorded.type).toBe('success');
       expect(fs.statSync(analysisMetadataPath).size).toBeGreaterThan(0);
-      const archive = new FsCacheArchive({ archivePath, rootDir: recordRoot });
+      const archive = new FsCacheArchive({
+        caseSensitivePaths: isFileSystemCaseSensitive(),
+        archivePath,
+        rootDir: recordRoot,
+      });
       archive.load();
       const intermediate = archive.keyFor(path.join(recordRoot, 'src/entry.ts'))!;
       expect(archive.get(intermediate, 'readFile')?.ok).toBe(true);

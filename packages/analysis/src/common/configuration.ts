@@ -439,6 +439,7 @@ function serializeMinimatchPatterns(patterns: Minimatch[]) {
  */
 export function getProjectFileDiscoveryConfigKey(configuration: Configuration) {
   return JSON.stringify({
+    caseSensitivePaths: isFileSystemCaseSensitive(),
     jsTsExclusions: serializeMinimatchPatterns(configuration.jsTsExclusions),
   });
 }
@@ -452,6 +453,7 @@ export function getAnalyzableFilesConfigKey(configuration: Configuration) {
   const filterPathParams = getFilterPathParams(configuration);
 
   return JSON.stringify({
+    caseSensitivePaths: isFileSystemCaseSensitive(),
     jsSuffixes: shouldIgnoreParams.jsSuffixes,
     tsSuffixes: shouldIgnoreParams.tsSuffixes,
     cssSuffixes: shouldIgnoreParams.cssSuffixes,

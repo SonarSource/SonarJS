@@ -14,14 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import ts from 'typescript';
-import { getFileSystemCaseSensitivity } from '../../../shared/src/fs-cache/hook.js';
-
-/** An active archive owns filesystem semantics; native analysis uses TypeScript's probe. */
-export function isFileSystemCaseSensitive(): boolean {
-  return getFileSystemCaseSensitivity() ?? ts.sys.useCaseSensitiveFileNames;
-}
-
-export function canonicalFileName(fileName: string): string {
-  return isFileSystemCaseSensitive() ? fileName : fileName.toLowerCase();
-}
+export {
+  canonicalFileName,
+  isFileSystemCaseSensitive,
+  pathsEqual,
+  pathIsUnder,
+  FileSystemMap,
+  FileSystemSet,
+} from '../jsts/rules/helpers/filesystem.js';

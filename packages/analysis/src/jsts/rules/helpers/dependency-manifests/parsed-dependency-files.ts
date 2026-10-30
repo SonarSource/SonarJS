@@ -14,15 +14,16 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { FileSystemMap } from '../filesystem.js';
 import type { PackageJson } from 'type-fest';
 import ts from 'typescript';
 import yaml from 'yaml';
 import { type File, normalizeToAbsolutePath, stripBOM } from '../files.js';
 import type { DenoJson, Workspace } from './resolvers/types.js';
 
-const parsedPackageJsonCache = new Map<string, PackageJson | undefined>();
-const parsedPnpmWorkspaceCache = new Map<string, Workspace | undefined>();
-const parsedDenoManifestCache = new Map<string, DenoJson | undefined>();
+const parsedPackageJsonCache = new FileSystemMap<string, PackageJson | undefined>();
+const parsedPnpmWorkspaceCache = new FileSystemMap<string, Workspace | undefined>();
+const parsedDenoManifestCache = new FileSystemMap<string, DenoJson | undefined>();
 
 export function clearParsedDependencyFileCache(): void {
   parsedPackageJsonCache.clear();

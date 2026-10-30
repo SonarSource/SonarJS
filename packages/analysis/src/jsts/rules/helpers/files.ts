@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { pathIsUnder, pathsEqual } from './filesystem.js';
 import {
   basename as basenamePosix,
   dirname as dirnamePosix,
@@ -73,9 +74,7 @@ export function isRoot(file: string) {
 }
 
 export function assertNestedPath(from: NormalizedAbsolutePath, topDir: NormalizedAbsolutePath) {
-  const fromSanitized = from.endsWith('/') ? from : from + '/';
-  const topDirSanitized = topDir.endsWith('/') ? topDir : topDir + '/';
-  if (!fromSanitized.startsWith(topDirSanitized)) {
+  if (!pathIsUnder(from, topDir)) {
     throw new Error(`"${from}" is not nested under topDir "${topDir}"`);
   }
 }
@@ -108,11 +107,11 @@ export function relativeToAncestorPath(
   topDir: NormalizedAbsolutePath,
 ) {
   const topDirPrefix = topDir.endsWith('/') ? topDir : `${topDir}/`;
-  if (filePath === topDir) {
+  if (pathsEqual(filePath, topDir)) {
     return '';
   }
 
-  return filePath.startsWith(topDirPrefix) ? filePath.slice(topDirPrefix.length) : undefined;
+  return pathIsUnder(filePath, topDir) ? filePath.slice(topDirPrefix.length) : undefined;
 }
 
 /**

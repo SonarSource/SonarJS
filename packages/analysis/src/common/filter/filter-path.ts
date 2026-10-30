@@ -24,7 +24,7 @@ import {
   isTestRelatedFile,
 } from '../../jsts/rules/helpers/test-file-pattern.js';
 import { isAngularProject } from '../../jsts/rules/helpers/dependency-manifests/dependencies.js';
-import { canonicalFileName, isFileSystemCaseSensitive } from '../filesystem.js';
+import { canonicalFileName, isFileSystemCaseSensitive, pathIsUnder } from '../filesystem.js';
 
 // Normalized configurations own their pattern arrays, so old caches can be garbage-collected.
 const directoryExclusionCaches = new WeakMap<
@@ -131,11 +131,7 @@ export function getFileTypeForRules(
 }
 
 function fileIsUnder(filePath: NormalizedAbsolutePath, paths: NormalizedAbsolutePath[]): boolean {
-  const file = canonicalFileName(filePath);
-  return paths.some(path => {
-    const root = canonicalFileName(path);
-    return file === root || file.startsWith(root.endsWith('/') ? root : `${root}/`);
-  });
+  return paths.some(path => pathIsUnder(filePath, path));
 }
 
 function matchesExclusion(
