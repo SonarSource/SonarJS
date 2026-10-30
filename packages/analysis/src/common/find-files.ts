@@ -44,12 +44,11 @@ async function visitPending(
   jsTsExclusions: Minimatch[],
   onEntry: (file: Dirent, filePath: NormalizedAbsolutePath) => Promise<void>,
 ): Promise<void> {
-  const directory = directories.pop();
-  if (directory === undefined) {
-    return;
+  let directory: NormalizedAbsolutePath | undefined;
+  while ((directory = directories.pop()) !== undefined) {
+    // Sequential on purpose: onEntry callbacks are not safe to run concurrently.
+    await visitDirectory(directory, directory === root, directories, jsTsExclusions, onEntry); // NOSONAR S9382
   }
-  await visitDirectory(directory, directory === root, directories, jsTsExclusions, onEntry);
-  await visitPending(directories, root, jsTsExclusions, onEntry);
 }
 
 async function openDirectory(directory: NormalizedAbsolutePath, isRoot: boolean) {
