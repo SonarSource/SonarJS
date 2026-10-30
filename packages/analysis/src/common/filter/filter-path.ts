@@ -153,7 +153,7 @@ function matchesExclusion(
 
   const caseSensitive = getFileSystemCaseSensitivity();
   let cache = directoryExclusionCaches.get(exclusions);
-  if (!cache || cache.baseDir !== baseDir || cache.caseSensitive !== caseSensitive) {
+  if (cache?.baseDir !== baseDir || cache.caseSensitive !== caseSensitive) {
     cache = { baseDir, caseSensitive, directories: new Map() };
     directoryExclusionCaches.set(exclusions, cache);
   }
