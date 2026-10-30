@@ -55,6 +55,30 @@ function isolatedResult(
   return scopedResult;
 }
 
+/** Report an already rewritten upstream warning under the Sonar rule. */
+function reportRewritten(
+  sonarRule: string,
+  result: PostcssResult,
+  message: DecoratedMessage,
+  rewritten: string,
+  messageArgs: MessageArgs | undefined,
+): void {
+  stylelint.utils.report({
+    ruleName: sonarRule,
+    result,
+    // The rewrite is already formatted; only a configured custom
+    // message should interpolate the original arguments again.
+    message: () => rewritten,
+    messageArgs,
+    node: message.node,
+    start: { line: message.line, column: message.column },
+    end: {
+      line: message.endLine ?? message.line,
+      column: message.endColumn ?? message.column,
+    },
+  });
+}
+
 /**
  * Run an upstream rule in isolation, then report accepted warnings under the Sonar rule.
  * CSS autofixes are not supported: collection disables fixes and edit info, and
@@ -100,20 +124,7 @@ export function createDecoratedRule(
           warningIndex++;
           const rewritten = rewriteMessage(message, factory.messages, root, result);
           if (rewritten !== undefined) {
-            stylelint.utils.report({
-              ruleName: sonarRule,
-              result,
-              // The rewrite is already formatted; only a configured custom
-              // message should interpolate the original arguments again.
-              message: () => rewritten,
-              messageArgs,
-              node: message.node,
-              start: { line: message.line, column: message.column },
-              end: {
-                line: message.endLine ?? message.line,
-                column: message.endColumn ?? message.column,
-              },
-            });
+            reportRewritten(sonarRule, result, message, rewritten, messageArgs);
           }
         },
       );
