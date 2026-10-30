@@ -56,9 +56,14 @@ export const readDirectory: typeof ts.sys.readDirectory = (
       const directories: string[] = [];
       try {
         for (const entry of fs.readdirSync(directory || '.', { withFileTypes: true })) {
-          const stat = entry.isSymbolicLink()
-            ? fs.statSync(path.join(directory, entry.name), { throwIfNoEntry: false })
-            : entry;
+          let stat: fs.Stats | fs.Dirent | undefined = entry;
+          if (entry.isSymbolicLink()) {
+            try {
+              stat = fs.statSync(path.join(directory, entry.name), { throwIfNoEntry: false });
+            } catch {
+              continue;
+            }
+          }
           if (stat?.isFile()) {
             files.push(entry.name);
           } else if (stat?.isDirectory()) {

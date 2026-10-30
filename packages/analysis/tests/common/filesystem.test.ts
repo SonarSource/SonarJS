@@ -48,6 +48,33 @@ import { createAnalyzableFiles, promoteToAnalyzableFile } from '../../src/projec
 import { ProgramSelectionArchive } from '../../src/program-selection/archive.js';
 
 describe('filesystem identity across analysis layers', () => {
+  for (const code of ['ELOOP', 'EACCES']) {
+    it(`keeps readable siblings and subdirectories when a symlink stat fails with ${code}`, context => {
+      const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'filesystem-symlink-'));
+      const root = normalizeToAbsolutePath(temporary);
+      try {
+        fs.writeFileSync(path.join(root, 'main.ts'), 'export {};');
+        fs.writeFileSync(path.join(root, 'broken.ts'), '');
+        fs.mkdirSync(path.join(root, 'nested'));
+        fs.writeFileSync(path.join(root, 'nested/child.ts'), 'export {};');
+        // Simulate the symlink without requiring Windows symlink privileges.
+        context.mock.method(fs.Dirent.prototype, 'isSymbolicLink', function (this: fs.Dirent) {
+          return this.name === 'broken.ts';
+        });
+        context.mock.method(fs, 'statSync', () => {
+          throw Object.assign(new Error('Cannot stat symlink'), { code });
+        });
+        expect(readDirectory(root, ['.ts'], undefined, ['**/*.ts']).sort()).toEqual([
+          `${root}/main.ts`,
+          `${root}/nested/child.ts`,
+        ]);
+      } finally {
+        context.mock.restoreAll();
+        fs.rmSync(temporary, { recursive: true, force: true });
+      }
+    });
+  }
+
   for (const caseSensitivePaths of [true, false]) {
     it(`shares path identity across TypeScript, stores and metadata (case sensitive: ${caseSensitivePaths})`, async () => {
       const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'filesystem-identity-'));
