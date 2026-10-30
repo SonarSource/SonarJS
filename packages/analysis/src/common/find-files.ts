@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { opendir } from 'node:fs/promises';
-import type { Dir, Dirent } from 'node:fs';
+import type { Dirent } from 'node:fs';
 import type { Minimatch } from 'minimatch';
 import {
   type NormalizedAbsolutePath,
@@ -31,28 +31,57 @@ export async function findFiles(
   onEntry: (file: Dirent, filePath: NormalizedAbsolutePath) => Promise<void>,
 ) {
   const root = normalizeToAbsolutePath(dir);
-  const directories: NormalizedAbsolutePath[] = [root];
+  await visitPending([root], root, jsTsExclusions, onEntry);
+}
 
-  while (directories.length > 0) {
-    const directory = directories.pop()!;
-    let entries: Dir;
-    try {
-      entries = await opendir(directory);
-    } catch (error) {
-      if (directory === root || !['EACCES', 'EPERM'].includes(error?.code)) {
-        throw error;
-      }
-      warn(`Skipping directory '${directory}' because it cannot be read (${error.code}).`);
-      continue;
+/**
+ * Drains the stack of pending directories (last pushed, first visited). Directories must be
+ * visited one at a time, as `onEntry` callbacks are not safe to run concurrently.
+ */
+async function visitPending(
+  directories: NormalizedAbsolutePath[],
+  root: NormalizedAbsolutePath,
+  jsTsExclusions: Minimatch[],
+  onEntry: (file: Dirent, filePath: NormalizedAbsolutePath) => Promise<void>,
+): Promise<void> {
+  const directory = directories.pop();
+  if (directory === undefined) {
+    return;
+  }
+  await visitDirectory(directory, directory === root, directories, jsTsExclusions, onEntry);
+  await visitPending(directories, root, jsTsExclusions, onEntry);
+}
+
+async function openDirectory(directory: NormalizedAbsolutePath, isRoot: boolean) {
+  try {
+    return await opendir(directory);
+  } catch (error) {
+    if (isRoot || !['EACCES', 'EPERM'].includes(error?.code)) {
+      throw error;
     }
-    for await (const file of entries) {
-      const filePath = joinPaths(normalizeToAbsolutePath(file.parentPath), file.name);
-      if (!isJsTsExcluded(filePath, jsTsExclusions)) {
-        if (file.isDirectory()) {
-          directories.push(filePath);
-        }
-        await onEntry(file, filePath);
+    warn(`Skipping directory '${directory}' because it cannot be read (${error.code}).`);
+    return null;
+  }
+}
+
+async function visitDirectory(
+  directory: NormalizedAbsolutePath,
+  isRoot: boolean,
+  directories: NormalizedAbsolutePath[],
+  jsTsExclusions: Minimatch[],
+  onEntry: (file: Dirent, filePath: NormalizedAbsolutePath) => Promise<void>,
+) {
+  const entries = await openDirectory(directory, isRoot);
+  if (entries === null) {
+    return;
+  }
+  for await (const file of entries) {
+    const filePath = joinPaths(normalizeToAbsolutePath(file.parentPath), file.name);
+    if (!isJsTsExcluded(filePath, jsTsExclusions)) {
+      if (file.isDirectory()) {
+        directories.push(filePath);
       }
+      await onEntry(file, filePath);
     }
   }
 }
