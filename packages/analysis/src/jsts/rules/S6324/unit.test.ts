@@ -140,113 +140,121 @@ describe('S6324', () => {
     for (const { name, ...testCase } of cases) {
       it(name, () => {
         const ruleTester = new DefaultParserRuleTester();
-        ruleTester.run('No control characters in bounded OSC matchers', rule, {
-          valid: [testCase],
-          invalid: [],
-        });
+        doesNotThrow(() =>
+          ruleTester.run('No control characters in bounded OSC matchers', rule, {
+            valid: [testCase],
+            invalid: [],
+          }),
+        );
       });
     }
 
     it('keeps standalone controls reportable across separate regexes', () => {
       const ruleTester = new DefaultParserRuleTester();
-      ruleTester.run('OSC exemptions are local to each regex', rule, {
-        valid: [],
-        invalid: [
-          {
-            code: String.raw`/${oscPattern}/;
+      doesNotThrow(() =>
+        ruleTester.run('OSC exemptions are local to each regex', rule, {
+          valid: [],
+          invalid: [
+            {
+              code: String.raw`/${oscPattern}/;
 /\x07/;`,
-            errors: [
-              {
-                message: CONTROL_CHAR_MESSAGE,
-                line: 2,
-                column: 2,
-                endLine: 2,
-                endColumn: 6,
-              },
-            ],
-          },
-          {
-            code: String.raw`/\x07/;
+              errors: [
+                {
+                  message: CONTROL_CHAR_MESSAGE,
+                  line: 2,
+                  column: 2,
+                  endLine: 2,
+                  endColumn: 6,
+                },
+              ],
+            },
+            {
+              code: String.raw`/\x07/;
 /${oscPattern}/;`,
-            errors: [
-              {
-                message: CONTROL_CHAR_MESSAGE,
-                line: 1,
-                column: 2,
-                endLine: 1,
-                endColumn: 6,
-              },
-            ],
-          },
-        ],
-      });
+              errors: [
+                {
+                  message: CONTROL_CHAR_MESSAGE,
+                  line: 1,
+                  column: 2,
+                  endLine: 1,
+                  endColumn: 6,
+                },
+              ],
+            },
+          ],
+        }),
+      );
     });
 
     it('requires every payload delimiter exclusion', () => {
       const ruleTester = new DefaultParserRuleTester();
-      ruleTester.run('Incomplete OSC payload exclusions', rule, {
-        valid: [],
-        invalid: [
-          {
-            // BEL is not excluded.
-            code: String.raw`/\x9d[^\x1b\x9c\x9d]*\x07/`,
-            errors: 2,
-          },
-          {
-            // ESC is not excluded.
-            code: String.raw`/\x9d[^\x07\x9c\x9d]*\x07/`,
-            errors: 2,
-          },
-          {
-            // C1 ST is not excluded.
-            code: String.raw`/\x9d[^\x07\x1b\x9d]*\x07/`,
-            errors: 3,
-          },
-          {
-            // C1 OSC is not excluded.
-            code: String.raw`/\x1b\][^\x07\x1b\x9c]*\x07/`,
-            errors: 3,
-          },
-        ],
-      });
+      doesNotThrow(() =>
+        ruleTester.run('Incomplete OSC payload exclusions', rule, {
+          valid: [],
+          invalid: [
+            {
+              // BEL is not excluded.
+              code: String.raw`/\x9d[^\x1b\x9c\x9d]*\x07/`,
+              errors: 2,
+            },
+            {
+              // ESC is not excluded.
+              code: String.raw`/\x9d[^\x07\x9c\x9d]*\x07/`,
+              errors: 2,
+            },
+            {
+              // C1 ST is not excluded.
+              code: String.raw`/\x9d[^\x07\x1b\x9d]*\x07/`,
+              errors: 3,
+            },
+            {
+              // C1 OSC is not excluded.
+              code: String.raw`/\x1b\][^\x07\x1b\x9c]*\x07/`,
+              errors: 3,
+            },
+          ],
+        }),
+      );
     });
 
     it('keeps controls outside a complete bounded matcher reportable', () => {
       const ruleTester = new DefaultParserRuleTester();
-      ruleTester.run('No control characters outside bounded OSC matchers', rule, {
-        valid: [],
-        invalid: [
-          {
-            code: String.raw`/(?:\x1b\]|\x9d)?[^\x07\x1b\x9c\x9d]*(?:\x07|\x1b\\)/`,
-            errors: 4,
-          },
-          {
-            code: String.raw`/(?:\x1b\]|foo)[^\x07\x1b\x9c\x9d]*(?:\x07|\x1b\\)/`,
-            errors: 4,
-          },
-          {
-            code: String.raw`/\x1b\][^\x07\x1b\x9c\x9d]*(?:\x07|\x1b\\|foo)/`,
-            errors: 4,
-          },
-          {
-            code: `/(?=${oscPattern})/`,
-            errors: 4,
-          },
-          {
-            code: `/${oscPattern}\\x07/`,
-            errors: 1,
-          },
-          {
-            code: `/${oscPattern}|\\x07/`,
-            errors: 1,
-          },
-          {
-            // Excluding an unrelated control does not exempt that control.
-            code: String.raw`/\x1b\][^\x07\x1b\x9c\x9d\x18]*\x07/`,
-            errors: 1,
-          },
-        ],
-      });
+      doesNotThrow(() =>
+        ruleTester.run('No control characters outside bounded OSC matchers', rule, {
+          valid: [],
+          invalid: [
+            {
+              code: String.raw`/(?:\x1b\]|\x9d)?[^\x07\x1b\x9c\x9d]*(?:\x07|\x1b\\)/`,
+              errors: 4,
+            },
+            {
+              code: String.raw`/(?:\x1b\]|foo)[^\x07\x1b\x9c\x9d]*(?:\x07|\x1b\\)/`,
+              errors: 4,
+            },
+            {
+              code: String.raw`/\x1b\][^\x07\x1b\x9c\x9d]*(?:\x07|\x1b\\|foo)/`,
+              errors: 4,
+            },
+            {
+              code: `/(?=${oscPattern})/`,
+              errors: 4,
+            },
+            {
+              code: `/${oscPattern}\\x07/`,
+              errors: 1,
+            },
+            {
+              code: `/${oscPattern}|\\x07/`,
+              errors: 1,
+            },
+            {
+              // Excluding an unrelated control does not exempt that control.
+              code: String.raw`/\x1b\][^\x07\x1b\x9c\x9d\x18]*\x07/`,
+              errors: 1,
+            },
+          ],
+        }),
+      );
     });
   });
 
