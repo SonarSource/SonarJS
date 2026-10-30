@@ -238,6 +238,13 @@ describe('files', () => {
       expect(dirnamePath(path)).toEqual('C:/Users/foo');
     });
 
+    test('preserves drive and UNC roots when finding parent directories on any host', () => {
+      for (const root of ['C:/', 'd:/', '//server/share/']) {
+        expect(dirnamePath(`${root}project` as NormalizedAbsolutePath)).toBe(root);
+        expect(dirnamePath(root as NormalizedAbsolutePath)).toBe(root);
+      }
+    });
+
     test('should preserve branded type', () => {
       const path = '/foo/bar/baz.ts' as NormalizedAbsolutePath;
       const result: NormalizedAbsolutePath = dirnamePath(path);

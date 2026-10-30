@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { FileSystemMap } from './filesystem.js';
 import {
   type NormalizedAbsolutePath,
   normalizeToAbsolutePath,
@@ -57,7 +58,7 @@ export async function sanitizeInputFiles(
 ): Promise<SanitizedInputFiles> {
   const { baseDir } = configuration;
   const files = createAnalyzableFiles();
-  const pathMap = new Map<string, string>();
+  const pathMap = new FileSystemMap<string, string>();
 
   if (!inputFiles) {
     return {

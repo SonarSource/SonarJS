@@ -41,6 +41,7 @@ import {
 import { ProgramSelectionArchive } from '../../analysis/src/program-selection/archive.js';
 import { filesWithoutRecordedProgramOutcome } from '../../analysis/src/analyzeWithProgram.js';
 import { getJsTsConfigFields } from '../../analysis/src/common/configuration.js';
+import { isFileSystemCaseSensitive } from '../../analysis/src/common/filesystem.js';
 import { sourceFileStore } from '../../analysis/src/file-stores/index.js';
 import {
   normalizeToAbsolutePath,
@@ -69,6 +70,7 @@ function normalizeCacheMode(mode: number | null | undefined): CacheMode {
 function beginFilesystemCacheAnalysis(
   request: AnalyzeProjectProtoRequest,
   mode: CacheMode | undefined,
+  replayRoot?: string,
 ): FsCacheSession | undefined {
   const cache = request.filesystemCache;
   if (cache == null) {
@@ -97,6 +99,7 @@ function beginFilesystemCacheAnalysis(
   return installation.beginAnalysis({
     archivePath: cache.archivePath,
     mode,
+    caseSensitivePaths: isFileSystemCaseSensitive(),
     // Rules are unpacked into this temporary directory. Their files must use the native
     // filesystem; project files outside it remain subject to archive recording/replay.
     restrictNativeReads: mode === 'replay',
@@ -110,7 +113,7 @@ function beginFilesystemCacheAnalysis(
         ? [normalizeToAbsolutePath(request.rulesWorkdir, normalizeToAbsolutePath(baseDir))]
         : []),
     ],
-    rootDir: baseDir,
+    rootDir: replayRoot ?? baseDir,
   });
 }
 
@@ -180,11 +183,17 @@ function beginAnalysisSessions(
         sessions.paths.restoreSourceOnlyRequest();
         return;
       }
+      sessions.filesystemCacheSession = beginFilesystemCacheAnalysis(
+        request,
+        cacheMode,
+        recordedBaseDir,
+      );
       sessions.paths.useRecordedBaseDir(recordedBaseDir, file =>
         programSelection.canonicalRequestedFile(file),
       );
+    } else {
+      sessions.filesystemCacheSession = beginFilesystemCacheAnalysis(request, cacheMode);
     }
-    sessions.filesystemCacheSession = beginFilesystemCacheAnalysis(request, cacheMode);
   } catch (error) {
     if (cacheMode === 'replay' && !(error instanceof InvalidAnalyzeProjectRequestError)) {
       throw new InvalidAnalyzeProjectRequestError('Invalid restored JavaScript context', {

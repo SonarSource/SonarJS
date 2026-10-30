@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import path from 'node:path';
+import { canonicalFileName } from '../../../analysis/src/jsts/rules/helpers/filesystem.js';
 import { isWindowsProjectPath, type NormalizedAbsolutePath } from './files.js';
 export { isWindowsProjectPath };
 
@@ -47,10 +48,15 @@ export function relativeProjectPath(value: string, root: string): string | undef
   ) {
     return undefined;
   }
-  const relative = paths.relative(root, paths.resolve(root, value)).replaceAll('\\', '/');
-  return relative === '..' || relative.startsWith('../') || paths.isAbsolute(relative)
-    ? undefined
-    : relative;
+  const absolute = paths.resolve(root, value).replaceAll('\\', '/');
+  const normalizedRoot = paths.resolve(root).replaceAll('\\', '/');
+  const name = canonicalFileName(absolute);
+  const directory = canonicalFileName(normalizedRoot);
+  if (name === directory) {
+    return '';
+  }
+  const prefix = directory.endsWith('/') ? directory : `${directory}/`;
+  return name.startsWith(prefix) ? absolute.slice(prefix.length) : undefined;
 }
 
 /** Same-platform replay keeps CI's namespace; foreign namespaces use the physical request root. */

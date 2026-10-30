@@ -24,7 +24,9 @@ if (!archivePath || !rootDir || !target) {
 
 process.argv = [process.argv[0], target, ...targetArguments];
 const passthroughDirs = JSON.parse(process.env.SONARJS_FS_CACHE_TEST_PASSTHROUGH_DIRS || '[]');
-const session = installFsCache().beginAnalysis({ archivePath, passthroughDirs, rootDir });
+const installation = installFsCache();
+const { isFileSystemCaseSensitive } = await import('../../../../../lib/analysis/src/common/filesystem.js');
+const session = installation.beginAnalysis({ archivePath, passthroughDirs, rootDir, caseSensitivePaths: isFileSystemCaseSensitive() });
 try {
   await import(pathToFileURL(target).href);
 } finally {

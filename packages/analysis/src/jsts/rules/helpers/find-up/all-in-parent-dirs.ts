@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { FileSystemMap, pathsEqual, isFileSystemCaseSensitive } from '../filesystem.js';
 import type { Filesystem } from './find-minimatch.js';
 import { MinimatchCache } from './find-minimatch.js';
 import {
@@ -29,9 +30,9 @@ import { Minimatch } from 'minimatch';
 
 export const patternInParentsCache = new ComputedCache(
   (pattern: string, filesystem: Filesystem = fs) => {
-    const matcher = new Minimatch(pattern);
-    const readDir = MinimatchCache.get(matcher, filesystem);
     return new ComputedCache((topDir: NormalizedAbsolutePath) => {
+      const matcher = new Minimatch(pattern, { nocase: !isFileSystemCaseSensitive() });
+      const readDir = MinimatchCache.get(matcher, filesystem);
       const newCache = new ComputedCache<NormalizedAbsolutePath, File[], null>(
         (from: NormalizedAbsolutePath): File[] => {
           if (from === '.') {
@@ -40,7 +41,7 @@ export const patternInParentsCache = new ComputedCache(
           }
           assertNestedPath(from, topDir);
 
-          if (!isRoot(from) && from !== topDir) {
+          if (!isRoot(from) && !pathsEqual(from, topDir)) {
             const parent = dirnamePath(from);
 
             return [...readDir.get(from), ...newCache.get(parent)];
@@ -48,8 +49,9 @@ export const patternInParentsCache = new ComputedCache(
 
           return [...readDir.get(from)];
         },
+        new FileSystemMap(),
       );
       return newCache;
-    });
+    }, new FileSystemMap());
   },
 );

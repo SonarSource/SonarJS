@@ -16,6 +16,10 @@
  */
 import { describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { installFsCache } from '../../../shared/src/fs-cache/hook.js';
 import {
   filterPathAndGetFileType,
   getFileTypeForRules,
@@ -236,6 +240,46 @@ describe('filter path', () => {
 
     const newConfig = createConfiguration({ baseDir: '/project', exclusions: ['**/other'] });
     expect(filterPathAndGetFileType(filePath, getFilterPathParams(newConfig))).toBe('MAIN');
+  });
+
+  it('stops ancestor exclusions at the analysis root using filesystem case semantics', () => {
+    const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'exclusion-root-case-'));
+    const root = normalizeToAbsolutePath(temporary);
+    const analysisRoot = normalizeToAbsolutePath('project/blocked', root);
+    const config = createConfiguration({
+      baseDir: analysisRoot,
+      exclusions: ['file:**/blocked'],
+    });
+    // Reuse the same patterns across modes to exercise cache invalidation as well.
+    const params = getFilterPathParams(config);
+    try {
+      for (const caseSensitivePaths of [true, false, true]) {
+        const session = installFsCache().beginAnalysis({
+          archivePath: path.join(temporary, 'fs.pb.gz'),
+          rootDir: root,
+          mode: 'record',
+          caseSensitivePaths,
+        });
+        try {
+          expect(
+            filterPathAndGetFileType(
+              normalizeToAbsolutePath('PROJECT/blocked/nested/main.ts', root),
+              params,
+            ),
+          ).toBe(caseSensitivePaths ? undefined : 'MAIN');
+          expect(
+            filterPathAndGetFileType(
+              normalizeToAbsolutePath('nested/main.ts', analysisRoot),
+              params,
+            ),
+          ).toBe('MAIN');
+        } finally {
+          session.end();
+        }
+      }
+    } finally {
+      fs.rmSync(temporary, { recursive: true, force: true });
+    }
   });
 
   describe('test-file rule heuristic fallback (no sonar.tests configured)', () => {

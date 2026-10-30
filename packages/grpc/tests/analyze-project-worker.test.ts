@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
+import { isFileSystemCaseSensitive } from '../../analysis/src/common/filesystem.js';
 import { EventEmitter } from 'node:events';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -367,6 +368,7 @@ describe('analyze-project worker', () => {
         },
       });
       const archive = new FsCacheArchive({
+        caseSensitivePaths: isFileSystemCaseSensitive(),
         rootDir: root,
         archivePath: path.join(workdir, 'filesystem.pb.gz'),
       });

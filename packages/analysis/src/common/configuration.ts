@@ -16,6 +16,8 @@
  */
 import { extname } from 'node:path/posix';
 import { Minimatch } from 'minimatch';
+import { isFileSystemCaseSensitive } from './filesystem.js';
+import { escapeGlobPath, parsePathPattern } from './path-pattern.js';
 import {
   type NormalizedAbsolutePath,
   isAbsolutePath,
@@ -121,9 +123,6 @@ export type ConfigurationInput = {
   skipNodeModuleLookupOutsideBaseDir?: boolean;
   ecmaScriptVersion?: string;
 };
-
-// Patterns enforced to be ignored no matter what the user configures on sonar.properties
-const IGNORED_PATTERNS = ['.scannerwork'];
 
 const DEFAULT_JS_EXTENSIONS = [...JAVASCRIPT_CODE_FILE_EXTENSIONS, '.vue'];
 const DEFAULT_TS_EXTENSIONS = TYPESCRIPT_CODE_FILE_EXTENSIONS.slice();
@@ -301,10 +300,7 @@ export function createConfigurationFromInput(input: ConfigurationInput): Configu
     yamlSuffixes: input.yamlSuffixes ?? DEFAULT_YAML_EXTENSIONS,
     cssAdditionalSuffixes: input.cssAdditionalSuffixes ?? DEFAULT_CSS_ADDITIONAL_EXTENSIONS,
     tsConfigPaths: sanitizePaths(input.tsConfigPaths, baseDir),
-    jsTsExclusions: normalizeGlobs(
-      (input.jsTsExclusions ?? DEFAULT_EXCLUSIONS).concat(IGNORED_PATTERNS),
-      baseDir,
-    ),
+    jsTsExclusions: normalizeGlobs(input.jsTsExclusions ?? DEFAULT_EXCLUSIONS, baseDir),
     sources: sanitizePaths(input.sources, baseDir),
     inclusions: normalizeGlobs(input.inclusions, baseDir),
     exclusions: normalizeGlobs(input.exclusions, baseDir),
@@ -434,7 +430,7 @@ export function getFilterPathParams(configuration: Configuration): FilterPathPar
 }
 
 function serializeMinimatchPatterns(patterns: Minimatch[]) {
-  return patterns.map(({ pattern }) => pattern);
+  return patterns.map(({ pattern, options }) => [pattern, options.nocase]);
 }
 
 /**
@@ -443,6 +439,7 @@ function serializeMinimatchPatterns(patterns: Minimatch[]) {
  */
 export function getProjectFileDiscoveryConfigKey(configuration: Configuration) {
   return JSON.stringify({
+    caseSensitivePaths: isFileSystemCaseSensitive(),
     jsTsExclusions: serializeMinimatchPatterns(configuration.jsTsExclusions),
   });
 }
@@ -456,6 +453,7 @@ export function getAnalyzableFilesConfigKey(configuration: Configuration) {
   const filterPathParams = getFilterPathParams(configuration);
 
   return JSON.stringify({
+    caseSensitivePaths: isFileSystemCaseSensitive(),
     jsSuffixes: shouldIgnoreParams.jsSuffixes,
     tsSuffixes: shouldIgnoreParams.tsSuffixes,
     cssSuffixes: shouldIgnoreParams.cssSuffixes,
@@ -587,14 +585,15 @@ export function isAnalyzableFile(
 
 function normalizeGlobs(globs: unknown, baseDir: NormalizedAbsolutePath) {
   return (isStringArray(globs) ? globs : []).map(pattern => {
-    const trimmed = pattern.trim();
-    // Scanner PathPattern uses "file:" (case-insensitive) to match the absolute path.
-    // Its pattern may itself start with a wildcard, so do not resolve it against baseDir.
-    const normalized = /^file:/i.test(trimmed)
-      ? normalizePath(trimmed.slice('file:'.length))
-      : normalizeToAbsolutePath(trimmed, baseDir);
-    return new Minimatch(normalized, {
-      nocase: true,
+    const { prefix, value, isDirectory } = parsePathPattern(pattern.trim());
+    // Scanner `file:` patterns may start with a wildcard and must not resolve against baseDir.
+    const normalized =
+      prefix && !isDirectory ? normalizePath(value) : normalizeToAbsolutePath(value, baseDir);
+    const glob = isDirectory ? `${escapeGlobPath(normalized)}{,/**}` : normalized;
+    // Brace expansion runs before character-class parsing in minimatch. Translate
+    // bracket-escaped literal braces after path normalization to preserve them.
+    return new Minimatch(glob.replaceAll('[{]', String.raw`\{`).replaceAll('[}]', String.raw`\}`), {
+      nocase: !isDirectory || !isFileSystemCaseSensitive(),
       matchBase: true,
       dot: true,
     });

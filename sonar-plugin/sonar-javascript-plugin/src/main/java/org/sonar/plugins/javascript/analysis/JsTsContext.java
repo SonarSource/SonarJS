@@ -30,6 +30,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarProduct;
@@ -292,7 +293,19 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
 
   @Override
   public List<String> getJsTsExcludedPaths() {
-    return Arrays.asList(getJsTsExcludedPaths(context.config()));
+    // SonarLint has no scanner work directory: its workDir() returns the project baseDir.
+    if (isSonarLint()) {
+      return Arrays.asList(getJsTsExcludedPaths(context.config()));
+    }
+    var workDir = context
+      .fileSystem()
+      .workDir()
+      .getAbsolutePath()
+      .replace('\\', '/');
+    return concat(
+      stream(getJsTsExcludedPaths(context.config())),
+      Stream.of("directory:" + workDir)
+    ).toList();
   }
 
   public static String[] getJsTsExcludedPaths(Configuration configuration) {

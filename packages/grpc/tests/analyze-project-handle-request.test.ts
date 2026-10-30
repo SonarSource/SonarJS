@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
+import { isFileSystemCaseSensitive } from '../../analysis/src/common/filesystem.js';
 import { afterEach, describe, it, mock } from 'node:test';
 import { expect } from 'expect';
 import {
@@ -37,7 +38,7 @@ import {
   deserializeProtobufDocument,
   serializeProtobufDocument,
 } from '../../shared/src/fs-cache/archive-serialization.js';
-import { isWindowsProjectPath, replayProjectRoot } from '../../shared/src/helpers/project-paths.js';
+import { replayProjectRoot } from '../../shared/src/helpers/project-paths.js';
 
 const workerData: WorkerData = { debugMemory: false };
 // Simulate Java recording its raw request configuration, then the collector/hub handoff.
@@ -77,13 +78,24 @@ function createAnalyzeProjectRequest(): AnalyzeProjectRequest {
 }
 
 describe('analyze-project request handler', () => {
-  for (const origin of ['C:/CI/Project', '//server/share/project', '/home/ci/project']) {
-    for (const kind of ['configured', 'orphan', 'no-program']) {
-      it(`replays ${kind} from ${origin} with native contents absent and submitted edits authoritative`, async () => {
+  for (const [origin, caseSensitivePaths] of [
+    ['C:/CI/Project', false],
+    ['//server/share/project', false],
+    ['/home/ci/project', true],
+    ['/home/ci/project', false],
+  ] as const) {
+    for (const kind of ['configured', 'orphan', 'no-program'] as const) {
+      it(`replays ${kind} from ${origin} (case sensitive: ${caseSensitivePaths}) with native contents absent and submitted edits authoritative`, async () => {
         const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'cross-platform-replay-'));
         const ci = path.join(temporary, 'ci');
         const physical = path.join(temporary, 'sqaa');
         const work = path.join(temporary, 'runtime');
+        const relativeWorkDir = {
+          configured: '.sonarqube/out/.sonar',
+          orphan: '.build/[scanner]',
+          'no-program': '.scannerwork',
+        }[kind];
+        const scannerWorkDir = path.join(ci, relativeWorkDir);
         const relative = 'src/Main.test.ts';
         const typeAware = kind !== 'no-program';
         const original = typeAware
@@ -96,6 +108,7 @@ describe('analyze-project request handler', () => {
         fs.mkdirSync(path.join(ci, 'shared'));
         fs.mkdirSync(physical);
         fs.mkdirSync(work);
+        fs.mkdirSync(scannerWorkDir, { recursive: true });
         fs.writeFileSync(path.join(ci, relative), original);
         fs.writeFileSync(
           path.join(ci, 'shared/Values.ts'),
@@ -132,32 +145,45 @@ describe('analyze-project request handler', () => {
         });
         const archivePath = path.join(work, 'fs.pb.gz');
         const analysisMetadataPath = path.join(work, 'metadata.pb.gz');
+        const recordedArchivePath = path.join(scannerWorkDir, 'fs.pb.gz');
+        const recordedMetadataPath = path.join(scannerWorkDir, 'metadata.pb.gz');
         const makeRequest = (
           baseDir: string,
           mode: number,
           fileContent: string,
           file = path.join(baseDir, relative),
-        ): AnalyzeProjectRequest => ({
-          configuration: {
-            baseDir,
-            canAccessFileSystem: true,
-            sources: [path.join(ci, 'src')],
-            inclusions: [`file:${normalizeToAbsolutePath(ci)}/src/**/*.ts`],
-            createTsProgramForOrphanFiles: kind !== 'no-program',
-          },
-          files: { [file]: { fileType: FileType.FILE_TYPE_MAIN, fileContent } },
-          rules: [
-            {
-              key: typeAware ? 'S2871' : 'S1116',
-              configurations: [],
-              fileTypeTargets: [FileType.FILE_TYPE_MAIN],
-              language: JsTsLanguage.JS_TS_LANGUAGE_TS,
-              analysisModes: [AnalysisMode.ANALYSIS_MODE_DEFAULT],
+        ): AnalyzeProjectRequest => {
+          const rulesWorkdir =
+            mode === FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD ? scannerWorkDir : work;
+          return {
+            configuration: {
+              baseDir,
+              jsTsExclusions: {
+                values: [`directory:${normalizeToAbsolutePath(rulesWorkdir)}`],
+              },
+              canAccessFileSystem: true,
+              sources: [path.join(ci, 'src')],
+              inclusions: [`file:${normalizeToAbsolutePath(ci)}/src/**/*.ts`],
+              createTsProgramForOrphanFiles: kind !== 'no-program',
             },
-          ],
-          rulesWorkdir: work,
-          filesystemCache: { archivePath, analysisMetadataPath, mode },
-        });
+            files: { [file]: { fileType: FileType.FILE_TYPE_MAIN, fileContent } },
+            rules: [
+              {
+                key: typeAware ? 'S2871' : 'S1116',
+                configurations: [],
+                fileTypeTargets: [FileType.FILE_TYPE_MAIN],
+                language: JsTsLanguage.JS_TS_LANGUAGE_TS,
+                analysisModes: [AnalysisMode.ANALYSIS_MODE_DEFAULT],
+              },
+            ],
+            rulesWorkdir,
+            filesystemCache: {
+              archivePath: path.join(rulesWorkdir, 'fs.pb.gz'),
+              analysisMetadataPath: path.join(rulesWorkdir, 'metadata.pb.gz'),
+              mode,
+            },
+          };
+        };
         const analyze = async (input: AnalyzeProjectRequest, count: number) => {
           const responseKey = Object.keys(input.files!)[0];
           const result = await handleAnalyzeProjectRequest(
@@ -177,7 +203,9 @@ describe('analyze-project request handler', () => {
             makeRequest(ci, FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD, source),
             1,
           );
-          const metadata = JSON.parse(collectedMetadata.get(analysisMetadataPath)!);
+          fs.copyFileSync(recordedArchivePath, archivePath);
+          fs.copyFileSync(recordedMetadataPath, analysisMetadataPath);
+          const metadata = JSON.parse(collectedMetadata.get(recordedMetadataPath)!);
           metadata.configuration.baseDir = origin;
           // Convert native absolute scope values to the producer namespace. Archive keys and
           // program descriptors already use portable project-relative paths.
@@ -195,8 +223,8 @@ describe('analyze-project request handler', () => {
             }
           };
           rewrite(metadata.configuration);
-          if (isWindowsProjectPath(origin)) {
-            // Windows source roots may use a different spelling from the stored file names.
+          if (!caseSensitivePaths) {
+            // Case-insensitive source roots may use a different spelling from the stored file names.
             const uppercaseScope = (value: unknown): void => {
               if (value && typeof value === 'object') {
                 for (const [key, item] of Object.entries(value)) {
@@ -212,7 +240,7 @@ describe('analyze-project request handler', () => {
           }
           collectedMetadata.set(analysisMetadataPath, JSON.stringify(metadata));
           const document = deserializeProtobufDocument(gunzipSync(fs.readFileSync(archivePath)));
-          document.caseSensitivePaths = !isWindowsProjectPath(origin);
+          document.caseSensitivePaths = caseSensitivePaths;
           fs.writeFileSync(archivePath, gzipSync(serializeProtobufDocument(document)));
           fs.rmSync(ci, { recursive: true });
           const metadataBefore = fs.readFileSync(analysisMetadataPath);
@@ -241,7 +269,7 @@ describe('analyze-project request handler', () => {
           );
           logical.filesystemCache!.fallbackBaseDir = physical;
           await analyze(logical, 1);
-          if (isWindowsProjectPath(origin)) {
+          if (!caseSensitivePaths) {
             const caseAlias = `${origin}/SRC/main.TEST.ts`;
             const caseContents =
               kind === 'configured' ? original.replace('@shared/Values', '@shared/VALUES') : source;
@@ -808,7 +836,11 @@ describe('analyze-project request handler', () => {
       );
       expect(recorded.type).toBe('success');
       expect(fs.statSync(analysisMetadataPath).size).toBeGreaterThan(0);
-      const archive = new FsCacheArchive({ archivePath, rootDir: recordRoot });
+      const archive = new FsCacheArchive({
+        caseSensitivePaths: isFileSystemCaseSensitive(),
+        archivePath,
+        rootDir: recordRoot,
+      });
       archive.load();
       const intermediate = archive.keyFor(path.join(recordRoot, 'src/entry.ts'))!;
       expect(archive.get(intermediate, 'readFile')?.ok).toBe(true);
@@ -965,6 +997,7 @@ describe('analyze-project request handler', () => {
         archivePath: '/cache/first.fscache',
         event: 'begin',
         mode: 'record',
+        caseSensitivePaths: ts.sys.useCaseSensitiveFileNames,
         restrictNativeReads: false,
         passthroughDirs: [
           path.dirname(ts.getDefaultLibFilePath({})),

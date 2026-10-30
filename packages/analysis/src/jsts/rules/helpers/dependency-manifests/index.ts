@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { FileSystemMap } from '../filesystem.js';
 import type { File, NormalizedAbsolutePath } from '../files.js';
 import { MinimatchCache } from '../find-up/find-minimatch.js';
 import { dependenciesCache, moduleTypeCache } from './dependencies.js';
@@ -62,7 +63,7 @@ export function fillManifestCaches(
 ): void {
   let accessByTopDir = manifestCacheFileSystemAccess.get(manifestName);
   if (!accessByTopDir) {
-    accessByTopDir = new Map();
+    accessByTopDir = new FileSystemMap();
     manifestCacheFileSystemAccess.set(manifestName, accessByTopDir);
   }
   accessByTopDir.set(topDir, canAccessFileSystem);

@@ -18,6 +18,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { gzipSync, gunzipSync } from 'node:zlib';
 import type ts from 'typescript';
+import { escapeGlobPath, parsePathPattern } from '../common/path-pattern.js';
 import {
   isAbsolutePath,
   normalizeToAbsolutePath,
@@ -28,8 +29,13 @@ import {
   normalizeProjectRoot,
   relativeProjectPath,
   replayProjectRoot,
-  isWindowsProjectPath,
 } from '../../../shared/src/helpers/project-paths.js';
+
+import {
+  canonicalFileName,
+  isFileSystemCaseSensitive,
+  FileSystemMap,
+} from '../common/filesystem.js';
 
 const MAGIC = 'sonarjs-analysis-metadata';
 const PROJECT_CONFIGURATION_PATHS = [
@@ -123,9 +129,10 @@ export class ProgramSelectionArchive {
   private readonly selections = new Map<NormalizedAbsolutePath, number>();
   private readonly noProgramFiles = new Set<NormalizedAbsolutePath>();
   private readonly filesByProgram = new Map<number, NormalizedAbsolutePath[]>();
-  private readonly configuredProgramIds = new Map<NormalizedAbsolutePath, number>();
+  private readonly configuredProgramIds = new FileSystemMap<NormalizedAbsolutePath, number>();
   private configuration: ReplayableConfiguration = {};
   private readonly pathsByCanonicalName = new Map<string, NormalizedAbsolutePath>();
+  private canonicalPathsCaseSensitive?: boolean;
   private nextProgramId = 1;
 
   constructor(
@@ -152,7 +159,21 @@ export class ProgramSelectionArchive {
   }
 
   restoredConfiguration(): ReplayableConfiguration | undefined {
-    return this.isReplay() ? this.configuration : undefined;
+    if (!this.isReplay()) {
+      return undefined;
+    }
+    const configuration = { ...this.configuration };
+    const recordedBaseDir = this.recordedBaseDir;
+    if (recordedBaseDir && recordedBaseDir !== this.baseDir) {
+      for (const field of PROJECT_CONFIGURATION_PATHS) {
+        configuration[field] = this.relocateConfigurationValue(
+          configuration[field],
+          recordedBaseDir,
+          field !== 'sources' && field !== 'tests',
+        );
+      }
+    }
+    return configuration;
   }
 
   restoredBaseDir(): NormalizedAbsolutePath | undefined {
@@ -164,11 +185,21 @@ export class ProgramSelectionArchive {
   }
 
   canonicalRequestedFile(file: NormalizedAbsolutePath): NormalizedAbsolutePath {
-    return this.pathsByCanonicalName.get(this.canonicalName(file)) ?? file;
-  }
-
-  private canonicalName(file: string): string {
-    return isWindowsProjectPath(this.recordedBaseDir ?? this.baseDir) ? file.toLowerCase() : file;
+    const caseSensitive = isFileSystemCaseSensitive();
+    if (this.canonicalPathsCaseSensitive !== caseSensitive) {
+      // Metadata is read before replay starts. Build its lookup only once the filesystem's
+      // capability is available, retaining all original spellings while loading.
+      this.pathsByCanonicalName.clear();
+      for (const stored of [...this.selections.keys(), ...this.noProgramFiles]) {
+        const key = canonicalFileName(stored);
+        if (this.pathsByCanonicalName.has(key)) {
+          throw new Error(`Duplicate program outcome for ${stored}`);
+        }
+        this.pathsByCanonicalName.set(key, stored);
+      }
+      this.canonicalPathsCaseSensitive = caseSensitive;
+    }
+    return this.pathsByCanonicalName.get(canonicalFileName(file)) ?? file;
   }
 
   recordConfigured(
@@ -243,11 +274,12 @@ export class ProgramSelectionArchive {
     if (!this.isRecord() || !this.isProjectRelative(file)) {
       return;
     }
-    if (this.selections.has(file)) {
+    if (this.hasSelection(file)) {
       throw new Error(`File has both a program and no-program outcome: ${file}`);
     }
-    this.noProgramFiles.add(file);
-    this.pathsByCanonicalName.set(this.canonicalName(file), file);
+    const original = this.canonicalRequestedFile(file);
+    this.noProgramFiles.add(original);
+    this.pathsByCanonicalName.set(canonicalFileName(original), original);
   }
 
   end(): void {
@@ -307,8 +339,14 @@ export class ProgramSelectionArchive {
       }
       throw new Error(`Multiple program selections recorded for ${file}`);
     }
+    this.storeSelection(file, programId);
+  }
+
+  private storeSelection(file: NormalizedAbsolutePath, programId: number): void {
     this.selections.set(file, programId);
-    this.pathsByCanonicalName.set(this.canonicalName(file), file);
+    if (this.canonicalPathsCaseSensitive !== undefined) {
+      this.pathsByCanonicalName.set(canonicalFileName(file), file);
+    }
     const files = this.filesByProgram.get(programId) ?? [];
     files.push(file);
     this.filesByProgram.set(programId, files);
@@ -336,18 +374,18 @@ export class ProgramSelectionArchive {
         throw new Error(`Invalid selection for ${selection.filePath || '<empty path>'}`);
       }
       const file = this.fromRelative(selection.filePath);
-      if (this.hasSelection(file)) {
+      if (this.selections.has(file)) {
         throw new Error(`Duplicate program selection for ${selection.filePath}`);
       }
-      this.addSelection(file, programId);
+      this.storeSelection(file, programId);
     }
     for (const relativePath of metadata.programSelection.noProgramFiles ?? []) {
       const file = this.fromRelative(relativePath);
-      if (this.hasSelection(file) || this.hasNoProgram(file)) {
+      if (this.selections.has(file) || this.noProgramFiles.has(file)) {
         throw new Error(`Duplicate or conflicting no-program outcome for ${relativePath}`);
       }
       this.noProgramFiles.add(file);
-      this.pathsByCanonicalName.set(this.canonicalName(file), file);
+      this.canonicalPathsCaseSensitive = undefined;
     }
   }
 
@@ -365,22 +403,15 @@ export class ProgramSelectionArchive {
     this.configuration = Object.fromEntries(
       REPLAYABLE_CONFIGURATION_FIELDS.map(field => [field, configuration?.[field] ?? null]),
     );
-    const recordedBaseDir = this.recordedBaseDir;
-    if (recordedBaseDir && recordedBaseDir !== this.baseDir) {
-      for (const field of PROJECT_CONFIGURATION_PATHS) {
-        this.configuration[field] = this.relocateConfigurationValue(
-          this.configuration[field],
-          recordedBaseDir,
-        );
-      }
-    }
   }
 
   private relocateConfigurationValue(
     value: unknown,
     recordedBaseDir: NormalizedAbsolutePath,
+    isGlob: boolean,
   ): unknown {
-    const relocate = (item: unknown) => this.relocateConfigurationPath(item, recordedBaseDir);
+    const relocate = (item: unknown) =>
+      this.relocateConfigurationPath(item, recordedBaseDir, isGlob);
     if (Array.isArray(value)) {
       return value.map(relocate);
     }
@@ -393,19 +424,25 @@ export class ProgramSelectionArchive {
   private relocateConfigurationPath(
     item: unknown,
     recordedBaseDir: NormalizedAbsolutePath,
+    isGlobSetting: boolean,
   ): unknown {
     if (typeof item !== 'string') {
       return item;
     }
-    const prefix = /^file:/i.exec(item)?.[0] ?? '';
-    const original = item.slice(prefix.length);
+    const { prefix, value: original, isDirectory } = parsePathPattern(item);
+    const isGlob = isGlobSetting && !isDirectory;
     if (!isAbsolutePath(original)) {
       return item;
     }
-    const relative = relativeProjectPath(original, recordedBaseDir);
+    // Literal absolute globs can contain a bracket-escaped project root. Relocate only
+    // that root, preserving the pattern suffix and escaping the new root as well.
+    const relative =
+      relativeProjectPath(original, isGlob ? escapeGlobPath(recordedBaseDir) : recordedBaseDir) ??
+      relativeProjectPath(original, recordedBaseDir);
+    const replayRoot = isGlob ? escapeGlobPath(this.baseDir) : this.baseDir;
     return relative === undefined
       ? item
-      : `${prefix}${normalizeToAbsolutePath(relative, this.baseDir)}`;
+      : `${prefix}${normalizeToAbsolutePath(relative, replayRoot)}`;
   }
 
   private restoreProgram(entry: sonarjs.programselection.IProgram): RecordedProgram {
