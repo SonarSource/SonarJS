@@ -87,15 +87,17 @@ export function isDirectoryExcluded(
   dir: NormalizedAbsolutePath,
   params: FilterPathParams,
 ): boolean {
-  const canContainFiles = (roots: NormalizedAbsolutePath[]) =>
-    fileIsUnder(dir, roots) || roots.some(root => fileIsUnder(root, [dir]));
   return !filterPathAndGetFileType(dir, {
     ...params,
-    sourcesPaths: canContainFiles(params.sourcesPaths) ? [dir] : [],
-    testPaths: canContainFiles(params.testPaths) ? [dir] : [],
+    sourcesPaths: canContainFiles(dir, params.sourcesPaths) ? [dir] : [],
+    testPaths: canContainFiles(dir, params.testPaths) ? [dir] : [],
     inclusions: [],
     testInclusions: [],
   });
+}
+
+function canContainFiles(dir: NormalizedAbsolutePath, roots: NormalizedAbsolutePath[]): boolean {
+  return fileIsUnder(dir, roots) || roots.some(root => fileIsUnder(root, [dir]));
 }
 
 /**
