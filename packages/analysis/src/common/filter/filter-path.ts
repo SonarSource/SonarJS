@@ -54,6 +54,20 @@ export function matchesJsTsExclusion(
   return jsTsExclusions?.some(exclusion => exclusion.match(filePath)) ?? false;
 }
 
+export type ExcludedFileTypes = Readonly<Record<FileType, boolean>>;
+
+/** Only explicit exclusions propagate to descendants; source roots and inclusions do not. */
+export function getExcludedFileTypes(
+  filePath: NormalizedAbsolutePath,
+  params: FilterPathParams,
+  parentExclusions?: ExcludedFileTypes,
+): ExcludedFileTypes {
+  return {
+    MAIN: parentExclusions?.MAIN || params.exclusions.some(pattern => pattern.match(filePath)),
+    TEST: parentExclusions?.TEST || params.testExclusions.some(pattern => pattern.match(filePath)),
+  };
+}
+
 /**
  * Filters a given file path based on inclusion and exclusion rules and determines its type.
  * This mimics the scanner engine implementation of "sources", "tests" and its inclusion/exclusion
@@ -71,12 +85,14 @@ export function matchesJsTsExclusion(
 export function filterPathAndGetFileType(
   filePath: NormalizedAbsolutePath,
   params: FilterPathParams,
+  parentExclusions?: ExcludedFileTypes,
 ): FileType | undefined {
-  if (matchesTestPath(filePath, params)) {
+  const excludedTypes = getExcludedFileTypes(filePath, params, parentExclusions);
+  if (!excludedTypes.TEST && matchesTestPath(filePath, params)) {
     return 'TEST';
   }
 
-  if (matchesMainPath(filePath, params)) {
+  if (!excludedTypes.MAIN && matchesMainPath(filePath, params)) {
     return 'MAIN';
   }
 
@@ -113,12 +129,9 @@ function fileIsUnder(filePath: NormalizedAbsolutePath, paths: NormalizedAbsolute
 }
 
 function matchesTestPath(filePath: NormalizedAbsolutePath, params: FilterPathParams): boolean {
-  const { testPaths, testExclusions, testInclusions } = params;
+  const { testPaths, testInclusions } = params;
 
   if (!fileIsUnder(filePath, testPaths)) {
-    return false;
-  }
-  if (testExclusions?.some(exclusion => exclusion.match(filePath))) {
     return false;
   }
   if (testInclusions?.length) {
@@ -167,12 +180,8 @@ function matchesTestFileHeuristic(
 }
 
 function matchesMainPath(filePath: NormalizedAbsolutePath, params: FilterPathParams): boolean {
-  const { sourcesPaths, exclusions, inclusions } = params;
+  const { sourcesPaths, inclusions } = params;
   if (!fileIsUnder(filePath, sourcesPaths)) {
-    return false;
-  }
-
-  if (exclusions?.some(exclusion => exclusion.match(filePath))) {
     return false;
   }
 

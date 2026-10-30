@@ -196,6 +196,7 @@ describe('filesystem source selection', () => {
     name: string;
     configuration: Omit<ConfigurationInput, 'baseDir'>;
     expected: Record<string, FileType>;
+    additionalFiles?: string[];
   }[] = [
     {
       name: 'discovers files under a nested source root',
@@ -236,10 +237,54 @@ describe('filesystem source selection', () => {
       },
       expected: { [mainFile]: 'MAIN', [jsFile]: 'MAIN', [testFile]: 'TEST' },
     },
+    {
+      name: 'inherits source exclusions from hidden parent directories',
+      configuration: { sources: [sourceRoot], exclusions: ['**/.*'] },
+      additionalFiles: [`${sourceRoot}/.vitepress/nested/hidden.ts`],
+      expected: { [mainFile]: 'MAIN', [nestedFile]: 'MAIN', [jsFile]: 'MAIN' },
+    },
+    {
+      name: 'inherits test exclusions from hidden parent directories',
+      configuration: {
+        sources: ['absent'],
+        tests: [testRoot],
+        testExclusions: ['**/.*'],
+      },
+      additionalFiles: [`${testRoot}/.cache/projects/hidden.spec.ts`],
+      expected: { [testFile]: 'TEST', [fixtureFile]: 'TEST' },
+    },
+    {
+      name: 'keeps an explicitly excluded ancestor of a source root excluded',
+      configuration: { sources: [sourceRoot], exclusions: ['packages'] },
+      expected: {},
+    },
+    {
+      name: 'preserves nested tests beneath a parent excluded from sources',
+      configuration: {
+        sources: [sourceRoot],
+        tests: [testRoot],
+        exclusions: ['packages'],
+      },
+      expected: { [testFile]: 'TEST', [fixtureFile]: 'TEST' },
+    },
+    {
+      name: 'preserves nested sources beneath a parent excluded from tests',
+      configuration: {
+        sources: [sourceRoot],
+        tests: [testRoot],
+        testExclusions: ['packages'],
+      },
+      expected: { [mainFile]: 'MAIN', [nestedFile]: 'MAIN', [jsFile]: 'MAIN' },
+    },
   ];
 
-  for (const { name, configuration, expected } of cases) {
+  for (const { name, configuration, expected, additionalFiles = [] } of cases) {
     it(name, async () => {
+      for (const relativePath of additionalFiles) {
+        const filePath = join(baseDir, relativePath);
+        await mkdir(join(filePath, '..'), { recursive: true });
+        await writeFile(filePath, 'export const hidden = true;');
+      }
       await initFileStoresForAnalysis(createConfiguration({ baseDir, ...configuration }));
 
       const expectedFiles = Object.fromEntries(
@@ -259,7 +304,9 @@ describe('filesystem source selection', () => {
   }
 
   it('discovers tsconfigs and package manifests outside the source scope', async () => {
-    await initFileStoresForAnalysis(createConfiguration({ baseDir, sources: [sourceRoot] }));
+    await initFileStoresForAnalysis(
+      createConfiguration({ baseDir, sources: [sourceRoot], exclusions: ['tools'] }),
+    );
 
     expect([...dependencyManifestStore.getPackageJsons().keys()].sort()).toEqual(
       [baseDir, normalizeToAbsolutePath('tools', baseDir)].sort(),
@@ -268,6 +315,17 @@ describe('filesystem source selection', () => {
       ['tsconfig.json', 'tools/tsconfig.json']
         .map(filePath => normalizeToAbsolutePath(filePath, baseDir))
         .sort(),
+    );
+  });
+
+  it('clears inherited directory exclusions when the configuration changes', async () => {
+    const configuration = { baseDir, sources: [sourceRoot], sonarlint: true };
+    await initFileStores(createConfiguration({ ...configuration, exclusions: ['packages'] }));
+    expect(Object.keys(sourceFileStore.getFiles())).toEqual([]);
+
+    await initFileStores(createConfiguration(configuration));
+    expect(Object.keys(sourceFileStore.getFiles()).sort()).toEqual(
+      [mainFile, nestedFile, jsFile].map(file => normalizeToAbsolutePath(file, baseDir)).sort(),
     );
   });
 
