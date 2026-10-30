@@ -26,6 +26,23 @@ import {
 import { normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
 
 describe('createConfiguration', () => {
+  it('excludes the scanner work directory literally, even when user exclusions are empty', () => {
+    const root = normalizeToAbsolutePath('/ci/project');
+    const configuration = createConfiguration({
+      baseDir: root,
+      scannerWorkDir: `${root}/.build/[scanner]`,
+      jsTsExclusions: [],
+    });
+    const excluded = (relative: string) =>
+      configuration.jsTsExclusions.some(pattern =>
+        pattern.match(normalizeToAbsolutePath(relative, root)),
+      );
+    expect(excluded('.build/[scanner]')).toBe(true);
+    expect(excluded('.build/[scanner]/runtime.js')).toBe(true);
+    expect(excluded('.build/s')).toBe(false);
+    expect(excluded('.build/[scanner]-sources/source.js')).toBe(false);
+  });
+
   for (const prefix of ['file:', 'FILE:']) {
     it(`supports scanner absolute scope patterns with ${prefix}`, () => {
       const root = normalizeToAbsolutePath('/ci/project');

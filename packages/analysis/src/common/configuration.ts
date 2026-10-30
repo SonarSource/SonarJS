@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { extname } from 'node:path/posix';
-import { Minimatch } from 'minimatch';
+import { escape, Minimatch } from 'minimatch';
 import {
   type NormalizedAbsolutePath,
   isAbsolutePath,
@@ -90,6 +90,7 @@ export type Configuration = {
 
 export type ConfigurationInput = {
   baseDir: string;
+  scannerWorkDir?: string;
   canAccessFileSystem?: boolean;
   sonarlint?: boolean;
   fsEvents?: string[];
@@ -235,6 +236,7 @@ export function createConfiguration(raw: unknown): Configuration {
   const baseDir = getRequiredBaseDir(raw);
   return createConfigurationFromInput({
     baseDir,
+    scannerWorkDir: getOptionalValue(raw, 'scannerWorkDir', isString),
     canAccessFileSystem: getOptionalValue(raw, 'canAccessFileSystem', isBoolean),
     sonarlint: getOptionalValue(raw, 'sonarlint', isBoolean),
     fsEvents: sanitizeFsEvents(raw.fsEvents),
@@ -282,6 +284,16 @@ export function createConfigurationFromInput(input: ConfigurationInput): Configu
   }
   // Normalize baseDir first so it can be used by other normalization functions
   const baseDir = normalizeToAbsolutePath(input.baseDir);
+  const jsTsExclusions = normalizeGlobs(
+    (input.jsTsExclusions ?? DEFAULT_EXCLUSIONS).concat(IGNORED_PATTERNS),
+    baseDir,
+  );
+  if (input.scannerWorkDir) {
+    // Keep runtime files out of project discovery on both the producer and replay host.
+    // This is a literal directory, so brackets and other glob characters must be escaped.
+    const scannerWorkDir = escape(normalizeToAbsolutePath(input.scannerWorkDir, baseDir));
+    jsTsExclusions.push(createPathPattern(`${scannerWorkDir}{,/**}`));
+  }
   return {
     baseDir,
     canAccessFileSystem: input.canAccessFileSystem ?? true,
@@ -301,10 +313,7 @@ export function createConfigurationFromInput(input: ConfigurationInput): Configu
     yamlSuffixes: input.yamlSuffixes ?? DEFAULT_YAML_EXTENSIONS,
     cssAdditionalSuffixes: input.cssAdditionalSuffixes ?? DEFAULT_CSS_ADDITIONAL_EXTENSIONS,
     tsConfigPaths: sanitizePaths(input.tsConfigPaths, baseDir),
-    jsTsExclusions: normalizeGlobs(
-      (input.jsTsExclusions ?? DEFAULT_EXCLUSIONS).concat(IGNORED_PATTERNS),
-      baseDir,
-    ),
+    jsTsExclusions,
     sources: sanitizePaths(input.sources, baseDir),
     inclusions: normalizeGlobs(input.inclusions, baseDir),
     exclusions: normalizeGlobs(input.exclusions, baseDir),
@@ -593,12 +602,12 @@ function normalizeGlobs(globs: unknown, baseDir: NormalizedAbsolutePath) {
     const normalized = /^file:/i.test(trimmed)
       ? normalizePath(trimmed.slice('file:'.length))
       : normalizeToAbsolutePath(trimmed, baseDir);
-    return new Minimatch(normalized, {
-      nocase: true,
-      matchBase: true,
-      dot: true,
-    });
+    return createPathPattern(normalized);
   });
+}
+
+function createPathPattern(pattern: string): Minimatch {
+  return new Minimatch(pattern, { nocase: true, matchBase: true, dot: true });
 }
 
 /**

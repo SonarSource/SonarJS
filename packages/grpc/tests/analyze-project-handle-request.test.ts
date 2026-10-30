@@ -78,12 +78,18 @@ function createAnalyzeProjectRequest(): AnalyzeProjectRequest {
 
 describe('analyze-project request handler', () => {
   for (const origin of ['C:/CI/Project', '//server/share/project', '/home/ci/project']) {
-    for (const kind of ['configured', 'orphan', 'no-program']) {
+    for (const kind of ['configured', 'orphan', 'no-program'] as const) {
       it(`replays ${kind} from ${origin} with native contents absent and submitted edits authoritative`, async () => {
         const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'cross-platform-replay-'));
         const ci = path.join(temporary, 'ci');
         const physical = path.join(temporary, 'sqaa');
         const work = path.join(temporary, 'runtime');
+        const relativeWorkDir = {
+          configured: '.sonarqube/out/.sonar',
+          orphan: '.build/[scanner]',
+          'no-program': '.scannerwork',
+        }[kind];
+        const scannerWorkDir = path.join(ci, relativeWorkDir);
         const relative = 'src/Main.test.ts';
         const typeAware = kind !== 'no-program';
         const original = typeAware
@@ -96,6 +102,7 @@ describe('analyze-project request handler', () => {
         fs.mkdirSync(path.join(ci, 'shared'));
         fs.mkdirSync(physical);
         fs.mkdirSync(work);
+        fs.mkdirSync(scannerWorkDir, { recursive: true });
         fs.writeFileSync(path.join(ci, relative), original);
         fs.writeFileSync(
           path.join(ci, 'shared/Values.ts'),
@@ -132,6 +139,8 @@ describe('analyze-project request handler', () => {
         });
         const archivePath = path.join(work, 'fs.pb.gz');
         const analysisMetadataPath = path.join(work, 'metadata.pb.gz');
+        const recordedArchivePath = path.join(scannerWorkDir, 'fs.pb.gz');
+        const recordedMetadataPath = path.join(scannerWorkDir, 'metadata.pb.gz');
         const makeRequest = (
           baseDir: string,
           mode: number,
@@ -140,6 +149,8 @@ describe('analyze-project request handler', () => {
         ): AnalyzeProjectRequest => ({
           configuration: {
             baseDir,
+            scannerWorkDir:
+              mode === FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD ? scannerWorkDir : work,
             canAccessFileSystem: true,
             sources: [path.join(ci, 'src')],
             inclusions: [`file:${normalizeToAbsolutePath(ci)}/src/**/*.ts`],
@@ -155,8 +166,19 @@ describe('analyze-project request handler', () => {
               analysisModes: [AnalysisMode.ANALYSIS_MODE_DEFAULT],
             },
           ],
-          rulesWorkdir: work,
-          filesystemCache: { archivePath, analysisMetadataPath, mode },
+          rulesWorkdir:
+            mode === FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD ? scannerWorkDir : work,
+          filesystemCache: {
+            archivePath:
+              mode === FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD
+                ? recordedArchivePath
+                : archivePath,
+            analysisMetadataPath:
+              mode === FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD
+                ? recordedMetadataPath
+                : analysisMetadataPath,
+            mode,
+          },
         });
         const analyze = async (input: AnalyzeProjectRequest, count: number) => {
           const responseKey = Object.keys(input.files!)[0];
@@ -177,7 +199,9 @@ describe('analyze-project request handler', () => {
             makeRequest(ci, FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD, source),
             1,
           );
-          const metadata = JSON.parse(collectedMetadata.get(analysisMetadataPath)!);
+          fs.copyFileSync(recordedArchivePath, archivePath);
+          fs.copyFileSync(recordedMetadataPath, analysisMetadataPath);
+          const metadata = JSON.parse(collectedMetadata.get(recordedMetadataPath)!);
           metadata.configuration.baseDir = origin;
           // Convert native absolute scope values to the producer namespace. Archive keys and
           // program descriptors already use portable project-relative paths.
@@ -209,6 +233,8 @@ describe('analyze-project request handler', () => {
               }
             };
             uppercaseScope(metadata.configuration);
+            metadata.configuration.scannerWorkDir =
+              metadata.configuration.scannerWorkDir.replaceAll('/', '\\');
           }
           collectedMetadata.set(analysisMetadataPath, JSON.stringify(metadata));
           const document = deserializeProtobufDocument(gunzipSync(fs.readFileSync(archivePath)));

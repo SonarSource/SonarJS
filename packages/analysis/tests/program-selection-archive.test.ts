@@ -53,6 +53,7 @@ describe('ProgramSelectionArchive', () => {
       const contextMetadata = JSON.stringify({
         configuration: {
           baseDir: origin,
+          scannerWorkDir: `${origin}/.sonarqube/out/.sonar`,
           sources: [`${origin}/src`],
           tests: [`${origin}/tests`],
           inclusions: { values: [`file:${origin}/src/**/*.ts`, '**/*.vue'] },
@@ -88,6 +89,7 @@ describe('ProgramSelectionArchive', () => {
       expect(replay.restoredBaseDir()).toBe(origin);
       expect(replay.replayBaseDir()).toBe(root);
       expect(replay.restoredConfiguration()).toMatchObject({
+        scannerWorkDir: `${root}/.sonarqube/out/.sonar`,
         sources: [`${root}/src`],
         tests: [`${root}/tests`],
         inclusions: { values: [`file:${root}/src/**/*.ts`, '**/*.vue'] },

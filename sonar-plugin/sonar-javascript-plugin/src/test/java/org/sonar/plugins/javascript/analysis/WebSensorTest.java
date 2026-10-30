@@ -413,6 +413,9 @@ class WebSensorTest {
     var request = handler.getRequest();
 
     assertThat(request.hasFilesystemCache()).isTrue();
+    assertThat(request.getConfiguration().getScannerWorkDir()).isEqualTo(
+      context.fileSystem().workDir().getAbsolutePath()
+    );
     assertThat(request.getFilesystemCache().getArchivePath()).isEqualTo(
       archive.toAbsolutePath().normalize().toString()
     );
