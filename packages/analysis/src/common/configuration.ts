@@ -589,11 +589,14 @@ function normalizeGlobs(globs: unknown, baseDir: NormalizedAbsolutePath) {
       : normalizeToAbsolutePath(trimmed, baseDir);
     // Brace expansion runs before character-class parsing in minimatch. Translate
     // bracket-escaped literal braces after path normalization to preserve them.
-    return new Minimatch(normalized.replaceAll('[{]', '\\{').replaceAll('[}]', '\\}'), {
-      nocase: true,
-      matchBase: true,
-      dot: true,
-    });
+    return new Minimatch(
+      normalized.replaceAll('[{]', String.raw`\{`).replaceAll('[}]', String.raw`\}`),
+      {
+        nocase: true,
+        matchBase: true,
+        dot: true,
+      },
+    );
   });
 }
 

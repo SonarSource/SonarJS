@@ -18,7 +18,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { gzipSync, gunzipSync } from 'node:zlib';
 import type ts from 'typescript';
-import { escape } from 'minimatch';
+import { escape as escapeGlob } from 'minimatch';
 import {
   isAbsolutePath,
   normalizeToAbsolutePath,
@@ -412,9 +412,10 @@ export class ProgramSelectionArchive {
     const relative =
       relativeProjectPath(original, isGlob ? escapeGlobPath(recordedBaseDir) : recordedBaseDir) ??
       relativeProjectPath(original, recordedBaseDir);
+    const replayRoot = isGlob ? escapeGlobPath(this.baseDir) : this.baseDir;
     return relative === undefined
       ? item
-      : `${prefix}${normalizeToAbsolutePath(relative, isGlob ? escapeGlobPath(this.baseDir) : this.baseDir)}`;
+      : `${prefix}${normalizeToAbsolutePath(relative, replayRoot)}`;
   }
 
   private restoreProgram(entry: sonarjs.programselection.IProgram): RecordedProgram {
@@ -647,5 +648,7 @@ function unknownFromValue(value: unknown): unknown {
 }
 
 function escapeGlobPath(value: NormalizedAbsolutePath): NormalizedAbsolutePath {
-  return normalizeProjectRoot(escape(value, { windowsPathsNoEscape: true, magicalBraces: true }));
+  return normalizeProjectRoot(
+    escapeGlob(value, { windowsPathsNoEscape: true, magicalBraces: true }),
+  );
 }
