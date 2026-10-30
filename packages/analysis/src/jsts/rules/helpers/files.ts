@@ -21,9 +21,10 @@ import {
   join as joinPosix,
   parse as parsePosix,
 } from 'node:path/posix';
-import { parse as parseWin32, join as joinWin32 } from 'node:path/win32';
+import { dirname as dirnameWin32, parse as parseWin32, join as joinWin32 } from 'node:path/win32';
 import {
   ROOT_PATH,
+  isWindowsProjectPath,
   toUnixPath,
   type NormalizedAbsolutePath,
   type NormalizedPath,
@@ -99,7 +100,9 @@ export function getPathRoot(filePath: NormalizedAbsolutePath): NormalizedAbsolut
  * @returns the parent directory as a branded NormalizedAbsolutePath
  */
 export function dirnamePath(filePath: NormalizedAbsolutePath): NormalizedAbsolutePath {
-  return dirnamePosix(filePath) as NormalizedAbsolutePath;
+  // POSIX dirname turns C:/project into C: and walks above UNC shares.
+  const parent = isWindowsProjectPath(filePath) ? dirnameWin32(filePath) : dirnamePosix(filePath);
+  return toUnixPath(parent) as NormalizedAbsolutePath;
 }
 
 export function relativeToAncestorPath(
