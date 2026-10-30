@@ -55,22 +55,14 @@ function isolatedResult(
   return scopedResult;
 }
 
-/** Forward upstream option and parse errors unchanged. */
-function forwardStylelintWarning(message: DecoratedMessage, result: PostcssResult) {
-  result.messages.push(message);
-  if (message.stylelintType === 'invalidOption' || message.stylelintType === 'parseError') {
-    result.stylelint.stylelintError = true;
-  }
-}
-
 /** Report an already rewritten upstream warning under the Sonar rule. */
 function reportRewritten(
   sonarRule: string,
-  message: DecoratedMessage,
-  messageArgs: MessageArgs,
-  rewritten: string,
   result: PostcssResult,
-) {
+  message: DecoratedMessage,
+  rewritten: string,
+  messageArgs: MessageArgs | undefined,
+): void {
   stylelint.utils.report({
     ruleName: sonarRule,
     result,
@@ -118,7 +110,13 @@ export function createDecoratedRule(
         warning => {
           const message = warning as DecoratedMessage;
           if (message.stylelintType !== undefined) {
-            forwardStylelintWarning(message, result);
+            result.messages.push(message);
+            if (
+              message.stylelintType === 'invalidOption' ||
+              message.stylelintType === 'parseError'
+            ) {
+              result.stylelint.stylelintError = true;
+            }
             return;
           }
           // Filtered warnings still consume their arguments.
@@ -126,7 +124,7 @@ export function createDecoratedRule(
           warningIndex++;
           const rewritten = rewriteMessage(message, factory.messages, root, result);
           if (rewritten !== undefined) {
-            reportRewritten(sonarRule, message, messageArgs, rewritten, result);
+            reportRewritten(sonarRule, result, message, rewritten, messageArgs);
           }
         },
       );
