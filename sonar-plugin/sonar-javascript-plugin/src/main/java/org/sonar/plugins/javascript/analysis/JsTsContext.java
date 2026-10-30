@@ -30,6 +30,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarProduct;
@@ -292,7 +293,17 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
 
   @Override
   public List<String> getJsTsExcludedPaths() {
-    return Arrays.asList(getJsTsExcludedPaths(context.config()));
+    // Bracket escapes preserve literal directory names when Node normalizes path separators.
+    var workDir = context
+      .fileSystem()
+      .workDir()
+      .getAbsolutePath()
+      .replace('\\', '/')
+      .replaceAll("([*?\\[\\]{}()])", "[$1]");
+    return concat(
+      stream(getJsTsExcludedPaths(context.config())),
+      Stream.of("file:" + workDir + "{,/**}")
+    ).toList();
   }
 
   public static String[] getJsTsExcludedPaths(Configuration configuration) {

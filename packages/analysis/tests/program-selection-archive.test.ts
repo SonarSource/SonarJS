@@ -53,14 +53,13 @@ describe('ProgramSelectionArchive', () => {
       const contextMetadata = JSON.stringify({
         configuration: {
           baseDir: origin,
-          scannerWorkDir: `${origin}/.sonarqube/out/.sonar`,
           sources: [`${origin}/src`],
           tests: [`${origin}/tests`],
           inclusions: { values: [`file:${origin}/src/**/*.ts`, '**/*.vue'] },
           exclusions: [`${origin}/src/generated/**`],
           testInclusions: [`FILE:${origin}/tests/**/*.ts`],
           testExclusions: [`${origin}/tests/generated/**`],
-          jsTsExclusions: [`${origin}/vendor/**`],
+          jsTsExclusions: [`${origin}/vendor/**`, `file:${origin}/.sonarqube/out/.sonar{,/**}`],
           globals: ['window'],
         },
       });
@@ -89,14 +88,13 @@ describe('ProgramSelectionArchive', () => {
       expect(replay.restoredBaseDir()).toBe(origin);
       expect(replay.replayBaseDir()).toBe(root);
       expect(replay.restoredConfiguration()).toMatchObject({
-        scannerWorkDir: `${root}/.sonarqube/out/.sonar`,
         sources: [`${root}/src`],
         tests: [`${root}/tests`],
         inclusions: { values: [`file:${root}/src/**/*.ts`, '**/*.vue'] },
         exclusions: [`${root}/src/generated/**`],
         testInclusions: [`FILE:${root}/tests/**/*.ts`],
         testExclusions: [`${root}/tests/generated/**`],
-        jsTsExclusions: [`${root}/vendor/**`],
+        jsTsExclusions: [`${root}/vendor/**`, `file:${root}/.sonarqube/out/.sonar{,/**}`],
         globals: ['window'],
       });
       const main = normalizeToAbsolutePath('src/Main.ts', root);

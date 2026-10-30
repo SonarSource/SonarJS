@@ -82,7 +82,6 @@ function createConfigurationFromProto(configuration: ProjectConfiguration | null
 
   const input: ConfigurationInput = {
     baseDir: configuration.baseDir,
-    scannerWorkDir: optionalString(configuration.scannerWorkDir),
     sonarlint: optionalBoolean(configuration.sonarlint),
     fsEvents: repeatedStringValues(configuration.fsEvents),
     allowTsParserJsFiles: optionalBoolean(configuration.allowTsParserJsFiles),

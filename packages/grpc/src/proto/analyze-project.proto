@@ -106,8 +106,6 @@ message ProjectConfiguration {
   optional bool skip_node_module_lookup_outside_base_dir = 29;
   optional string ecma_script_version = 30;
   optional bool detect_generated_code = 34;
-  // Scanner runtime files are excluded from project discovery, including during context replay.
-  optional string scanner_work_dir = 35;
 }
 
 message StringList {

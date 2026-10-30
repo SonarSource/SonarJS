@@ -195,7 +195,7 @@ public class WebSensor implements ProjectSensor {
           ? sensorContext.fileSystem().baseDir().getAbsolutePath()
           : replayProjectPaths.baseDir(),
         context
-      ).setScannerWorkDir(sensorContext.fileSystem().workDir().getAbsolutePath());
+      );
       bridgeServer.startServerLazily(BridgeServerConfig.fromSensorContext(sensorContext));
       analyzeFiles(inputFiles);
       collectFilesystemCache();

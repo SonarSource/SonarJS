@@ -26,12 +26,11 @@ import {
 import { normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
 
 describe('createConfiguration', () => {
-  it('excludes the scanner work directory literally, even when user exclusions are empty', () => {
+  it('honors literal scanner directory exclusions without hardcoding a directory name', () => {
     const root = normalizeToAbsolutePath('/ci/project');
     const configuration = createConfiguration({
       baseDir: root,
-      scannerWorkDir: `${root}/.build/[scanner]`,
-      jsTsExclusions: [],
+      jsTsExclusions: [`file:${root}/.build/[[]scanner[]]{,/**}`],
     });
     const excluded = (relative: string) =>
       configuration.jsTsExclusions.some(pattern =>
@@ -41,6 +40,7 @@ describe('createConfiguration', () => {
     expect(excluded('.build/[scanner]/runtime.js')).toBe(true);
     expect(excluded('.build/s')).toBe(false);
     expect(excluded('.build/[scanner]-sources/source.js')).toBe(false);
+    expect(createConfiguration({ baseDir: root, jsTsExclusions: [] }).jsTsExclusions).toEqual([]);
   });
 
   for (const prefix of ['file:', 'FILE:']) {

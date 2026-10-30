@@ -39,7 +39,6 @@ class AnalyzeProjectMessagesTest {
       var builder =
         org.sonar.plugins.javascript.analyzeproject.grpc.ProjectConfiguration.newBuilder()
           .setBaseDir("C:/ci/project")
-          .setScannerWorkDir("C:\\ci\\project\\.sonarqube\\out\\.sonar")
           .setDetectBundles(false)
           .setMaxFileSize(12345L)
           .setCanAccessFileSystem(true)

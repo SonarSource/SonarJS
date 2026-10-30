@@ -33,7 +33,6 @@ import {
 
 const MAGIC = 'sonarjs-analysis-metadata';
 const PROJECT_CONFIGURATION_PATHS = [
-  'scannerWorkDir',
   'jsTsExclusions',
   'sources',
   'tests',
@@ -382,9 +381,6 @@ export class ProgramSelectionArchive {
     recordedBaseDir: NormalizedAbsolutePath,
   ): unknown {
     const relocate = (item: unknown) => this.relocateConfigurationPath(item, recordedBaseDir);
-    if (typeof value === 'string') {
-      return relocate(value);
-    }
     if (Array.isArray(value)) {
       return value.map(relocate);
     }

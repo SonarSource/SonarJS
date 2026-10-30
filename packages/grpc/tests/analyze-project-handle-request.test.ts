@@ -30,6 +30,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import ts from 'typescript';
+import { escape } from 'minimatch';
 import { ProgramSelectionArchive } from '../../analysis/src/program-selection/archive.js';
 import { toAnalyzeProjectUnaryResponse } from '../src/analyze-project-convert.js';
 import { gunzipSync, gzipSync } from 'node:zlib';
@@ -146,40 +147,43 @@ describe('analyze-project request handler', () => {
           mode: number,
           fileContent: string,
           file = path.join(baseDir, relative),
-        ): AnalyzeProjectRequest => ({
-          configuration: {
-            baseDir,
-            scannerWorkDir:
-              mode === FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD ? scannerWorkDir : work,
-            canAccessFileSystem: true,
-            sources: [path.join(ci, 'src')],
-            inclusions: [`file:${normalizeToAbsolutePath(ci)}/src/**/*.ts`],
-            createTsProgramForOrphanFiles: kind !== 'no-program',
-          },
-          files: { [file]: { fileType: FileType.FILE_TYPE_MAIN, fileContent } },
-          rules: [
-            {
-              key: typeAware ? 'S2871' : 'S1116',
-              configurations: [],
-              fileTypeTargets: [FileType.FILE_TYPE_MAIN],
-              language: JsTsLanguage.JS_TS_LANGUAGE_TS,
-              analysisModes: [AnalysisMode.ANALYSIS_MODE_DEFAULT],
+        ): AnalyzeProjectRequest => {
+          const rulesWorkdir =
+            mode === FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD ? scannerWorkDir : work;
+          return {
+            configuration: {
+              baseDir,
+              jsTsExclusions: {
+                values: [
+                  `file:${escape(normalizeToAbsolutePath(rulesWorkdir), {
+                    windowsPathsNoEscape: true,
+                    magicalBraces: true,
+                  })}{,/**}`,
+                ],
+              },
+              canAccessFileSystem: true,
+              sources: [path.join(ci, 'src')],
+              inclusions: [`file:${normalizeToAbsolutePath(ci)}/src/**/*.ts`],
+              createTsProgramForOrphanFiles: kind !== 'no-program',
             },
-          ],
-          rulesWorkdir:
-            mode === FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD ? scannerWorkDir : work,
-          filesystemCache: {
-            archivePath:
-              mode === FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD
-                ? recordedArchivePath
-                : archivePath,
-            analysisMetadataPath:
-              mode === FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD
-                ? recordedMetadataPath
-                : analysisMetadataPath,
-            mode,
-          },
-        });
+            files: { [file]: { fileType: FileType.FILE_TYPE_MAIN, fileContent } },
+            rules: [
+              {
+                key: typeAware ? 'S2871' : 'S1116',
+                configurations: [],
+                fileTypeTargets: [FileType.FILE_TYPE_MAIN],
+                language: JsTsLanguage.JS_TS_LANGUAGE_TS,
+                analysisModes: [AnalysisMode.ANALYSIS_MODE_DEFAULT],
+              },
+            ],
+            rulesWorkdir,
+            filesystemCache: {
+              archivePath: path.join(rulesWorkdir, 'fs.pb.gz'),
+              analysisMetadataPath: path.join(rulesWorkdir, 'metadata.pb.gz'),
+              mode,
+            },
+          };
+        };
         const analyze = async (input: AnalyzeProjectRequest, count: number) => {
           const responseKey = Object.keys(input.files!)[0];
           const result = await handleAnalyzeProjectRequest(
@@ -233,8 +237,6 @@ describe('analyze-project request handler', () => {
               }
             };
             uppercaseScope(metadata.configuration);
-            metadata.configuration.scannerWorkDir =
-              metadata.configuration.scannerWorkDir.replaceAll('/', '\\');
           }
           collectedMetadata.set(analysisMetadataPath, JSON.stringify(metadata));
           const document = deserializeProtobufDocument(gunzipSync(fs.readFileSync(archivePath)));
