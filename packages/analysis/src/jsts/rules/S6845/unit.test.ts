@@ -16,7 +16,7 @@
  */
 import { describe, it, type TestContext } from 'node:test';
 import { SourceCode } from 'eslint';
-import assert from 'node:assert/strict';
+import assert, { doesNotThrow } from 'node:assert/strict';
 import {
   DefaultParserRuleTester,
   NoTypeCheckingRuleTester,
@@ -396,16 +396,18 @@ describe('S6845 upstream sentinel', () => {
   it('upstream no-noninteractive-tabindex raises when a conditional only yields null or negative tab indexes', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 
-    ruleTester.run('no-noninteractive-tabindex', upstreamRule, {
-      valid: [{ code: `<div tabIndex={disabled ? undefined : -1} />` }],
-      invalid: [
-        ...programmaticFocusTargets.map(code => ({ code, errors: 1 })),
-        {
-          code: `<div tabIndex={disabled ? null : -1} />`,
-          errors: 1,
-        },
-      ],
-    });
+    doesNotThrow(() =>
+      ruleTester.run('no-noninteractive-tabindex', upstreamRule, {
+        valid: [{ code: `<div tabIndex={disabled ? undefined : -1} />` }],
+        invalid: [
+          ...programmaticFocusTargets.map(code => ({ code, errors: 1 })),
+          {
+            code: `<div tabIndex={disabled ? null : -1} />`,
+            errors: 1,
+          },
+        ],
+      }),
+    );
   });
 });
 
@@ -413,120 +415,126 @@ describe('S6845', () => {
   it('accepts W3C dialog focus targets and the MDN error summary outside the Tab order', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 
-    ruleTester.run('no-noninteractive-tabindex', rule, {
-      valid: programmaticFocusTargets.map(code => ({ code })),
-      invalid: [
-        {
-          code: `<h2 tabIndex={closed ? null : 0}>Dialog title</h2>`,
-          errors: 1,
-        },
-        {
-          code: `<p tabIndex={closed ? null : tabIndex}>Dialog information</p>`,
-          errors: 1,
-        },
-        {
-          code: `<div tabIndex={noErrors ? null : 1}>Please correct these errors.</div>`,
-          errors: 1,
-        },
-      ],
-    });
+    doesNotThrow(() =>
+      ruleTester.run('no-noninteractive-tabindex', rule, {
+        valid: programmaticFocusTargets.map(code => ({ code })),
+        invalid: [
+          {
+            code: `<h2 tabIndex={closed ? null : 0}>Dialog title</h2>`,
+            errors: 1,
+          },
+          {
+            code: `<p tabIndex={closed ? null : tabIndex}>Dialog information</p>`,
+            errors: 1,
+          },
+          {
+            code: `<div tabIndex={noErrors ? null : 1}>Please correct these errors.</div>`,
+            errors: 1,
+          },
+        ],
+      }),
+    );
   });
 
   it('should not flag conditionals whose every branch keeps a noninteractive element out of the tab order', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 
-    ruleTester.run('no-noninteractive-tabindex', rule, {
-      valid: [
-        { code: `<div tabIndex={disabled ? null : -1} />` },
-        { code: `<div tabIndex={disabled ? -1 : null} />` },
-        { code: `<div tabIndex={disabled ? null : null} />` },
-        { code: `<div tabIndex={disabled ? -1 : -2} />` },
-        { code: `<div tabIndex={disabled ? undefined : -1} />` },
-        { code: `<div tabIndex={disabled ? null : nested ? -1 : -2} />` },
-        { code: `<div tabIndex={disabled ? nested ? -1 : -2 : null} />` },
-        { code: `<div id="title" tabIndex={disabled ? null : -1} />` },
-        { code: `<div tabIndex={disabled ? null : -1} id="title" />` },
-      ],
-      invalid: [
-        {
-          code: `const props = { tabindex: 0 }; <div {...props} tabIndex={disabled ? null : -1} />`,
-          errors: 1,
-        },
-        {
-          code: `<div {...props} tabIndex={disabled ? null : -1} />`,
-          errors: 1,
-        },
-        {
-          code: `<div tabIndex={disabled ? 0 : null} />`,
-          errors: 1,
-        },
-        {
-          code: `<div tabIndex={disabled ? nested ? 0 : -1 : null} />`,
-          errors: 1,
-        },
-        {
-          code: `<div tabIndex={disabled ? null : -1} tabIndex={0} />`,
-          errors: 1,
-        },
-        {
-          code: `<div tabIndex={disabled ? null : -1} tabindex={0} />`,
-          errors: 1,
-        },
-        {
-          code: `<div tabIndex={disabled ? null : -1} {...{ tabIndex: 0 }} />`,
-          errors: 1,
-        },
-        {
-          code: `<div tabIndex={disabled ? null : -1} {...props} />`,
-          errors: 1,
-        },
-        {
-          code: `<div tabIndex={disabled ? null : nested ? -1 : 0} />`,
-          errors: 1,
-        },
-        {
-          code: `<div tabIndex={disabled ? null : nested ? -1 : tabIndex} />`,
-          errors: 1,
-        },
-        {
-          code: `<div tabIndex={disabled ? null : -0} />`,
-          errors: 1,
-        },
-        {
-          code: `<div tabIndex={disabled ? null : -1.5} />`,
-          errors: 1,
-        },
-        {
-          code: `<div tabIndex={disabled ? null : 0} />`,
-          errors: 1,
-        },
-        {
-          code: `<div tabIndex={disabled ? null : tabIndex} />`,
-          errors: 1,
-        },
-        {
-          code: `<div tabIndex={0} />`,
-          errors: 1,
-        },
-      ],
-    });
+    doesNotThrow(() =>
+      ruleTester.run('no-noninteractive-tabindex', rule, {
+        valid: [
+          { code: `<div tabIndex={disabled ? null : -1} />` },
+          { code: `<div tabIndex={disabled ? -1 : null} />` },
+          { code: `<div tabIndex={disabled ? null : null} />` },
+          { code: `<div tabIndex={disabled ? -1 : -2} />` },
+          { code: `<div tabIndex={disabled ? undefined : -1} />` },
+          { code: `<div tabIndex={disabled ? null : nested ? -1 : -2} />` },
+          { code: `<div tabIndex={disabled ? nested ? -1 : -2 : null} />` },
+          { code: `<div id="title" tabIndex={disabled ? null : -1} />` },
+          { code: `<div tabIndex={disabled ? null : -1} id="title" />` },
+        ],
+        invalid: [
+          {
+            code: `const props = { tabindex: 0 }; <div {...props} tabIndex={disabled ? null : -1} />`,
+            errors: 1,
+          },
+          {
+            code: `<div {...props} tabIndex={disabled ? null : -1} />`,
+            errors: 1,
+          },
+          {
+            code: `<div tabIndex={disabled ? 0 : null} />`,
+            errors: 1,
+          },
+          {
+            code: `<div tabIndex={disabled ? nested ? 0 : -1 : null} />`,
+            errors: 1,
+          },
+          {
+            code: `<div tabIndex={disabled ? null : -1} tabIndex={0} />`,
+            errors: 1,
+          },
+          {
+            code: `<div tabIndex={disabled ? null : -1} tabindex={0} />`,
+            errors: 1,
+          },
+          {
+            code: `<div tabIndex={disabled ? null : -1} {...{ tabIndex: 0 }} />`,
+            errors: 1,
+          },
+          {
+            code: `<div tabIndex={disabled ? null : -1} {...props} />`,
+            errors: 1,
+          },
+          {
+            code: `<div tabIndex={disabled ? null : nested ? -1 : 0} />`,
+            errors: 1,
+          },
+          {
+            code: `<div tabIndex={disabled ? null : nested ? -1 : tabIndex} />`,
+            errors: 1,
+          },
+          {
+            code: `<div tabIndex={disabled ? null : -0} />`,
+            errors: 1,
+          },
+          {
+            code: `<div tabIndex={disabled ? null : -1.5} />`,
+            errors: 1,
+          },
+          {
+            code: `<div tabIndex={disabled ? null : 0} />`,
+            errors: 1,
+          },
+          {
+            code: `<div tabIndex={disabled ? null : tabIndex} />`,
+            errors: 1,
+          },
+          {
+            code: `<div tabIndex={0} />`,
+            errors: 1,
+          },
+        ],
+      }),
+    );
   });
 
   it('retains reports for unsupported values and unproven attribute combinations', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 
-    ruleTester.run('no-noninteractive-tabindex', rule, {
-      valid: [],
-      invalid: [
-        `<div tabIndex={disabled ? null : +1} />`,
-        `<div tabindex={disabled ? null : -1} />`,
-        `<div tabIndex={disabled ? null : '-1'} />`,
-        `<div tabIndex={disabled ? null : false} />`,
-        `<div tabIndex={disabled ? null : -tabIndex} />`,
-        `<div {...{ id: 'title' }} tabIndex={disabled ? null : -1} />`,
-        `<div tabIndex={disabled ? null : -1} {...{ id: 'title' }} />`,
-        `<div tabIndex={disabled ? null : -1} tabIndex={-1} />`,
-      ].map(code => ({ code, errors: 1 })),
-    });
+    doesNotThrow(() =>
+      ruleTester.run('no-noninteractive-tabindex', rule, {
+        valid: [],
+        invalid: [
+          `<div tabIndex={disabled ? null : +1} />`,
+          `<div tabindex={disabled ? null : -1} />`,
+          `<div tabIndex={disabled ? null : '-1'} />`,
+          `<div tabIndex={disabled ? null : false} />`,
+          `<div tabIndex={disabled ? null : -tabIndex} />`,
+          `<div {...{ id: 'title' }} tabIndex={disabled ? null : -1} />`,
+          `<div tabIndex={disabled ? null : -1} {...{ id: 'title' }} />`,
+          `<div tabIndex={disabled ? null : -1} tabIndex={-1} />`,
+        ].map(code => ({ code, errors: 1 })),
+      }),
+    );
   });
 });

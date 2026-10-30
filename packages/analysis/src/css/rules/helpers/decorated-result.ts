@@ -55,6 +55,38 @@ function isolatedResult(
   return scopedResult;
 }
 
+/** Forward upstream option and parse errors unchanged. */
+function forwardStylelintWarning(message: DecoratedMessage, result: PostcssResult) {
+  result.messages.push(message);
+  if (message.stylelintType === 'invalidOption' || message.stylelintType === 'parseError') {
+    result.stylelint.stylelintError = true;
+  }
+}
+
+/** Report an already rewritten upstream warning under the Sonar rule. */
+function reportRewritten(
+  sonarRule: string,
+  message: DecoratedMessage,
+  messageArgs: MessageArgs,
+  rewritten: string,
+  result: PostcssResult,
+) {
+  stylelint.utils.report({
+    ruleName: sonarRule,
+    result,
+    // The rewrite is already formatted; only a configured custom
+    // message should interpolate the original arguments again.
+    message: () => rewritten,
+    messageArgs,
+    node: message.node,
+    start: { line: message.line, column: message.column },
+    end: {
+      line: message.endLine ?? message.line,
+      column: message.endColumn ?? message.column,
+    },
+  });
+}
+
 /**
  * Run an upstream rule in isolation, then report accepted warnings under the Sonar rule.
  * CSS autofixes are not supported: collection disables fixes and edit info, and
@@ -86,13 +118,7 @@ export function createDecoratedRule(
         warning => {
           const message = warning as DecoratedMessage;
           if (message.stylelintType !== undefined) {
-            result.messages.push(message);
-            if (
-              message.stylelintType === 'invalidOption' ||
-              message.stylelintType === 'parseError'
-            ) {
-              result.stylelint.stylelintError = true;
-            }
+            forwardStylelintWarning(message, result);
             return;
           }
           // Filtered warnings still consume their arguments.
@@ -100,20 +126,7 @@ export function createDecoratedRule(
           warningIndex++;
           const rewritten = rewriteMessage(message, factory.messages, root, result);
           if (rewritten !== undefined) {
-            stylelint.utils.report({
-              ruleName: sonarRule,
-              result,
-              // The rewrite is already formatted; only a configured custom
-              // message should interpolate the original arguments again.
-              message: () => rewritten,
-              messageArgs,
-              node: message.node,
-              start: { line: message.line, column: message.column },
-              end: {
-                line: message.endLine ?? message.line,
-                column: message.endColumn ?? message.column,
-              },
-            });
+            reportRewritten(sonarRule, message, messageArgs, rewritten, result);
           }
         },
       );
