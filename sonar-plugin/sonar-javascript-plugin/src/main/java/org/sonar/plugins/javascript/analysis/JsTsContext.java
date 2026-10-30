@@ -293,6 +293,10 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
 
   @Override
   public List<String> getJsTsExcludedPaths() {
+    // SonarLint has no scanner work directory: its workDir() returns the project baseDir.
+    if (isSonarLint()) {
+      return Arrays.asList(getJsTsExcludedPaths(context.config()));
+    }
     // Bracket escapes preserve literal directory names when Node normalizes path separators.
     var workDir = context
       .fileSystem()

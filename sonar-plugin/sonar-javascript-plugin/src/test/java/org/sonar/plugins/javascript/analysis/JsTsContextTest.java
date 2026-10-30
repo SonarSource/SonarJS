@@ -19,10 +19,13 @@ package org.sonar.plugins.javascript.analysis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Map;
 import org.junit.jupiter.api.Test;
+import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.css.CssLanguage;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
@@ -49,6 +52,23 @@ class JsTsContextTest {
         entry.getValue()
       );
     }
+  }
+
+  @Test
+  void shouldKeepSonarLintExclusionsWithoutRequestingAScannerWorkDir() {
+    var context = mock(SensorContext.class, RETURNS_DEEP_STUBS);
+    when(context.runtime().getProduct()).thenReturn(SonarProduct.SONARLINT);
+    when(context.config()).thenReturn(
+      new MapSettings()
+        .setProperty(JavaScriptPlugin.JS_EXCLUSIONS_KEY, "vendor/**")
+        .setProperty(JavaScriptPlugin.TS_EXCLUSIONS_KEY, "**/generated/**")
+        .asConfig()
+    );
+    assertThat(new JsTsContext<>(context).getJsTsExcludedPaths()).containsExactly(
+      "vendor/**",
+      "**/generated/**"
+    );
+    verify(context, never()).fileSystem();
   }
 
   @Test
