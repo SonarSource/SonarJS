@@ -196,6 +196,48 @@ describe('filter path', () => {
     expect(result).toBe('MAIN');
   });
 
+  for (const excludedParent of [false, true]) {
+    it(`reuses ${excludedParent ? 'excluded' : 'accepted'} parent results across sibling files`, ({
+      mock,
+    }) => {
+      const config = createConfiguration({
+        baseDir: '/project',
+        exclusions: ['**/blocked', '**/skip.ts'],
+      });
+      const matcher = mock.method(config.exclusions[0], 'match');
+      const directory = normalizeToAbsolutePath(
+        `/project/src/${excludedParent ? 'blocked/' : ''}nested`,
+      );
+      for (const filename of ['first.ts', 'skip.ts', 'last.ts']) {
+        const filePath = normalizeToAbsolutePath(`${directory}/${filename}`);
+        expect(filterPathAndGetFileType(filePath, getFilterPathParams(config))).toBe(
+          excludedParent || filename === 'skip.ts' ? undefined : 'MAIN',
+        );
+      }
+
+      expect(matcher.mock.calls.filter(call => call.arguments[0] === directory)).toHaveLength(1);
+    });
+  }
+
+  it('isolates parent exclusion results by analysis root and exclusion configuration', () => {
+    const config = createConfiguration({ baseDir: '/project', exclusions: ['**/blocked'] });
+    const params = getFilterPathParams(config);
+    const filePath = normalizeToAbsolutePath('/project/blocked/nested/file.ts');
+    expect(filterPathAndGetFileType(filePath, params)).toBeUndefined();
+
+    // Reusing the patterns with a deeper root must not reuse exclusions above that root.
+    expect(
+      filterPathAndGetFileType(filePath, {
+        ...params,
+        baseDir: normalizeToAbsolutePath('/project/blocked'),
+      }),
+    ).toBe('MAIN');
+    expect(filterPathAndGetFileType(filePath, params)).toBeUndefined();
+
+    const newConfig = createConfiguration({ baseDir: '/project', exclusions: ['**/other'] });
+    expect(filterPathAndGetFileType(filePath, getFilterPathParams(newConfig))).toBe('MAIN');
+  });
+
   describe('test-file rule heuristic fallback (no sonar.tests configured)', () => {
     const testLikeFilenames = [
       '/project/src/foo.test.ts',

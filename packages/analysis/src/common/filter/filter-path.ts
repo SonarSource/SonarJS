@@ -26,6 +26,16 @@ import {
 import { isAngularProject } from '../../jsts/rules/helpers/dependency-manifests/dependencies.js';
 import { getFileSystemCaseSensitivity } from '../../../../shared/src/fs-cache/hook.js';
 
+// Normalized configurations own their pattern arrays, so old caches can be garbage-collected.
+const directoryExclusionCaches = new WeakMap<
+  Minimatch[],
+  {
+    baseDir: NormalizedAbsolutePath;
+    caseSensitive: boolean | undefined;
+    directories: Map<NormalizedAbsolutePath, boolean>;
+  }
+>();
+
 /**
  * Checks whether a given file path is excluded based on JavaScript/TypeScript exclusion
  * properties sonar.typescript.exclusions and sonar.javascript.exclusions wildcards.
@@ -137,14 +147,37 @@ function matchesExclusion(
   if (!exclusions.length) {
     return false;
   }
-  let path = filePath;
-  do {
+  if (exclusions.some(exclusion => exclusion.match(filePath))) {
+    return true;
+  }
+
+  const caseSensitive = getFileSystemCaseSensitivity();
+  let cache = directoryExclusionCaches.get(exclusions);
+  if (!cache || cache.baseDir !== baseDir || cache.caseSensitive !== caseSensitive) {
+    cache = { baseDir, caseSensitive, directories: new Map() };
+    directoryExclusionCaches.set(exclusions, cache);
+  }
+
+  let path = dirnamePath(filePath);
+  const parents: NormalizedAbsolutePath[] = [];
+  let excluded = false;
+  while (path !== baseDir && fileIsUnder(path, [baseDir])) {
+    const cached = cache.directories.get(path);
+    if (cached !== undefined) {
+      excluded = cached;
+      break;
+    }
+    parents.push(path);
     if (exclusions.some(exclusion => exclusion.match(path))) {
-      return true;
+      excluded = true;
+      break;
     }
     path = dirnamePath(path);
-  } while (path !== baseDir && fileIsUnder(path, [baseDir]));
-  return false;
+  }
+  for (const parent of parents) {
+    cache.directories.set(parent, excluded);
+  }
+  return excluded;
 }
 
 function matchesTestPath(filePath: NormalizedAbsolutePath, params: FilterPathParams): boolean {
