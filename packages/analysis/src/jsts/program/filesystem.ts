@@ -54,24 +54,26 @@ export const readDirectory: typeof ts.sys.readDirectory = (
     directory => {
       const files: string[] = [];
       const directories: string[] = [];
+      let entries: fs.Dirent[];
       try {
-        for (const entry of fs.readdirSync(directory || '.', { withFileTypes: true })) {
-          let stat: fs.Stats | fs.Dirent | undefined = entry;
-          if (entry.isSymbolicLink()) {
-            try {
-              stat = fs.statSync(path.join(directory, entry.name), { throwIfNoEntry: false });
-            } catch {
-              continue;
-            }
-          }
-          if (stat?.isFile()) {
-            files.push(entry.name);
-          } else if (stat?.isDirectory()) {
-            directories.push(entry.name);
-          }
-        }
+        entries = fs.readdirSync(directory || '.', { withFileTypes: true });
       } catch {
         return { files: [], directories: [] };
+      }
+      for (const entry of entries) {
+        let stat: fs.Stats | fs.Dirent | undefined = entry;
+        if (entry.isSymbolicLink()) {
+          try {
+            stat = fs.statSync(path.join(directory, entry.name), { throwIfNoEntry: false });
+          } catch {
+            continue;
+          }
+        }
+        if (stat?.isFile()) {
+          files.push(entry.name);
+        } else if (stat?.isDirectory()) {
+          directories.push(entry.name);
+        }
       }
       return { files, directories };
     },

@@ -17,7 +17,7 @@
 // Kept free of analyzer dependencies: the fs hook must load before TypeScript.
 let archivedCaseSensitivity: boolean | undefined;
 
-export function setArchivedFileSystemCaseSensitivity(value: boolean | undefined): void {
+export function setArchivedFileSystemCaseSensitivity(value: boolean | undefined = undefined): void {
   archivedCaseSensitivity = value;
 }
 

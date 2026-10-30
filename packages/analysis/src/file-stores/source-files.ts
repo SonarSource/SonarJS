@@ -183,13 +183,14 @@ export class SourceFileStore implements FileStore {
       accept(filename, file.fileContent, getShouldIgnoreParams(configuration))
     ) {
       // Promote the shared walk entry in place so helper stores can reuse the same object.
-      this.files![filename] = promoteToAnalyzableFile(
+      const analyzableFile = promoteToAnalyzableFile(
         file,
         fileTypes.fileType,
         fileTypes.ruleFileType,
         JSTS_ANALYSIS_DEFAULTS.fileStatus,
       );
-      this.filesByPath.set(filename, this.files![filename]);
+      this.getFiles()[filename] = analyzableFile;
+      this.filesByPath.set(filename, analyzableFile);
       this.directoryIndex.addFile(filename);
     }
   }
