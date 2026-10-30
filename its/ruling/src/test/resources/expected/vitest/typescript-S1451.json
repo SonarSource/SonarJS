@@ -1,4 +1,49 @@
 {
+"vitest:docs/.vitepress/blog.data.ts": [
+0
+],
+"vitest:docs/.vitepress/components/BlogIndex.vue": [
+0
+],
+"vitest:docs/.vitepress/components/CourseLink.vue": [
+0
+],
+"vitest:docs/.vitepress/components/HomePage.vue": [
+0
+],
+"vitest:docs/.vitepress/components/ListItem.vue": [
+0
+],
+"vitest:docs/.vitepress/components/Version.vue": [
+0
+],
+"vitest:docs/.vitepress/config.ts": [
+0
+],
+"vitest:docs/.vitepress/contributors.ts": [
+0
+],
+"vitest:docs/.vitepress/scripts/cli-generator.ts": [
+0
+],
+"vitest:docs/.vitepress/scripts/fetch-avatars.ts": [
+0
+],
+"vitest:docs/.vitepress/scripts/pwa.ts": [
+0
+],
+"vitest:docs/.vitepress/scripts/transformHead.ts": [
+0
+],
+"vitest:docs/.vitepress/sponsors.ts": [
+0
+],
+"vitest:docs/.vitepress/theme/index.ts": [
+0
+],
+"vitest:docs/.vitepress/theme/pwa.ts": [
+0
+],
 "vitest:docs/pwa-assets.config.ts": [
 0
 ],

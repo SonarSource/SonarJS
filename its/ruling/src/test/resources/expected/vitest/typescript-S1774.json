@@ -1,4 +1,31 @@
 {
+"vitest:docs/.vitepress/components/ListItem.vue": [
+12,
+21,
+23
+],
+"vitest:docs/.vitepress/config.ts": [
+101
+],
+"vitest:docs/.vitepress/contributors.ts": [
+18
+],
+"vitest:docs/.vitepress/scripts/cli-generator.ts": [
+52,
+88,
+89,
+89,
+89,
+90
+],
+"vitest:docs/.vitepress/scripts/transformHead.ts": [
+10
+],
+"vitest:docs/.vitepress/theme/index.ts": [
+40,
+43,
+48
+],
 "vitest:examples/fastify/test/app.test.ts": [
 34
 ],

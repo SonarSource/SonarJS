@@ -1,4 +1,7 @@
 {
+"vitest:docs/.vitepress/config.ts": [
+30
+],
 "vitest:packages/browser/src/node/plugin.ts": [
 28
 ],

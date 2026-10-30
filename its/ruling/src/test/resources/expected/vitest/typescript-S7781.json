@@ -1,4 +1,7 @@
 {
+"vitest:docs/.vitepress/scripts/cli-generator.ts": [
+90
+],
 "vitest:packages/browser/src/client/tester/expect/toHaveStyle.ts": [
 126
 ],

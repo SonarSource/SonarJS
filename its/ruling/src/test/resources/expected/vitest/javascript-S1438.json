@@ -1,4 +1,25 @@
 {
+"vitest:docs/.vitepress/components/CRoot.vue": [
+2
+],
+"vitest:docs/.vitepress/components/FeaturesList.vue": [
+2
+],
+"vitest:docs/.vitepress/theme/FeatureGrid.vue": [
+2,
+3,
+4
+],
+"vitest:docs/.vitepress/theme/Home.vue": [
+2,
+4,
+5,
+6,
+7,
+8,
+9,
+10
+],
 "vitest:eslint.config.js": [
 1,
 145

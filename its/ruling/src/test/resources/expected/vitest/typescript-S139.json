@@ -1,4 +1,10 @@
 {
+"vitest:docs/.vitepress/scripts/pwa.ts": [
+68,
+80,
+94,
+108
+],
 "vitest:examples/typecheck/test/type.test-d.ts": [
 5
 ],

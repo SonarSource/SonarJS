@@ -1,4 +1,7 @@
 {
+"vitest:docs/.vitepress/scripts/transformHead.ts": [
+12
+],
 "vitest:packages/ui/client/components/explorer/ExplorerItem.vue": [
 117
 ],

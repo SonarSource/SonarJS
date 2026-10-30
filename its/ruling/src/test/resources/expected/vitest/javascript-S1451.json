@@ -1,4 +1,37 @@
 {
+"vitest:docs/.vitepress/components/Advanced.vue": [
+0
+],
+"vitest:docs/.vitepress/components/ArrowDown.vue": [
+0
+],
+"vitest:docs/.vitepress/components/Box.vue": [
+0
+],
+"vitest:docs/.vitepress/components/CRoot.vue": [
+0
+],
+"vitest:docs/.vitepress/components/Deprecated.vue": [
+0
+],
+"vitest:docs/.vitepress/components/Experimental.vue": [
+0
+],
+"vitest:docs/.vitepress/components/FeaturesList.vue": [
+0
+],
+"vitest:docs/.vitepress/theme/FeatureGrid.vue": [
+0
+],
+"vitest:docs/.vitepress/theme/Hero.vue": [
+0
+],
+"vitest:docs/.vitepress/theme/Home.vue": [
+0
+],
+"vitest:docs/.vitepress/theme/Intro.vue": [
+0
+],
 "vitest:eslint.config.js": [
 0
 ],

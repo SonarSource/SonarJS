@@ -1,4 +1,8 @@
 {
+"vitest:docs/.vitepress/config.ts": [
+582,
+715
+],
 "vitest:packages/browser-webdriverio/src/webdriverio.ts": [
 185,
 187

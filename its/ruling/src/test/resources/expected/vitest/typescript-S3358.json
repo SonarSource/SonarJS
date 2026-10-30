@@ -1,4 +1,11 @@
 {
+"vitest:docs/.vitepress/components/ListItem.vue": [
+23
+],
+"vitest:docs/.vitepress/scripts/cli-generator.ts": [
+89,
+89
+],
 "vitest:packages/browser/src/client/tester/context.ts": [
 48
 ],

@@ -1,4 +1,10 @@
 {
+"vitest:docs/.vitepress/theme/index.ts": [
+14
+],
+"vitest:docs/.vitepress/theme/pwa.ts": [
+1
+],
 "vitest:packages/ui/client/components/AnnotationAttachmentImage.vue": [
 4
 ],

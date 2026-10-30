@@ -1,4 +1,7 @@
 {
+"vitest:docs/.vitepress/scripts/fetch-avatars.ts": [
+14
+],
 "vitest:packages/browser-playwright/src/playwright.ts": [
 496
 ],

@@ -1,4 +1,7 @@
 {
+"vitest:docs/.vitepress/scripts/fetch-avatars.ts": [
+30
+],
 "vitest:examples/fastify/src/index.ts": [
 13
 ],

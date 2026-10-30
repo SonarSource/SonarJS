@@ -1,4 +1,7 @@
 {
+"vitest:docs/.vitepress/scripts/fetch-avatars.ts": [
+16
+],
 "vitest:packages/browser/src/node/commands/screenshotMatcher/index.ts": [
 441
 ],

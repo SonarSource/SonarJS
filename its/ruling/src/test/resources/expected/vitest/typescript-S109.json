@@ -1,4 +1,21 @@
 {
+"vitest:docs/.vitepress/blog.data.ts": [
+31
+],
+"vitest:docs/.vitepress/components/ListItem.vue": [
+12,
+16,
+16
+],
+"vitest:docs/.vitepress/scripts/pwa.ts": [
+68,
+80,
+83,
+94,
+97,
+108,
+111
+],
 "vitest:examples/basic/test/basic.test.ts": [
 8,
 8,

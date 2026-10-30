@@ -1,4 +1,7 @@
 {
+"vitest:docs/.vitepress/theme/index.ts": [
+26
+],
 "vitest:packages/browser-playwright/src/commands/keyboard.ts": [
 55
 ],

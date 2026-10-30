@@ -1,4 +1,7 @@
 {
+"vitest:docs/.vitepress/scripts/cli-generator.ts": [
+86
+],
 "vitest:packages/browser/src/client/tester/state.ts": [
 6
 ],

@@ -32,6 +32,9 @@
 "vitest:test/cli/fixtures/custom-pool/tests/custom-run.threads.spec.ts": [
 4
 ],
+"vitest:test/cli/fixtures/dotted-files/.cache/projects/test/should-run.test.ts": [
+4
+],
 "vitest:test/cli/fixtures/fails/hook-timeout.test.ts": [
 8
 ],

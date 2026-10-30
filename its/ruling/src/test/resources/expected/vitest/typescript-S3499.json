@@ -1,4 +1,7 @@
 {
+"vitest:docs/.vitepress/blog.data.ts": [
+19
+],
 "vitest:packages/browser-playwright/src/playwright.ts": [
 95
 ],

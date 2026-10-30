@@ -1,4 +1,18 @@
 {
+"vitest:docs/.vitepress/blog.data.ts": [
+20
+],
+"vitest:docs/.vitepress/components/ListItem.vue": [
+26
+],
+"vitest:docs/.vitepress/scripts/cli-generator.ts": [
+49,
+58,
+58
+],
+"vitest:docs/.vitepress/theme/index.ts": [
+53
+],
 "vitest:packages/browser-playwright/src/commands/select.ts": [
 12
 ],

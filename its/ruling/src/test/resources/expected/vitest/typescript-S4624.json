@@ -1,4 +1,13 @@
 {
+"vitest:docs/.vitepress/scripts/cli-generator.ts": [
+89,
+90
+],
+"vitest:docs/.vitepress/theme/index.ts": [
+40,
+43,
+48
+],
 "vitest:packages/browser-webdriverio/src/webdriverio.ts": [
 249
 ],

@@ -1,4 +1,7 @@
 {
+"vitest:docs/.vitepress/scripts/transformHead.ts": [
+5
+],
 "vitest:examples/fastify/src/app.ts": [
 9
 ],

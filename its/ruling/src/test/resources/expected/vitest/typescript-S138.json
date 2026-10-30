@@ -1,4 +1,7 @@
 {
+"vitest:docs/.vitepress/config.ts": [
+30
+],
 "vitest:packages/browser/src/client/tester/runner.ts": [
 51
 ],

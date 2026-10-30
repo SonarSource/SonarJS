@@ -1,4 +1,10 @@
 {
+"vitest:docs/.vitepress/config.ts": [
+55
+],
+"vitest:docs/.vitepress/scripts/cli-generator.ts": [
+89
+],
 "vitest:packages/browser-playwright/src/commands/keyboard.ts": [
 53
 ],

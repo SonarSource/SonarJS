@@ -1,4 +1,7 @@
 {
+"vitest:docs/.vitepress/scripts/transformHead.ts": [
+10
+],
 "vitest:packages/browser/src/client/orchestrator.ts": [
 85
 ],

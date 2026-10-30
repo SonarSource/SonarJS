@@ -1,4 +1,13 @@
 {
+"vitest:docs/.vitepress/config.ts": [
+106
+],
+"vitest:docs/.vitepress/scripts/cli-generator.ts": [
+85
+],
+"vitest:docs/.vitepress/scripts/transformHead.ts": [
+10
+],
 "vitest:examples/fastify/src/app.ts": [
 9
 ],
