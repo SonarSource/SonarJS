@@ -30,8 +30,8 @@ import {
 import {
   captureProvidedFile,
   hasArchivedFileContent,
-  getFileSystemCaseSensitivity,
 } from '../../../../shared/src/fs-cache/hook.js';
+import { canonicalFileName, isFileSystemCaseSensitive } from '../../common/filesystem.js';
 
 interface FsCall {
   op: string;
@@ -337,11 +337,11 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
   }
 
   getCanonicalFileName(fileName: string): string {
-    return this.useCaseSensitiveFileNames() ? fileName : fileName.toLowerCase();
+    return canonicalFileName(fileName);
   }
 
   useCaseSensitiveFileNames(): boolean {
-    return getFileSystemCaseSensitivity() ?? this.baseHost.useCaseSensitiveFileNames();
+    return isFileSystemCaseSensitive();
   }
 
   getNewLine(): string {

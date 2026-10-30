@@ -24,15 +24,15 @@ import {
   isTestRelatedFile,
 } from '../../jsts/rules/helpers/test-file-pattern.js';
 import { isAngularProject } from '../../jsts/rules/helpers/dependency-manifests/dependencies.js';
-import { getFileSystemCaseSensitivity } from '../../../../shared/src/fs-cache/hook.js';
+import { canonicalFileName, isFileSystemCaseSensitive } from '../filesystem.js';
 
 // Normalized configurations own their pattern arrays, so old caches can be garbage-collected.
 const directoryExclusionCaches = new WeakMap<
   Minimatch[],
   {
-    baseDir: NormalizedAbsolutePath;
-    caseSensitive: boolean | undefined;
-    directories: Map<NormalizedAbsolutePath, boolean>;
+    baseDir: string;
+    caseSensitive: boolean;
+    directories: Map<string, boolean>;
   }
 >();
 
@@ -131,10 +131,9 @@ export function getFileTypeForRules(
 }
 
 function fileIsUnder(filePath: NormalizedAbsolutePath, paths: NormalizedAbsolutePath[]): boolean {
-  const caseSensitive = getFileSystemCaseSensitivity() ?? process.platform !== 'win32';
-  const file = caseSensitive ? filePath : filePath.toLowerCase();
+  const file = canonicalFileName(filePath);
   return paths.some(path => {
-    const root = caseSensitive ? path : path.toLowerCase();
+    const root = canonicalFileName(path);
     return file === root || file.startsWith(root.endsWith('/') ? root : `${root}/`);
   });
 }
@@ -151,18 +150,19 @@ function matchesExclusion(
     return true;
   }
 
-  const caseSensitive = getFileSystemCaseSensitivity();
+  const caseSensitive = isFileSystemCaseSensitive();
+  const root = canonicalFileName(baseDir);
   let cache = directoryExclusionCaches.get(exclusions);
-  if (cache?.baseDir !== baseDir || cache.caseSensitive !== caseSensitive) {
-    cache = { baseDir, caseSensitive, directories: new Map() };
+  if (cache?.baseDir !== root || cache.caseSensitive !== caseSensitive) {
+    cache = { baseDir: root, caseSensitive, directories: new Map() };
     directoryExclusionCaches.set(exclusions, cache);
   }
 
   let path = dirnamePath(filePath);
   const parents: NormalizedAbsolutePath[] = [];
   let excluded = false;
-  while (path !== baseDir && fileIsUnder(path, [baseDir])) {
-    const cached = cache.directories.get(path);
+  while (canonicalFileName(path) !== root && fileIsUnder(path, [baseDir])) {
+    const cached = cache.directories.get(canonicalFileName(path));
     if (cached !== undefined) {
       excluded = cached;
       break;
@@ -175,7 +175,7 @@ function matchesExclusion(
     path = dirnamePath(path);
   }
   for (const parent of parents) {
-    cache.directories.set(parent, excluded);
+    cache.directories.set(canonicalFileName(parent), excluded);
   }
   return excluded;
 }

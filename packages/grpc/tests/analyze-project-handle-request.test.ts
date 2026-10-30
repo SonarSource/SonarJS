@@ -987,6 +987,7 @@ describe('analyze-project request handler', () => {
         archivePath: '/cache/first.fscache',
         event: 'begin',
         mode: 'record',
+        caseSensitivePaths: ts.sys.useCaseSensitiveFileNames,
         restrictNativeReads: false,
         passthroughDirs: [
           path.dirname(ts.getDefaultLibFilePath({})),

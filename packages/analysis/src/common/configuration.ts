@@ -16,7 +16,7 @@
  */
 import { extname } from 'node:path/posix';
 import { Minimatch } from 'minimatch';
-import { getFileSystemCaseSensitivity } from '../../../shared/src/fs-cache/hook.js';
+import { isFileSystemCaseSensitive } from './filesystem.js';
 import { escapeGlobPath, parsePathPattern } from './path-pattern.js';
 import {
   type NormalizedAbsolutePath,
@@ -591,7 +591,7 @@ function normalizeGlobs(globs: unknown, baseDir: NormalizedAbsolutePath) {
     // Brace expansion runs before character-class parsing in minimatch. Translate
     // bracket-escaped literal braces after path normalization to preserve them.
     return new Minimatch(glob.replaceAll('[{]', String.raw`\{`).replaceAll('[}]', String.raw`\}`), {
-      nocase: !isDirectory || !(getFileSystemCaseSensitivity() ?? process.platform !== 'win32'),
+      nocase: !isDirectory || !isFileSystemCaseSensitive(),
       matchBase: true,
       dot: true,
     });

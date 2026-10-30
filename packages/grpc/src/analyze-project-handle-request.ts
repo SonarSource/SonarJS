@@ -41,6 +41,7 @@ import {
 import { ProgramSelectionArchive } from '../../analysis/src/program-selection/archive.js';
 import { filesWithoutRecordedProgramOutcome } from '../../analysis/src/analyzeWithProgram.js';
 import { getJsTsConfigFields } from '../../analysis/src/common/configuration.js';
+import { isFileSystemCaseSensitive } from '../../analysis/src/common/filesystem.js';
 import { sourceFileStore } from '../../analysis/src/file-stores/index.js';
 import {
   normalizeToAbsolutePath,
@@ -97,6 +98,7 @@ function beginFilesystemCacheAnalysis(
   return installation.beginAnalysis({
     archivePath: cache.archivePath,
     mode,
+    caseSensitivePaths: isFileSystemCaseSensitive(),
     // Rules are unpacked into this temporary directory. Their files must use the native
     // filesystem; project files outside it remain subject to archive recording/replay.
     restrictNativeReads: mode === 'replay',
