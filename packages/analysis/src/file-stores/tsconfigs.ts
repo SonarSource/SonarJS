@@ -24,6 +24,7 @@ import type { AnalyzableFiles } from '../projectAnalysis.js';
 import { clearTsConfigContentCache } from '../jsts/program/cache/tsconfigCache.js';
 import { clearProgramOptionsCache } from '../jsts/program/cache/programOptionsCache.js';
 import { getProgramCacheManager } from '../jsts/program/cache/programCache.js';
+import { clearProgramCache } from 'typescript/control';
 
 const TSCONFIG_JSON = 'tsconfig.json';
 
@@ -114,6 +115,7 @@ export class TsConfigStore implements FileStore {
     clearTsConfigContentCache();
     clearProgramOptionsCache();
     getProgramCacheManager().clear();
+    clearProgramCache();
   }
 
   /**

@@ -94,3 +94,6 @@ lcov.info
 !.codex/skills/
 .mcp.json
 packages/ruling/filesystem-cache/
+
+tools/ts7-benchmark/out/
+packages/typescript/native-compat.mjs

@@ -1,6 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "include": [
+    "analysis/src/jsts/native/*.mjs",
     "*/src/**/*.ts",
     "*/src/**/*.json",
     "analysis/src/**/*.ts",

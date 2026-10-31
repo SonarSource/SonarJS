@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 import { isMainThread } from 'node:worker_threads';
+import 'typescript';
+import { initializeCompiler } from 'typescript/control';
 
 if (isMainThread) {
   /**
@@ -17,6 +19,7 @@ if (isMainThread) {
   const timeoutSeconds = Number(process.argv[5]) || 0;
 
   Promise.resolve().then(async () => {
+    await initializeCompiler();
     const [{ startAnalyzeProjectServer }, { createAnalyzeProjectWorker }] = await Promise.all([
       import('./lib/grpc/src/analyze-project-server.js'),
       import('./lib/grpc/src/analyze-project-worker/create-worker.js'),
@@ -30,5 +33,5 @@ if (isMainThread) {
     );
   });
 } else {
-  void import('./lib/grpc/src/analyze-project-worker.js');
+  void initializeCompiler().then(() => import('./lib/grpc/src/analyze-project-worker.js'));
 }

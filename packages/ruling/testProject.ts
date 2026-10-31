@@ -60,6 +60,34 @@ export function projectName(projectFile: string) {
 }
 
 export async function testProject(projectName: string, options: TestProjectOptions = {}) {
+  const { name, baseDir, configuration, input } = createRulingProject(projectName);
+  const actualPath = join(actualBase, name);
+
+  const filesystemCacheSession = await beginFilesystemCacheSession(
+    options.filesystemCacheArchive ?? configuredFilesystemCacheArchive(name),
+    baseDir,
+  );
+  let results: ProjectAnalysisOutput;
+  try {
+    await initFileStores(configuration);
+
+    results = await analyzeProject(input, configuration);
+  } finally {
+    filesystemCacheSession?.end();
+  }
+
+  await writeResults(baseDir, name, results, actualPath);
+
+  const expectedPath = join(expectedBase, name);
+  return await compare(expectedPath, actualPath, { compareContent: true });
+}
+
+/** Shared ruling inputs for the regression tests and compiler benchmarks. */
+export function createRulingProject(
+  projectName: string,
+  projectsPath = join(sourcesPath, 'projects'),
+  customSourcesPath = sourcesPath,
+) {
   const { folder, name, exclusions, testDir } = (projects as ProjectsData[]).find(
     p => p.name === projectName,
   )!;
@@ -75,9 +103,9 @@ export async function testProject(projectName: string, options: TestProjectOptio
       }));
     })
     .map(applyRulingConfig);
-  const actualPath = join(actualBase, name);
-
-  const baseDir = normalizeToAbsolutePath(join(sourcesPath, folder ?? join('projects', name)));
+  const baseDir = normalizeToAbsolutePath(
+    folder ? join(customSourcesPath, folder) : join(projectsPath, name),
+  );
   const defaultTestExclusions = testDir ? DEFAULT_EXCLUSIONS : undefined;
 
   const configuration = createConfiguration({
@@ -90,30 +118,7 @@ export async function testProject(projectName: string, options: TestProjectOptio
     exclusions: exclusions ? DEFAULT_EXCLUSIONS.concat(exclusions.split(',')) : DEFAULT_EXCLUSIONS,
   });
 
-  const filesystemCacheSession = await beginFilesystemCacheSession(
-    options.filesystemCacheArchive ?? configuredFilesystemCacheArchive(name),
-    baseDir,
-  );
-  let results: ProjectAnalysisOutput;
-  try {
-    await initFileStores(configuration);
-
-    results = await analyzeProject(
-      {
-        rules,
-        cssRules: buildCssRules(),
-        bundles: [],
-      },
-      configuration,
-    );
-  } finally {
-    filesystemCacheSession?.end();
-  }
-
-  await writeResults(baseDir, name, results, actualPath);
-
-  const expectedPath = join(expectedBase, name);
-  return await compare(expectedPath, actualPath, { compareContent: true });
+  return { name, baseDir, configuration, input: { rules, cssRules: buildCssRules(), bundles: [] } };
 }
 
 async function beginFilesystemCacheSession(

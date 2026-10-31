@@ -23,6 +23,11 @@ import { analyzeWithProgram } from './analyzeWithProgram.js';
 import { analyzeWithIncrementalProgram } from './analyzeWithIncrementalProgram.js';
 import { analyzeWithoutProgram } from './analyzeWithoutProgram.js';
 import { Linter } from './jsts/linter/linter.js';
+import {
+  prepareProgramRequest,
+  finishProgramRequest,
+  getCompilerCachePolicy,
+} from 'typescript/control';
 import { linter as cssLinter } from './css/linter/wrapper.js';
 import {
   type Configuration,
@@ -106,12 +111,14 @@ export async function analyzeProject(
     }
     return await analyzeProjectWithCancellation(input, configuration, incrementalResultsChannel);
   } finally {
-    // Scanner requests are independent. The last ESLint SourceCode retains its parser services,
-    // including the entire TypeScript Program; the parsed SourceFile cache also remains live.
-    // Release both before the next request loads another filesystem archive or TS program.
-    if (!configuration.sonarlint) {
-      Linter.releaseAfterAnalysis();
-      clearSourceFileContentCache();
+    try {
+      finishProgramRequest(configuration.sonarlint);
+    } finally {
+      if (!configuration.sonarlint || !getCompilerCachePolicy().retainAnalysisStateForIDE) {
+        // Compiler-backed parser state is snapshot-bound; TS6 IDE caches retain master's lifetime.
+        Linter.releaseAfterAnalysis();
+        clearSourceFileContentCache();
+      }
     }
   }
 }
@@ -139,7 +146,9 @@ async function analyzeProjectWithCancellation(
     generatedSourceStore.observeGeneratedSources(configuration, filesToAnalyze),
   );
   const jsTsConfigFields = getJsTsConfigFields(configuration);
+  if (!getCompilerCachePolicy().retainAnalysisStateForIDE) clearSourceFileContentCache();
   setSourceFilesContext(filesToAnalyze);
+  if (sonarlint) prepareProgramRequest(configuration.fsEvents);
   const { testFileExtensions } = getFilterPathParams(configuration);
   await Linter.initialize({
     rules,

@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "paths": { "typescript": ["../packages/typescript"] },
     "target": "ES2023",
     "module": "nodenext",
     "moduleResolution": "nodenext",

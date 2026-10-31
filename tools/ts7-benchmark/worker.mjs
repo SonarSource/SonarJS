@@ -1,0 +1,423 @@
+import {
+  getCompilerInfo,
+  getCompilerGateway,
+  initializeCompiler,
+  configureCompilerInstrumentation,
+  getProgramInstrumentation,
+  getProgramFileNames,
+  clearProgramCache,
+  compilerOptionsToJson,
+} from 'typescript/control';
+import '../../packages/analysis/src/jsts/native/compatibility.mjs';
+import fs from 'node:fs';
+import path from 'node:path';
+import { createRequire } from 'node:module';
+import { createHash } from 'node:crypto';
+import { fileURLToPath } from 'node:url';
+import { attachNativeProfiler } from '../../packages/analysis/src/jsts/native/profiling.mjs';
+import {
+  createHostProfiler,
+  createPerformanceProfiler,
+  startCpuProfile,
+  summarizeCpuProfile,
+} from './profiling.mjs';
+import {
+  createAnalysisTimeline,
+  createOwnershipPolicy,
+  monotonicMicros,
+  summarizeOwnership,
+} from './ownership.mjs';
+import { normalizeDiagnostics } from './results.mjs';
+import { assertCompilerRouting } from './routing.mjs';
+import { startAllocationProfile, summarizeAllocations } from './allocation.mjs';
+import ts from 'typescript';
+import { build } from '../../packages/analysis/src/jsts/builders/build.ts';
+import { sampleNativeMemory } from './memory.mjs';
+import { Linter } from '../../packages/analysis/src/jsts/linter/linter.ts';
+import { createProgramOptions } from '../../packages/analysis/src/jsts/program/tsconfig/options.ts';
+import { createStandardProgram } from '../../packages/analysis/src/jsts/program/factory.ts';
+import { IncrementalCompilerHost } from '../../packages/analysis/src/jsts/program/compilerHost.ts';
+import {
+  setSourceFilesContext,
+  clearSourceFileContentCache,
+} from '../../packages/analysis/src/jsts/program/cache/sourceFileCache.ts';
+import {
+  installFsCache,
+  getFileSystemCaseSensitivity,
+} from '../../packages/shared/src/fs-cache/hook.ts';
+import * as metas from '../../packages/analysis/src/jsts/rules/metas.ts';
+
+const [configFile, resultFile] = process.argv.slice(2);
+const config = JSON.parse(fs.readFileSync(configFile, 'utf8'));
+const root = config.project.replaceAll('\\', '/');
+let started = monotonicMicros();
+const profiler = config.profile ? createPerformanceProfiler() : undefined;
+const hostProfiler = config.profile || config.layerProfile ? createHostProfiler() : undefined;
+let timeline;
+let analysisTimeline;
+let analysisCpuStart;
+const phase = name => {
+  profiler?.setPhase(name);
+  timeline?.phase(name);
+};
+let detachTiming;
+let detachClient;
+let stopCpu;
+let cpuProfile;
+let stopAllocation;
+let allocationProfile;
+const unsupported = new Map();
+const checkerFailures = [];
+globalThis[Symbol.for('sonarjs.ts7.unsupported')] = member =>
+  unsupported.set(member, (unsupported.get(member) ?? 0) + 1);
+const report = {
+  backend: config.backend,
+  label: config.label ?? config.backend,
+  control: !!config.control,
+  valid: false,
+  issues: {},
+  diagnostics: {},
+  files: [],
+  errors: [],
+  timings: {},
+  instrumentation: {
+    metrics: !!config.profile,
+    cpu: !!config.cpuProfile,
+    ownership: !!config.layerProfile,
+    allocation: !!config.allocationProfile,
+    sampleIntervalMicros: config.sampleIntervalMicros ?? 1000,
+  },
+  unsupported: {},
+  compilerVersion: config.backend === 'classic' ? ts.version : getCompilerInfo().version,
+  compilerBackend: getCompilerInfo().backend,
+  compilerRevision: getCompilerInfo().revision,
+  versions: {
+    node: process.version,
+    parser: createRequire(import.meta.url)('@typescript-eslint/parser/package.json').version,
+    platform: process.platform,
+    arch: process.arch,
+  },
+  wasmBridge:
+    getCompilerInfo().backend === 'wasm'
+      ? (process.env.SONARJS_WASM_BRIDGE ?? 'syscall')
+      : undefined,
+  transport:
+    getCompilerInfo().backend === 'wasm'
+      ? 'in-process-wasm'
+      : config.backend === 'classic'
+        ? 'local-js'
+        : 'ipc',
+};
+let filesystemSession;
+try {
+  const initializationStart = performance.now();
+  await initializeCompiler();
+  report.timings.compilerInitializationMs = performance.now() - initializationStart;
+  configureCompilerInstrumentation({ collectTiming: true, filesystem: config.filesystem });
+  if (profiler && config.backend !== 'classic')
+    [detachTiming, detachClient] = await attachNativeProfiler(profiler);
+  if (config.cpuProfile || config.layerProfile)
+    stopCpu = await startCpuProfile(config.sampleIntervalMicros ?? 1000);
+  if (config.allocationProfile)
+    stopAllocation = await startAllocationProfile(config.allocationIntervalBytes);
+  timeline = config.layerProfile ? createAnalysisTimeline() : undefined;
+  started = timeline ? timeline.start() : monotonicMicros();
+  analysisCpuStart = process.cpuUsage();
+  const libraryDirectories = [path.dirname(ts.getDefaultLibFilePath({}))];
+  if (config.archive) {
+    filesystemSession = installFsCache().beginAnalysis({
+      archivePath: config.archive,
+      mode: config.archiveMode,
+      rootDir: root,
+      passthroughDirs: libraryDirectories,
+      restrictNativeReads: false,
+    });
+  }
+  const selectionStart = performance.now();
+  phase('selection');
+  const selections = config.tsconfigs.map(file => {
+    const options = createProgramOptions(file, undefined, true, undefined, root);
+    if (options.errors?.length)
+      throw new Error(ts.formatDiagnostics(options.errors, ts.createCompilerHost(options.options)));
+    return { file, options };
+  });
+  const filenames = [...new Set(selections.flatMap(({ options }) => options.rootNames))]
+    .filter(file => /\.[cm]?[jt]sx?$/.test(file) && !/\.d\.[cm]?ts$/.test(file))
+    .map(file => file.replaceAll('\\', '/'))
+    .sort()
+    .slice(0, config.maxFiles ?? Number.MAX_SAFE_INTEGER);
+  if (!filenames.length) throw new Error('No source files selected by these tsconfigs');
+  const texts = new Map(filenames.map(file => [file, ts.sys.readFile(file)]));
+  if ([...texts.values()].some(text => text === undefined))
+    throw new Error('A selected source file could not be read');
+  report.sourceHashes = Object.fromEntries(
+    [...texts].map(([file, text]) => [
+      path.relative(root, file).replaceAll('\\', '/'),
+      createHash('sha256').update(text).digest('hex'),
+    ]),
+  );
+  setSourceFilesContext(
+    Object.fromEntries([...texts].map(([file, fileContent]) => [file, { fileContent }])),
+  );
+  report.timings.selectionMs = performance.now() - selectionStart;
+  const programStart = performance.now();
+  phase('program');
+  const programs = selections.map(({ options }) =>
+    createStandardProgram({
+      ...options,
+      host: hostProfiler
+        ? hostProfiler.wrap(
+            new IncrementalCompilerHost(options.options, root, config.skipOutsideNodeModules),
+          )
+        : new IncrementalCompilerHost(options.options, root, config.skipOutsideNodeModules),
+    }),
+  );
+  const membership = programs.map(
+    program => new Set(getProgramFileNames(program).map(file => file.replaceAll('\\', '/'))),
+  );
+  report.timings.programMs = performance.now() - programStart;
+  phase('rule-selection');
+  const selectedRules = config.ruleConfig
+    ? [...new Set(config.ruleConfig.map(rule => rule.key))]
+    : config.rules === 'all'
+      ? Object.keys(metas)
+      : config.rules === 'recommended'
+        ? Object.entries(metas)
+            .filter(([, value]) => value.meta.docs.recommended)
+            .map(([key]) => key)
+        : config.rules;
+  for (const key of selectedRules)
+    if (!metas[key] || !Linter.rules[key]) throw new Error(`Unknown SonarJS rule ${key}`);
+  if (profiler)
+    for (const key of selectedRules) Linter.rules[key] = profiler.wrapRule(key, Linter.rules[key]);
+  report.rules = selectedRules;
+  report.activeRules = {};
+  report.programInputs = selections.map(({ file, options }) => ({
+    tsconfig: file,
+    rootCount: options.rootNames.length,
+    rootNames: options.rootNames
+      .map(name => path.relative(root, name).replaceAll('\\', '/'))
+      .sort(),
+    projectReferences: options.projectReferences,
+    compilerOptions: compilerOptionsToJson(options.options),
+  }));
+  const originalGetRules = Linter.getRulesForFile;
+  Linter.getRulesForFile = function (...args) {
+    const rules = Reflect.apply(originalGetRules, this, args);
+    report.activeRules[path.relative(root, args[0]).replaceAll('\\', '/')] =
+      Object.keys(rules).sort();
+    return rules;
+  };
+  phase('initialize');
+  await Linter.initialize({
+    baseDir: root,
+    detectGeneratedCode: false,
+    rules:
+      config.ruleConfig ??
+      selectedRules.flatMap(key =>
+        ['js', 'ts'].map(language => ({
+          key,
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language,
+          analysisModes: ['DEFAULT'],
+        })),
+      ),
+  });
+  let parseMs = 0;
+  let lintMs = 0;
+  if (profiler) report.fileTimings = [];
+  for (const file of filenames) {
+    const program = programs[membership.findIndex(files => files.has(file))];
+    if (!program) throw new Error(`Program membership missing for ${file}`);
+    const beforeParse = performance.now();
+    phase('parse');
+    // Exercise the same production parser route for every compiler provider.
+    const parsed = build(
+      {
+        filePath: file,
+        fileContent: texts.get(file),
+        program,
+        tsConfigs: [],
+        language: /\.[cm]?jsx?$/.test(file) ? 'js' : 'ts',
+        allowTsParserJsFiles: true,
+      },
+      { jsx: /x$/.test(file) },
+    );
+    const fileParseMs = performance.now() - beforeParse;
+    parseMs += fileParseMs;
+    const beforeLint = performance.now();
+    phase('lint');
+    const language = /\.[cm]?jsx?$/.test(file) ? 'js' : 'ts';
+    const result = Linter.lint(
+      parsed,
+      file,
+      'MAIN',
+      'CHANGED',
+      'DEFAULT',
+      language,
+      undefined,
+      'module',
+    );
+    const fileLintMs = performance.now() - beforeLint;
+    lintMs += fileLintMs;
+    phase('results');
+    report.fileTimings?.push({
+      file: path.relative(root, file).replaceAll('\\', '/'),
+      parseMs: fileParseMs,
+      lintMs: fileLintMs,
+    });
+    report.files.push(path.relative(root, file).replaceAll('\\', '/'));
+    // Normalize/sort rich comparison data after the measured analysis interval.
+    report.diagnostics[path.relative(root, file).replaceAll('\\', '/')] = result;
+    for (const issue of result.issues) {
+      const key = `${language}-${issue.ruleId}`;
+      const relative = path.relative(root, file).replaceAll('\\', '/');
+      (report.issues[key] ??= {})[relative] ??= [];
+      report.issues[key][relative].push(issue.line);
+    }
+  }
+  phase('validation');
+  report.compilerRouting = assertCompilerRouting(getCompilerGateway(), ts);
+  report.timings.parseMs = parseMs;
+  report.timings.lintMs = lintMs;
+  report.hostCallbacks = hostProfiler?.getReport();
+  const instrumentation = programs.map(getProgramInstrumentation).filter(Boolean);
+  if (instrumentation.length) {
+    report.filesystem =
+      instrumentation.length === 1
+        ? instrumentation[0].filesystem
+        : instrumentation.map(value => value.filesystem);
+    report.ipc = { ...instrumentation[0].ipc, totals: {} };
+    for (const value of instrumentation) {
+      checkerFailures.push(...value.failures);
+      for (const [key, amount] of Object.entries(value.timings))
+        report.timings[key] = (report.timings[key] ?? 0) + amount;
+      for (const [key, amount] of Object.entries(value.ipc.totals))
+        report.ipc.totals[key] = (report.ipc.totals[key] ?? 0) + amount;
+    }
+  }
+  if (profiler) {
+    report.profile = profiler.getReport();
+    if (report.ipc) {
+      const keys = ['requestCount', 'roundTripMs', 'bytesSent', 'bytesReceived'];
+      report.profile.matchesSdkTotals = keys.every(
+        key => report.profile.totals[key] === report.ipc.totals[key],
+      );
+      if (!report.profile.matchesSdkTotals)
+        throw new Error('Profiling totals do not match SDK counters');
+    }
+  }
+  report.valid = unsupported.size === 0 && checkerFailures.length === 0;
+} catch (error) {
+  report.errors.push({ message: error.message, stack: error.stack });
+} finally {
+  analysisTimeline = timeline?.stop();
+  report.analysisTimeline = analysisTimeline;
+  report.timings.analysisMs = ((analysisTimeline?.endUs ?? monotonicMicros()) - started) / 1000;
+  if (analysisCpuStart) report.nodeCpuMicros = process.cpuUsage(analysisCpuStart);
+  if (stopAllocation) {
+    try {
+      allocationProfile = await stopAllocation();
+      const info = getCompilerInfo();
+      report.allocations = {
+        ...summarizeAllocations(
+          allocationProfile,
+          createOwnershipPolicy({
+            repository: fileURLToPath(new URL('../../', import.meta.url)),
+            classicRoot: info.classicRoot,
+            sdkRoot: info.sdkRoot,
+            wasmRoot: process.env.SONARJS_TS7_WASM,
+          }),
+        ),
+        profilePath: config.allocationProfile,
+      };
+    } catch (error) {
+      report.errors.push({ message: error.message });
+      report.valid = false;
+    }
+  }
+  detachTiming?.();
+  detachClient?.();
+  if (profiler && !report.profile) report.profile = profiler.getReport();
+  if (stopCpu) {
+    try {
+      cpuProfile = await stopCpu();
+      if (config.cpuProfile)
+        report.cpuProfile = { path: config.cpuProfile, ...summarizeCpuProfile(cpuProfile) };
+      if (config.layerProfile && analysisTimeline) {
+        const info = getCompilerInfo();
+        const policy = createOwnershipPolicy({
+          repository: fileURLToPath(new URL('../../', import.meta.url)),
+          classicRoot: info.classicRoot,
+          sdkRoot: info.sdkRoot,
+          wasmRoot: process.env.SONARJS_TS7_WASM,
+        });
+        report.ownership = {
+          ...summarizeOwnership(
+            cpuProfile,
+            analysisTimeline,
+            policy,
+            config.sampleIntervalMicros ?? 1000,
+          ),
+          profilePath: config.cpuProfile ?? config.layerProfile,
+        };
+      }
+    } catch (error) {
+      report.errors.push({ message: error.message });
+      report.valid = false;
+    }
+  }
+  report.memory = {
+    nodeMaxRssBytes: process.resourceUsage().maxRSS * 1024,
+    nodeRssBytes: process.memoryUsage().rss,
+  };
+  report.unsupported = Object.fromEntries(unsupported);
+  report.checkerFailures = checkerFailures;
+  try {
+    Linter.releaseAfterAnalysis();
+    getCompilerGateway().assertHealthy();
+  } catch (error) {
+    report.errors.push({ message: error.message });
+    report.valid = false;
+  }
+  // End the project hook before process sampling and report writes. Keep the
+  // compiler alive for the RSS sample, but exclude sampling from analysis time.
+  try {
+    filesystemSession?.end();
+  } catch (error) {
+    report.errors.push({ message: error.message });
+    report.valid = false;
+  }
+  if (report.ipc) {
+    try {
+      report.memory.native = sampleNativeMemory();
+    } catch (error) {
+      report.memory.native = { available: false, error: error.message };
+    }
+    if (report.memory.native.available)
+      report.memory.combinedSampleRssBytes =
+        report.memory.nodeRssBytes + report.memory.native.rssBytes;
+  }
+  try {
+    clearProgramCache();
+  } catch (error) {
+    report.errors.push({ message: error.message });
+    report.valid = false;
+  }
+  clearSourceFileContentCache();
+  if (cpuProfile)
+    fs.writeFileSync(config.cpuProfile ?? config.layerProfile, JSON.stringify(cpuProfile));
+  if (allocationProfile)
+    fs.writeFileSync(config.allocationProfile, JSON.stringify(allocationProfile));
+  for (const files of Object.values(report.issues))
+    for (const lines of Object.values(files)) lines.sort((a, b) => a - b);
+  report.diagnostics = Object.fromEntries(
+    Object.entries(report.diagnostics).map(([file, result]) => [
+      file,
+      normalizeDiagnostics(result, root),
+    ]),
+  );
+  fs.writeFileSync(resultFile, JSON.stringify(report, null, 2) + '\n');
+}
+if (!report.valid) process.exitCode = 2;
