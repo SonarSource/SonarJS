@@ -20,7 +20,7 @@ jobs:
           ref: ${{ github.event.repository.default_branch }}
       - uses: jdx/mise-action@82a612c5ab8bcda7cc5db6b7e81a8e7584c3dc6e # v5.2.3
         with:
-          version: 2026.9.11
+          version: 2026.10.20
           install_args: node
       - uses: ./.github/actions/ruling_bot/cleanup
         with:
