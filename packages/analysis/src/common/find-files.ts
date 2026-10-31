@@ -31,28 +31,42 @@ export async function findFiles(
   onEntry: (file: Dirent, filePath: NormalizedAbsolutePath) => Promise<void>,
 ) {
   const root = normalizeToAbsolutePath(dir);
-  const directories: NormalizedAbsolutePath[] = [root];
+  await walkDirectory(root, root, jsTsExclusions, onEntry);
+}
 
-  while (directories.length > 0) {
-    const directory = directories.pop()!;
-    let entries: Dir;
-    try {
-      entries = await opendir(directory);
-    } catch (error) {
-      if (directory === root || !['EACCES', 'EPERM'].includes(error?.code)) {
-        throw error;
-      }
-      warn(`Skipping directory '${directory}' because it cannot be read (${error.code}).`);
-      continue;
+async function walkDirectory(
+  directory: NormalizedAbsolutePath,
+  root: NormalizedAbsolutePath,
+  jsTsExclusions: Minimatch[],
+  onEntry: (file: Dirent, filePath: NormalizedAbsolutePath) => Promise<void>,
+) {
+  let entries: Dir;
+  try {
+    entries = await opendir(directory);
+  } catch (error) {
+    if (directory === root || !['EACCES', 'EPERM'].includes(error?.code)) {
+      throw error;
     }
-    for await (const file of entries) {
-      const filePath = joinPaths(normalizeToAbsolutePath(file.parentPath), file.name);
-      if (!isJsTsExcluded(filePath, jsTsExclusions)) {
-        if (file.isDirectory()) {
-          directories.push(filePath);
-        }
-        await onEntry(file, filePath);
-      }
+    warn(`Skipping directory '${directory}' because it cannot be read (${error.code}).`);
+    return;
+  }
+  const included: { file: Dirent; filePath: NormalizedAbsolutePath }[] = [];
+  for await (const file of entries) {
+    const filePath = joinPaths(normalizeToAbsolutePath(file.parentPath), file.name);
+    if (!isJsTsExcluded(filePath, jsTsExclusions)) {
+      included.push({ file, filePath });
     }
   }
+  // Entries are processed sequentially to preserve traversal order and avoid
+  // opening too many directories at once.
+  await included.reduce(
+    (previous, { file, filePath }) =>
+      previous.then(async () => {
+        await onEntry(file, filePath);
+        if (file.isDirectory()) {
+          await walkDirectory(filePath, root, jsTsExclusions, onEntry);
+        }
+      }),
+    Promise.resolve(),
+  );
 }

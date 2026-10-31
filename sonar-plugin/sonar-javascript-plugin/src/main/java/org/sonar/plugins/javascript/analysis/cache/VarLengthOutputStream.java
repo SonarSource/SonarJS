@@ -43,7 +43,7 @@ public class VarLengthOutputStream implements Closeable {
       // remove 7 bits from value
       value >>>= 7;
       // add "next byte" bit if another byte is required
-      byte b = (byte) (bits + ((value != 0) ? 0x80 : 0));
+      byte b = (byte) (bits + ((value == 0) ? 0 : 0x80));
       out.write(b);
     } while (value != 0);
   }

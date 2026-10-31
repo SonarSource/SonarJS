@@ -711,7 +711,7 @@ public class AnalysisProcessor {
         issue.getEndColumn()
       );
     }
-    return issue.getLine() != 0 ? file.selectLine(issue.getLine()) : null;
+    return issue.getLine() == 0 ? null : file.selectLine(issue.getLine());
   }
 
   private void saveIssueResolution(JsTsContext<?> context, SonarResolve sonarResolve) {
