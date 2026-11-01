@@ -57,7 +57,7 @@ public class NodeCommandBuilderImpl implements NodeCommandBuilder {
   private Version minNodeVersion;
   private Configuration configuration;
   private List<String> args = new ArrayList<>();
-  private List<String> nodeJsArgs = new ArrayList<>();
+  private final List<String> nodeJsArgs = new ArrayList<>();
   private Consumer<String> outputConsumer = LOG::info;
   private Consumer<String> errorConsumer = LOG::error;
   private String scriptFilename;

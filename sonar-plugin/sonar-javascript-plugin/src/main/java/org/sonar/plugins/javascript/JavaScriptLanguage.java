@@ -26,7 +26,7 @@ public class JavaScriptLanguage extends AbstractLanguage {
   public static final String FILE_SUFFIXES_KEY = "sonar.javascript.file.suffixes";
   public static final String DEFAULT_FILE_SUFFIXES = ".js,.jsx,.cjs,.mjs,.vue";
 
-  private Configuration configuration;
+  private final Configuration configuration;
 
   public JavaScriptLanguage(Configuration configuration) {
     super(KEY, "JavaScript");

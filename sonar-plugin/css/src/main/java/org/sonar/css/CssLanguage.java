@@ -26,7 +26,7 @@ public class CssLanguage extends AbstractLanguage {
   public static final String FILE_SUFFIXES_KEY = "sonar.css.file.suffixes";
   public static final String DEFAULT_FILE_SUFFIXES = ".css,.less,.scss,.sass";
 
-  private Configuration configuration;
+  private final Configuration configuration;
 
   public CssLanguage(Configuration configuration) {
     super(KEY, "CSS");
