@@ -64,15 +64,27 @@ function npmPackageName(purl) {
   return decodeURIComponent(purl.slice(prefix.length, versionSeparator));
 }
 
-function bundledPackageNames(metafile) {
-  const names = new Set();
+async function bundledPackageNames(metafile) {
+  const directories = new Set();
   for (const input of Object.keys(metafile.inputs ?? {})) {
     const matches = [...input.matchAll(/(?:^|[\\/])node_modules[\\/]((?:@[^\\/]+[\\/])?[^\\/]+)/g)];
     if (matches.length > 0) {
-      names.add(matches.at(-1)[1].replaceAll('\\', '/'));
+      const match = matches.at(-1);
+      directories.add(input.slice(0, match.index + match[0].length).replaceAll('\\', '/'));
     }
   }
-  return names;
+  // npm aliases use a different installation directory from their published identity.
+  // CycloneDX records the identity from package.json, which is also the source of truth here.
+  const manifests = await Promise.all(
+    [...directories].map(directory => readJson(`${directory}/package.json`)),
+  );
+  return new Set(
+    manifests.map(manifest => {
+      if (typeof manifest.name !== 'string' || !manifest.name)
+        throw new Error('Bundled package has no name');
+      return manifest.name;
+    }),
+  );
 }
 
 const [npmBom, mergedBom, esbuildMetafile] = await Promise.all([
@@ -84,7 +96,7 @@ const [npmBom, mergedBom, esbuildMetafile] = await Promise.all([
 const npmPurls = collectPurls(npmBom);
 const mergedPurls = collectPurls(mergedBom);
 const npmPackageNames = new Set([...npmPurls].map(npmPackageName).filter(Boolean));
-const bundledPackages = bundledPackageNames(esbuildMetafile);
+const bundledPackages = await bundledPackageNames(esbuildMetafile);
 
 if (npmPackageNames.size === 0) {
   throw new Error(`No pkg:npm components found in ${npmBomPath}`);

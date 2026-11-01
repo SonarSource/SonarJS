@@ -16,6 +16,7 @@
  */
 import type { Linter } from 'eslint';
 import ts from 'typescript';
+import { CompilerContractError } from 'typescript/errors';
 import { debug } from '../../../../shared/src/helpers/logging.js';
 import type { JsTsAnalysisInput } from '../analysis/analysis.js';
 import {
@@ -73,6 +74,7 @@ function parseAsTypescript(input: JsTsAnalysisInput, vueFile: boolean, context: 
     debug(`Parsing ${input.filePath} with ${parser.meta.name}`);
     return parse(input.fileContent, parser, parserOptions);
   } catch (error) {
+    if (error instanceof CompilerContractError) throw error;
     debug(`Failed to parse ${input.filePath} with ${parser.meta.name}: ${error.message}`);
     if (vueFile && input.language === 'ts') {
       return retryVueTsWithFlippedJsx(input, parser, context, error);
@@ -100,6 +102,7 @@ function retryVueTsWithFlippedJsx(
       buildVueParserOptions('ts', { filePath: input.filePath }, { ...context, jsx: retryJsx }),
     );
   } catch (retryError) {
+    if (retryError instanceof CompilerContractError) throw retryError;
     debug(
       `JSX-${retryJsx ? 'enabled' : 'disabled'} retry failed for ${input.filePath}: ${retryError.message}`,
     );

@@ -23,6 +23,12 @@ import { describe, it } from 'node:test';
 import parser from 'vue-eslint-parser';
 
 describe('S1534', () => {
+  it('accepts TypeScript method overloads', () => {
+    new NoTypeCheckingRuleTester().run('method overloads', rule, {
+      valid: [{ code: 'class D { m(n: number): void; m(s: string): void; }' }],
+      invalid: [],
+    });
+  });
   it('S1534', () => {
     const ruleTester = new DefaultParserRuleTester();
     ruleTester.run(`Decorated rule should provide suggestion`, rule, {

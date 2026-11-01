@@ -1,0 +1,53 @@
+import type { TSESTree } from '../../types/index.js';
+
+import type { Definition } from '../definition/index.js';
+import type { Reference } from '../referencer/Reference.js';
+import type { Scope } from '../scope/index.js';
+
+import { createIdGenerator } from '../ID.js';
+
+const generator = createIdGenerator();
+
+export class VariableBase {
+  /**
+   * A unique ID for this instance - primarily used to help debugging and testing
+   */
+  public readonly $id: number = generator();
+
+  /**
+   * The array of the definitions of this variable.
+   * @public
+   */
+  public readonly defs: Definition[] = [];
+  /**
+   * True if the variable is considered used for the purposes of `no-unused-vars`, false otherwise.
+   * @public
+   */
+  public eslintUsed = false;
+  /**
+   * The array of `Identifier` nodes which define this variable.
+   * If this variable is redeclared, this array includes two or more nodes.
+   * @public
+   */
+  public readonly identifiers: TSESTree.Identifier[] = [];
+  /**
+   * The variable name, as given in the source code.
+   * @public
+   */
+  public readonly name: string;
+  /**
+   * List of {@link Reference} of this variable (excluding parameter entries)  in its defining scope and all nested scopes.
+   * For defining occurrences only see {@link Variable#defs}.
+   * @public
+   */
+  public readonly references: Reference[] = [];
+  /**
+   * Reference to the enclosing Scope.
+   */
+  public readonly scope: Scope;
+
+  constructor(name: string, scope: Scope) {
+    this.name = name;
+    this.scope = scope;
+  }
+}

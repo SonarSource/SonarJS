@@ -51,10 +51,10 @@ function commonParserOptions(context: ParserContext = {}): Linter.ParserOptions 
   };
 }
 
-/** Overlay for @typescript-eslint/parser. */
+/** Compatibility options for TypeScript and delegated Vue scripts. */
 function typescriptParserOverlay(): Linter.ParserOptions {
   return {
-    // Keep watch programs alive so file content replacement works for .vue files.
+    // Retained for callers sharing options with the upstream parser.
     disallowAutomaticSingleRunInference: true,
     extraFileExtensions: ['.vue'],
   };
@@ -85,7 +85,7 @@ function babelParserOverlay(context: ParserContext = {}): Linter.ParserOptions {
   };
 }
 
-/** Options for @typescript-eslint/parser. */
+/** Options for the owned TypeScript parser. */
 export function buildTsParserOptions(
   overrides: Linter.ParserOptions = {},
   context: ParserContext = {},

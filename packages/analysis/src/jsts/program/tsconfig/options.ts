@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import ts from 'typescript';
+import selectProvider from 'typescript/selection';
 import { debug, error } from '../../../../../shared/src/helpers/logging.js';
 import {
   getNodeVersionSignal,
@@ -24,10 +25,11 @@ import { getClosestDependencyManifestDir } from '../../rules/helpers/dependency-
 import { dirnamePath } from '../../rules/helpers/files.js';
 import { dirname } from 'node:path/posix';
 import { getTsConfigContentCache } from '../cache/tsconfigCache.js';
-import { isLastTsConfigCheck } from './utils.js';
+import { isLastTsConfigCheck, isRootNodeModules } from './utils.js';
 import { getCachedProgramOptions, setCachedProgramOptions } from '../cache/programOptionsCache.js';
 import { sourceFileStore } from '../../../file-stores/index.js';
 import {
+  isAbsolutePath,
   normalizeToAbsolutePath,
   type NormalizedAbsolutePath,
 } from '../../../../../shared/src/helpers/files.js';
@@ -218,6 +220,73 @@ function applyLegacyStrictnessDefaults(
       compilerOptions[optionName] = false;
     }
   }
+}
+
+// These options already have no effect in TS6. TS7 dropped their config names;
+// retain the rest of an existing project's configuration instead of falling back.
+const REMOVED_COMPILER_OPTIONS = new Set([
+  'importsNotUsedAsValues',
+  'out',
+  'charset',
+  'noImplicitUseStrict',
+  'suppressExcessPropertyErrors',
+  'suppressImplicitAnyIndexErrors',
+  'noStrictGenericChecks',
+  'preserveValueImports',
+  'keyofStringsOnly',
+]);
+function retainCrossVersionConfigDiagnostic(diagnostic: ts.Diagnostic): boolean {
+  if (diagnostic.code !== 5023 || typeof diagnostic.messageText !== 'string') return true;
+  const option = /^Unknown compiler option '([^']+)'\.$/.exec(diagnostic.messageText)?.[1];
+  return option === undefined || !REMOVED_COMPILER_OPTIONS.has(option);
+}
+
+/** Keep project resolution semantics across compilers which no longer support baseUrl. */
+export function applyCrossVersionCompilerOptions(
+  options: ts.CompilerOptions,
+  legacyModuleResolution = selectProvider().legacyModuleResolution !== false,
+): ts.CompilerOptions {
+  // The classic CompilerHost does not redirect referenced declaration outputs to
+  // source files. Match that default in native programs so each referenced source
+  // is analyzed with its own config, including our cross-version option policy.
+  if (options.disableSourceOfProjectReferenceRedirect === undefined)
+    options = { ...options, disableSourceOfProjectReferenceRedirect: true };
+  if (
+    !legacyModuleResolution &&
+    (options.moduleResolution === ts.ModuleResolutionKind.Classic ||
+      options.moduleResolution === ts.ModuleResolutionKind.Node10)
+  ) {
+    // TS7 removed both legacy resolvers. Bundler + Preserve supports extension
+    // probing and the old package entry-point policy without enabling exports.
+    options = {
+      ...options,
+      module: ts.ModuleKind.Preserve,
+      moduleResolution: ts.ModuleResolutionKind.Bundler,
+      resolvePackageJsonExports: options.resolvePackageJsonExports ?? false,
+      resolvePackageJsonImports: options.resolvePackageJsonImports ?? false,
+    };
+  }
+  const { baseUrl, ...rest } = options;
+  if (baseUrl === undefined) {
+    return options;
+  }
+
+  // Config parsing has already resolved baseUrl relative to the config declaring it,
+  // including inherited configs. Anchor substitutions before removing that origin.
+  // Do not collapse '..' here: a preceding '*' may substitute multiple directories.
+  const baseUrlPrefix = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+  const fromBaseUrl = (target: string) =>
+    isAbsolutePath(target) ? target : baseUrlPrefix + target;
+  const paths = Object.fromEntries(
+    Object.entries(options.paths ?? {}).map(([pattern, substitutions]) => [
+      pattern,
+      [...substitutions.map(fromBaseUrl), fromBaseUrl(pattern)],
+    ]),
+  );
+  // TypeScript tries baseUrl after a matching paths pattern fails as well as when
+  // no pattern matches. Append the fallback to every pattern, preserving priority.
+  paths['*'] ??= [fromBaseUrl('*')];
+  return { ...rest, paths };
 }
 
 function esYearFromEsPrefix(ecmaScriptVersion: string): number | null {
@@ -438,6 +507,28 @@ export function groupFilesByResolvedLib(
 function createBaseParseConfigHost(canAccessFileSystem: boolean): CustomParseConfigHost {
   return {
     useCaseSensitiveFileNames: true,
+    directoryExists(directory: string): boolean {
+      return canAccessFileSystem
+        ? ts.sys.directoryExists(directory)
+        : Object.keys(sourceFileStore.getFiles()).some(file =>
+            file.startsWith(`${normalizeToAbsolutePath(directory)}/`),
+          );
+    },
+    getDirectories(directory: string): string[] {
+      if (canAccessFileSystem) return ts.sys.getDirectories(directory);
+      const root = normalizeToAbsolutePath(directory);
+      const files = Object.keys(sourceFileStore.getFiles()).filter(file =>
+        file.startsWith(`${root}/`),
+      );
+      return [
+        ...new Set(
+          files
+            .map(file => file.slice(root.length + 1).split('/'))
+            .filter(parts => parts.length > 1)
+            .map(parts => `${root}/${parts[0]}`),
+        ),
+      ];
+    },
     readDirectory(
       rootDir: string,
       extensions: readonly string[],
@@ -450,7 +541,9 @@ function createBaseParseConfigHost(canAccessFileSystem: boolean): CustomParseCon
       } else {
         const normalizedDir = normalizeToAbsolutePath(rootDir);
         const entries = sourceFileStore.getFilesInDirectory(normalizedDir) ?? [];
-        return [...entries].filter(f => extensions.some(ext => f.endsWith(ext)));
+        return [...entries]
+          .filter(f => !extensions || extensions.some(ext => f.endsWith(ext)))
+          .map(file => `${normalizedDir}/${file}`);
       }
     },
     fileExists(path: string): boolean {
@@ -478,8 +571,10 @@ export function createProgramOptionsFromJson(
   rootNames: NormalizedAbsolutePath[],
   baseDir: string,
 ): ProgramOptions {
+  const converted = ts.convertCompilerOptionsFromJson(json, baseDir);
   return {
-    ...ts.convertCompilerOptionsFromJson(json, baseDir),
+    configFileParsingDiagnostics: converted.errors.filter(retainCrossVersionConfigDiagnostic),
+    options: applyCrossVersionCompilerOptions(converted.options),
     rootNames,
     missingTsConfig: false,
     [PROGRAM_OPTIONS_BRAND]: true,
@@ -496,7 +591,7 @@ export function createProgramOptionsFromEffectiveOptions(
   rootNames: NormalizedAbsolutePath[],
 ): ProgramOptions {
   return {
-    options,
+    options: applyCrossVersionCompilerOptions(options),
     rootNames,
     missingTsConfig: false,
     [PROGRAM_OPTIONS_BRAND]: true,
@@ -534,6 +629,11 @@ export function createProgramOptions(
   // Set up parseConfigHost with tsconfig-specific logic (caching, missing file handling)
   const parseConfigHost: CustomParseConfigHost = {
     useCaseSensitiveFileNames: true,
+    directoryExists: directory =>
+      directory.includes('/node_modules') ||
+      isRootNodeModules(directory) ||
+      baseParseConfigHost.directoryExists!(directory),
+    getDirectories: baseParseConfigHost.getDirectories,
     readDirectory: baseParseConfigHost.readDirectory,
     fileExists: file => {
       debug(`TSConfig lookup while parsing ${tsConfig}: checking ${file}`);
@@ -614,6 +714,8 @@ export function createProgramOptions(
     applyLegacyStrictnessDefaults(parsedConfigFile, config.config, extendedConfigCache);
   }
 
+  parsedConfigFile.options = applyCrossVersionCompilerOptions(parsedConfigFile.options);
+
   // Enrich with computed lib if not set by the tsconfig or any extended config.
   // Checked after parsing so that inherited lib settings are respected.
   // Uses ts.convertCompilerOptionsFromJson to convert raw JSON strings to TypeScript's
@@ -640,7 +742,8 @@ export function createProgramOptions(
   }
 
   // Filter diagnostics by severity
-  const errors = parsedConfigFile.errors.filter(d => d.category === ts.DiagnosticCategory.Error);
+  const diagnostics = parsedConfigFile.errors.filter(retainCrossVersionConfigDiagnostic);
+  const errors = diagnostics.filter(d => d.category === ts.DiagnosticCategory.Error);
 
   // Throw on fatal errors but preserve warnings/messages for the program to report
   if (errors.length > 0) {
@@ -652,7 +755,7 @@ export function createProgramOptions(
     rootNames: parsedConfigFile.fileNames,
     options: parsedConfigFile.options,
     projectReferences: parsedConfigFile.projectReferences,
-    configFileParsingDiagnostics: parsedConfigFile.errors, // Include all diagnostics (errors and warnings)
+    configFileParsingDiagnostics: diagnostics, // Preserve other errors, warnings and messages.
     missingTsConfig: parseConfigHost.missingTsConfig(),
     [PROGRAM_OPTIONS_BRAND]: true,
   } as const;

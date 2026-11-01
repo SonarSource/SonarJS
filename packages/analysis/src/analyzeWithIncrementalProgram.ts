@@ -26,6 +26,7 @@ import { analyzeFile } from './analyzeFile.js';
 import { dirname } from 'node:path/posix';
 import { sanitizeReferences } from './jsts/program/tsconfig/utils.js';
 import ts from 'typescript';
+import { CompilerContractError } from 'typescript/errors';
 import { createOrGetCachedProgramForFile } from './jsts/program/factory.js';
 import {
   createProgramOptions,
@@ -169,6 +170,7 @@ function programOptionsFromClosestTsconfig(
         return programOptions;
       }
     } catch (e) {
+      if (e instanceof CompilerContractError) throw e;
       error(`Failed to parse tsconfig ${tsconfig}: ${e}`);
       results.meta.warnings.push(
         `Failed to parse TSConfig file ${tsconfig}. Highest TypeScript supported version is ${ts.version}`,
@@ -221,6 +223,7 @@ function programOptionsFromClosestTsconfig(
     );
     return programOptions;
   } catch (e) {
+    if (e instanceof CompilerContractError) throw e;
     error(`Failed to generate program for orphan file fallback: ${e}`);
   }
 }

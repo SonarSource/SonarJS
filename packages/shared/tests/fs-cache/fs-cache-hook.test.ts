@@ -78,8 +78,10 @@ function runInlineHook({
   preloads = [],
   root,
   script,
+  input,
 }: {
   archive: string;
+  input?: string;
   passthroughDirs?: string[];
   preloads?: string[];
   root: string;
@@ -103,6 +105,7 @@ function runInlineHook({
     ],
     {
       encoding: 'utf8',
+      input,
       env: {
         ...process.env,
         SONARJS_FS_CACHE_TEST_PASSTHROUGH_DIRS: JSON.stringify(passthroughDirs),
@@ -368,6 +371,18 @@ describe('filesystem cache hook', () => {
       replayed: originalBytes.toString('hex'),
       decoded: supplied,
     });
+  });
+
+  it('keeps raw pipe traffic outside filesystem record and replay', () => {
+    const root = temporaryDirectory(),
+      archive = path.join(temporaryDirectory(), 'pipes.pb.gz');
+    const script = `import fs from 'node:fs';const buffer=Buffer.alloc(32);const count=fs.readSync(0,buffer,0,buffer.length,null);console.log(buffer.subarray(0,count).toString());`;
+    const recorded = runInlineHook({ root, archive, script, input: 'record transport' });
+    expect(recorded.status).toBe(0);
+    expect(recorded.stdout.trim()).toBe('record transport');
+    const replayed = runInlineHook({ root, archive, script, input: 'replay transport' });
+    expect(replayed.status).toBe(0);
+    expect(replayed.stdout.trim()).toBe('replay transport');
   });
 
   it('installs dormant filesystem wrappers when the analysis worker starts', () => {

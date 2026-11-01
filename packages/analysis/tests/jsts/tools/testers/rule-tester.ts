@@ -17,7 +17,7 @@
 import { RuleTester as ESLintRuleTester } from 'eslint';
 import type { Linter, Rule } from 'eslint';
 import path from 'node:path';
-import parser from '@typescript-eslint/parser';
+import * as parser from '../../../../src/jsts/frontend/parser.js';
 import globals from 'globals';
 import merge from 'lodash.merge';
 import { normalizePath } from '../../../../../shared/src/helpers/files.js';
@@ -34,19 +34,20 @@ const baseLanguageOptions: Linter.LanguageOptions = {
     ...globals.es2025,
   },
   parserOptions: {
-    // The single run makes that typescript-eslint uses normal programs instead of use watch programs
-    // We need watch programs for replace contents of the placeholder file in the program
-    // https://github.com/typescript-eslint/typescript-eslint/blob/d24a82854d06089cbd2a8801f2982fd4781f3701/packages/typescript-estree/src/parseSettings/inferSingleRun.ts#L44
-    disallowAutomaticSingleRunInference: true,
     ecmaFeatures: {
       jsx: true,
     },
   },
 } as const;
 
-const tsParserLanguageOptions: Linter.LanguageOptions = {
-  parser,
-};
+export const ruleTestParser: Linter.Parser = {
+  ...parser,
+  parseForESLint(code, options) {
+    return parser.parseForESLint(code, { ...options, projectService: undefined });
+  },
+} as Linter.Parser;
+
+const tsParserLanguageOptions: Linter.LanguageOptions = { parser: ruleTestParser };
 
 const typeCheckingLanguageOptions: Linter.LanguageOptions = {
   parserOptions: {
@@ -83,7 +84,7 @@ class DefaultParserRuleTester extends ESLintRuleTester {
 }
 
 /**
- * Rule tester for JS/TS, using @typescript-eslint parser.
+ * Rule tester for JS/TS, using the SonarJS parser.
  */
 class NoTypeCheckingRuleTester extends DefaultParserRuleTester {
   constructor(options?: Linter.LanguageOptions) {
@@ -92,7 +93,7 @@ class NoTypeCheckingRuleTester extends DefaultParserRuleTester {
 }
 
 /**
- * Rule tester for JS/TS, using @typescript-eslint parser with type-checking.
+ * Rule tester for JS/TS, using the SonarJS parser with type-checking.
  */
 class RuleTester extends NoTypeCheckingRuleTester {
   constructor(options?: Linter.LanguageOptions) {

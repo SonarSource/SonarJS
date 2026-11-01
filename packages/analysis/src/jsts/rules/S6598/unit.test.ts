@@ -19,7 +19,7 @@ import { rules as tsEslintRules } from '../external/typescript-eslint/index.js';
 import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 import vueParser from 'vue-eslint-parser';
-import tsParser from '@typescript-eslint/parser';
+import { ruleTestParser as tsParser } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 
 describe('S6598', () => {
   it('S6598', () => {

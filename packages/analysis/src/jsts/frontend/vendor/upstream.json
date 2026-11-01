@@ -1,0 +1,6 @@
+{
+  "repository": "https://github.com/typescript-eslint/typescript-eslint",
+  "version": "8.71.2",
+  "commit": "7488d681f6e0e96c2aaa1eee9c3d1b9b1ef077cb",
+  "converterEntries": ["ast-converter", "createParserServices", "create-program/getScriptKind"]
+}

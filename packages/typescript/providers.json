@@ -1,0 +1,12 @@
+{
+  "defaultProvider": "ts6",
+  "providers": {
+    "ts6": {
+      "module": "./providers/classic.cjs",
+      "libraries": "../../node_modules/typescript-classic/lib",
+      "sdk": "typescript-classic",
+      "capabilities": { "watchPrograms": true, "projectService": true },
+      "legacyModuleResolution": true
+    }
+  }
+}

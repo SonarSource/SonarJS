@@ -4,6 +4,7 @@ bin/
 .flattened-pom.xml
 
 lib/
+!packages/analysis/src/jsts/frontend/vendor/scope-manager/lib/
 node_modules
 node_modules/
 coverage/

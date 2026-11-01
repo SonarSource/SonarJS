@@ -19,7 +19,7 @@ import { decorate } from './decorator.js';
 import { RuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 import path from 'node:path';
-import parser from '@typescript-eslint/parser';
+import { ruleTestParser as parser } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { Linter } from 'eslint';
 import assert from 'node:assert';
 import type { Rule } from 'eslint';

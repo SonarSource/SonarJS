@@ -18,10 +18,15 @@ package org.sonar.plugins.javascript.bridge;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.zip.GZIPOutputStream;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -47,6 +52,29 @@ class BundleImplTest {
     bundle.deploy(deployLocation);
     bundle.deploy(deployLocation);
     // no exception expected
+  }
+
+  @Test
+  void should_preserve_executable_bundle_assets() throws Exception {
+    byte[] content = "#!/bin/sh\nexit 0\n".getBytes(StandardCharsets.UTF_8);
+    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+    try (TarArchiveOutputStream archive = new TarArchiveOutputStream(new GZIPOutputStream(bytes))) {
+      TarArchiveEntry entry = new TarArchiveEntry("package/bin/tsgo/tsc-test");
+      entry.setSize(content.length);
+      entry.setMode(0755);
+      archive.putArchiveEntry(entry);
+      archive.write(content);
+      archive.closeArchiveEntry();
+    }
+    for (int deployment = 0; deployment < 2; deployment++) {
+      BundleUtils.extractFromClasspath(
+        new ByteArrayInputStream(bytes.toByteArray()),
+        deployLocation
+      );
+      Path executable = deployLocation.resolve("package/bin/tsgo/tsc-test");
+      assertThat(Files.readAllBytes(executable)).isEqualTo(content);
+      assertThat(Files.isExecutable(executable)).isTrue();
+    }
   }
 
   @Test

@@ -14,13 +14,18 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { prepareCompiler } from './tools/prepare-compiler.mjs';
 import esbuild from 'esbuild';
 import textReplace from 'esbuild-plugin-text-replace';
 import { copy } from 'esbuild-plugin-copy';
 import { readFileSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
-import { dirname } from 'node:path';
+import { dirname, resolve } from 'node:path';
+import selectProvider from './packages/typescript/selection.cjs';
+import { compilerProviderPlugin, compilerInputs } from './tools/compiler-provider-plugin.mjs';
+
+const compilerDescriptor = selectProvider();
 
 const stylelintPkgJson = readFileSync('node_modules/stylelint/package.json', 'utf8');
 const testingLibraryPkgJson = JSON.parse(
@@ -55,6 +60,7 @@ const babelParserFromCore = JSON.stringify(
  * @param {string} options.metafilePath - Path for esbuild dependency metadata (optional)
  */
 export async function buildBundle({ entryPoint, outfile, additionalAssets = [], metafilePath }) {
+  prepareCompiler(true);
   const entryPointName = entryPoint.replace('./', '').replaceAll('.', String.raw`\.`);
   const entryPointRegex = new RegExp(`${entryPointName}$`);
 
@@ -71,6 +77,7 @@ export async function buildBundle({ entryPoint, outfile, additionalAssets = [], 
     platform: 'node',
     minify: true,
     plugins: [
+      compilerProviderPlugin(compilerDescriptor),
       {
         name: 'inline-package-imports',
         setup(build) {
@@ -268,8 +275,8 @@ export async function buildBundle({ entryPoint, outfile, additionalAssets = [], 
           // We need to copy all typescript declaration files for type-checking, as typescript will
           // look for those in the filesystem
           {
-            from: ['./node_modules/typescript/lib/*.d.ts'],
-            to: ['./bin'],
+            from: [resolve('packages/typescript', compilerDescriptor.libraries, '*.d.ts')],
+            to: [resolve('bin', compilerDescriptor.libraryDestination ?? '')],
           },
           ...additionalAssets,
         ],
@@ -278,6 +285,7 @@ export async function buildBundle({ entryPoint, outfile, additionalAssets = [], 
   });
 
   if (metafilePath !== undefined) {
+    result.metafile.inputs = compilerInputs(compilerDescriptor, result.metafile.inputs);
     await mkdir(dirname(metafilePath), { recursive: true });
     await writeFile(metafilePath, JSON.stringify(result.metafile));
   }
