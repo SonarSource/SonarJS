@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { FileSystemMap } from '../../../common/filesystem.js';
 import { debug } from '../../../../../shared/src/helpers/logging.js';
 import type ts from 'typescript';
 
@@ -21,7 +22,7 @@ import type ts from 'typescript';
  * Global cache for source file contents
  * Lazily populated when CompilerHost needs files
  */
-const sourceFileContentCache = new Map<string, string>();
+const sourceFileContentCache = new FileSystemMap<string, string>();
 
 /**
  * Global cache for parsed TypeScript SourceFile ASTs
@@ -36,7 +37,7 @@ const sourceFileContentCache = new Map<string, string>();
  * Sharing a SourceFile between programs with different values for these options causes
  * internal TypeScript assertion failures (e.g. in getSuggestionDiagnostics).
  */
-const parsedSourceFileCache = new Map<
+const parsedSourceFileCache = new FileSystemMap<
   string, // normalized file path
   Map<string, { contentHash: string; sourceFile: ts.SourceFile }> // compound key → entry
 >();
@@ -55,6 +56,7 @@ function makeParsedSourceFileCacheKey(
 /**
  * Current files context for lazy loading
  */
+let currentFilesByPath = new FileSystemMap<string, { fileContent?: string }>();
 let currentFilesContext: Record<string, { fileContent?: string }> | null = null;
 
 /**
@@ -62,6 +64,7 @@ let currentFilesContext: Record<string, { fileContent?: string }> | null = null;
  */
 export function setSourceFilesContext(files: Record<string, { fileContent?: string }>): void {
   currentFilesContext = files;
+  currentFilesByPath = new FileSystemMap(Object.entries(files));
 }
 
 /**
@@ -76,6 +79,10 @@ export function getSourceFileContentCache(): Map<string, string> {
  */
 export function getCurrentFilesContext(): Record<string, { fileContent?: string }> | null {
   return currentFilesContext;
+}
+
+export function getProvidedSourceFile(file: string): { fileContent?: string } | undefined {
+  return currentFilesByPath.get(file);
 }
 
 /**
@@ -154,5 +161,6 @@ export function clearSourceFileContentCache(): void {
   sourceFileContentCache.clear();
   parsedSourceFileCache.clear();
   currentFilesContext = null;
+  currentFilesByPath.clear();
   debug('Cleared source file content cache and parsed SourceFile cache');
 }

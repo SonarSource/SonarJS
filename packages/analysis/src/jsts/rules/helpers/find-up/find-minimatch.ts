@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { FileSystemMap } from '../filesystem.js';
 import type { Minimatch } from 'minimatch';
 import { basename } from 'node:path/posix';
 import { type File, type NormalizedAbsolutePath, joinPaths } from '../files.js';
@@ -63,5 +64,5 @@ export const MinimatchCache = new ComputedCache<
       }
     } catch {}
     return files;
-  });
+  }, new FileSystemMap());
 });

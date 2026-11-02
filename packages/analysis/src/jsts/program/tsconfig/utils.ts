@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { pathIsUnder, pathsEqual } from '../../../common/filesystem.js';
 import type ts from 'typescript';
 import { basename, join } from 'node:path/posix';
 import { warn } from '../../../../../shared/src/helpers/logging.js';
@@ -21,6 +22,7 @@ import {
   type NormalizedAbsolutePath,
   normalizePath,
   joinPaths,
+  getPathRoot,
 } from '../../../../../shared/src/helpers/files.js';
 import fs from 'node:fs';
 
@@ -28,10 +30,10 @@ import fs from 'node:fs';
  * Checks if a file path is in the root node_modules directory (used to detect last tsconfig check)
  */
 export function isRootNodeModules(file: string) {
-  const root = process.platform === 'win32' ? file.slice(0, file.indexOf(':') + 1) : '/';
+  const root = getPathRoot(file as NormalizedAbsolutePath);
   const normalizedFile = normalizePath(file);
   const topNodeModules = normalizePath(join(root, 'node_modules'));
-  return normalizedFile.startsWith(topNodeModules);
+  return pathIsUnder(normalizedFile, topNodeModules);
 }
 
 /**
@@ -39,7 +41,7 @@ export function isRootNodeModules(file: string) {
  * (i.e., tsconfig.json in the root node_modules directory)
  */
 export function isLastTsConfigCheck(file: string) {
-  return basename(file) === 'tsconfig.json' && isRootNodeModules(file);
+  return pathsEqual(basename(file), 'tsconfig.json') && isRootNodeModules(file);
 }
 
 /**

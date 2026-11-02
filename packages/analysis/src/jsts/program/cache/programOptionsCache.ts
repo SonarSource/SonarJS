@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { canonicalFileName, isFileSystemCaseSensitive } from '../../../common/filesystem.js';
 import { debug } from '../../../../../shared/src/helpers/logging.js';
 import type { ProgramOptions } from '../tsconfig/options.js';
 
@@ -24,7 +25,11 @@ import type { ProgramOptions } from '../tsconfig/options.js';
 const programOptionsCache = new Map<string, ProgramOptions>();
 
 function buildCacheKey(tsConfig: string, tsconfigContents?: string): string {
-  return `${tsConfig}:${tsconfigContents}`;
+  return JSON.stringify([
+    isFileSystemCaseSensitive(),
+    canonicalFileName(tsConfig),
+    tsconfigContents,
+  ]);
 }
 
 /**

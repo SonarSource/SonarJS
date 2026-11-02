@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { FileSystemMap, FileSystemSet, pathIsUnder, pathsEqual } from '../../common/filesystem.js';
 import { basename } from 'node:path/posix';
 import type { FileStore, FileStoreContext } from '../store-type.js';
 import type { DependencyManifestStore } from '../dependency-manifests.js';
@@ -57,16 +58,17 @@ export class GeneratedSourceStore implements FileStore {
   private derivedConfigKey: string | undefined = undefined;
   private projectFileDiscoveryConfigKey: string | undefined = undefined;
   private derivedMetadataInitialized = false;
-  private derivedFamilyByFile = new Map<NormalizedAbsolutePath, string>();
-  private configPaths = new Set<NormalizedAbsolutePath>();
-  private watchedConfigPaths = new Set<NormalizedAbsolutePath>();
-  private preloadCandidatePaths = new Set<NormalizedAbsolutePath>();
-  private preloadedFiles = new Map<NormalizedAbsolutePath, File>();
-  private sourceFiles = new Set<NormalizedAbsolutePath>();
-  private walkedDirectories = new Set<NormalizedAbsolutePath>();
-  private watchedOutputPaths = new Set<NormalizedAbsolutePath>();
+  private derivedFamilyByFile = new FileSystemMap<NormalizedAbsolutePath, string>();
+  private configPaths = new FileSystemSet<NormalizedAbsolutePath>();
+  private watchedConfigPaths = new FileSystemSet<NormalizedAbsolutePath>();
+  private preloadCandidatePaths = new FileSystemSet<NormalizedAbsolutePath>();
+  private preloadedFiles = new FileSystemMap<NormalizedAbsolutePath, File>();
+  private sourceFiles = new FileSystemSet<NormalizedAbsolutePath>();
+  private walkedDirectories = new FileSystemSet<NormalizedAbsolutePath>();
+  private watchedOutputPaths = new FileSystemSet<NormalizedAbsolutePath>();
   private lastLoggedGeneratedSourceDetectionKey: string | undefined = undefined;
-  private readonly generatedSourceDetectionInfoBaseDirs = new Set<NormalizedAbsolutePath>();
+  private readonly generatedSourceDetectionInfoBaseDirs =
+    new FileSystemSet<NormalizedAbsolutePath>();
   // Preserve the last logged fingerprint across cache invalidations so repeated analyses only
   // re-emit observability logs when the content changes.
   private lastLoggedObservabilityKey: string | undefined = undefined;
@@ -127,7 +129,7 @@ export class GeneratedSourceStore implements FileStore {
 
   dirtyCachesIfNeeded(configuration: Configuration) {
     const { baseDir, canAccessFileSystem, fsEvents } = configuration;
-    if (baseDir !== this.baseDir || canAccessFileSystem !== this.canAccessFileSystem) {
+    if (!pathsEqual(baseDir, this.baseDir) || canAccessFileSystem !== this.canAccessFileSystem) {
       this.clearCache();
       return;
     }
@@ -219,9 +221,8 @@ export class GeneratedSourceStore implements FileStore {
       const packageJsons = this.dependencyManifestStore.getPackageJsons();
       const packageContexts = await collectGeneratedSourcePackageContexts(baseDir, packageJsons);
       this.addPackageJsonsToSnapshot(packageJsons);
-      this.watchedConfigPaths = await collectGeneratedSourceDeclaredPreloadPaths(
-        baseDir,
-        packageContexts,
+      this.watchedConfigPaths = new FileSystemSet(
+        await collectGeneratedSourceDeclaredPreloadPaths(baseDir, packageContexts),
       );
       await this.preloadDeclaredConfigFiles(context);
       const projectSnapshot = this.createProjectSnapshot();
@@ -231,9 +232,9 @@ export class GeneratedSourceStore implements FileStore {
         sourceFileMatcher: (filePath: NormalizedAbsolutePath) =>
           isJsTsFile(filePath, configuration),
       });
-      this.derivedFamilyByFile = new Map(derived.familyByFile);
-      this.configPaths = derived.configPaths;
-      this.watchedOutputPaths = derived.watchedOutputPaths;
+      this.derivedFamilyByFile = new FileSystemMap(derived.familyByFile);
+      this.configPaths = new FileSystemSet(derived.configPaths);
+      this.watchedOutputPaths = new FileSystemSet(derived.watchedOutputPaths);
       this.derivedMetadataInitialized = true;
     } finally {
       this.clearSnapshotState();
@@ -258,7 +259,7 @@ export class GeneratedSourceStore implements FileStore {
     }
 
     for (const watchedOutputPath of this.watchedOutputPaths) {
-      if (filename === watchedOutputPath || filename.startsWith(`${watchedOutputPath}/`)) {
+      if (pathIsUnder(filename, watchedOutputPath)) {
         return true;
       }
     }
@@ -267,17 +268,17 @@ export class GeneratedSourceStore implements FileStore {
   }
 
   private clearDerivedState() {
-    this.derivedFamilyByFile = new Map();
-    this.configPaths = new Set();
-    this.watchedConfigPaths = new Set();
-    this.watchedOutputPaths = new Set();
+    this.derivedFamilyByFile = new FileSystemMap();
+    this.configPaths = new FileSystemSet();
+    this.watchedConfigPaths = new FileSystemSet();
+    this.watchedOutputPaths = new FileSystemSet();
   }
 
   private clearSnapshotState() {
-    this.preloadCandidatePaths = new Set();
-    this.preloadedFiles = new Map();
-    this.sourceFiles = new Set();
-    this.walkedDirectories = new Set();
+    this.preloadCandidatePaths = new FileSystemSet();
+    this.preloadedFiles = new FileSystemMap();
+    this.sourceFiles = new FileSystemSet();
+    this.walkedDirectories = new FileSystemSet();
   }
 
   private addPackageJsonsToSnapshot(packageJsons: ReadonlyMap<NormalizedAbsolutePath, File>) {
@@ -316,8 +317,9 @@ function filterAnalyzableGeneratedFiles(
   analyzableFiles: AnalyzableFiles,
 ) {
   const filtered = new Map<NormalizedAbsolutePath, string>();
+  const analyzedPaths = new FileSystemSet(Object.keys(analyzableFiles));
   for (const [filePath, family] of familyByFile) {
-    if (Object.hasOwn(analyzableFiles, filePath)) {
+    if (analyzedPaths.has(filePath)) {
       filtered.set(filePath, family);
     }
   }

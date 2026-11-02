@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { FileSystemMap, pathsEqual } from '../../analysis/src/common/filesystem.js';
 import type { AnalyzeProjectProtoRequest } from './analyze-project-request.js';
 import { InvalidAnalyzeProjectRequestError } from './analyze-project-normalize.js';
 import {
@@ -32,7 +33,7 @@ export class ReplayProjectPaths {
   private readonly files;
   private readonly requestBaseDir: NormalizedAbsolutePath;
   private readonly fallbackBaseDir: NormalizedAbsolutePath;
-  private readonly originalPaths = new Map<string, string>();
+  private readonly originalPaths = new FileSystemMap<string, string>();
 
   constructor(private readonly request: AnalyzeProjectProtoRequest) {
     const baseDir = request.configuration?.baseDir;
@@ -53,12 +54,6 @@ export class ReplayProjectPaths {
     this.fallbackBaseDir = normalizeProjectRoot(
       request.filesystemCache?.fallbackBaseDir || this.requestBaseDir,
     );
-  }
-
-  useRecordedBaseDir(
-    baseDir: NormalizedAbsolutePath,
-    canonicalFile = (file: NormalizedAbsolutePath) => file,
-  ): void {
     // Extension bundles and extracted rule files belong to the current runtime, even when
     // their request paths are relative. Resolve them before changing the project namespace.
     this.request.bundles = (this.request.bundles ?? []).map(file =>
@@ -70,6 +65,12 @@ export class ReplayProjectPaths {
         this.fallbackBaseDir,
       );
     }
+  }
+
+  useRecordedBaseDir(
+    baseDir: NormalizedAbsolutePath,
+    canonicalFile = (file: NormalizedAbsolutePath) => file,
+  ): void {
     this.request.files = this.relocateFiles(baseDir, true, canonicalFile);
     this.request.configuration = { ...this.request.configuration, baseDir };
   }
@@ -100,7 +101,11 @@ export class ReplayProjectPaths {
             'Replay file is outside the project base directory',
           );
         }
-        if (requireContents && baseDir !== this.requestBaseDir && input.fileContent == null) {
+        if (
+          requireContents &&
+          !pathsEqual(baseDir, this.requestBaseDir) &&
+          input.fileContent == null
+        ) {
           throw new InvalidAnalyzeProjectRequestError(
             'Replay files must contain submitted contents',
           );

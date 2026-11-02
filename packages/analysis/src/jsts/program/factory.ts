@@ -14,6 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import {
+  canonicalFileName,
+  isFileSystemCaseSensitive,
+  pathsEqual,
+} from '../../common/filesystem.js';
+import { readDirectory } from './filesystem.js';
 import ts from 'typescript';
 import { IncrementalCompilerHost } from './compilerHost.js';
 import {
@@ -23,7 +29,7 @@ import {
 } from './tsconfig/options.js';
 import { info } from '../../../../shared/src/helpers/logging.js';
 import { getProgramCacheManager } from './cache/programCache.js';
-import { getCurrentFilesContext } from './cache/sourceFileCache.js';
+import { getProvidedSourceFile } from './cache/sourceFileCache.js';
 import {
   normalizeToAbsolutePath,
   type NormalizedAbsolutePath,
@@ -148,14 +154,17 @@ export function createProgramFromSingleFile(
     rootNames: [fileName],
     host: {
       ...compilerHost,
+      getCanonicalFileName: canonicalFileName,
+      useCaseSensitiveFileNames: isFileSystemCaseSensitive,
+      readDirectory,
       getSourceFile: (name: string) => {
-        if (name === fileName) {
+        if (pathsEqual(name, fileName)) {
           return sourceFile;
         }
         return compilerHost.getSourceFile(name, target);
       },
-      fileExists: (name: string) => name === fileName || ts.sys.fileExists(name),
-      readFile: (name: string) => (name === fileName ? contents : ts.sys.readFile(name)),
+      fileExists: (name: string) => pathsEqual(name, fileName) || ts.sys.fileExists(name),
+      readFile: (name: string) => (pathsEqual(name, fileName) ? contents : ts.sys.readFile(name)),
     },
   };
 
@@ -178,7 +187,7 @@ export function createOrGetCachedProgramForFile(
   skipNodeModuleLookupOutsideBaseDir = false,
 ) {
   const cacheManager = getProgramCacheManager();
-  const fileContent = getCurrentFilesContext()?.[sourceFile]?.fileContent;
+  const fileContent = getProvidedSourceFile(sourceFile)?.fileContent;
 
   // Try to find an existing program containing this file
   const cachedProgram = cacheManager.findProgramForFile(sourceFile);

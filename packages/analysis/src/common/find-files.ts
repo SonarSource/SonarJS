@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { pathsEqual } from './filesystem.js';
 import { opendir } from 'node:fs/promises';
 import type { Dir, Dirent } from 'node:fs';
 import type { Minimatch } from 'minimatch';
@@ -39,7 +40,7 @@ export async function findFiles(
     try {
       entries = await opendir(directory);
     } catch (error) {
-      if (directory === root || !['EACCES', 'EPERM'].includes(error?.code)) {
+      if (pathsEqual(directory, root) || !['EACCES', 'EPERM'].includes(error?.code)) {
         throw error;
       }
       warn(`Skipping directory '${directory}' because it cannot be read (${error.code}).`);

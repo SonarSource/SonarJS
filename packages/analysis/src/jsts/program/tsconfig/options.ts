@@ -15,6 +15,13 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import ts from 'typescript';
+import { readDirectory } from '../filesystem.js';
+import {
+  isFileSystemCaseSensitive,
+  pathsEqual,
+  pathIsUnder,
+  FileSystemMap,
+} from '../../../common/filesystem.js';
 import { debug, error } from '../../../../../shared/src/helpers/logging.js';
 import {
   getNodeVersionSignal,
@@ -407,7 +414,10 @@ export function groupFilesByResolvedLib(
   baseDir: NormalizedAbsolutePath,
   ecmaScriptVersion: string | undefined,
 ): LibGroup[] {
-  const libByPkgDir = new Map<NormalizedAbsolutePath, { lib: string[]; libKey: string }>();
+  const libByPkgDir = new FileSystemMap<
+    NormalizedAbsolutePath,
+    { lib: string[]; libKey: string }
+  >();
   const groups = new Map<string, LibGroup>();
 
   for (const file of files) {
@@ -437,7 +447,7 @@ export function groupFilesByResolvedLib(
  */
 function createBaseParseConfigHost(canAccessFileSystem: boolean): CustomParseConfigHost {
   return {
-    useCaseSensitiveFileNames: true,
+    useCaseSensitiveFileNames: isFileSystemCaseSensitive(),
     readDirectory(
       rootDir: string,
       extensions: readonly string[],
@@ -446,7 +456,7 @@ function createBaseParseConfigHost(canAccessFileSystem: boolean): CustomParseCon
       depth?: number,
     ): readonly string[] {
       if (canAccessFileSystem) {
-        return ts.sys.readDirectory(rootDir, extensions, excludes, includes, depth);
+        return readDirectory(rootDir, extensions, excludes, includes, depth);
       } else {
         const normalizedDir = normalizeToAbsolutePath(rootDir);
         const entries = sourceFileStore.getFilesInDirectory(normalizedDir) ?? [];
@@ -458,7 +468,7 @@ function createBaseParseConfigHost(canAccessFileSystem: boolean): CustomParseCon
         return ts.sys.fileExists(path);
       } else {
         const normalizedPath = normalizeToAbsolutePath(path);
-        return normalizedPath in sourceFileStore.getFiles();
+        return sourceFileStore.getFile(normalizedPath) !== undefined;
       }
     },
     readFile(path: string): string | undefined {
@@ -466,7 +476,7 @@ function createBaseParseConfigHost(canAccessFileSystem: boolean): CustomParseCon
         return ts.sys.readFile(path);
       } else {
         const normalizedPath = normalizeToAbsolutePath(path);
-        return sourceFileStore.getFiles()[normalizedPath]?.fileContent;
+        return sourceFileStore.getFile(normalizedPath)?.fileContent;
       }
     },
     missingTsConfig: () => false,
@@ -533,7 +543,7 @@ export function createProgramOptions(
 
   // Set up parseConfigHost with tsconfig-specific logic (caching, missing file handling)
   const parseConfigHost: CustomParseConfigHost = {
-    useCaseSensitiveFileNames: true,
+    useCaseSensitiveFileNames: isFileSystemCaseSensitive(),
     readDirectory: baseParseConfigHost.readDirectory,
     fileExists: file => {
       debug(`TSConfig lookup while parsing ${tsConfig}: checking ${file}`);
@@ -546,7 +556,7 @@ export function createProgramOptions(
     },
     readFile: file => {
       // 1. Check if we have specific content provided for this file
-      if (tsConfig && file === tsConfig && typeof tsconfigContents === 'string') {
+      if (tsConfig && pathsEqual(file, tsConfig) && typeof tsconfigContents === 'string') {
         return tsconfigContents;
       }
 
@@ -589,7 +599,7 @@ export function createProgramOptions(
     throw new Error(diagnosticToString(config.error));
   }
 
-  const extendedConfigCache = new Map<string, ts.ExtendedConfigCacheEntry>();
+  const extendedConfigCache = new FileSystemMap<string, ts.ExtendedConfigCacheEntry>();
   const parsedConfigFile = ts.parseJsonConfigFileContent(
     config.config,
     parseConfigHost,
@@ -624,8 +634,7 @@ export function createProgramOptions(
     // not nested under baseDir (e.g. virtual/relative paths used in tests), fall back to
     // the analysis root.
     const tsconfigDir = normalizeToAbsolutePath(dirname(tsConfig));
-    const tsconfigDirUnderBase =
-      tsconfigDir === baseDir || (tsconfigDir + '/').startsWith(baseDir + '/');
+    const tsconfigDirUnderBase = pathIsUnder(tsconfigDir, baseDir);
     const packageDir = tsconfigDirUnderBase
       ? (getClosestDependencyManifestDir(tsconfigDir, baseDir) ?? baseDir)
       : baseDir;

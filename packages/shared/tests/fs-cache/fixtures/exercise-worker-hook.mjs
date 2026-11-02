@@ -31,7 +31,9 @@ if (isMainThread) {
   });
   console.log(`${main}|${message}`);
 } else {
-  const session = installFsCache().beginAnalysis(workerData);
+  const installation = installFsCache();
+  const { isFileSystemCaseSensitive } = await import('../../../../../lib/analysis/src/common/filesystem.js');
+  const session = installation.beginAnalysis({ ...workerData, caseSensitivePaths: isFileSystemCaseSensitive() });
   try {
     const file = path.join(workerData.rootDir, 'worker-input.ts');
     parentPort.postMessage(readFileSync(file, 'utf8'));

@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { FileSystemMap } from '../../common/filesystem.js';
 import type { PackageJson } from 'type-fest';
 import type { File, NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import { parsePackageJson } from '../../jsts/rules/helpers/dependency-manifests/parsed-dependency-files.js';
@@ -56,5 +57,7 @@ export async function collectGeneratedSourcePackageContexts(
 export function createGeneratedSourcePackageJsonMap(
   packageContexts: readonly GeneratedSourcePackageContext[],
 ) {
-  return new Map(packageContexts.map(({ packageDir, packageJson }) => [packageDir, packageJson]));
+  return new FileSystemMap(
+    packageContexts.map(({ packageDir, packageJson }) => [packageDir, packageJson]),
+  );
 }

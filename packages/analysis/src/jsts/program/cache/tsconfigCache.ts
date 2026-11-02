@@ -14,13 +14,14 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { FileSystemMap } from '../../../common/filesystem.js';
 import { debug } from '../../../../../shared/src/helpers/logging.js';
 
 /**
  * Global cache for tsconfig file contents to avoid repeated disk reads
  * Persists across analysis runs (especially useful for SonarLint)
  */
-const tsconfigContentCache = new Map<string, { contents: string; missing: boolean }>();
+const tsconfigContentCache = new FileSystemMap<string, { contents: string; missing: boolean }>();
 
 /**
  * Get the tsconfig content cache (for parser access)
