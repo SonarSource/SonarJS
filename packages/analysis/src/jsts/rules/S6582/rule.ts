@@ -21,6 +21,7 @@ import ts from 'typescript';
 import { rules as tsEslintRules } from '../external/typescript-eslint/index.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
+import { isStrictNullChecksEnabled } from '../helpers/compiler-options.js';
 import * as meta from './generated-meta.js';
 
 /**
@@ -59,8 +60,7 @@ function findReportNode(
   const startIndex = ctx.sourceCode.getIndexFromLoc(loc.start);
   const endIndex = ctx.sourceCode.getIndexFromLoc(loc.end);
   let node = ctx.sourceCode.getNodeByRangeIndex(startIndex) as
-    | (Rule.Node & { range: [number, number] })
-    | null;
+    (Rule.Node & { range: [number, number] }) | null;
   if (!node) {
     ctx.report(descriptor);
     return null;
@@ -135,9 +135,8 @@ export const rule: Rule.RuleModule = {
 
     // Without strictNullChecks, null and undefined are implicitly assignable to every type.
     // Any reasoning about whether undefined is safe to introduce is meaningless in that mode.
-    // `strict: true` implies strictNullChecks but does not materialize it as an explicit property.
     const compilerOptions = services.program.getCompilerOptions();
-    if (!compilerOptions.strictNullChecks && !compilerOptions.strict) {
+    if (!isStrictNullChecksEnabled(compilerOptions)) {
       return preferOptionalChainRule.create(context);
     }
 

@@ -212,6 +212,35 @@ describe('S6582 without strictNullChecks', () => {
   });
 });
 
+describe('S6582 with TypeScript 6 implicit strictNullChecks', () => {
+  it('suppresses unsafe optional-chain replacements while keeping safe ones', () => {
+    const ruleTester = new RuleTester({
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures/implicit-strict'),
+      },
+    });
+    const filename = path.join(import.meta.dirname, 'fixtures/implicit-strict/index.ts');
+    ruleTester.run('S6582 implicit strict null checks', rule, {
+      valid: [
+        {
+          code: `function getLen(arr: string[] | null): number | null {
+            return arr && arr.length;
+          }`,
+          filename,
+        },
+      ],
+      invalid: [
+        {
+          code: `function f(arr: string[] | null) { if (arr && arr.length) {} }`,
+          filename,
+          errors: 1,
+        },
+      ],
+    });
+  });
+});
+
 describe('S6582 with multiple nullable subjects in comparison', () => {
   const fixtureFile = path.join(import.meta.dirname, 'fixtures/index.ts');
   const ruleTesterOptions = {
