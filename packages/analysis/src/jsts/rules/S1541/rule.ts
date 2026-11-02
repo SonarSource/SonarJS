@@ -38,6 +38,8 @@ import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 
 const DEFAULT_THRESHOLD = 10;
+const SAP_UI_DEFINE = 'sap.ui.define';
+const MAX_SCOPE_INITIALIZER_ARGUMENTS = 3;
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta),
@@ -210,48 +212,55 @@ function getScopeInitializer(call: estree.CallExpression, context: Rule.RuleCont
     return undefined;
   }
   const path = getMemberPath(call.callee, false);
-  const name = path?.join('.');
+  const name = path?.join('.') ?? '';
   if (
     !path ||
-    !['sap.ui.define', 'require', 'sap.ui.require', 'System.register'].includes(name!) ||
+    ![SAP_UI_DEFINE, 'require', 'sap.ui.require', 'System.register'].includes(name) ||
     isGlobalShadowed(context.sourceCode, call, path[0])
   ) {
     return undefined;
   }
   const args = call.arguments.map(unwrapTypeScriptValue);
-  if (name === 'sap.ui.define' && isStringLiteral(args[0])) {
+  if (name === SAP_UI_DEFINE && isStringLiteral(args[0])) {
     args.shift();
   }
   const [dependencies, factory, extra] = args;
   if (
     args.length < 2 ||
-    args.length > 3 ||
+    args.length > MAX_SCOPE_INITIALIZER_ARGUMENTS ||
     dependencies?.type !== 'ArrayExpression' ||
     !dependencies.elements.every(isStringLiteral) ||
     !isSynchronousFunction(factory)
   ) {
     return undefined;
   }
-  if (extra) {
-    if (name === 'sap.ui.define') {
-      if (extra.type !== 'Literal' || typeof extra.value !== 'boolean') {
-        return undefined;
-      }
-    } else if (name === 'System.register') {
-      if (
-        extra.type !== 'ArrayExpression' ||
-        extra.elements.length !== dependencies.elements.length ||
-        !extra.elements.every(
-          element => element && unwrapTypeScriptValue(element).type === 'ObjectExpression',
-        )
-      ) {
-        return undefined;
-      }
-    } else if (!isFunctionNode(extra)) {
-      return undefined;
-    }
+  if (!isValidScopeInitializerExtra(name, extra, dependencies.elements.length)) {
+    return undefined;
   }
   return { factory, path };
+}
+
+function isValidScopeInitializerExtra(
+  name: string,
+  extra: estree.Node | undefined,
+  dependencyCount: number,
+): boolean {
+  if (!extra) {
+    return true;
+  }
+  if (name === SAP_UI_DEFINE) {
+    return extra.type === 'Literal' && typeof extra.value === 'boolean';
+  }
+  if (name === 'System.register') {
+    return (
+      extra.type === 'ArrayExpression' &&
+      extra.elements.length === dependencyCount &&
+      extra.elements.every(element =>
+        element ? unwrapTypeScriptValue(element).type === 'ObjectExpression' : false,
+      )
+    );
+  }
+  return isFunctionNode(extra);
 }
 
 function isSynchronousFunction(node: estree.Node | undefined): node is estree.FunctionExpression {
