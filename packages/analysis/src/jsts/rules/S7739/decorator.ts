@@ -28,7 +28,8 @@ import {
 } from './false-positives/index.js';
 
 /**
- * Suppresses reports for known false-positive contexts, including Gherkin indentation maps.
+ * Unicorn reports definitions named `then`. Filter those reports here for SonarJS exceptions
+ * without changing Unicorn's detection logic.
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
