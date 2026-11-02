@@ -674,6 +674,34 @@ describe('S7739', () => {
       ],
       invalid: [
         {
+          code: `
+          function Promise() {
+            return { then: 'pending' };
+          }
+        `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        {
+          code: `
+          ns.Promise = function () {
+            return { then: 'pending' };
+          };
+          `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        {
+          code: `
+          ns.Promise = function () {
+            const result = { then: 'pending' };
+            return result;
+          };
+          `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        {
           code: `const options = { then: 2, ...source };`,
           filename: testFilePath,
           errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
