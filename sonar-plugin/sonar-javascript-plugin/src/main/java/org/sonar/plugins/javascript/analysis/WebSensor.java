@@ -47,6 +47,7 @@ import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.analysis.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.analysis.cache.CacheStrategies;
 import org.sonar.plugins.javascript.analysis.cache.CacheStrategy;
+import org.sonar.plugins.javascript.analysis.cache.ContextSnapshotCache;
 import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectRequest;
 import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectStreamResponse;
 import org.sonar.plugins.javascript.analyzeproject.grpc.FileResultMessage;
@@ -104,6 +105,8 @@ public class WebSensor implements ProjectSensor {
 
   private Path analysisMetadataPath;
   private String contextMetadata;
+  private Path snapshotManifestPath;
+  private ContextSnapshotCache.Snapshot snapshotBaseline;
 
   private boolean recordFilesystemCache;
   private ReplayProjectPaths replayProjectPaths;
@@ -237,6 +240,8 @@ public class WebSensor implements ProjectSensor {
     analysisMetadataPath = null;
     contextMetadata = null;
     recordFilesystemCache = false;
+    snapshotManifestPath = null;
+    snapshotBaseline = null;
     replayProjectPaths = null;
 
     try {
@@ -305,6 +310,13 @@ public class WebSensor implements ProjectSensor {
     );
     filesystemCacheArchivePath = archiveDirectory.resolve("archive.pb.gz");
     analysisMetadataPath = archiveDirectory.resolve("analysis-metadata.pb.gz");
+    snapshotManifestPath = archiveDirectory.resolve("manifest.json");
+    if (sensorContext.canSkipUnchangedFiles()) {
+      snapshotBaseline = ContextSnapshotCache.restore(
+        sensorContext,
+        archiveDirectory.resolve("baseline")
+      ).orElse(null);
+    }
     recordFilesystemCache = true;
   }
 
@@ -365,6 +377,17 @@ public class WebSensor implements ProjectSensor {
         analysisMetadataPath,
         contextMetadata
       );
+      if (snapshotManifestPath != null && Files.isRegularFile(snapshotManifestPath)) {
+        ContextSnapshotCache.write(
+          context.getSensorContext(),
+          new ContextSnapshotCache.Snapshot(
+            filesystemCacheArchivePath,
+            analysisMetadataPath,
+            snapshotManifestPath,
+            contextMetadata
+          )
+        );
+      }
     } catch (Exception e) {
       LOG.warn("Could not publish the JavaScript filesystem cache context", e);
     }
@@ -471,6 +494,7 @@ public class WebSensor implements ProjectSensor {
     private final List<InputFile> projectMetadataFiles;
     private final Map<String, InputFile> fileToInputFile = new HashMap<>();
     private final HashMap<String, CacheStrategy> fileToCacheStrategy = new HashMap<>();
+    private final Map<String, CacheStrategy> snapshotCacheCandidates = new HashMap<>();
     private final CompletableFuture<Void> handle;
 
     @Nullable
@@ -532,6 +556,16 @@ public class WebSensor implements ProjectSensor {
             handlerContext.getSensorContext().fileSystem().baseDir().getAbsolutePath()
           );
         }
+        if (recordFilesystemCache && snapshotManifestPath != null) {
+          filesystemCache.setSnapshotManifestPath(snapshotManifestPath.toString());
+          if (snapshotBaseline != null) {
+            filesystemCache
+              .setBaselineArchivePath(snapshotBaseline.archive().toString())
+              .setBaselineAnalysisMetadataPath(snapshotBaseline.analysisMetadata().toString())
+              .setBaselineManifestPath(snapshotBaseline.manifest().toString())
+              .setBaselineContextMetadata(snapshotBaseline.contextMetadata());
+          }
+        }
         request.setFilesystemCache(filesystemCache);
       }
       return request.build();
@@ -564,9 +598,27 @@ public class WebSensor implements ProjectSensor {
 
     private void handleCachedInputFile(Map<String, ProjectFileInput> files, InputFile inputFile)
       throws IOException {
-      CacheStrategy cacheStrategy = CacheStrategies.getStrategyFor(handlerContext, inputFile);
+      boolean incrementalRecording = recordFilesystemCache && snapshotBaseline != null;
+      CacheStrategy cacheStrategy = incrementalRecording
+        ? CacheStrategies.getStrategyFor(
+            new JsTsContext<>(handlerContext.getSensorContext()),
+            inputFile,
+            true
+          )
+        : CacheStrategies.getStrategyFor(handlerContext, inputFile);
       if (cacheStrategy.isAnalysisRequired()) {
         addFileToAnalyze(files, inputFile);
+        fileToCacheStrategy.put(inputFile.absolutePath(), cacheStrategy);
+        return;
+      }
+
+      if (incrementalRecording) {
+        // Node validates the baseline before accepting a hit. Keep all inputs for a cold fallback.
+        addFileToAnalyze(files, inputFile);
+        files.computeIfPresent(inputFile.absolutePath(), (path, file) ->
+          file.toBuilder().setReuseCachedAnalysis(true).build()
+        );
+        snapshotCacheCandidates.put(inputFile.absolutePath(), cacheStrategy);
         fileToCacheStrategy.put(inputFile.absolutePath(), cacheStrategy);
         return;
       }
@@ -639,6 +691,20 @@ public class WebSensor implements ProjectSensor {
           LOG.warn("Skipping analysis result for unknown file path: {}", filePath);
           return;
         }
+        var candidate = snapshotCacheCandidates.remove(filePath);
+        if (response.getCacheHit()) {
+          if (candidate == null) throw new IllegalStateException(
+            "Unexpected snapshot cache hit for " + filePath
+          );
+          CacheStrategies.reportSnapshotResult(candidate, file, true);
+          if (isJsTsFile(file)) {
+            var cached = candidate.readAnalysisFromCache();
+            analysisProcessor.processCacheAnalysis(handlerContext, file, cached);
+            acceptAstResponse(cached.getAst(), file);
+          }
+          return;
+        }
+        if (candidate != null) CacheStrategies.reportSnapshotResult(candidate, file, false);
         if (response.hasError() && !response.getError().isBlank()) {
           // The HTTP transport used to drop per-file runtime errors after logging them in Node.js.
           // Keep the project analysis running, but surface the failure explicitly on the file.

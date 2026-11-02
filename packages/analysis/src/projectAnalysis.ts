@@ -46,7 +46,7 @@ export type ProjectAnalysisOutput = {
   meta: ProjectAnalysisMeta;
 };
 
-export type FileResult = FileSuccessResult | FileErrorResult;
+export type FileResult = (FileSuccessResult | FileErrorResult) & { cacheHit?: boolean };
 
 type FileSuccessResult =
   | (JsTsAnalysisOutput & { parsingErrors?: ParsingError[] })
@@ -122,4 +122,5 @@ export type ProjectAnalysisInput = {
   bundles: NormalizedAbsolutePath[];
   rulesWorkdir?: NormalizedAbsolutePath;
   programSelection?: ProgramSelectionArchive;
+  cachedFiles?: ReadonlySet<NormalizedAbsolutePath>;
 };

@@ -21,9 +21,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -53,6 +56,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.Nullable;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
@@ -85,6 +89,7 @@ import org.sonar.css.CssRules;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.analysis.cache.CacheTestUtils;
+import org.sonar.plugins.javascript.analysis.cache.ContextSnapshotCache;
 import org.sonar.plugins.javascript.analyzeproject.grpc.AnalysisLanguage;
 import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectStreamResponse;
 import org.sonar.plugins.javascript.analyzeproject.grpc.CpdToken;
@@ -1362,6 +1367,83 @@ class WebSensorTest {
   }
 
   @Test
+  void should_confirm_snapshot_cache_hits_before_reemitting_cpd() throws Exception {
+    checkSnapshotCacheResult(true);
+  }
+
+  @Test
+  void should_write_fresh_results_without_copying_a_rejected_snapshot_candidate() throws Exception {
+    checkSnapshotCacheResult(false);
+  }
+
+  private void checkSnapshotCacheResult(boolean hit) throws Exception {
+    context = CacheTestUtils.createContextWithCache(
+      baseDir,
+      workDir,
+      inputFile.getModuleRelativePath()
+    );
+    context.fileSystem().add(inputFile);
+    inputFile.setStatus(InputFile.Status.SAME);
+    var archive = tempDir.resolve("filesystem.pb.gz");
+    var metadata = tempDir.resolve("programs.pb.gz");
+    var manifest = tempDir.resolve("manifest.json");
+    Files.writeString(archive, "filesystem");
+    Files.writeString(metadata, "programs");
+    Files.writeString(manifest, "manifest");
+    var bytes = new AtomicReference<byte[]>();
+    doAnswer(call -> {
+      bytes.set(((InputStream) call.getArgument(1)).readAllBytes());
+      return null;
+    })
+      .when(context.nextCache())
+      .write(anyString(), any(InputStream.class));
+    ContextSnapshotCache.write(
+      context,
+      new ContextSnapshotCache.Snapshot(archive, metadata, manifest, "{}")
+    );
+    var snapshotKey = "js:sqaa-context:1:" + PLUGIN_VERSION;
+    when(context.previousCache().contains(snapshotKey)).thenReturn(true);
+    when(context.previousCache().read(snapshotKey)).thenAnswer(call ->
+      new ByteArrayInputStream(bytes.get())
+    );
+    var filesystemCacheContext = mock(FilesystemCacheContext.class);
+    when(filesystemCacheContext.isSupported()).thenReturn(true);
+    when(filesystemCacheContext.isEnabled()).thenReturn(true);
+    var sensor = createSensor(
+      checks("S3923"),
+      new AnalysisConsumers(),
+      null,
+      filesystemCacheContext,
+      new WebSensorModuleConfiguration()
+    );
+    var handler = executeSensorAndCaptureHandler(sensor, context);
+    var request = handler.getRequest();
+    assertThat(request.getFilesystemCache().hasBaselineArchivePath()).isTrue();
+    assertThat(
+      request.getFilesMap().get(inputFile.absolutePath()).getReuseCachedAnalysis()
+    ).isTrue();
+    verify(context.nextCache(), never()).copyFromPrevious(anyString());
+    handler.handleMessage(
+      AnalyzeProjectStreamResponse.newBuilder()
+        .setFileResult(
+          FileResultMessage.newBuilder()
+            .setFilePath(inputFile.absolutePath())
+            .setResult(ProjectAnalysisFileResult.newBuilder().setCacheHit(hit))
+        )
+        .build()
+    );
+    var metadataKey = "js:filemetadata:" + PLUGIN_VERSION + ":" + inputFile.key();
+    if (hit) {
+      assertThat(context.cpdTokens(inputFile.key())).hasSize(2);
+      verify(context.nextCache()).copyFromPrevious(metadataKey);
+      verify(context.nextCache(), never()).write(eq(metadataKey), any(byte[].class));
+    } else {
+      verify(context.nextCache(), never()).copyFromPrevious(anyString());
+      verify(context.nextCache()).write(eq(metadataKey), any(byte[].class));
+    }
+  }
+
+  @Test
   void should_record_and_replay_warm_cache_with_real_node() throws Exception {
     Assumptions.assumeTrue(Boolean.getBoolean("sonarjs.localReplayValidation"));
     var nodeExecutable = System.getProperty("sonarjs.localNodeExecutable", "node");
@@ -1394,7 +1476,7 @@ class WebSensorTest {
       assertThat(cold.allIssues()).hasSize(1);
       assertThat(cachedBytes).isNotEmpty();
 
-      // Prove this cache is actually usable before testing collection's bypass of it.
+      // Prove the ordinary hit path before checking reuse during context recording.
       logTester.clear();
       var cached = realNodeCacheContext(nodeExecutable, source, cachedBytes, true);
       createSensor(
@@ -1417,7 +1499,13 @@ class WebSensorTest {
         collector,
         new WebSensorModuleConfiguration()
       ).execute(warm);
-      assertThat(warm.allIssues()).hasSize(1);
+      assertThat(warm.allIssues()).isEmpty();
+      verify(warm.nextCache()).copyFromPrevious(
+        "js:filemetadata:" +
+          PLUGIN_VERSION +
+          ":" +
+          warm.fileSystem().inputFiles(warm.fileSystem().predicates().all()).iterator().next().key()
+      );
       assertThat(logTester.logs(Level.DEBUG)).noneMatch(message ->
         message.startsWith("Processing cache analysis of file:")
       );
@@ -1563,6 +1651,7 @@ class WebSensorTest {
       )
     );
     sensorContext.setCanSkipUnchangedFiles(true);
+    sensorContext.setCacheEnabled(true);
     sensorContext.settings().setProperty("sonar.nodejs.executable", nodeExecutable);
     sensorContext.settings().setProperty("sonar.javascript.node.maxspace", 4096);
     var previous = mock(ReadCache.class);

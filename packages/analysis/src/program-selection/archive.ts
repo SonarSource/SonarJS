@@ -15,6 +15,11 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import fs from 'node:fs';
+import {
+  nativeFs,
+  writeFileWithNativePrimitives,
+  ARCHIVE_FILE_MODE,
+} from '../../../shared/src/fs-cache/archive-types.js';
 import path from 'node:path';
 import { gzipSync, gunzipSync } from 'node:zlib';
 import type ts from 'typescript';
@@ -134,6 +139,7 @@ export class ProgramSelectionArchive {
   private readonly pathsByCanonicalName = new Map<string, NormalizedAbsolutePath>();
   private canonicalPathsCaseSensitive?: boolean;
   private nextProgramId = 1;
+  private seeded = false;
 
   constructor(
     archivePath: string,
@@ -156,6 +162,34 @@ export class ProgramSelectionArchive {
 
   isRecord(): boolean {
     return this.mode === 'record';
+  }
+
+  seedFrom(
+    archivePath: string,
+    contextMetadata: string,
+    requiredFiles: NormalizedAbsolutePath[] = [],
+  ): void {
+    if (!this.isRecord()) throw new Error('Only recording can reuse a sensor-cache baseline');
+    const baseline = new ProgramSelectionArchive(
+      archivePath,
+      this.baseDir,
+      'replay',
+      false,
+      contextMetadata,
+    );
+    for (const file of requiredFiles) {
+      if (!baseline.hasSelection(file) && !baseline.hasNoProgram(file)) {
+        throw new Error('The baseline has no TypeScript program outcome for ' + file);
+      }
+    }
+    for (const [id, stored] of baseline.programs) {
+      this.programs.set(id, stored);
+      this.nextProgramId = Math.max(this.nextProgramId, id + 1);
+      if (isConfigured(stored.program)) this.configuredProgramIds.set(stored.program.tsconfig, id);
+    }
+    for (const [file, id] of baseline.selections) this.storeSelection(file, id);
+    for (const file of baseline.noProgramFiles) this.noProgramFiles.add(file);
+    this.seeded = true;
   }
 
   restoredConfiguration(): ReplayableConfiguration | undefined {
@@ -225,7 +259,11 @@ export class ProgramSelectionArchive {
     if (!this.isRecord()) {
       return;
     }
-    const projectFiles = files.filter(file => this.isProjectRelative(file));
+    const projectFiles = files.filter(
+      file =>
+        this.isProjectRelative(file) &&
+        !(this.seeded && this.selections.has(this.canonicalRequestedFile(file))),
+    );
     if (projectFiles.length === 0) {
       return;
     }
@@ -317,8 +355,8 @@ export class ProgramSelectionArchive {
       },
     });
     const bytes = gzipSync(sonarjs.programselection.AnalysisMetadata.encode(metadata).finish());
-    fs.mkdirSync(path.dirname(this.archivePath), { recursive: true });
-    fs.writeFileSync(this.archivePath, bytes);
+    nativeFs.mkdirSync(path.dirname(this.archivePath), { recursive: true });
+    writeFileWithNativePrimitives(this.archivePath, bytes, ARCHIVE_FILE_MODE);
   }
 
   private addProgram(program: RecordedProgram): number {
@@ -354,7 +392,7 @@ export class ProgramSelectionArchive {
 
   private load(restoreOriginalPaths: boolean, contextMetadata?: string): void {
     const metadata = sonarjs.programselection.AnalysisMetadata.decode(
-      gunzipSync(fs.readFileSync(this.archivePath)),
+      gunzipSync(nativeFs.readFileSync(this.archivePath)),
     );
     if (metadata.programSelection?.magic !== MAGIC) {
       throw new Error(`Not a SonarJS analysis metadata archive: ${this.archivePath}`);

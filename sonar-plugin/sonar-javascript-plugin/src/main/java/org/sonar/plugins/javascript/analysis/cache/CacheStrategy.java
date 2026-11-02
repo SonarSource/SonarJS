@@ -73,4 +73,8 @@ public class CacheStrategy {
   public CacheAnalysis readAnalysisFromCache() {
     return Objects.requireNonNull(cacheAnalysis);
   }
+
+  CacheAnalysisSerialization serialization() {
+    return serialization;
+  }
 }
