@@ -41,61 +41,6 @@ describe('S7739', () => {
           code: `const obj = { foo: 'bar' };`,
           filename: testFilePath,
         },
-        {
-          code: `const options = { then: 2, other: 3 };`,
-          filename: testFilePath,
-        },
-        {
-          code: `const options = { ['then']: 2 };`,
-          filename: testFilePath,
-        },
-        {
-          code: `const key = 'then'; const options = { [key]: 2 };`,
-          filename: testFilePath,
-        },
-        {
-          code: `const options = { ...source, then: 2 };`,
-          filename: testFilePath,
-        },
-        {
-          code: `const options = { [key]: callback, then: 2 };`,
-          filename: testFilePath,
-        },
-        {
-          code: `
-          const keywordIndent = {
-            'function': 1,
-            'then': 1,
-            'do': 1
-          };
-        `,
-          filename: testFilePath,
-        },
-        {
-          code: `
-          function Promise() {
-            return { then: 0 };
-          }
-        `,
-          filename: testFilePath,
-        },
-        {
-          code: `
-          ns.Promise = function () {
-            return { then: 0 };
-          };
-          `,
-          filename: testFilePath,
-        },
-        {
-          code: `
-          ns.Promise = function () {
-            const result = { then: 0 };
-            return result;
-          };
-          `,
-          filename: testFilePath,
-        },
         // False Positive Pattern 1: Prototype extension with then method
         // This is a custom Promise-like implementation that extends Promise.prototype
         // and implements then() for Promise interoperability.
@@ -673,6 +618,21 @@ describe('S7739', () => {
         },
       ],
       invalid: [
+        ...[
+          `const options = { then: 2, other: 3 };`,
+          `const options = { ['then']: 2 };`,
+          `const key = 'then'; const options = { [key]: 2 };`,
+          `const options = { ...source, then: 2 };`,
+          `const options = { [key]: callback, then: 2 };`,
+          `const keywordIndent = { 'function': 1, 'then': 1, 'do': 1 };`,
+          `function Promise() { return { then: 0 }; }`,
+          `ns.Promise = function () { return { then: 0 }; };`,
+          `ns.Promise = function () { const result = { then: 0 }; return result; };`,
+        ].map(code => ({
+          code,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        })),
         {
           code: `
           function Promise() {
@@ -729,7 +689,10 @@ describe('S7739', () => {
         {
           code: `const options = { then: 2, then: 3 };`,
           filename: testFilePath,
-          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR, column: 19, endColumn: 23 }],
+          errors: [
+            { messageId: NO_THENABLE_OBJECT_ERROR, column: 19, endColumn: 23 },
+            { messageId: NO_THENABLE_OBJECT_ERROR, column: 28, endColumn: 32 },
+          ],
         },
         {
           code: `const options = { then: unknownValue };`,
@@ -1354,7 +1317,21 @@ describe('S7739', () => {
     tsRuleTester.run('S7739 in TypeScript', rule, {
       valid: [
         {
-          code: `export const INDENTATION_DEFAULTS = { Feature: 0, given: 2, when: 2, then: 2 };`,
+          code: `
+          import { dialects } from '@cucumber/gherkin';
+          export const INDENTATION_DEFAULTS: Readonly<Record<string, number>> = {
+            Feature: 0, given: 2, when: 2, then: 2
+          };
+          `,
+          filename: tsTestFilePath,
+        },
+        {
+          code: `
+          import { dialects } from '@cucumber/gherkin';
+          const indentation: Readonly<Record<string, number>> = {
+            ...defaults, Feature: 0, given: 2, when: 2, then: 2
+          };
+          `,
           filename: tsTestFilePath,
         },
         {
@@ -1405,6 +1382,31 @@ describe('S7739', () => {
         },
       ],
       invalid: [
+        ...[
+          `export const INDENTATION_DEFAULTS = { Feature: 0, given: 2, when: 2, then: 2 };`,
+          `const indentation: Readonly<Record<string, number>> = { Feature: 0, given: 2, when: 2, then: 2 };`,
+          `import { dialects } from '@cucumber/gherkin'; const indentation = { Feature: 0, given: 2, when: 2, then: 2 };`,
+          `import { dialects } from '@cucumber/gherkin'; const indentation: Readonly<Record<string, number>> = { Feature: 0, given: 2, then: 2 };`,
+          `import { dialects } from '@cucumber/gherkin'; const indentation: Readonly<Record<string, number>> = { Feature: 0, given: 2, when: 2, then: 2, ...defaults };`,
+          `import { dialects } from '@cucumber/gherkin'; const indentation: Readonly<Record<string, number>> = { Feature: 0, given: 2, when: 2, then: 2, [key]: callback };`,
+          `import type { GherkinDocument } from '@cucumber/gherkin'; const indentation: Readonly<Record<string, number>> = { Feature: 0, given: 2, when: 2, then: 2 };`,
+          `import { dialects } from '@cucumber/gherkin'; let indentation: Readonly<Record<string, number>> = { Feature: 0, given: 2, when: 2, then: 2 };`,
+          `import { dialects } from '@cucumber/gherkin'; const indentation: Record<string, number> = { Feature: 0, given: 2, when: 2, then: 2 };`,
+          `import { dialects } from '@cucumber/gherkin'; const indentation: Readonly<Record<string, number>> = { Feature: 0, given: 2, when: 2, then: 2, given: callback };`,
+          `import { dialects } from '@cucumber/gherkin'; const indentation: Readonly<Record<string, number>> = { Feature: 0, given: 2, when: 2, then: 2, other: callback };`,
+        ].map(code => ({
+          code,
+          filename: tsTestFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        })),
+        {
+          code: `import { dialects } from '@cucumber/gherkin'; const indentation: Readonly<Record<string, number>> = { Feature: 0, given: 2, when: 2, then: 2, then: callback };`,
+          filename: tsTestFilePath,
+          errors: [
+            { messageId: NO_THENABLE_OBJECT_ERROR },
+            { messageId: NO_THENABLE_OBJECT_ERROR },
+          ],
+        },
         {
           code: `
           class Sequencer {

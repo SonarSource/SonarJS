@@ -15,4 +15,5 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 export { isInsideExceptionLibraryCall } from './exception-libraries.js';
+export { isGherkinIndentationMap } from './gherkin-indentation.js';
 export { isIntentionalThenableImplementation } from './intentional-thenable.js';
