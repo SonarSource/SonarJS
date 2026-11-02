@@ -19,6 +19,7 @@ import type { Node } from 'estree';
 import { getFullyQualifiedName } from '../../helpers/module.js';
 import { getDependenciesSanitizePaths } from '../../helpers/dependency-manifests/dependencies.js';
 import { collectPropertyNames, getAncestorsWithParent } from '../helpers.js';
+import { hasUnresolvedDataThenOverride } from './overridden-data-then.js';
 
 /**
  * Validation libraries like Yup and Joi intentionally define a `.then()` method
@@ -47,18 +48,8 @@ export function isInsideExceptionLibraryCall(context: Rule.RuleContext, node: No
   for (const ancestor of ancestors) {
     if (ancestor.type === 'CallExpression') {
       const fqn = getFullyQualifiedName(context, ancestor);
-      if (
-        fqn &&
-        EXCEPTION_LIBRARIES.some(
-          lib =>
-            fqn === lib ||
-            fqn.startsWith(`${lib}.`) ||
-            TRUSTED_REEXPORT_LIB_PREFIXES.some(
-              prefix => fqn === prefix || fqn.startsWith(`${prefix}.`),
-            ),
-        )
-      ) {
-        return true;
+      if (fqn && isExceptionLibraryFqn(fqn)) {
+        return !hasUnresolvedDataThenOverride(context, node, isExceptionLibraryFqn);
       }
     }
   }
@@ -68,7 +59,17 @@ export function isInsideExceptionLibraryCall(context: Rule.RuleContext, node: No
     return false;
   }
 
-  return isConditionalValidationConfig(node);
+  return (
+    isConditionalValidationConfig(node) &&
+    !hasUnresolvedDataThenOverride(context, node, isExceptionLibraryFqn)
+  );
+}
+
+function isExceptionLibraryFqn(fqn: string): boolean {
+  return (
+    EXCEPTION_LIBRARIES.some(lib => fqn === lib || fqn.startsWith(`${lib}.`)) ||
+    TRUSTED_REEXPORT_LIB_PREFIXES.some(prefix => fqn === prefix || fqn.startsWith(`${prefix}.`))
+  );
 }
 
 /**

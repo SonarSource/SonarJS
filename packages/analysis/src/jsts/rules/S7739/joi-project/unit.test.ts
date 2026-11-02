@@ -17,36 +17,49 @@
 import { rule } from '../rule.js';
 import { join } from 'node:path/posix';
 import { NoTypeCheckingRuleTester } from '../../../../../tests/jsts/tools/testers/rule-tester.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
 
 describe('S7739', () => {
   const dirname = join(import.meta.dirname, 'fixtures');
   process.chdir(dirname); // change current working dir to avoid the package.json lookup going up the tree
   const ruleTester = new NoTypeCheckingRuleTester();
-  ruleTester.run('S7739 skips joi validation schemas', rule, {
-    valid: [
-      {
-        // Joi validation schemas use .then() method legitimately
-        code: `
+  it('S7739 skips joi validation schemas', () => {
+    ruleTester.run('S7739 skips joi validation schemas', rule, {
+      valid: [
+        {
+          // Joi validation schemas use .then() method legitimately
+          code: `
           import Joi from 'joi';
           const schema = Joi.object({ then: Joi.string() });
         `,
-        filename: join(dirname, 'filename.ts'),
-      },
-      {
-        // Chained joi calls - string().when() with {is, then} config
-        code: `
+          filename: join(dirname, 'filename.ts'),
+        },
+        {
+          // Chained joi calls - string().when() with {is, then} config
+          code: `
           import Joi from 'joi';
           const schema = Joi.string().when('type', {
             is: 'email',
             then: Joi.string().email().required(),
           });
         `,
-        filename: join(dirname, 'filename.ts'),
-      },
-      {
-        // Joi alternatives().conditional() with switch cases containing {is, then}
-        code: `
+          filename: join(dirname, 'filename.ts'),
+        },
+        {
+          code: `import Joi from 'joi'; const schema = Joi.string().when('field', { is: true, then: Joi.string(), ...extra });`,
+          filename: join(dirname, 'filename.ts'),
+        },
+        {
+          code: `import Joi from 'joi'; const schema = Joi.string().when('field', { is: true, then: 2, ...extra, then: Joi.string() });`,
+          filename: join(dirname, 'filename.ts'),
+        },
+        {
+          code: `import Joi from 'joi'; const schema = Joi.string().when('field', { is: true, then: 2, ...extra, then(s) { return s; } });`,
+          filename: join(dirname, 'filename.ts'),
+        },
+        {
+          // Joi alternatives().conditional() with switch cases containing {is, then}
+          code: `
           import Joi from 'joi';
           const schema = Joi.alternatives().conditional('action', {
             switch: [
@@ -56,27 +69,48 @@ describe('S7739', () => {
             otherwise: Joi.forbidden(),
           });
         `,
-        filename: join(dirname, 'filename.ts'),
-      },
-      {
-        // Joi with CommonJS require
-        code: `
+          filename: join(dirname, 'filename.ts'),
+        },
+        {
+          // Joi with CommonJS require
+          code: `
           const Joi = require('joi');
           const schema = Joi.string().when('field', {
             is: 'value',
             then: Joi.string().required(),
           });
         `,
-        filename: join(dirname, 'filename.js'),
-      },
-    ],
-    invalid: [
-      {
-        // Non-Joi code should still be flagged even with Joi as dependency
-        code: `const schema = { then: function() { return this; } };`,
-        filename: join(dirname, 'filename.js'),
-        errors: [{ messageId: 'no-thenable-object' }],
-      },
-    ],
+          filename: join(dirname, 'filename.js'),
+        },
+      ],
+      invalid: [
+        ...[
+          `const options = { is: true, then: 2, get then() { return resolve => resolve(42); } };`,
+          `const options = { is: true, then: 2, then: unknown };`,
+          `const options = { is: true, then: 2, then: unknownCall() };`,
+          `const options = { is: true, then: 2, ...extra, then: 3, ...later };`,
+        ].map(code => ({
+          code,
+          filename: join(dirname, 'filename.js'),
+          errors: 2,
+        })),
+        {
+          code: `import Joi from 'joi'; const schema = Joi.string().when('field', { is: true, then: 2, ...extra });`,
+          filename: join(dirname, 'filename.ts'),
+          errors: [{ messageId: 'no-thenable-object' }],
+        },
+        {
+          code: `const options = { is: true, then: 2, ...extra };`,
+          filename: join(dirname, 'filename.js'),
+          errors: [{ messageId: 'no-thenable-object' }],
+        },
+        {
+          // Non-Joi code should still be flagged even with Joi as dependency
+          code: `const schema = { then: function() { return this; } };`,
+          filename: join(dirname, 'filename.js'),
+          errors: [{ messageId: 'no-thenable-object' }],
+        },
+      ],
+    });
   });
 });
