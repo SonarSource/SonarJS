@@ -23,6 +23,16 @@ import { getImportDeclarations } from '../../helpers/module.js';
 
 const GHERKIN_KEYWORDS = ['Feature', 'given', 'when', 'then'];
 
+/**
+ * Recognizes the `then` property in a typed Gherkin indentation map.
+ *
+ * `const indentation: Readonly<Record<string, number>> =
+ *   { Feature: 0, given: 2, when: 2, then: 2 };`
+ *
+ * The reported node is `Property.key` in a const object initializer.
+ * A runtime Gherkin import identifies the map. Later members must not
+ * replace the selected `then` value.
+ */
 export function isGherkinIndentationMap(context: Rule.RuleContext, node: Node): boolean {
   const property = getNodeParent(node);
   if (
@@ -80,6 +90,7 @@ export function isGherkinIndentationMap(context: Rule.RuleContext, node: Node): 
   return GHERKIN_KEYWORDS.every(keyword => keys.has(keyword));
 }
 
+/** Matches the AST type annotation `Readonly<Record<string, number>>`. */
 function isNumericRecord(type: TSESTree.TypeNode | undefined): boolean {
   if (
     type?.type !== 'TSTypeReference' ||
