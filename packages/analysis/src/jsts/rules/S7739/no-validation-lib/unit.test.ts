@@ -646,7 +646,6 @@ describe('S7739', () => {
           `const schema = { if: {}, then: {}, ...extra };`,
           `const schema = { if: {}, then: {}, [key]: callback };`,
           `const schema = { if: {}, ['then']: {}, ...extra };`,
-          `const KEY = 'then'; const schema = { if: {}, [KEY]: {}, ...extra };`,
           `const schema = { if: {}, then: {}, ...extra, other: 1 };`,
           `const schema = { if: {}, then: {}, ...extra, inner: { if: {}, then: {} } };`,
           `const schema = { if: {}, then: {}, nested: { then: callback } };`,
@@ -655,6 +654,14 @@ describe('S7739', () => {
           filename: testFilePath,
           errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
         })),
+        {
+          code: `const KEY = 'then'; const schema = { if: {}, then: {}, [KEY]: callback };`,
+          filename: testFilePath,
+          errors: [
+            { messageId: NO_THENABLE_OBJECT_ERROR },
+            { messageId: NO_THENABLE_OBJECT_ERROR },
+          ],
+        },
         {
           code: `const schema = { if: {}, then: {}, then: callback };`,
           filename: testFilePath,
