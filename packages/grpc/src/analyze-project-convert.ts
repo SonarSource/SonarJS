@@ -114,6 +114,9 @@ function toProjectAnalysisFileResult(
   result: FileResult,
   pathMap: AnalyzeProjectPathMap,
 ): ProjectAnalysisFileResult {
+  if (result.cacheHit) {
+    return { cacheHit: true };
+  }
   if ('error' in result) {
     return {
       error: result.error,

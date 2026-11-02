@@ -18,6 +18,7 @@
 import {
   analyzeProject,
   cancelAnalysis,
+  isAnalysisCancelled,
   withAnalysisCancellation,
 } from '../../analysis/src/analyzeProject.js';
 import { logHeapStatistics } from './analyze-project-memory.js';
@@ -57,6 +58,11 @@ import { sonarjs } from './proto/analyze-project.js';
 import { ReplayProjectPaths } from './replay-project-paths.js';
 import path from 'node:path';
 import ts from 'typescript';
+import {
+  snapshotManifest,
+  reuseContextBaseline,
+  writeSnapshotManifest,
+} from './incremental-context.js';
 
 const { FilesystemCacheMode } = sonarjs.analyzeproject.v1;
 type CacheMode = 'record' | 'replay';
@@ -324,6 +330,7 @@ async function analyzeNormalizedProject(
   programSelection: ProgramSelectionArchive | undefined,
   incrementalResultsChannel?: (result: AnalyzeProjectIncrementalEvent) => void,
   onContextFailure?: ProjectAnalysisInput['onContextFailure'],
+  cachedFiles?: ReadonlySet<NormalizedAbsolutePath>,
 ) {
   const wrappedIncrementalResultsChannel = incrementalResultsChannel
     ? (event: AnalyzeProjectIncrementalEvent['event']) =>
@@ -340,6 +347,7 @@ async function analyzeNormalizedProject(
       rulesWorkdir: input.rulesWorkdir,
       programSelection,
       onContextFailure,
+      cachedFiles,
     },
     input.configuration,
     wrappedIncrementalResultsChannel,
@@ -363,9 +371,14 @@ async function handleProjectAnalysis(
     );
   }
   const sessions: AnalysisSessions = {};
+  const manifest = cacheMode === 'record' ? snapshotManifest(request) : undefined;
+  let completed = false;
   try {
     beginAnalysisSessions(request, cacheMode, sessions);
     return await withAnalysisCancellation(async () => {
+      const cachedFiles = manifest
+        ? reuseContextBaseline(request, sessions.programSelection, manifest)
+        : undefined;
       logHeapStatistics(workerData?.debugMemory);
       let deliveryFailed = false;
       const publishEvent = incrementalResultsChannel
@@ -396,6 +409,7 @@ async function handleProjectAnalysis(
         sessions.programSelection,
         publishEvent,
         onContextFailure,
+        cachedFiles,
       );
       if (
         sessions.fallbackWarning &&
@@ -403,6 +417,7 @@ async function handleProjectAnalysis(
       ) {
         result.output.meta.warnings.push(sessions.fallbackWarning);
       }
+      completed = !isAnalysisCancelled();
       logHeapStatistics(workerData?.debugMemory);
       return {
         type: 'success',
@@ -411,6 +426,7 @@ async function handleProjectAnalysis(
     });
   } finally {
     endAnalysisSessions(sessions.programSelection, sessions.filesystemCacheSession);
+    if (completed && manifest) writeSnapshotManifest(request, manifest);
   }
 }
 

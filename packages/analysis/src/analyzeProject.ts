@@ -36,6 +36,7 @@ import {
 } from './common/configuration.js';
 import { info, error } from '../../shared/src/helpers/logging.js';
 import { ProgressReport } from './common/progress-report.js';
+import { handleFileResult } from './handleFileResult.js';
 import type { WsIncrementalResult } from './incremental-result.js';
 import {
   clearSourceFileContentCache,
@@ -226,6 +227,12 @@ async function analyzePendingProjectFiles(
   cssLinter.initialize(input.cssRules ?? [], baseDir);
 
   const progressReport = new ProgressReport(pendingFiles.size);
+  for (const file of input.cachedFiles ?? []) {
+    if (pendingFiles.delete(file)) {
+      progressReport.nextFile(file);
+      handleFileResult({ issues: [], cacheHit: true }, file, results, incrementalResultsChannel);
+    }
+  }
   try {
     if (pendingFiles.size) {
       if (jsTsConfigFields.disableTypeChecking) {

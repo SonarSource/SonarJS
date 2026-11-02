@@ -1,5 +1,57 @@
 # SonarJS A3S context contract
 
+## Recording and the sensor cache
+
+The SQAA collector context and the persistent [sensor cache](./sonar-cache.md) have separate
+publication lifecycles. The sensor cache also transports a baseline for incremental recording.
+`DefaultFilesystemCacheContext.isEnabled()` delegates to the platform's
+`A3SContextCollector.isEnabled()`. On a supported host, when collection is enabled and this is
+not a restored-context request, `WebSensor` records a new context.
+
+Recording keeps `AnalysisMode.DEFAULT` so cold fallback runs all rules. Since SonarJS 14.1,
+this override prevented per-file cache reuse during collection, including PRs. The snapshot
+reuse implementation allows confirmed cache hits while retaining all request files.
+
+A completed recording writes a versioned sensor-cache entry containing both archives, the
+collector JSON metadata and a compatibility manifest. During PR recording, `previousCache()`
+provides the platform-selected reference baseline. Node validates settings/rules and input
+paths/types, refreshes every baseline filesystem observation from the current checkout and
+seeds compatible program selections before skipping accepted files. Java waits for Node's
+`cacheHit` acknowledgment before copying cached results and re-emitting CPD/AST.
+
+The resulting PR context includes unchanged inputs and current changed-file contents. Missing
+or incompatible baselines fall back to full recording, including changes to dependencies,
+configuration, file lists or source dependency directives. Request-provided contents and
+unsupported filesystem observations also fall back. Validation still reads filesystem inputs.
+
+The scanner owns cache enablement, reference selection and persistence. PR `nextCache()`
+writes are no-op; they do not overwrite the branch baseline. There are still two collector
+attachments: the compatibility manifest exists only inside the sensor-cache bundle.
+See `ContextSnapshotCache`, `WebSensor` and `packages/grpc/src/incremental-context.ts`.
+
+### Platform collection policy
+
+The collection decision is separate from sensor-cache enablement. In the scanner-engine
+revision audited on 2026-11-02 (`a54007566d`):
+
+- **Cloud:** [A3SContextImpl](https://github.com/SonarSource/sonar-scanner-engine/blob/a54007566d/cloud/sonar-scanner-extension-a3s/src/main/java/org/sonar/scanner/a3s/A3SContextImpl.java)
+  fetches `collection-config` with organization and project keys, caches the response for the
+  scan and returns its `enabled` value. It has no PR exclusion or local collection toggle.
+- **Server:** [A3SServerContextCollector](https://github.com/SonarSource/sonar-scanner-engine/blob/a54007566d/server/private/core-extension-a3s-scanner/src/main/java/com/sonarsource/a3s/scanner/A3SServerContextCollector.java)
+  requires both the local collection setting and the API's enabled response. The local
+  `sonar.vortex.collection.enabled` setting defaults to `true`; it is not a Cloud control.
+- **Light:** [NoOpA3SContextCollector](https://github.com/SonarSource/sonar-scanner-engine/blob/a54007566d/a3s/sonar-scanner-engine-light/src/main/java/org/sonar/scanner/engine/light/internal/NoOpA3SContextCollector.java)
+  returns `false`. This host can replay an existing context without recording a new CI context
+  or enabling the sensor cache.
+
+For Cloud diagnosis, debug logs include
+`A3S collection configuration fetched from API and cached: true`; publication logs include
+`Collecting context of kind 'javascript'`. These establish collection activity separately from
+sensor-cache download and hit/miss messages. `ANALYSIS_MODE_INELIGIBLE` alone identifies the
+effective mode, not the reason collection was enabled for a particular customer.
+
+## Stored context and replay
+
 SonarJS owns the context of kind `javascript`. Shared context information is carried in the
 collector's JSON metadata, not in a file attachment:
 

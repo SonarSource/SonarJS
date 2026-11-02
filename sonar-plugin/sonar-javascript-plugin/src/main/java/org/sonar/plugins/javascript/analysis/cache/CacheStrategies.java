@@ -64,14 +64,37 @@ public class CacheStrategies {
     return getStrategyFor(context, inputFile, PluginInfo.getVersion());
   }
 
+  public static CacheStrategy getStrategyFor(
+    JsTsContext<?> context,
+    InputFile inputFile,
+    boolean deferHitReport
+  ) throws IOException {
+    return getStrategyFor(context, inputFile, PluginInfo.getVersion(), deferHitReport);
+  }
+
   static CacheStrategy getStrategyFor(
     JsTsContext<?> context,
     InputFile inputFile,
     @Nullable String pluginVersion
   ) throws IOException {
+    return getStrategyFor(context, inputFile, pluginVersion, false);
+  }
+
+  private static CacheStrategy getStrategyFor(
+    JsTsContext<?> context,
+    InputFile inputFile,
+    @Nullable String pluginVersion,
+    boolean deferHitReport
+  ) throws IOException {
     if (!isRuntimeApiCompatible(context)) {
       var strategy = noCache();
       REPORTER.logAndIncrement(strategy, inputFile, MissReason.RUNTIME_API_INCOMPATIBLE);
+      return strategy;
+    }
+
+    if (!context.getSensorContext().isCacheEnabled()) {
+      var strategy = noCache();
+      REPORTER.logAndIncrement(strategy, inputFile, MissReason.CACHE_DISABLED);
       return strategy;
     }
 
@@ -97,7 +120,7 @@ public class CacheStrategies {
       return strategy;
     }
 
-    var cacheAnalysis = readFromCache(serialization);
+    var cacheAnalysis = readFromCache(serialization, !deferHitReport);
     if (cacheAnalysis == null) {
       var strategy = writeOnly(serialization);
       REPORTER.logAndIncrement(strategy, inputFile, MissReason.CACHE_CORRUPTED);
@@ -105,8 +128,17 @@ public class CacheStrategies {
     }
 
     var strategy = readAndWrite(cacheAnalysis, serialization);
-    REPORTER.logAndIncrement(strategy, inputFile, null);
+    if (!deferHitReport) REPORTER.logAndIncrement(strategy, inputFile, null);
     return strategy;
+  }
+
+  public static void reportSnapshotResult(CacheStrategy strategy, InputFile file, boolean hit) {
+    if (hit) strategy.serialization().copyFromPrevious();
+    REPORTER.logAndIncrement(
+      hit ? strategy : writeOnly(strategy.serialization()),
+      file,
+      hit ? null : MissReason.SNAPSHOT_INELIGIBLE
+    );
   }
 
   private static boolean isSameFile(FileMetadata fileMetadata, InputFile inputFile)
@@ -115,9 +147,16 @@ public class CacheStrategies {
   }
 
   static CacheAnalysis readFromCache(CacheAnalysisSerialization serialization) {
+    return readFromCache(serialization, true);
+  }
+
+  private static CacheAnalysis readFromCache(
+    CacheAnalysisSerialization serialization,
+    boolean copy
+  ) {
     try {
       var cacheAnalysis = serialization.readFromCache();
-      serialization.copyFromPrevious();
+      if (copy) serialization.copyFromPrevious();
       return cacheAnalysis;
     } catch (IOException e) {
       LOG.error("Failure when reading cache entry", e);
@@ -139,7 +178,8 @@ public class CacheStrategies {
     ANALYSIS_MODE_INELIGIBLE("current analysis requires all files to be analyzed"),
     FILE_CHANGED("the current file is changed"),
     FILE_NOT_IN_CACHE("the current file is not cached"),
-    CACHE_CORRUPTED("the cache is corrupted");
+    CACHE_CORRUPTED("the cache is corrupted"),
+    SNAPSHOT_INELIGIBLE("the context snapshot baseline could not be reused");
 
     private final String description;
 

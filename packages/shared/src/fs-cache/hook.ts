@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import fs from 'node:fs';
+import { refreshArchive } from './refresh.js';
 import {
   setArchivedFileSystemCaseSensitivity,
   setOsCaseSensitivity,
@@ -73,6 +74,22 @@ export function hasArchivedFileContent(fileName: string): boolean {
   }
   const key = activeArchive.keyFor(fileName);
   return key !== undefined && activeArchive.get(key, 'readFile')?.ok === true;
+}
+
+export function refreshFilesystemBaseline(
+  archivePath: string,
+  canChangeContent: (file: string, before: Buffer, after: Buffer) => boolean,
+): boolean {
+  const current = requireActiveArchive();
+  if (current.mode !== 'record') return false;
+  const baseline = new FsCacheArchive({
+    archivePath,
+    rootDir: current.rootDir,
+    mode: 'replay',
+    caseSensitivePaths: current.caseSensitivePaths,
+  });
+  baseline.load();
+  return refreshArchive(baseline, current, canChangeContent);
 }
 
 type FsError = Error & {

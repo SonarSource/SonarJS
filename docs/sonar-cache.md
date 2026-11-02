@@ -2,6 +2,16 @@
 
 This section documents how SonarQube's plugin cache API works and how SonarJS uses it.
 
+The sensor cache, Node's in-memory caches, and SQAA's recorded context are different mechanisms.
+See [Node.js analysis caches](./node-analysis-caches.md) and [the A3S context contract](./a3s-context.md)
+for the other two layers. SQAA recording can reuse a validated context snapshot transported
+through the sensor cache while still publishing a complete PR context.
+
+Source audit: 2026-11-02, SonarJS `c0037621e1a4c4d027e98f5ad1d2a31037225c65` and
+sonar-scanner-engine `a54007566d`, with the snapshot-reuse changes in this working tree.
+Platform details below distinguish Cloud, Server and Light;
+they do not establish backend storage or cache-selection policy outside scanner-engine.
+
 ### How the SonarQube Cache API works
 
 SonarQube (9.4+) provides a **key-value byte store** that persists between analysis runs. Plugins access it via `SensorContext`:
@@ -25,36 +35,114 @@ void write(String key, InputStream data);
 void copyFromPrevious(String key); // forward an unchanged entry
 ```
 
-**Key contract**: cached data is **not** automatically carried forward between runs. If a plugin doesn't call `nextCache().write()` or `nextCache().copyFromPrevious()` for a key, that entry disappears. This means on a cache hit, the plugin must explicitly call `copyFromPrevious()` to propagate the entries to the next generation.
+**Key contract**: a new cache generation contains only entries written or explicitly copied to
+it. When the platform publishes a replacement generation, entries omitted from that generation
+are not automatically carried forward. A no-op writer, including on PRs, does not replace the
+stored branch cache.
 
-The cache is completely separate from how SonarQube stores issues, metrics, highlights, and symbols. Those are saved via dedicated `SensorContext` APIs (`newIssue()`, `newMeasure()`, `newHighlighting()`, etc.) and managed by the platform in its own database — not in the plugin cache.
+Write or copy each key at most once per generation: Cloud and Server reject duplicate keys.
+The `InputStream` overload is buffered into a byte array by both implementations; it does not
+provide streaming storage. Snapshot size therefore contributes to scanner memory and transport cost.
 
-### How the cache is stored internally (SonarQube platform)
+Issues, metrics, highlights and symbols use dedicated `SensorContext` APIs (`newIssue()`,
+`newMeasure()`, `newHighlighting()`, etc.). They are not stored in this plugin cache.
 
-On the **scanner side**, the cache lives in the scanner's working directory (`.scannerwork/`). Entries are serialized as protobuf `SensorCacheEntry` messages (key + data) into a single gzip-compressed file (`analysisCache`). The `WriteCacheImpl` writes entries sequentially to this file, and `copyFromPrevious()` is implemented as a read-then-write (reads from `ReadCache`, writes to the output file).
+### Platform cache implementations
 
-On the **server side**, the cache is stored in the database (`scanner_analysis_cache` table), associated with the branch's last successful analysis. When a new analysis starts, the previous analysis's cache is downloaded and loaded into memory (`AnalysisCacheMemoryStorage`) as the `ReadCache`.
+Both Cloud and Server load previous entries into memory and serialize new entries as delimited
+protobuf `SensorCacheEntry` messages. Both provide a no-op writer for PR analysis, even when
+the reader has a valid cache. Their transport and enablement differ:
 
-At the end of analysis, the gzip file written by `WriteCacheImpl` is uploaded to the server via the analysis report, becoming the `ReadCache` for the next analysis.
+| Aspect                        | SonarQube Cloud                                                                                                                          | SonarQube Server                                                                    |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Enablement checked by scanner | Both `sonar.sensor.cache.enable` and `sonar.sensor.cache.project.enable`; registered defaults are `true`                                 | `sonar.analysisCache.enabled`, default `true`                                       |
+| Read request                  | Analysis API `sensor-cache/prepare-read`, then download from the returned pre-signed URL                                                 | `api/analysis_cache/get` with project and reference branch                          |
+| Branch selection              | Branch analysis passes its branch. PR analysis passes a known reference branch, otherwise its PR key for backend selection               | Uses `BranchConfiguration.referenceBranchName()`                                    |
+| New entries                   | `ScannerWriteCacheImpl` writes an uncompressed temporary `.dat` file                                                                     | `WriteCacheImpl` writes a gzip `analysisCache` file in the scanner report directory |
+| Publication                   | Publisher compresses the file, calls `sensor-cache/prepare-write` and uploads to the returned pre-signed URL, separately from the report | `AnalysisCachePublisher` closes the file for inclusion in the analysis report       |
+| Real writer                   | Cache enabled and PR key absent                                                                                                          | Cache enabled and not a PR                                                          |
 
-**Critical detail for PR analysis**: The `WriteCache` is a **NoOp** for pull requests (`AnalysisCacheProvider` checks `!branchConfiguration.isPullRequest()`). This means all `write()` and `copyFromPrevious()` calls during PR analysis are silently discarded. The cache is **only populated during branch/full analyses**, never during PRs.
+Cloud publishes its sensor cache after report execution and the `AFTER_SCANNER_REPORT` steps.
+Its writer skips publication when no keys were written. The Cloud settings above describe
+implementation controls, not a supported workaround for SQAA collection. The read path does
+not implement a target-branch-to-main fallback in the scanner; backend selection is outside
+this source audit. Scanner-engine also does not establish a universal database table or
+backend retention policy for these caches.
 
-**Design note**: SonarJS still calls `nextCache().write()` and `copyFromPrevious()` during PR analysis even though they're no-ops. This is by design — the plugin API is intentionally simple: plugins always follow the same read/write pattern regardless of context, and the **platform decides** what gets persisted. This avoids leaking branch-type concerns into the plugin. The calls are free (no-op), so there's no need for `if (!isPR)` guards in plugin code.
+In **scanner-engine-light**, `StreamingSensorContext` disables the sensor cache, returns no-op
+previous/next caches, and returns `false` from `canSkipUnchangedFiles()`. Replaying a recorded
+SQAA context uses a separate snapshot mechanism.
+
+**Design note**: SonarJS still calls `nextCache().write()` and `copyFromPrevious()` during PR analysis even when the platform supplies a no-op writer. The platform decides what gets persisted. A no-op writer avoids persistence, but does not eliminate work performed before the call, such as AST/CPD serialization and file hashing.
 
 ### What the cache is for
 
 The cache is designed to **skip expensive computations** for unchanged files. In SonarQube's incremental analysis model:
 
-- **DEFAULT mode** (full/branch analysis): every file is analyzed. The cache is populated (`WRITE_ONLY`) but never read. The `WriteCache` is active and entries are persisted.
-- **SKIP_UNCHANGED mode** (PR / incremental): unchanged files can use cached data read from the previous branch analysis. The `WriteCache` is a NoOp — PR analysis reads from cache but never writes to it. The platform retains issues, metrics, and highlights from the previous full analysis in its own database. The plugin only needs to re-emit data that the platform doesn't store itself (like CPD tokens for cross-file duplicate detection).
+- **DEFAULT mode**: eligible files normally use `WRITE_ONLY`. Recording keeps this mode for full-rule fallback, but can defer per-file hits when a context baseline is available and skipping is permitted.
+- **SKIP_UNCHANGED mode**: eligible files can use cached data if metadata and payload checks pass. On a miss, Node's rule filtering still depends on file status and mode. This mode does not itself determine whether the platform persists the attempted writes.
 
-The cache is **not** for storing issues, metrics, or highlights. Those are always re-computed on fresh analysis and the platform handles their persistence independently.
+The sensor cache stores neither issues nor measures nor highlighting. On a cache hit SonarJS
+does not emit them. This is separate from the scanner's result-storage rules described below.
 
-**Note on `canSkipUnchangedFiles()`**: This `SensorContext` method returns `true` only for PR analysis (`branchConfiguration.isPullRequest()`). It signals that the plugin may skip analysis for unchanged files. Separately, `markAsUnchanged()` is a different mechanism only enabled for CFamily and Cobol plugins — SonarJS does not use it.
+**Note on `canSkipUnchangedFiles()`**: Cloud and Server return `true` for PR analysis,
+independently of cache enablement or downloaded entries. This permits skipping; it does not
+promise a cache hit. Cloud's `markAsUnchanged()` is a no-op. Server's separate mechanism
+requires `sonar.unchangedFiles.optimize` (default `false`), a non-PR analysis with the same
+branch and reference branch, and an allowed sensor (CFamily/Cobol, plus test sensors).
+SonarJS does not use `markAsUnchanged()`.
+
+### SQAA context recording and snapshot reuse
+
+`JsTsContext.getAnalysisMode()` normally maps `canSkipUnchangedFiles()` to `SKIP_UNCHANGED` or
+`DEFAULT`. However, `WebSensor.contextWithCollectedTsConfigPaths()` overrides that method:
+
+```java
+return recordFilesystemCache ? AnalysisMode.DEFAULT : super.getAnalysisMode();
+```
+
+On supported hosts, `DefaultFilesystemCacheContext.isEnabled()` delegates to
+`A3SContextCollector.isEnabled()`. If collection is enabled and no restored context is being
+replayed, `WebSensor` sets `recordFilesystemCache = true`. There is no PR exception. All files
+must reach Node to produce complete filesystem observations and TypeScript program selections.
+Cloud obtains this enablement from its collection-config API; see
+[platform collection policy](./a3s-context.md#platform-collection-policy).
+
+This override was introduced by [JS-932 / #7986](https://github.com/SonarSource/SonarJS/pull/7986)
+in 14.1 and remains in 14.2 and 14.3. It made collection-enabled PRs report
+`ANALYSIS_MODE_INELIGIBLE` even with valid per-file caches. Removing it alone would produce
+incomplete contexts.
+
+The snapshot-reuse implementation preserves that fallback and adds this path:
+
+1. A completed recording writes one `js:sqaa-context:1:<analyzerVersion>` entry through
+   `nextCache()`. It bundles the filesystem archive, program-selection archive, compatibility
+   manifest and collector JSON metadata from the same recording.
+2. When skipping is permitted, Java restores this entry from `previousCache()`. The platform
+   selects the reference branch; SonarJS does not fetch `master` or implement branch fallback.
+3. Java validates per-file cache payloads and marks candidates, keeping all files in the Node
+   request. It defers cache copies, CPD/AST re-emission and hit statistics.
+4. Node checks settings, rules and input paths/types, refreshes baseline filesystem observations
+   from the current checkout and restores compatible program selections. Ordinary JS/TS edits
+   may preserve the baseline when imports, reference directives and module/script status match.
+5. Node acknowledges accepted candidates with `cacheHit`. Only then does Java copy their CPD,
+   AST and metadata entries and re-emit cached results. Rejected candidates run normally and
+   write fresh entries, avoiding duplicate writes of a key.
+6. The complete refreshed context is published through the collector's existing two attachments.
+   The manifest is cache-only. PR snapshot writes go to the platform's no-op writer and leave
+   the stored branch generation intact.
+
+Missing/corrupt snapshots, changed settings or file lists, changed dependencies/configuration,
+changed source dependency directives, unsupported observations and provided source contents
+fall back to full recording. Added/deleted paths discovered in the baseline also invalidate it.
+Filesystem validation still performs reads; this does not persist TypeScript program objects
+or remove all unchanged-file I/O. No performance gain is implied without measurement.
 
 ### Why CPD tokens must be re-emitted even on cache hit
 
-Unlike issues, metrics, highlights, and symbols (which the platform retains per-file in its database), **CPD (Copy-Paste Detection) is a cross-file computation that runs scanner-side, in-memory.** This is why SonarJS must re-emit CPD tokens for every file — even unchanged ones.
+**CPD (Copy-Paste Detection) needs an index of blocks from the relevant MAIN files in the
+current analysis.** SonarJS must re-emit cached CPD tokens for participating unchanged files
+so they can take part in scanner-side duplication detection.
 
 The duplication detection pipeline works as follows:
 
@@ -76,17 +164,25 @@ The duplication detection pipeline works as follows:
      → Report uploaded to server
 ```
 
-The critical point: `CpdExecutor` needs tokens from **every file** in the in-memory index. If a file's tokens are missing, the scanner won't detect any duplications involving that file — neither as source nor as target. This makes CPD fundamentally different from per-file data:
+Missing blocks prevent those files from participating in the current in-project comparison.
+Server also has a cross-project duplication index; the diagram describes the in-project path.
 
-| Data type  | Stored where            | Carried forward by platform?     | Must re-emit on cache hit? |
-| ---------- | ----------------------- | -------------------------------- | -------------------------- |
-| Issues     | Server database         | Yes                              | No                         |
-| Metrics    | Server database         | Yes                              | No                         |
-| Highlights | Server database         | Yes                              | No                         |
-| Symbols    | Server database         | Yes                              | No                         |
-| CPD tokens | Scanner in-memory index | **No** (computed fresh each run) | **Yes**                    |
+The scanner does not treat all other result types alike:
 
-This is why `AnalysisProcessor.processCacheAnalysis()` only calls `saveCpd()` — it's the only data that the scanner needs from every file to perform its cross-file analysis.
+| Data type                              | Observed scanner behavior for unchanged PR files                                                     |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Ordinary issues, highlighting, symbols | Storage skips files with status `SAME`; Cloud applies this to non-`LONG` branch types, including PRs |
+| Measures                               | Storage does not apply that same skip predicate; submitted measures can be written to the report     |
+| External issues                        | Use a separate storage path from ordinary issues                                                     |
+| CPD tokens                             | Still chunked and inserted into the current scanner index                                            |
+
+These storage checks are independent of whether SonarJS reads its sensor cache or executes
+rules. Backend issue tracking and result reuse are separate from this scanner-side behavior;
+do not infer that every omitted result is universally copied from a previous analysis.
+
+This is why `AnalysisProcessor.processCacheAnalysis()` calls `saveCpd()`. That method skips TEST
+files and IDE analyses. Separately, `WebSensor` forwards a cached AST to registered consumers
+when the AST is present.
 
 ### What SonarJS caches
 
@@ -101,7 +197,14 @@ SonarJS caches **two types of data** per JS/TS file, plus file metadata for chan
 
 The **plugin version** is embedded in every cache key, so upgrading the plugin automatically invalidates all cached entries.
 
-**JS/TS files** get the full cache treatment (read + write + CPD re-emission). **HTML and YAML files** also use the cache strategy to skip analysis on unchanged files, but they do not re-emit CPD tokens on cache hit — the file is silently skipped. **CSS files** are always analyzed fresh (never cached).
+An AST entry must exist, but an empty byte array is a valid representation of an absent AST
+(for example when no consumer requested one). It does not force a cache miss.
+
+Cache eligibility is based on `InputFile.language()`, not the extension alone. Files identified
+as JS/TS get read/write caching, CPD re-emission for MAIN files, and optional AST forwarding.
+Files identified as `web` or `yaml` also use the strategy, but do not re-emit CPD or forward ASTs
+on a hit. CSS files and files included only through additional extension predicates bypass the
+sensor cache and are sent to Node on every run.
 
 ### Cache strategy decision flow
 
@@ -111,22 +214,31 @@ The **plugin version** is embedded in every cache key, so upgrading the plugin a
 1. Is SonarQube >= 9.4 and not SonarLint?
    NO  → NO_CACHE (reason: RUNTIME_API_INCOMPATIBLE)
 
-2. Is analysis mode DEFAULT (full analysis)?
+2. Is the sensor cache enabled?
+   NO  → NO_CACHE (reason: CACHE_DISABLED)
+
+3. Is the effective analysis mode DEFAULT (except deferred snapshot candidates)?
    YES → WRITE_ONLY (reason: ANALYSIS_MODE_INELIGIBLE)
 
-3. Is file metadata in cache and does SHA-256 match?
+4. Is file metadata in cache and does SHA-256 match?
    NO  → WRITE_ONLY (reason: FILE_CHANGED)
 
-4. Are CPD + AST entries present in previousCache?
+5. Are CPD + AST entries present in previousCache?
    NO  → WRITE_ONLY (reason: FILE_NOT_IN_CACHE)
 
-5. Can cached data be deserialized successfully?
+6. Can cached data be deserialized successfully?
    NO  → WRITE_ONLY (reason: CACHE_CORRUPTED)
 
-6. All checks pass → READ_AND_WRITE (cache hit)
+7. All checks pass → READ_AND_WRITE (deferred until Node confirms during recording)
 ```
 
-Note: `isInCache()` checks for CPD + AST presence but **not** file metadata (metadata is checked separately in step 3).
+Note: `isInCache()` checks for CPD + AST presence but **not** file metadata (checked in step 4).
+
+The metadata comparison checks encoded byte size and SHA-256. It does not directly check
+`InputFile.status()`. Missing metadata also produces `FILE_CHANGED`; after an analyzer upgrade
+the versioned metadata key is missing even if the source bytes did not change. `CACHE_CORRUPTED`
+is the fallback for an `IOException` while reading/copying AST or CPD payloads. Metadata reading
+happens before that recovery block, so not every malformed cache entry is recovered this way.
 
 ### What happens on cache hit vs cache miss
 
@@ -135,9 +247,8 @@ Note: `isInCache()` checks for CPD + AST presence but **not** file metadata (met
 ```
 CacheStrategies.readFromCache(serialization)
   → CacheAnalysisSerialization.readFromCache() → CacheAnalysis (CPD tokens + AST)
-  → CacheAnalysisSerialization.copyFromPrevious() → forwards CPD + AST to nextCache
+  → CacheAnalysisSerialization.copyFromPrevious() → forwards CPD + AST + metadata to nextCache
     (Note: on PR analysis, these writes go to NoOpWriteCache and are discarded)
-    (Note: file metadata is NOT forwarded by copyFromPrevious — only CPD + AST)
 
 For JS/TS files:
   AnalysisProcessor.processCacheAnalysis(context, file, cacheAnalysis)
@@ -150,12 +261,16 @@ For HTML/YAML files:
   (no processCacheAnalysis, no CPD, no AST forwarding)
 ```
 
-The file is **not** sent to Node.js. Issues, metrics, highlights, and symbols are **not** re-emitted — the platform retains them from the previous full analysis.
+Without recording, the file is not sent to Node.js. During recording, it remains in the request
+for baseline validation and complete file/program context but skips per-file analysis after
+validation. SonarJS emits no issues, measures, highlights or symbols on a hit. The scanner's
+result-storage rules are separate from this cache hit.
 
-**Cache miss** (`WRITE_ONLY` or `NO_CACHE` — file changed or first analysis):
+**Analysis required** (`WRITE_ONLY` or `NO_CACHE` — for example a changed file, missing entry,
+ineligible mode or incompatible runtime):
 
 ```
-File sent to Node.js bridge for full analysis
+File sent to Node.js bridge for analysis (rule selection still depends on status and mode)
   → Node.js returns: issues, metrics, highlights, symbols, CPD tokens, AST
 
 AnalysisProcessor.processResponse(context, checks, file, response)
@@ -166,21 +281,21 @@ AnalysisProcessor.processResponse(context, checks, file, response)
   → Saves CPD tokens
 
 CacheStrategy.writeAnalysisToCache(CacheAnalysis.fromResponse(cpdTokens, ast), file)
-  → Writes CPD tokens to nextCache
-  → Writes AST to nextCache
-  → Writes file metadata (SHA-256 + size) to nextCache
+  → WRITE_ONLY: writes CPD tokens, AST and file metadata (SHA-256 + size) to nextCache
+  → NO_CACHE: no serialization or sensor-cache write
   (Note: on PR analysis, these writes go to NoOpWriteCache and are discarded)
 ```
 
 ### Which file types use caching
 
-| File type                          | Cache strategy applied? | Skip analysis on hit? | CPD re-emitted on hit? | AST forwarded on hit? | Cache written on miss? | Notes                                                        |
-| ---------------------------------- | ----------------------- | --------------------- | ---------------------- | --------------------- | ---------------------- | ------------------------------------------------------------ |
-| JavaScript (.js, .jsx, .mjs, .cjs) | Yes                     | Yes                   | Yes                    | Yes                   | Yes                    | Full cache support via `processCacheAnalysis()`              |
-| TypeScript (.ts, .tsx)             | Yes                     | Yes                   | Yes                    | Yes                   | Yes                    | Full cache support via `processCacheAnalysis()`              |
-| HTML (.html, .htm, .xhtml)         | Yes                     | Yes                   | No                     | No                    | Yes                    | File silently skipped on cache hit                           |
-| YAML (.yml, .yaml)                 | Yes                     | Yes                   | No                     | No                    | Yes                    | File silently skipped on cache hit; CPD handled by sonar-iac |
-| CSS (.css, .less, .scss, .sass)    | No                      | N/A                   | N/A                    | N/A                   | No                     | Always analyzed fresh; bypasses cache entirely               |
+| File type                                                       | Cache strategy applied? | Skip analysis on hit? | CPD re-emitted on hit? | AST forwarded on hit? | Cache written on miss? | Notes                                                        |
+| --------------------------------------------------------------- | ----------------------- | --------------------- | ---------------------- | --------------------- | ---------------------- | ------------------------------------------------------------ |
+| JavaScript (.js, .jsx, .mjs, .cjs)                              | Yes                     | Yes                   | Yes                    | Yes                   | Yes                    | Full cache support via `processCacheAnalysis()`              |
+| TypeScript (.ts, .tsx)                                          | Yes                     | Yes                   | Yes                    | Yes                   | Yes                    | Full cache support via `processCacheAnalysis()`              |
+| HTML identified as `web`                                        | Yes                     | Yes                   | No                     | No                    | Yes                    | File silently skipped on cache hit                           |
+| YAML identified as `yaml`                                       | Yes                     | Yes                   | No                     | No                    | Yes                    | File silently skipped on cache hit; CPD handled by sonar-iac |
+| CSS (.css, .less, .scss, .sass)                                 | No                      | N/A                   | N/A                    | N/A                   | No                     | Always analyzed fresh; bypasses cache entirely               |
+| Additional-extension files with another language or no language | No                      | N/A                   | N/A                    | N/A                   | No                     | Included by an extension predicate; sent to Node each run    |
 
 ### Cache lifecycle across analysis types
 
@@ -189,13 +304,13 @@ Understanding the interplay between analysis types is critical:
 ```
 Full branch analysis (DEFAULT mode):
   → ReadCache: loaded from previous analysis (if any)
-  → WriteCache: ACTIVE (writes to .scannerwork/analysisCache)
+  → WriteCache: active if platform caching is enabled
   → All files analyzed fresh (cache never read)
   → Cache populated with CPD + AST + metadata for all JS/TS/HTML/YAML files
-  → Upload cache to server → becomes ReadCache for next analysis
+  → Publish via Cloud's direct upload or Server's report
 
-PR analysis (SKIP_UNCHANGED mode):
-  → ReadCache: loaded from last successful branch analysis
+PR analysis without SQAA recording (SKIP_UNCHANGED mode):
+  → ReadCache: loaded for the reference selected by the platform, if available
   → WriteCache: NoOp (all writes silently discarded!)
   → Unchanged JS/TS files: cache HIT → CPD re-emitted, AST forwarded, skip Node.js
   → Unchanged HTML/YAML files: cache HIT → silently skipped entirely
@@ -204,7 +319,13 @@ PR analysis (SKIP_UNCHANGED mode):
   → No cache uploaded to server (PR doesn't update the stored cache)
 ```
 
-This means `copyFromPrevious()` only matters for branch-to-branch scenarios, not PR analysis.
+With these platform providers, `copyFromPrevious()` persists entries only when a real branch
+writer is supplied; PR copies do not persist anything.
+
+The current SonarJS branch path is `WRITE_ONLY`, so it does not normally take the hit/copy path.
+`copyFromPrevious()` is part of the generic cache contract, not evidence that SonarJS currently
+reuses its sensor-cache results during branch analysis. Recording-enabled PRs can defer hits
+against a valid baseline; their no-op writer still discards attempted copies and writes.
 
 ### AnalysisMode and rule filtering
 
@@ -220,7 +341,7 @@ This means the "unchanged file, cache miss" path is not idle: while zero SonarJS
 **How the linter applies the mode** (`Linter.lint()` in `linter.ts`):
 
 ```typescript
-// Line 203: The key decision
+// The key decision
 rules: Linter.getRulesForFile(
   filePath,
   fileType,
@@ -228,7 +349,7 @@ rules: Linter.getRulesForFile(
   language,
 ),
 
-// Line 280: Rule filtering
+// Rule filtering (simplified; current code also caches rule-selection results)
 return (
   fileTypeTargets.includes(fileType) &&
   analysisModes.includes(analysisMode) &&  // ← only rules matching the mode run
@@ -238,106 +359,28 @@ return (
 
 If `fileStatus` is `SAME` (unchanged), the configured `analysisMode` is used. If the file is `CHANGED` or `ADDED`, the mode is forced to `DEFAULT` regardless of context — ensuring all rules run on changed files.
 
-### Complete file analysis paths
+### Analysis paths and limits
 
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                    FULL BRANCH ANALYSIS (master)                        │
-│                    AnalysisMode = DEFAULT                               │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                         │
-│  Every JS/TS file:                                                      │
-│    Cache strategy: WRITE_ONLY (cache never read)                        │
-│    → Sent to Node.js bridge                                             │
-│    → All rules run (analysisModes includes DEFAULT)                     │
-│    → Full response: issues + metrics + highlights + symbols + CPD + AST │
-│    → All data saved to SonarQube                                        │
-│    → CPD + AST + metadata written to cache (WriteCache active)          │
-│                                                                         │
-│  Every HTML/YAML file:                                                  │
-│    Cache strategy: WRITE_ONLY                                           │
-│    → Sent to Node.js bridge                                             │
-│    → Full analysis                                                      │
-│    → CPD + AST + metadata written to cache                              │
-│                                                                         │
-│  Every CSS file:                                                        │
-│    No cache strategy (bypassed)                                         │
-│    → Sent to Node.js bridge                                             │
-│    → Full analysis (metrics + highlights + issues)                      │
-│                                                                         │
-└─────────────────────────────────────────────────────────────────────────┘
+| Analysis / file path                                        | Effective mode                  | Node and cache behavior                                                                                       |
+| ----------------------------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Branch analysis, cache-eligible file                        | DEFAULT                         | Analyze through Node; attempt CPD, AST and metadata writes; no sensor-cache reads                             |
+| PR with SQAA recording, cache-eligible file                 | DEFAULT for fallback            | Node validates snapshot candidates; accepted hits skip rules, others run fully; PR writes are no-op           |
+| PR without recording, JS/TS cache hit                       | SKIP_UNCHANGED                  | Skip Node; re-emit CPD for MAIN files and forward any cached AST; attempted cache copies go to a no-op writer |
+| PR without recording, SAME JS/TS cache miss                 | SKIP_UNCHANGED                  | Send to Node; built-in DEFAULT-only rules are filtered out, while hooks declaring SKIP_UNCHANGED can run      |
+| PR without recording, CHANGED/ADDED JS/TS file              | SKIP_UNCHANGED at request level | Send to Node; linter selects DEFAULT rules for that file                                                      |
+| PR without recording, web/yaml cache hit                    | SKIP_UNCHANGED                  | Skip Node; no CPD re-emission or AST forwarding by SonarJS                                                    |
+| CSS or additional-extension file with another/null language | Either                          | Bypass sensor cache; send to Node                                                                             |
 
-┌─────────────────────────────────────────────────────────────────────────┐
-│                    PR ANALYSIS                                          │
-│                    AnalysisMode = SKIP_UNCHANGED                        │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                         │
-│  Unchanged JS/TS file (cache HIT):                                      │
-│    Cache strategy: READ_AND_WRITE                                       │
-│    → NOT sent to Node.js (skipped entirely)                             │
-│    → No rules run                                                       │
-│    → CPD tokens re-emitted from cache (for cross-file duplication)      │
-│    → AST forwarded to consumers (sonar-armor)                 │
-│    → Issues/metrics/highlights: platform retains from previous analysis │
-│    → copyFromPrevious() called (NoOp on PR — writes discarded)          │
-│                                                                         │
-│  Unchanged JS/TS file (cache MISS — e.g. first PR after upgrade):       │
-│    Cache strategy: WRITE_ONLY                                           │
-│    → Sent to Node.js bridge with fileStatus=SAME                        │
-│    → Linter mode: SKIP_UNCHANGED                                        │
-│    → Zero SonarJS rules match (all are DEFAULT-only)                    │
-│    → BUT: external hooks with SKIP_UNCHANGED DO run                     │
-│      (sonar-architecture collects import/dependency data)               │
-│    → Response: metrics + CPD tokens + AST (no SonarJS issues)           │
-│    → Metrics/CPD/AST saved to SonarQube                                 │
-│    → Cache write attempted (but NoOp on PR — discarded)                 │
-│                                                                         │
-│  Changed JS/TS file:                                                    │
-│    Cache strategy: WRITE_ONLY (file changed → cache miss)               │
-│    → Sent to Node.js bridge with fileStatus=CHANGED                     │
-│    → Linter mode forced to DEFAULT (regardless of analysisMode)         │
-│    → ALL rules run (full analysis)                                      │
-│    → Full response: issues + metrics + highlights + symbols + CPD + AST │
-│    → All data saved to SonarQube                                        │
-│    → Cache write attempted (but NoOp on PR — discarded)                 │
-│                                                                         │
-│  Unchanged HTML/YAML file (cache HIT):                                  │
-│    → Silently skipped (not analyzed, nothing re-emitted)                 │
-│    → Platform retains previous analysis data                            │
-│                                                                         │
-│  Changed HTML/YAML file:                                                │
-│    → Sent to Node.js bridge for full analysis                           │
-│                                                                         │
-│  CSS file (always):                                                     │
-│    → Sent to Node.js bridge for full analysis (no caching)              │
-│                                                                         │
-└─────────────────────────────────────────────────────────────────────────┘
-```
+These are implementation paths, not a claim that every mode produces equivalent data.
+In particular:
 
-### Compliance verdict
-
-**Is SonarJS compliant with the SonarQube caching expectations for plugins?**
-
-**Yes, with caveats.** SonarJS correctly implements the core caching contract:
-
-| Expectation                                            | Status        | Notes                                                                                       |
-| ------------------------------------------------------ | ------------- | ------------------------------------------------------------------------------------------- |
-| Skip unchanged files in PR analysis                    | **Compliant** | Unchanged JS/TS files with cache hits skip Node.js entirely                                 |
-| Re-emit CPD tokens for unchanged files                 | **Compliant** | `processCacheAnalysis()` re-emits CPD from cache for cross-file duplication                 |
-| Forward AST to consumers for unchanged files           | **Compliant** | `acceptAstResponse()` passes cached AST to architecture consumers                           |
-| Cache data written during full/branch analysis         | **Compliant** | CPD + AST + file metadata written for JS/TS/HTML/YAML files                                 |
-| Cache invalidation on plugin upgrade                   | **Compliant** | Plugin version embedded in cache keys                                                       |
-| File change detection                                  | **Compliant** | SHA-256 hash comparison via `FileMetadata`                                                  |
-| WriteCache NoOp during PR analysis                     | **Compliant** | SonarJS calls `write()`/`copyFromPrevious()` but the platform silently discards them on PRs |
-| Not re-emitting issues/metrics/highlights on cache hit | **Compliant** | Platform retains these from previous full analysis                                          |
-
-**Caveats / areas for improvement:**
-
-1. **HTML/YAML files are silently skipped on cache hit** — no CPD re-emission, no AST forwarding. This is intentional (CPD handled by other plugins) but means zero data is provided for these files on cache hit. If the platform ever needs something from SonarJS for unchanged HTML/YAML files, this would need to change.
-
-2. **No SonarJS rules run on unchanged files** — all built-in rules have `analysisModes: ['DEFAULT']`. However, external plugins (sonar-architecture) register hooks with `SKIP_UNCHANGED` that DO run on unchanged files via the `EslintHook` SPI. The platform retains SonarJS issues from the previous full analysis, so re-running SonarJS rules on unchanged files would be redundant.
-
-3. **CSS files are never cached** — always analyzed fresh. This is acceptable because CSS analysis is lightweight (no ESLint, just stylelint) and CSS files are typically small.
+- SQAA recording requires a compatible snapshot as well as per-file entries to reuse analysis.
+  A warm per-file cache alone cannot supply complete filesystem/program context.
+- HTML/YAML hits provide no cached CPD or AST to consumers through SonarJS. Other sensors
+  have their own processing paths for these files.
+- On a hit, SonarJS emits no measures. Scanner measure storage does not itself skip SAME PR
+  files, so issue-storage behavior cannot justify a blanket claim about measure reuse.
+- CSS and additional-extension files bypass the sensor cache; their cost depends on the project.
 
 ### Cache key structure
 
@@ -363,28 +406,32 @@ Hit the cache for 45 out of 100
 Miss the cache for 55 out of 100: FILE_CHANGED [10/100], FILE_NOT_IN_CACHE [45/100]
 ```
 
-Miss reasons: `RUNTIME_API_INCOMPATIBLE`, `CACHE_DISABLED`, `ANALYSIS_MODE_INELIGIBLE`, `FILE_CHANGED`, `FILE_NOT_IN_CACHE`, `CACHE_CORRUPTED`.
+Emitted miss reasons are `RUNTIME_API_INCOMPATIBLE`, `CACHE_DISABLED`,
+`ANALYSIS_MODE_INELIGIBLE`, `FILE_CHANGED`, `FILE_NOT_IN_CACHE`, `CACHE_CORRUPTED` and
+`SNAPSHOT_INELIGIBLE` (a deferred candidate rejected by Node). A zero-hit report
+must be interpreted using the reason, not just the hit count.
 
 ### History
 
-| Date     | Commit     | Change                                                                                                                                                   |
-| -------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Sep 2022 | `c57c9df1` | Foundation: `AnalysisMode` class added; sensors skip unchanged files when analysis allows it                                                             |
-| Sep 2022 | `e998b0c5` | Initial caching with SonarQube Cache API — cached UCFG files for SonarSecurity via `CacheStrategy` + `CacheSerialization`                                |
-| Sep 2022 | `9ffffc48` | Refactored: extracted `CacheStrategies`, `CacheKey`, `UCFGFilesSerialization`, `JsonSerialization` from monolithic class                                 |
-| Sep 2022 | `17a9c51c` | Added `CacheReporter` for hit/miss statistics logging                                                                                                    |
-| Sep 2022 | `3987a921` | Simplified: removed `CacheReader`/`CacheWriter` interfaces                                                                                               |
-| Oct 2022 | `ed9433d5` | Bundle version added to cache key (invalidate on rule bundle changes)                                                                                    |
-| Jan 2023 | `b9e5111f` | CPD tokens added to cache; `CacheAnalysis` + `processCacheAnalysis()` created; `isInCache()` now requires UCFG + CPD                                     |
-| Jan 2023 | `d4c9430b` | File hash (SHA-256) validation via `FileMetadata` for change detection                                                                                   |
-| Jan 2023 | `ed62d04f` | Efficient binary encoding for CPD tokens (var-length integers + string table deduplication)                                                              |
-| Apr 2023 | `00b1ab08` | JS and TS sensors merged into single `JsTsSensor`; caching logic unified                                                                                 |
-| Apr 2024 | `0e5e9239` | Error handling: ignore runtime errors when saving CPD tokens                                                                                             |
-| Apr 2024 | `5950215f` | Skip file when CPD token save fails                                                                                                                      |
-| Jun 2024 | `4df23d00` | Catch `IllegalStateException` when saving highlights and CPD tokens                                                                                      |
-| May 2025 | `1ec7c001` | AST (protobuf) added to cache for sonar-armor consumers; `isInCache()` now requires CPD + AST                                                            |
-| Nov 2025 | `9324ae34` | SonarSecurity UCFG caching removed; cache now stores only CPD + AST                                                                                      |
-| Feb 2026 | `03f479ad` | WebSensor consolidation: HTML/CSS/YAML sensors merged into WebSensor; CSS bypasses cache entirely; HTML/YAML use cache strategy but don't re-emit on hit |
+| Date     | Commit       | Change                                                                                                                                                   |
+| -------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Sep 2022 | `c57c9df1`   | Foundation: `AnalysisMode` class added; sensors skip unchanged files when analysis allows it                                                             |
+| Sep 2022 | `e998b0c5`   | Initial caching with SonarQube Cache API — cached UCFG files for SonarSecurity via `CacheStrategy` + `CacheSerialization`                                |
+| Sep 2022 | `9ffffc48`   | Refactored: extracted `CacheStrategies`, `CacheKey`, `UCFGFilesSerialization`, `JsonSerialization` from monolithic class                                 |
+| Sep 2022 | `17a9c51c`   | Added `CacheReporter` for hit/miss statistics logging                                                                                                    |
+| Sep 2022 | `3987a921`   | Simplified: removed `CacheReader`/`CacheWriter` interfaces                                                                                               |
+| Oct 2022 | `ed9433d5`   | Bundle version added to cache key (invalidate on rule bundle changes)                                                                                    |
+| Jan 2023 | `b9e5111f`   | CPD tokens added to cache; `CacheAnalysis` + `processCacheAnalysis()` created; `isInCache()` now requires UCFG + CPD                                     |
+| Jan 2023 | `d4c9430b`   | File hash (SHA-256) validation via `FileMetadata` for change detection                                                                                   |
+| Jan 2023 | `ed62d04f`   | Efficient binary encoding for CPD tokens (var-length integers + string table deduplication)                                                              |
+| Apr 2023 | `00b1ab08`   | JS and TS sensors merged into single `JsTsSensor`; caching logic unified                                                                                 |
+| Apr 2024 | `0e5e9239`   | Error handling: ignore runtime errors when saving CPD tokens                                                                                             |
+| Apr 2024 | `5950215f`   | Skip file when CPD token save fails                                                                                                                      |
+| Jun 2024 | `4df23d00`   | Catch `IllegalStateException` when saving highlights and CPD tokens                                                                                      |
+| May 2025 | `1ec7c001`   | AST (protobuf) added to cache for sonar-armor consumers; `isInCache()` now requires CPD + AST                                                            |
+| Nov 2025 | `9324ae34`   | SonarSecurity UCFG caching removed; cache now stores only CPD + AST                                                                                      |
+| Feb 2026 | `03f479ad`   | WebSensor consolidation: HTML/CSS/YAML sensors merged into WebSensor; CSS bypasses cache entirely; HTML/YAML use cache strategy but don't re-emit on hit |
+| Oct 2026 | `da2c402238` | SQAA context recording forces `DEFAULT`, including PR analyses; introduced in SonarJS 14.1                                                               |
 
 ### Key source files
 
@@ -393,7 +440,8 @@ Miss reasons: `RUNTIME_API_INCOMPATIBLE`, `CACHE_DISABLED`, `ANALYSIS_MODE_INELI
 | `cache/CacheStrategies.java`                        | Decides cache strategy per file (NO_CACHE / WRITE_ONLY / READ_AND_WRITE); calls `copyFromPrevious()` on hit |
 | `cache/CacheStrategy.java`                          | Strategy object: holds cached data (if hit) and serialization reference                                     |
 | `cache/CacheAnalysis.java`                          | Container for cached data: CPD tokens + AST                                                                 |
-| `cache/CacheAnalysisSerialization.java`             | Orchestrates read/write of AST + CPD + metadata; `copyFromPrevious()` forwards AST + CPD (not metadata)     |
+| `cache/CacheAnalysisSerialization.java`             | Orchestrates read/write and copy of AST + CPD + metadata                                                    |
+| `cache/ContextSnapshotCache.java`                   | Transports one complete versioned context generation through the sensor cache                               |
 | `cache/AstProtobufSerialization.java`               | AST protobuf serialization                                                                                  |
 | `cache/CpdSerialization.java`                       | CPD binary serialization (data + string table)                                                              |
 | `cache/CpdSerializer.java` / `CpdDeserializer.java` | Binary encoding/decoding with var-length integers and string table                                          |
@@ -404,15 +452,25 @@ Miss reasons: `RUNTIME_API_INCOMPATIBLE`, `CACHE_DISABLED`, `ANALYSIS_MODE_INELI
 | `AnalysisProcessor.java`                            | `processResponse()` (full save) vs `processCacheAnalysis()` (CPD only)                                      |
 | `WebSensor.java`                                    | Entry point: applies cache strategy, routes to analysis or cache path                                       |
 
-### SonarQube platform source files (sonar-enterprise)
+### Scanner-engine source files
 
-| File                                                             | Purpose                                                                      |
-| ---------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| `sonar-scanner-engine/.../cache/AnalysisCacheProvider.java`      | Creates ReadCache/WriteCache beans; **WriteCache is NoOp for PRs**           |
-| `sonar-scanner-engine/.../cache/WriteCacheImpl.java`             | Writes entries as protobuf to gzip file; `copyFromPrevious()` = read + write |
-| `sonar-scanner-engine/.../cache/ReadCacheImpl.java`              | Reads from in-memory `AnalysisCacheMemoryStorage`                            |
-| `sonar-scanner-engine/.../cache/AnalysisCacheMemoryStorage.java` | Loads previous cache into memory from server download                        |
-| `sonar-scanner-engine/.../cache/AnalysisCacheEnabled.java`       | Checks `sonar.analysisCache.enabled` property (default: true)                |
-| `sonar-scanner-engine/.../report/AnalysisCachePublisher.java`    | Closes the cache file for upload in the analysis report                      |
-| `sonar-scanner-engine/.../sensor/ProjectSensorContext.java`      | `canSkipUnchangedFiles()` returns `true` only for PRs                        |
-| `sonar-scanner-engine/.../sensor/UnchangedFilesHandler.java`     | `markAsUnchanged()` — only enabled for CFamily and Cobol, not SonarJS        |
+Links are pinned to the audited revision.
+
+| Purpose                                      | Source                                                                                                                                                                                                               |
+| -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Cloud writer eligibility                     | [SensorCacheWriterProvider.java](https://github.com/SonarSource/sonar-scanner-engine/blob/a54007566d/cloud/sonar-scanner-engine/src/main/java/org/sonar/scanner/sensor/cache/SensorCacheWriterProvider.java)         |
+| Cloud entry serialization                    | [ScannerWriteCacheImpl.java](https://github.com/SonarSource/sonar-scanner-engine/blob/a54007566d/cloud/sonar-scanner-engine/src/main/java/org/sonar/scanner/sensor/cache/ScannerWriteCacheImpl.java)                 |
+| Cloud cache download and reference selection | [DefaultSensorCacheLoader.java](https://github.com/SonarSource/sonar-scanner-engine/blob/a54007566d/cloud/sonar-scanner-engine/src/main/java/org/sonar/scanner/sensor/cache/DefaultSensorCacheLoader.java)           |
+| Cloud direct cache publication               | [SensorCachePublisherImpl.java](https://github.com/SonarSource/sonar-scanner-engine/blob/a54007566d/cloud/sonar-scanner-engine/src/main/java/org/sonar/scanner/sensor/cache/SensorCachePublisherImpl.java)           |
+| Cloud enablement                             | [SonarCloudCoreSensorCacheFlag.java](https://github.com/SonarSource/sonar-scanner-engine/blob/a54007566d/cloud/sonar-scanner-engine/src/main/java/org/sonar/scanner/sensor/cache/SonarCloudCoreSensorCacheFlag.java) |
+| Cloud skip flag and no-op markAsUnchanged    | [AbstractSensorContext.java](https://github.com/SonarSource/sonar-scanner-engine/blob/a54007566d/cloud/sonar-scanner-engine/src/main/java/org/sonar/scanner/sensor/AbstractSensorContext.java)                       |
+| Cloud result storage                         | [DefaultSensorStorage.java](https://github.com/SonarSource/sonar-scanner-engine/blob/a54007566d/cloud/sonar-scanner-engine/src/main/java/org/sonar/scanner/sensor/DefaultSensorStorage.java)                         |
+| Server reader/writer eligibility             | [AnalysisCacheProvider.java](https://github.com/SonarSource/sonar-scanner-engine/blob/a54007566d/server/sonar-scanner-engine/src/main/java/org/sonar/scanner/cache/AnalysisCacheProvider.java)                       |
+| Server enablement                            | [AnalysisCacheEnabled.java](https://github.com/SonarSource/sonar-scanner-engine/blob/a54007566d/server/sonar-scanner-engine/src/main/java/org/sonar/scanner/cache/AnalysisCacheEnabled.java)                         |
+| Server cache download                        | [DefaultAnalysisCacheLoader.java](https://github.com/SonarSource/sonar-scanner-engine/blob/a54007566d/server/sonar-scanner-engine/src/main/java/org/sonar/scanner/cache/DefaultAnalysisCacheLoader.java)             |
+| Server gzip writer                           | [WriteCacheImpl.java](https://github.com/SonarSource/sonar-scanner-engine/blob/a54007566d/server/sonar-scanner-engine/src/main/java/org/sonar/scanner/cache/WriteCacheImpl.java)                                     |
+| Server report integration                    | [AnalysisCachePublisher.java](https://github.com/SonarSource/sonar-scanner-engine/blob/a54007566d/server/sonar-scanner-engine/src/main/java/org/sonar/scanner/report/AnalysisCachePublisher.java)                    |
+| Server PR skip flag                          | [ProjectSensorContext.java](https://github.com/SonarSource/sonar-scanner-engine/blob/a54007566d/server/sonar-scanner-engine/src/main/java/org/sonar/scanner/sensor/ProjectSensorContext.java)                        |
+| Server markAsUnchanged policy                | [UnchangedFilesHandler.java](https://github.com/SonarSource/sonar-scanner-engine/blob/a54007566d/server/sonar-scanner-engine/src/main/java/org/sonar/scanner/sensor/UnchangedFilesHandler.java)                      |
+| Server result storage                        | [DefaultSensorStorage.java](https://github.com/SonarSource/sonar-scanner-engine/blob/a54007566d/server/sonar-scanner-engine/src/main/java/org/sonar/scanner/sensor/DefaultSensorStorage.java)                        |
+| Light sensor context                         | [StreamingSensorContext.java](https://github.com/SonarSource/sonar-scanner-engine/blob/a54007566d/a3s/sonar-scanner-engine-light/src/main/java/org/sonar/scanner/engine/light/internal/StreamingSensorContext.java)  |
