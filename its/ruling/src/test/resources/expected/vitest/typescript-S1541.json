@@ -3,7 +3,6 @@
 55
 ],
 "vitest:packages/browser-playwright/src/playwright.ts": [
-169,
 310
 ],
 "vitest:packages/browser-webdriverio/src/webdriverio.ts": [
