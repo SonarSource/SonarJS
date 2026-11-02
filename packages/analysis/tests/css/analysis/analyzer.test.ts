@@ -192,6 +192,28 @@ describe('analyzeCSS', () => {
     );
   });
 
+  it('should locate Less issues after an inline comment containing a quote', async () => {
+    const result = await analyzeCSS(
+      await input(
+        '/some/fake/path.less',
+        '// "comment\na { content: "value"; color: red !important; }\n',
+        [{ key: 'sonar/declaration-no-important', configurations: [] }],
+      ),
+    );
+
+    expect(result.issues).toEqual([
+      {
+        ruleId: 'sonar/declaration-no-important',
+        language: 'css',
+        line: 2,
+        column: 33,
+        endLine: 2,
+        endColumn: 43,
+        message: 'Remove this "!important" and resolve the specificity conflict instead.',
+      },
+    ]);
+  });
+
   it('should throw a parsing error when CSS syntax is invalid', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'malformed.css');
     await expect(analyzeCSS(await input(filePath))).rejects.toMatchObject({
