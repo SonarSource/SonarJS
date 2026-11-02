@@ -20,6 +20,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { installFsCache } from '../../../shared/src/fs-cache/hook.js';
+import { setArchivedFileSystemCaseSensitivity } from '../../src/jsts/rules/helpers/filesystem-case.js';
 import {
   createConfiguration,
   isAlsoCssFile,
@@ -66,6 +67,10 @@ describe('createConfiguration', () => {
             caseSensitivePaths: mode === 'record' ? caseSensitivePaths : !caseSensitivePaths,
           });
           try {
+            if (mode === 'record') {
+              // Simulate the producer filesystem independently of the test host.
+              setArchivedFileSystemCaseSensitivity(caseSensitivePaths);
+            }
             expect(fs.readFileSync(source, 'utf8')).toBe('const x = 1;');
             const configuration = createConfiguration({
               baseDir: root,

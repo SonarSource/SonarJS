@@ -20,6 +20,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { installFsCache } from '../../../shared/src/fs-cache/hook.js';
+import { setArchivedFileSystemCaseSensitivity } from '../../src/jsts/rules/helpers/filesystem-case.js';
 import {
   filterPathAndGetFileType,
   getFileTypeForRules,
@@ -261,6 +262,8 @@ describe('filter path', () => {
           caseSensitivePaths,
         });
         try {
+          // Simulate the producer filesystem independently of the test host.
+          setArchivedFileSystemCaseSensitivity(caseSensitivePaths);
           expect(
             filterPathAndGetFileType(
               normalizeToAbsolutePath('PROJECT/blocked/nested/main.ts', root),
