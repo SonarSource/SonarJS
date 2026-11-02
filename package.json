@@ -106,6 +106,7 @@
     "@csstools/css-calc": "3.4.3",
     "@csstools/css-parser-algorithms": "4.0.2",
     "@csstools/css-tokenizer": "4.0.2",
+    "@eslint-community/eslint-utils": "4.9.1",
     "@eslint-community/regexpp": "4.12.2",
     "@grpc/grpc-js": "1.14.6",
     "@protobufjs/base64": "1.1.2",
