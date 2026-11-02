@@ -117,7 +117,7 @@ jobs:
       - *checkout
       - uses: jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d # v5.2.4
         with:
-          version: 2026.9.18
+          version: 2026.10.20
           cache: false
       - name: Install from npmjs with empty credential files and cache
         shell: bash
@@ -140,7 +140,7 @@ jobs:
       - *checkout
       - uses: jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d # v5.2.4
         with:
-          version: 2026.9.18
+          version: 2026.10.20
           cache: false
       - uses: SonarSource/ci-github-actions/config-npm@v2
         with:
@@ -182,7 +182,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         uses: jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d # v5.2.4
         with:
-          version: 2026.9.18
+          version: 2026.10.20
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
       - if: steps.cache.outputs.cache-hit != 'true'
         uses: SonarSource/ci-github-actions/config-npm@v2
@@ -236,7 +236,7 @@ jobs:
       - &mise
         uses: jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d # v5.2.4
         with:
-          version: 2026.9.18
+          version: 2026.10.20
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
       - &npm_cache
         name: Restore NPM dependencies
@@ -534,7 +534,7 @@ jobs:
       - *checkout
       - uses: jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d # v5.2.4
         with:
-          version: 2026.9.18
+          version: 2026.10.20
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           cache_key: '{{default}}-{{env.MISE_NODE_VERSION}}'
           install_args: node
@@ -593,7 +593,7 @@ jobs:
       - if: steps.cache.outputs.cache-hit != 'true'
         uses: jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d # v5.2.4
         with:
-          version: 2026.9.18
+          version: 2026.10.20
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
       - name: Restore NPM dependencies
         if: steps.cache.outputs.cache-hit != 'true'
@@ -652,7 +652,7 @@ jobs:
       - if: steps.cache.outputs.cache-hit != 'true'
         uses: jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d # v5.2.4
         with:
-          version: 2026.9.18
+          version: 2026.10.20
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
       - name: Restore NPM dependencies
         if: steps.cache.outputs.cache-hit != 'true'
@@ -815,7 +815,7 @@ jobs:
       - &mise_java_matrix_node
         uses: jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d # v5.2.4
         with:
-          version: 2026.9.18
+          version: 2026.10.20
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           cache_key: '{{default}}-{{env.MISE_NODE_VERSION}}'
       - *maven_cache_restore
@@ -910,7 +910,7 @@ jobs:
         name: Setup Java and Maven
         uses: jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d # v5.2.4
         with:
-          version: 2026.9.18
+          version: 2026.10.20
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           install_args: java maven
       - *maven_cache_restore
@@ -1002,7 +1002,7 @@ jobs:
         name: Setup Maven
         uses: jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d # v5.2.4
         with:
-          version: 2026.9.18
+          version: 2026.10.20
           cache_save: true
           install_args: maven
       - *maven_cache_restore
@@ -1306,7 +1306,7 @@ jobs:
           fetch-depth: 2
       - uses: jdx/mise-action@6be3c7ed4c21d4f76b208d351d95aac273ebb76d # v5.2.4
         with:
-          version: 2026.9.18
+          version: 2026.10.20
           install_args: node
       - name: Download generated ruling results
         if: needs.js_ts_ruling.outputs.ruling-results-saved == 'true'
