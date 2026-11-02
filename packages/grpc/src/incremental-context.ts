@@ -144,27 +144,48 @@ export function reuseContextBaseline(
   }
 }
 
-function sourceDependencies(file: string, content: string): string {
+export function sourceDependencies(file: string, content: string): string {
   const source = ts.createSourceFile(file, content, ts.ScriptTarget.Latest, false);
-  const {
-    importedFiles,
-    referencedFiles,
-    typeReferenceDirectives,
-    libReferenceDirectives,
-    isLibFile,
-    ambientExternalModules,
-  } = ts.preProcessFile(content, true, true);
+  const imports: string[] = [];
+  const ambientExternalModules: string[] = [];
+  // Use the compiler facade's supported AST operations rather than preProcessFile.
+  const visit = (node: ts.Node): void => {
+    const specifier = dependencySpecifier(node);
+    if (specifier && ts.isStringLiteralLike(specifier)) imports.push(specifier.text);
+    if (ts.isModuleDeclaration(node) && ts.isStringLiteral(node.name)) {
+      ambientExternalModules.push(node.name.text);
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
   return JSON.stringify({
     module: ts.isExternalModule(source),
-    isLibFile,
+    isLibFile: source.hasNoDefaultLib,
     ambientExternalModules,
+    imports,
     references: [
-      importedFiles,
-      referencedFiles,
-      typeReferenceDirectives,
-      libReferenceDirectives,
+      source.referencedFiles,
+      source.typeReferenceDirectives,
+      source.libReferenceDirectives,
     ].map(refs => refs.map(ref => ref.fileName)),
   });
+}
+
+function dependencySpecifier(node: ts.Node): ts.Node | undefined {
+  if (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) return node.moduleSpecifier;
+  if (ts.isImportEqualsDeclaration(node) && ts.isExternalModuleReference(node.moduleReference))
+    return node.moduleReference.expression;
+  if (
+    ts.isCallExpression(node) &&
+    (node.expression.kind === ts.SyntaxKind.ImportKeyword ||
+      (ts.isIdentifier(node.expression) && node.expression.text === 'require'))
+  )
+    return node.arguments[0];
+  if (node.kind === ts.SyntaxKind.ImportType) {
+    const argument = (node as ts.ImportTypeNode).argument;
+    if (ts.isLiteralTypeNode(argument)) return argument.literal;
+  }
+  return;
 }
 
 export function writeSnapshotManifest(request: AnalyzeProjectProtoRequest, manifest: string): void {
