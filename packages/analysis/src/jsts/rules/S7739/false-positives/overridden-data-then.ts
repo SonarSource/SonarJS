@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { Node, Property } from 'estree';
+import type { Node, Property, SpreadElement } from 'estree';
 import type { Rule } from 'eslint';
 import { getPropertyName } from '@eslint-community/eslint-utils';
 import { getNodeParent } from '../../helpers/ancestor.js';
@@ -49,32 +49,47 @@ function hasDataThenOverride(
     return false;
   }
 
-  let hasDataThen = false;
-  let finalThenMayBeCallable = false;
+  const state = { hasDataThen: false, finalThenMayBeCallable: false };
   for (const member of object.properties) {
-    if (member.type === 'SpreadElement') {
-      if (hasDataThen) {
-        finalThenMayBeCallable = true;
-      }
-      continue;
-    }
-
-    const name = getPropertyName(member, context.sourceCode.getScope(member));
-    if (name === 'then') {
-      if (isNonCallableDataProperty(member)) {
-        hasDataThen = true;
-        finalThenMayBeCallable = false;
-      } else if (isIntentionalThen(member)) {
-        hasDataThen = false;
-        finalThenMayBeCallable = false;
-      } else if (hasDataThen) {
-        finalThenMayBeCallable = true;
-      }
-    } else if (name == null && hasDataThen) {
-      finalThenMayBeCallable = true;
-    }
+    updateThenOverrideState(context, member, state, isIntentionalThen);
   }
-  return hasDataThen && finalThenMayBeCallable;
+  return state.hasDataThen && state.finalThenMayBeCallable;
+}
+
+function updateThenOverrideState(
+  context: Rule.RuleContext,
+  member: Property | SpreadElement,
+  state: { hasDataThen: boolean; finalThenMayBeCallable: boolean },
+  isIntentionalThen: (property: Property) => boolean,
+): void {
+  if (member.type === 'SpreadElement') {
+    if (state.hasDataThen) {
+      state.finalThenMayBeCallable = true;
+    }
+    return;
+  }
+
+  const name = getPropertyName(member, context.sourceCode.getScope(member));
+  if (name !== 'then') {
+    if (name == null && state.hasDataThen) {
+      state.finalThenMayBeCallable = true;
+    }
+    return;
+  }
+
+  if (isNonCallableDataProperty(member)) {
+    state.hasDataThen = true;
+    state.finalThenMayBeCallable = false;
+    return;
+  }
+  if (isIntentionalThen(member)) {
+    state.hasDataThen = false;
+    state.finalThenMayBeCallable = false;
+    return;
+  }
+  if (state.hasDataThen) {
+    state.finalThenMayBeCallable = true;
+  }
 }
 
 function isValidationThenProperty(
