@@ -17,7 +17,7 @@
 import fs from 'node:fs';
 import { isDeepStrictEqual } from 'node:util';
 import type { FsCacheArchive } from './archive.js';
-import type { CacheNode, FsCacheOutcome } from './archive-types.js';
+import type { CachedDirectoryEntry, CacheNode, FsCacheOutcome } from './archive-types.js';
 
 /** Re-observe the baseline through the active recording hook. Never seed stale observations. */
 export function refreshArchive(
@@ -86,6 +86,20 @@ export function refreshArchive(
           } else if (
             !isDeepStrictEqual(before.types, after.types) ||
             before.fields.mode !== after.fields.mode
+          )
+            return false;
+        } else if (field === 'directories') {
+          // opendir and readdir can enumerate the same directory in different orders.
+          // Compare membership and entry types; retain the fresh order in the current archive.
+          const byName = (left: CachedDirectoryEntry, right: CachedDirectoryEntry) => {
+            if (left.name.value === right.name.value) return 0;
+            return left.name.value < right.name.value ? -1 : 1;
+          };
+          if (
+            !isDeepStrictEqual(
+              (prior.value as CachedDirectoryEntry[]).toSorted(byName),
+              (actual.value as CachedDirectoryEntry[]).toSorted(byName),
+            )
           )
             return false;
         } else if (!isDeepStrictEqual(prior.value, actual.value)) {
