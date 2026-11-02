@@ -104,7 +104,7 @@ function unwrapTypeScriptValue(expression: estree.Node): estree.Node {
 function getFinalValue(expression: estree.Node): estree.Node {
   const value = unwrapTypeScriptValue(expression);
   return value.type === 'SequenceExpression'
-    ? getFinalValue(value.expressions[value.expressions.length - 1])
+    ? getFinalValue(value.expressions.at(-1)!)
     : value;
 }
 
