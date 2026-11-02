@@ -1329,29 +1329,7 @@ describe('S7739', () => {
     tsRuleTester.run('S7739 in TypeScript', rule, {
       valid: [
         {
-          code: `
-          import { dialects } from '@cucumber/gherkin';
-          export const INDENTATION_DEFAULTS: Readonly<Record<string, number>> = {
-            Feature: 0, given: 2, when: 2, then: 2
-          };
-          `,
-          filename: tsTestFilePath,
-        },
-        {
-          code: `
-          import { dialects } from '@cucumber/gherkin';
-          const indentation: Readonly<Record<string, number>> = {
-            ...defaults, Feature: 0, given: 2, when: 2, then: 2
-          };
-          `,
-          filename: tsTestFilePath,
-        },
-        {
           code: `import { dialects } from '@cucumber/gherkin'; const indentation = { Feature: 0, given: 2, when: 2, then: 2 };`,
-          filename: tsTestFilePath,
-        },
-        {
-          code: `import { dialects } from '@cucumber/gherkin'; const indentation: Record<string, number> = { Feature: 0, given: 2, when: 2, then: 2 };`,
           filename: tsTestFilePath,
         },
         {
@@ -1403,6 +1381,9 @@ describe('S7739', () => {
       ],
       invalid: [
         ...[
+          `import { dialects } from '@cucumber/gherkin'; export const INDENTATION_DEFAULTS: Readonly<Record<string, number>> = { Feature: 0, given: 2, when: 2, then: 2 };`,
+          `import { dialects } from '@cucumber/gherkin'; const indentation: Readonly<Record<string, number>> = { ...defaults, Feature: 0, given: 2, when: 2, then: 2 };`,
+          `import { dialects } from '@cucumber/gherkin'; const indentation: Record<string, number> = { Feature: 0, given: 2, when: 2, then: 2 };`,
           `export const INDENTATION_DEFAULTS = { Feature: 0, given: 2, when: 2, then: 2 };`,
           `const indentation: Readonly<Record<string, number>> = { Feature: 0, given: 2, when: 2, then: 2 };`,
           `import { dialects } from '@cucumber/gherkin'; const indentation: Readonly<Record<string, number>> = { Feature: 0, given: 2, then: 2 };`,

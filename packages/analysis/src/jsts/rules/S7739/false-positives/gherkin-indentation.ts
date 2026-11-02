@@ -30,7 +30,7 @@ const GHERKIN_KEYWORDS = ['Feature', 'given', 'when', 'then'];
  *
  * The reported node is `Property.key` in a const object initializer.
  * A runtime Gherkin import identifies the map. Later members must not
- * replace the selected `then` value.
+ * replace the selected `then` value. A type annotation keeps it reportable.
  */
 export function isGherkinIndentationMap(context: Rule.RuleContext, node: Node): boolean {
   const property = getNodeParent(node);
@@ -53,6 +53,7 @@ export function isGherkinIndentationMap(context: Rule.RuleContext, node: Node): 
     declarator.type !== 'VariableDeclarator' ||
     declarator.init !== object ||
     declarator.id.type !== 'Identifier' ||
+    declarator.id.typeAnnotation != null ||
     declarator.parent.type !== 'VariableDeclaration' ||
     declarator.parent.kind !== 'const'
   ) {
