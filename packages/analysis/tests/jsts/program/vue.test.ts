@@ -124,6 +124,31 @@ describe('Vue scripts in SonarJS Programs', () => {
   });
 
   for (const builder of [false, true]) {
+    for (const scriptTag of ['script', 'script setup']) {
+      it(`${builder ? 'builder' : 'standard'}: isolates ${scriptTag} bindings across components`, async () => {
+        const other = normalizeToAbsolutePath('/vue-project/Other.vue');
+        const raw = `<${scriptTag} lang="ts">${script}</script>`;
+        setSourceFilesContext({
+          [other]: {
+            fileContent: `<${scriptTag} lang="ts">const n: string = "other"; n;</script>`,
+          },
+          [file]: { fileContent: raw },
+        });
+        const config = createProgramOptionsFromJson(
+          { noLib: true, moduleDetection: 'legacy' },
+          [other, file],
+          baseDir,
+        );
+        const host = new IncrementalCompilerHost(config.options, baseDir);
+        const program = builder
+          ? ts
+              .createSemanticDiagnosticsBuilderProgram(config.rootNames, config.options, host)
+              .getProgram()
+          : createStandardProgram({ ...config, host });
+        expect(ts.isExternalModule(program.getSourceFile(file)!)).toBe(true);
+        expect(new Set(await identifierTypes(raw, program))).toEqual(new Set(['number']));
+      });
+    }
     for (const [name, raw, type] of cases) {
       it(`${builder ? 'builder' : 'standard'}: ${name}`, async () => {
         setSourceFilesContext({ [file]: { fileContent: raw } });
@@ -228,6 +253,40 @@ describe('Vue scripts in SonarJS Programs', () => {
     const updated = getProgram();
     expect(updated).not.toBe(initial);
     expect(await identifierTypes(raw, updated)).toContain('string');
+  });
+
+  it('refreshes every cached Vue Program sharing an edited TypeScript dependency', () => {
+    const other = normalizeToAbsolutePath('/vue-project/Other.vue');
+    const dep = normalizeToAbsolutePath('/vue-project/dep.ts');
+    const raw = '<script lang="ts">import { n } from "./dep"; n;</script>';
+    const context = {
+      [file]: { fileContent: raw },
+      [other]: { fileContent: raw },
+      [dep]: { fileContent: 'export const n: number = 1;' },
+    };
+    const getProgram = (root: typeof file) =>
+      createOrGetCachedProgramForFile(baseDir, root, () =>
+        createProgramOptionsFromJson({ noLib: true }, [root], baseDir),
+      )!;
+    const importedType = (program: ts.Program, root: string) => {
+      const expression = (program.getSourceFile(root)!.statements[1] as ts.ExpressionStatement)
+        .expression;
+      const checker = program.getTypeChecker();
+      return checker.typeToString(checker.getTypeAtLocation(expression));
+    };
+    setSourceFilesContext(context);
+    const initial = [getProgram(file), getProgram(other)];
+    expect(importedType(initial[0], file)).toBe('number');
+    expect(importedType(initial[1], other)).toBe('number');
+
+    context[dep].fileContent = 'export const n: string = "updated";';
+    setSourceFilesContext(context);
+    const updated = [getProgram(file), getProgram(other)];
+    for (const [index, root] of [file, other].entries()) {
+      expect(updated[index]).not.toBe(initial[index]);
+      expect(importedType(updated[index], root)).toBe('string');
+      expect(updated[index].getSourceFile(dep)?.text).toBe(context[dep].fileContent);
+    }
   });
   for (const combined of [false, true]) {
     it(`maps TypeScript deprecation diagnostics to raw Vue locations (combined=${combined})`, async () => {

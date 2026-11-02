@@ -17,6 +17,7 @@
 import ts from 'typescript';
 import { parsersMap } from './eslint.js';
 import { buildVueParserOptions } from './options.js';
+import { FileSystemMap } from '../../common/filesystem.js';
 
 type ScriptParserOptions = NonNullable<Parameters<typeof parsersMap.typescript.parseForESLint>[1]>;
 
@@ -27,7 +28,7 @@ type VueScript = {
 };
 
 const projectionKey = Symbol('SonarJS Vue script');
-const projections = new Map<
+const projections = new FileSystemMap<
   string,
   { raw: string; scripts: Map<boolean, VueScript | undefined> }
 >();
@@ -98,7 +99,14 @@ export function createVueSourceFile(
   const sourceFile = ts.createSourceFile(
     file,
     script?.code ?? '',
-    languageVersion,
+    {
+      ...(typeof languageVersion === 'number' ? { languageVersion } : languageVersion),
+      // Every SFC has module scope, even without imports or exports. Preserve the
+      // exact script text so TypeScript/ESTree node mappings remain valid.
+      setExternalModuleIndicator: source => {
+        Object.assign(source, { externalModuleIndicator: true });
+      },
+    },
     true,
     script?.scriptKind ?? ts.ScriptKind.TS,
   );
@@ -122,15 +130,14 @@ export function createVueScriptParser(program?: ts.Program): {
   return {
     parseForESLint(code: string, options: ScriptParserOptions) {
       const sourceFile = options.filePath ? program?.getSourceFile(options.filePath) : undefined;
-      const script = sourceFile && sourceFileScripts.get(sourceFile);
+      const script = sourceFile ? sourceFileScripts.get(sourceFile) : undefined;
       const matches =
-        script &&
-        script.code === code &&
-        sourceFile.text === code &&
+        script?.code === code &&
+        sourceFile?.text === code &&
         script.jsx === !!options.ecmaFeatures?.jsx;
       return parsersMap.typescript.parseForESLint(code, {
         ...syntaxOnly(options),
-        programs: matches ? [program!] : undefined,
+        programs: matches && program ? [program] : undefined,
       });
     },
   };

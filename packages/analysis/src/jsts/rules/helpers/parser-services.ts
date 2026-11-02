@@ -40,7 +40,7 @@ export function getTypeScriptDiagnosticLocation(
     originalStart = start;
   } else {
     const expected = file.text.slice(start, start + length);
-    function visit(node: ts.Node) {
+    const visit = (node: ts.Node) => {
       const nodeStart = node.getStart(file);
       if (nodeStart > start || node.end < start + length) {
         return;
@@ -53,7 +53,7 @@ export function getTypeScriptDiagnosticLocation(
         }
       }
       ts.forEachChild(node, visit);
-    }
+    };
     visit(file);
   }
   // Synthetic setup/generic nodes may have no corresponding source location.

@@ -18,6 +18,10 @@ The host creates a SourceFile from that representation, with explicit TS/TSX Scr
 in configured and orphan Programs. Projection and SourceFile caches are cleared with the raw
 content cache after scanner analysis and retained for IDE requests.
 
+Every Vue SourceFile is marked as an external module through TypeScript's
+`setExternalModuleIndicator` callback. This keeps bindings in scripts without imports or exports
+local to their component, without adding synthetic text that would change the node mappings.
+
 The typed inner parser only supplies a Program for a SourceFile created from this representation,
 with exactly matching text and JSX mode. It clears `programs`, `project` and `projectService`
 for other calls. This matters because typescript-eslint accepts supplied SourceFiles by filename
@@ -28,6 +32,8 @@ Raw edits invalidate projections. IDE builders can retain the Program when gener
 and mode stay identical after a template/style edit. All supplied edits to Program members are
 applied before reusing a builder, including changes to imported dependencies. Script changes
 invalidate the SourceFile and rebuild the builder; analysis itself never patches Program text.
+Hosts retain the raw contents they have served for every file, including TypeScript dependencies,
+so one host updating the shared content cache cannot hide an edit from another cached Program.
 Each cached host synchronizes dependency edits once per request, using the context revision
 rather than the files object's identity, so analyzing multiple files does not repeatedly scan
 the entire request.

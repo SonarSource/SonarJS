@@ -29,7 +29,11 @@ import {
 } from './tsconfig/options.js';
 import { info } from '../../../../shared/src/helpers/logging.js';
 import { getProgramCacheManager } from './cache/programCache.js';
-import { getCurrentFilesContext, getProvidedSourceFile, getSourceFilesContextVersion } from './cache/sourceFileCache.js';
+import {
+  getCurrentFilesContext,
+  getProvidedSourceFile,
+  getSourceFilesContextVersion,
+} from './cache/sourceFileCache.js';
 import {
   normalizeToAbsolutePath,
   type NormalizedAbsolutePath,
@@ -258,7 +262,7 @@ function updateCachedProgramFiles(
     return wasUpdated;
   }
   for (const [file, context] of Object.entries(filesContext ?? {})) {
-    if (file !== sourceFile && program.getSourceFile(file)) {
+    if (!pathsEqual(file, sourceFile) && program.getSourceFile(file)) {
       wasUpdated =
         host.updateFile(file as NormalizedAbsolutePath, context.fileContent) || wasUpdated;
     }
