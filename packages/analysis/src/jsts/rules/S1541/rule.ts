@@ -260,6 +260,9 @@ function isSynchronousFunction(node: estree.Node | undefined): node is estree.Fu
 
 function getMemberPath(expression: estree.Node, allowComputed: boolean): string[] | undefined {
   const node = allowComputed ? unwrapTypeScriptValue(expression) : expression;
+  if (allowComputed && node.type === 'ChainExpression') {
+    return getMemberPath(node.expression, allowComputed);
+  }
   if (node.type === 'Identifier') {
     return ['sap', 'require', 'System'].includes(node.name) ? [node.name] : undefined;
   }

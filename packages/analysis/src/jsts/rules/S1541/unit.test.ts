@@ -710,6 +710,14 @@ describe('S1541 loader scope initializers', () => {
                 : []),
             ].map(value => retained(value));
           }),
+          ...[
+            `delete sap?.ui.define; ${calls[0]}`,
+            `delete (sap?.ui).require; ${calls[3]}`,
+            `delete System?.register; ${calls[4]}`,
+          ].map(code => retained(code)),
+          ...(name === 'TypeScript'
+            ? [retained(`delete (sap?.ui.define as any); ${calls[0]}`)]
+            : []),
           ...calls.flatMap(code => {
             const root = code.startsWith('sap')
               ? 'sap'
