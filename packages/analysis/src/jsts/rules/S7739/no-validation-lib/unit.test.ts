@@ -1390,6 +1390,7 @@ describe('S7739', () => {
           `import { dialects } from '@cucumber/gherkin'; const indentation: Readonly<Record<string, number>> = { Feature: 0, given: 2, when: 2, then: 2, ...defaults };`,
           `import { dialects } from '@cucumber/gherkin'; const indentation: Readonly<Record<string, number>> = { Feature: 0, given: 2, when: 2, then: 2, [key]: callback };`,
           `import type { GherkinDocument } from '@cucumber/gherkin'; const indentation: Readonly<Record<string, number>> = { Feature: 0, given: 2, when: 2, then: 2 };`,
+          `import { type GherkinDocument } from '@cucumber/gherkin'; const indentation: Readonly<Record<string, number>> = { Feature: 0, given: 2, when: 2, then: 2 };`,
           `import { dialects } from '@cucumber/gherkin'; let indentation: Readonly<Record<string, number>> = { Feature: 0, given: 2, when: 2, then: 2 };`,
           `import { dialects } from '@cucumber/gherkin'; const indentation: Record<string, number> = { Feature: 0, given: 2, when: 2, then: 2 };`,
           `import { dialects } from '@cucumber/gherkin'; const indentation: Readonly<Record<string, number>> = { Feature: 0, given: 2, when: 2, then: 2, given: callback };`,

@@ -50,12 +50,19 @@ export function isGherkinIndentationMap(context: Rule.RuleContext, node: Node): 
     return false;
   }
 
-  const hasGherkinImport = context.sourceCode.ast.body.some(
-    statement =>
-      statement.type === 'ImportDeclaration' &&
-      statement.source.value === '@cucumber/gherkin' &&
-      (statement as TSESTree.ImportDeclaration).importKind !== 'type',
-  );
+  const hasGherkinImport = context.sourceCode.ast.body.some(statement => {
+    if (statement.type !== 'ImportDeclaration' || statement.source.value !== '@cucumber/gherkin') {
+      return false;
+    }
+    const declaration = statement as TSESTree.ImportDeclaration;
+    return (
+      declaration.importKind !== 'type' &&
+      (declaration.specifiers.length === 0 ||
+        declaration.specifiers.some(
+          specifier => specifier.type !== 'ImportSpecifier' || specifier.importKind !== 'type',
+        ))
+    );
+  });
   if (!hasGherkinImport) {
     return false;
   }
