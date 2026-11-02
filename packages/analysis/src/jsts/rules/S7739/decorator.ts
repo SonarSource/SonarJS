@@ -27,6 +27,9 @@ import {
   isIntentionalThenableImplementation,
 } from './false-positives/index.js';
 
+/**
+ * Suppresses reports for known false-positive contexts, including Gherkin indentation maps.
+ */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
     {

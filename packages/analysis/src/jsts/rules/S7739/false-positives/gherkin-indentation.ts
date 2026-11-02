@@ -18,7 +18,8 @@ import type { Rule } from 'eslint';
 import type { Node } from 'estree';
 import { ASTUtils, type TSESTree } from '@typescript-eslint/utils';
 import { getNodeParent } from '../../helpers/ancestor.js';
-import { isNumberLiteral } from '../../helpers/ast.js';
+import { isNumberLiteral, isTypeOnlyImportDeclaration } from '../../helpers/ast.js';
+import { getImportDeclarations } from '../../helpers/module.js';
 
 const GHERKIN_KEYWORDS = ['Feature', 'given', 'when', 'then'];
 
@@ -50,19 +51,10 @@ export function isGherkinIndentationMap(context: Rule.RuleContext, node: Node): 
     return false;
   }
 
-  const hasGherkinImport = context.sourceCode.ast.body.some(statement => {
-    if (statement.type !== 'ImportDeclaration' || statement.source.value !== '@cucumber/gherkin') {
-      return false;
-    }
-    const declaration = statement as TSESTree.ImportDeclaration;
-    return (
-      declaration.importKind !== 'type' &&
-      (declaration.specifiers.length === 0 ||
-        declaration.specifiers.some(
-          specifier => specifier.type !== 'ImportSpecifier' || specifier.importKind !== 'type',
-        ))
-    );
-  });
+  const hasGherkinImport = getImportDeclarations(context).some(
+    declaration =>
+      declaration.source.value === '@cucumber/gherkin' && !isTypeOnlyImportDeclaration(declaration),
+  );
   if (!hasGherkinImport) {
     return false;
   }
