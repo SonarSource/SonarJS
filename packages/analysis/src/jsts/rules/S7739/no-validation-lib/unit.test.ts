@@ -41,6 +41,14 @@ describe('S7739', () => {
           code: `const obj = { foo: 'bar' };`,
           filename: testFilePath,
         },
+        {
+          code: `import { dialects } from '@cucumber/gherkin'; const indentation = { Feature: 0, given: 2, when: 2, then: 2 };`,
+          filename: testFilePath,
+        },
+        {
+          code: `import { dialects } from '@cucumber/gherkin'; const indentation = { ...defaults, Feature: 0, given: 2, when: 2, then: 2 };`,
+          filename: testFilePath,
+        },
         // False Positive Pattern 1: Prototype extension with then method
         // This is a custom Promise-like implementation that extends Promise.prototype
         // and implements then() for Promise interoperability.
@@ -624,6 +632,10 @@ describe('S7739', () => {
           `const key = 'then'; const options = { [key]: 2 };`,
           `const options = { ...source, then: 2 };`,
           `const options = { [key]: callback, then: 2 };`,
+          `const indentation = { Feature: 0, given: 2, when: 2, then: 2 };`,
+          `import { dialects } from '@cucumber/gherkin'; const indentation = { Feature: 0, given: 2, then: 2 };`,
+          `import { dialects } from '@cucumber/gherkin'; const indentation = { Feature: 0, given: 2, when: 2, then: 2, ...defaults };`,
+          `import { dialects } from '@cucumber/gherkin'; const indentation = { Feature: 0, given: 2, when: 2, then: -2 };`,
           `const keywordIndent = { 'function': 1, 'then': 1, 'do': 1 };`,
           `function Promise() { return { then: 0 }; }`,
           `ns.Promise = function () { return { then: 0 }; };`,
@@ -1335,6 +1347,14 @@ describe('S7739', () => {
           filename: tsTestFilePath,
         },
         {
+          code: `import { dialects } from '@cucumber/gherkin'; const indentation = { Feature: 0, given: 2, when: 2, then: 2 };`,
+          filename: tsTestFilePath,
+        },
+        {
+          code: `import { dialects } from '@cucumber/gherkin'; const indentation: Record<string, number> = { Feature: 0, given: 2, when: 2, then: 2 };`,
+          filename: tsTestFilePath,
+        },
+        {
           code: `
           class CustomPromiseLike implements PromiseLike<string> {
             then<TResult1 = string, TResult2 = never>(
@@ -1385,14 +1405,12 @@ describe('S7739', () => {
         ...[
           `export const INDENTATION_DEFAULTS = { Feature: 0, given: 2, when: 2, then: 2 };`,
           `const indentation: Readonly<Record<string, number>> = { Feature: 0, given: 2, when: 2, then: 2 };`,
-          `import { dialects } from '@cucumber/gherkin'; const indentation = { Feature: 0, given: 2, when: 2, then: 2 };`,
           `import { dialects } from '@cucumber/gherkin'; const indentation: Readonly<Record<string, number>> = { Feature: 0, given: 2, then: 2 };`,
           `import { dialects } from '@cucumber/gherkin'; const indentation: Readonly<Record<string, number>> = { Feature: 0, given: 2, when: 2, then: 2, ...defaults };`,
           `import { dialects } from '@cucumber/gherkin'; const indentation: Readonly<Record<string, number>> = { Feature: 0, given: 2, when: 2, then: 2, [key]: callback };`,
           `import type { GherkinDocument } from '@cucumber/gherkin'; const indentation: Readonly<Record<string, number>> = { Feature: 0, given: 2, when: 2, then: 2 };`,
           `import { type GherkinDocument } from '@cucumber/gherkin'; const indentation: Readonly<Record<string, number>> = { Feature: 0, given: 2, when: 2, then: 2 };`,
           `import { dialects } from '@cucumber/gherkin'; let indentation: Readonly<Record<string, number>> = { Feature: 0, given: 2, when: 2, then: 2 };`,
-          `import { dialects } from '@cucumber/gherkin'; const indentation: Record<string, number> = { Feature: 0, given: 2, when: 2, then: 2 };`,
           `import { dialects } from '@cucumber/gherkin'; const indentation: Readonly<Record<string, number>> = { Feature: 0, given: 2, when: 2, then: 2, given: callback };`,
           `import { dialects } from '@cucumber/gherkin'; const indentation: Readonly<Record<string, number>> = { Feature: 0, given: 2, when: 2, then: 2, other: callback };`,
         ].map(code => ({

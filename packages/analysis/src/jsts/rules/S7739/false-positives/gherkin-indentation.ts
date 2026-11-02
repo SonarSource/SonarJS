@@ -24,10 +24,9 @@ import { getImportDeclarations } from '../../helpers/module.js';
 const GHERKIN_KEYWORDS = ['Feature', 'given', 'when', 'then'];
 
 /**
- * Recognizes the `then` property in a typed Gherkin indentation map.
+ * Recognizes the `then` property in a Gherkin indentation map.
  *
- * `const indentation: Readonly<Record<string, number>> =
- *   { Feature: 0, given: 2, when: 2, then: 2 };`
+ * `const indentation = { Feature: 0, given: 2, when: 2, then: 2 };`
  *
  * The reported node is `Property.key` in a const object initializer.
  * A runtime Gherkin import identifies the map. Later members must not
@@ -54,7 +53,6 @@ export function isGherkinIndentationMap(context: Rule.RuleContext, node: Node): 
     declarator.type !== 'VariableDeclarator' ||
     declarator.init !== object ||
     declarator.id.type !== 'Identifier' ||
-    !isNumericRecord(declarator.id.typeAnnotation?.typeAnnotation) ||
     declarator.parent.type !== 'VariableDeclaration' ||
     declarator.parent.kind !== 'const'
   ) {
@@ -88,25 +86,4 @@ export function isGherkinIndentationMap(context: Rule.RuleContext, node: Node): 
     keys.add(name);
   }
   return GHERKIN_KEYWORDS.every(keyword => keys.has(keyword));
-}
-
-/** Matches the AST type annotation `Readonly<Record<string, number>>`. */
-function isNumericRecord(type: TSESTree.TypeNode | undefined): boolean {
-  if (
-    type?.type !== 'TSTypeReference' ||
-    type.typeName.type !== 'Identifier' ||
-    type.typeName.name !== 'Readonly' ||
-    type.typeArguments?.params.length !== 1
-  ) {
-    return false;
-  }
-  const record = type.typeArguments.params[0];
-  return (
-    record.type === 'TSTypeReference' &&
-    record.typeName.type === 'Identifier' &&
-    record.typeName.name === 'Record' &&
-    record.typeArguments?.params.length === 2 &&
-    record.typeArguments.params[0].type === 'TSStringKeyword' &&
-    record.typeArguments.params[1].type === 'TSNumberKeyword'
-  );
 }
