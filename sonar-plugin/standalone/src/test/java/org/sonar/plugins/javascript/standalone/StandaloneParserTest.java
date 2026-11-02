@@ -29,6 +29,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.sonar.plugins.javascript.api.estree.ESTree;
+import org.sonar.plugins.javascript.bridge.ESTreeFactory;
+import org.sonar.plugins.javascript.bridge.protobuf.Node;
 
 class StandaloneParserTest {
 
@@ -68,6 +70,23 @@ class StandaloneParserTest {
   @Test
   void should_be_alive_after_creation() {
     assertThat(parser.isAlive()).isTrue();
+  }
+
+  @Test
+  void should_persist_and_decode_bridge_protobuf() throws Exception {
+    byte[] persisted = parser
+      .parseToProtobuf("export function run() { return 42; }", "stub.js")
+      .toByteArray();
+    var decoded = ESTreeFactory.from(Node.parseFrom(persisted), Program.class);
+    assertThat(decoded.body()).hasSize(1);
+    assertThat(decoded.body().get(0)).isInstanceOf(ESTree.ExportNamedDeclaration.class);
+  }
+
+  @Test
+  void should_reject_invalid_source_for_protobuf() {
+    assertThatThrownBy(() -> parser.parseToProtobuf("...", "stub.js"))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageStartingWith("Failed to parse the code:");
   }
 
   @Test

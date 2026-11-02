@@ -146,6 +146,14 @@ public class StandaloneParser implements AutoCloseable {
   }
 
   public ESTree.Program parse(String code, String filename) {
+    return ESTreeFactory.from(parseToProtobuf(code, filename), ESTree.Program.class);
+  }
+
+  /**
+   * Parse source into the protobuf AST used by the bridge and its analysis cache.
+   * Consumers persisting this transport must retain and validate the SonarJS version.
+   */
+  public Node parseToProtobuf(String code, String filename) {
     String filePath = toAbsolutePath(filename);
     var request = AnalyzeProjectRequest.newBuilder()
       .setConfiguration(parserConfigurationBuilder.build())
@@ -174,7 +182,7 @@ public class StandaloneParser implements AutoCloseable {
             : "Failed to parse the code";
         throw new IllegalArgumentException(message);
       }
-      return ESTreeFactory.from(ast, ESTree.Program.class);
+      return ast;
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
