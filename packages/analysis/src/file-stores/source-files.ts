@@ -34,7 +34,11 @@ import {
   type NormalizedAbsolutePath,
   type File,
 } from '../../../shared/src/helpers/files.js';
-import { filterPathAndGetFileType, getFileTypeForRules } from '../common/filter/filter-path.js';
+import {
+  filterPathAndGetFileType,
+  getFileTypeForRules,
+  isDirectoryExcluded,
+} from '../common/filter/filter-path.js';
 import { dirname } from 'node:path/posix';
 import type { FileType } from '../contracts/file.js';
 
@@ -173,7 +177,7 @@ export class SourceFileStore implements FileStore {
   }
 
   processDirectory(dir: NormalizedAbsolutePath, configuration: Configuration) {
-    const isExcludedPath = !filterPathAndGetFileType(dir, getFilterPathParams(configuration));
+    const isExcludedPath = isDirectoryExcluded(dir, getFilterPathParams(configuration));
     if (this.anyParentIsIgnored(dir) || isExcludedPath) {
       this.ignoredPaths.add(dir);
     }
