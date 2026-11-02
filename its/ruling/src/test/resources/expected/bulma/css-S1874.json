@@ -7,5 +7,8 @@
 ],
 "bulma:docs/css/bulma-docs.css": [
 3123
+],
+"bulma:sass/elements/title.sass": [
+25
 ]
 }

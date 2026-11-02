@@ -159,16 +159,15 @@ export function computeHighlighting(root: Root | Document, source: string): CssS
       }
 
       case 'atrule': {
-        // Highlight only the @name portion (e.g. "@media", "@import", "@if").
-        // node.name is the name without @, so total length = 1 (@) + name.length.
+        // Highlight @name (e.g. "@media", "@if") or the Sass shorthand marker (+ or =).
         // At-rules always start on a single line so endLine = startLine.
-        const nameLength = node.name.length;
+        const keywordLength = node.raws.sassShorthand ? 1 : 1 + node.name.length;
         highlights.push({
           location: {
             startLine: start.line,
             startCol: start.column - 1,
             endLine: start.line,
-            endCol: start.column - 1 + 1 + nameLength, // +1 for the @ symbol
+            endCol: start.column - 1 + keywordLength,
           },
           textType: 'ANNOTATION',
         });

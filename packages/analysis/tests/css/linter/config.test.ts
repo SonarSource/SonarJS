@@ -21,6 +21,19 @@ import { createStylelintConfig, RuleConfig } from '../../../src/css/linter/confi
 import { cssOnlyRuleKeys } from '../../../src/css/linter/css-only-rules.js';
 
 describe('createStylelintConfig', () => {
+  it('allows mixin scoping while preserving configured at-rule exceptions', () => {
+    const config = createStylelintConfig([
+      {
+        key: 'nesting-selector-no-missing-scoping-root',
+        configurations: [true, { ignoreAtRules: ['custom'] }],
+      },
+    ]);
+    expect(config.rules?.['nesting-selector-no-missing-scoping-root']).toEqual([
+      true,
+      { ignoreAtRules: ['mixin', 'include', 'custom'] },
+    ]);
+  });
+
   it('should create a Stylelint config', () => {
     const rules: RuleConfig[] = [
       { key: 'foo', configurations: [] },
@@ -55,9 +68,7 @@ describe('createStylelintConfig', () => {
 
     it('includes CSS-only rules in the **/*.css override', () => {
       const config = createStylelintConfig([{ key: 'css-only-rule', configurations: [] }]);
-      const cssOverride = config.overrides?.find(o =>
-        (o.files as string[])?.includes('**/*.css'),
-      );
+      const cssOverride = config.overrides?.find(o => (o.files as string[])?.includes('**/*.css'));
       expect(cssOverride?.rules).toHaveProperty('css-only-rule', true);
     });
 
