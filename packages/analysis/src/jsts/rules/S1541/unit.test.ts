@@ -592,3 +592,164 @@ describe('S1541 function exclusions', () => {
     });
   });
 });
+
+describe('S1541 loader scope initializers', () => {
+  const body = 'if (a) {} if (b) {}';
+  const factory = `function () { ${body} function nested() { ${body} } }`;
+  const callback = `function () { ${body} }`;
+  const options = [{ threshold: 2 }];
+  const message = /Function has a complexity of 3 which is greater than 2 authorized/;
+  const calls = [
+    `sap.ui.define([], ${factory})`,
+    `sap.ui.define('module', ['dep'], ${factory}, false)`,
+    `require(['dep'], ${factory})`,
+    `sap.ui.require([], ${factory})`,
+    `System.register([], ${factory})`,
+    `System.register(['dep'], ${factory}, [{}])`,
+  ];
+  const retained = (code: string, count = 2) => ({
+    code,
+    options,
+    errors: Array.from({ length: count }, () => ({ message })),
+  });
+  for (const [name, tester] of [
+    ['JavaScript', new DefaultParserRuleTester()],
+    ['TypeScript', new NoTypeCheckingRuleTester()],
+  ] as const) {
+    it(`loader scope initializers in ${name}`, () => {
+      tester.run(`loader scope initializers in ${name}`, rule, {
+        valid: [],
+        invalid: [
+          ...calls.map(code => ({
+            code,
+            options,
+            errors: [{ message, column: code.indexOf('nested') + 1 }],
+          })),
+          retained(`require([], ${factory}, ${callback})`),
+          retained(`sap.ui.require([], ${factory}, ${callback})`),
+          ...['require', 'sap.ui.require'].flatMap(loader =>
+            [
+              `() => { ${body} }`,
+              `async () => { ${body} }`,
+              `async ${callback}`,
+              `function* () { ${body} }`,
+              `async function* () { ${body} }`,
+            ].map(errback => retained(`${loader}([], ${factory}, ${errback})`)),
+          ),
+          retained(
+            `System.register([], function () { ${body} return { setters: [${callback}], execute: ${callback} }; })`,
+          ),
+          ...[
+            `sap.ui.define([], ${callback})`,
+            `require([], ${callback})`,
+            `sap.ui.require([], ${callback})`,
+            `System.register([], ${callback})`,
+          ].map(code => retained(code, 1)),
+          ...[
+            `sap['ui'].define([], ${factory})`,
+            `sap.ui['define']([], ${factory})`,
+            `sap.ui.define?.([], ${factory})`,
+            `sap.ui?.define([], ${factory})`,
+            `require?.([], ${factory})`,
+            `System['register']([], ${factory})`,
+            `System.register?.([], ${factory})`,
+            `sap.ui.define(${factory})`,
+            `sap.ui.define([], ${factory}, flag)`,
+            `sap.ui.define(name, [], ${factory})`,
+            `require('dep', ${factory})`,
+            `require([dep], ${factory})`,
+            `require([,], ${factory})`,
+            `require([...deps], ${factory})`,
+            `require([], ${factory}, extra, extra)`,
+            `require([], (0, ${factory}))`,
+            `const callback = ${factory}; require([], callback)`,
+            `System.register('name', [], ${factory})`,
+            `System.register([], ${factory}, metadata)`,
+            `System.register([], ${factory}, [extra])`,
+            `System.register([], ${factory}, [,])`,
+            `System.register([], ${factory}, [...metadata])`,
+            `function scope(sap) { sap.ui.define([], ${factory}); }`,
+            `const require = other; require([], ${factory})`,
+            `function scope(System) { System.register([], ${factory}); }`,
+            ...['async function', 'function*', 'async function*'].map(
+              kind => `require([], ${factory.replace('function ()', `${kind} ()`)})`,
+            ),
+            `require([], () => { ${body} function nested() { ${body} } })`,
+          ].map(code => retained(code)),
+          ...calls.flatMap(code => {
+            const root = code.startsWith('sap')
+              ? 'sap'
+              : code.startsWith('System')
+                ? 'System'
+                : 'require';
+            const path = code.slice(0, code.indexOf('('));
+            return [
+              `${root} = other; ${code}`,
+              `${code}; ${root} = other`,
+              `function replaceLoader() { ${root} = other; } ${code}`,
+              `function replaceMethod() { ${path} = other; } ${code}`,
+              `${path} = other; ${code}`,
+              `${path} ||= other; ${code}`,
+              `${path}++; ${code}`,
+              ...(root === 'require' ? [] : [`delete ${path}; ${code}`]),
+              `({ x: ${path} } = other); ${code}`,
+              `([${path}] = other); ${code}`,
+              `({ x: ${path} = other } = source); ${code}`,
+              `for ({ x: ${path} } of items) {} ${code}`,
+              `for (${path} of items) {} ${code}`,
+              `for (${path} in items) {} ${code}`,
+              ...(root === 'sap'
+                ? [
+                    `sap.ui = other; ${code}`,
+                    `sap[key] = other; ${code}`,
+                    `sap.ui[key] = other; ${code}`,
+                  ]
+                : []),
+              ...(root === 'System'
+                ? [`System[key] = other; ${code}`, `System['register'] = other; ${code}`]
+                : []),
+            ].map(value => retained(value));
+          }),
+          ...calls.flatMap(code => {
+            const root = code.startsWith('sap')
+              ? 'sap'
+              : code.startsWith('System')
+                ? 'System'
+                : 'require';
+            return [
+              `unrelated.value = other; ${code}`,
+              `${root}.unrelated = other; ${code}`,
+              `function local(${root}) { ${root} = other; } ${code}`,
+            ].map(value => ({
+              code: value,
+              options,
+              errors: [{ message, column: value.indexOf('nested') + 1 }],
+            }));
+          }),
+        ],
+      });
+    });
+  }
+  it('TypeScript loader values', () => {
+    new NoTypeCheckingRuleTester().run('TypeScript loader values', rule, {
+      valid: [],
+      invalid: [
+        `sap.ui.define('module' as string, ['dep' satisfies string] as string[], (${factory}) as Function, false as boolean)`,
+        `require([] satisfies string[], (${factory})!)`,
+        `sap.ui.require([], (${factory.replace('function ()', 'function<T> ()')})<number>)`,
+        `System.register([] as string[], (${factory}) satisfies Function, [] as object[])`,
+      ].map(code => ({
+        code,
+        options,
+        filename: 'file.ts',
+        errors: [{ message, column: code.indexOf('nested') + 1 }],
+      })),
+      ...[
+        `(sap.ui as any).define = other; sap.ui.define([], ${factory})`,
+        `(sap as any).ui.require = other; sap.ui.require([], ${factory})`,
+        `(System.register as Function) = other; System.register([], ${factory})`,
+        `(require as Function) = other; require([], ${factory})`,
+      ].map(code => ({ ...retained(code), filename: 'file.ts' })),
+    });
+  });
+});

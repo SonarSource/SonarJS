@@ -26,6 +26,7 @@ import {
 import {
   type FunctionNodeType,
   isFunctionNode,
+  getVariableFromName,
   unwrapTypeScriptExpression,
 } from '../helpers/ast.js';
 import { isGlobalShadowed } from '../helpers/module.js';
@@ -46,6 +47,29 @@ export const rule: Rule.RuleModule = {
     let functionsWithParent: Map<estree.Node, estree.Node | undefined>;
     let functionsDefiningModule: estree.Node[];
     let functionsImmediatelyInvoked: estree.Node[];
+    let functionStack: estree.Node[];
+    let functionsWithNested: Set<estree.Node>;
+    let scopeInitializers: Map<estree.Node, { path: string[]; call: estree.CallExpression }>;
+    let writtenPaths: string[][];
+    function collectWrites(target: estree.Node) {
+      const value = unwrapTypeScriptValue(target);
+      const path = getMemberPath(value, true);
+      if (path) {
+        if (!isGlobalShadowed(context.sourceCode, value, path[0])) {
+          writtenPaths.push(path);
+        }
+      } else if (value.type === 'ArrayPattern') {
+        value.elements.forEach(element => element && collectWrites(element));
+      } else if (value.type === 'ObjectPattern') {
+        value.properties.forEach(property =>
+          collectWrites(property.type === 'RestElement' ? property.argument : property.value),
+        );
+      } else if (value.type === 'AssignmentPattern') {
+        collectWrites(value.left);
+      } else if (value.type === 'RestElement') {
+        collectWrites(value.argument);
+      }
+    }
     function excludeInvokedFunction(expression: estree.Node) {
       const value = getFinalValue(expression);
       if (
@@ -60,8 +84,26 @@ export const rule: Rule.RuleModule = {
         functionsWithParent = new Map<estree.Node, estree.Node>();
         functionsDefiningModule = [];
         functionsImmediatelyInvoked = [];
+        functionStack = [];
+        functionsWithNested = new Set();
+        scopeInitializers = new Map();
+        writtenPaths = [];
       },
       'Program:exit': () => {
+        const stablePaths = new Map<string, boolean>();
+        for (const [factory, { path, call }] of scopeInitializers) {
+          const key = path.join('.');
+          if (!stablePaths.has(key)) {
+            stablePaths.set(
+              key,
+              isStableGlobalRoot(context, call, path[0]) &&
+                !writtenPaths.some(write => isPathPrefix(write, path)),
+            );
+          }
+          if (functionsWithNested.has(factory) && stablePaths.get(key)) {
+            functionsDefiningModule.push(factory);
+          }
+        }
         for (const [func, parent] of functionsWithParent.entries()) {
           if (
             !functionsDefiningModule.includes(func) &&
@@ -71,13 +113,38 @@ export const rule: Rule.RuleModule = {
           }
         }
       },
-      'FunctionDeclaration, FunctionExpression, ArrowFunctionExpression': (node: estree.Node) =>
-        functionsWithParent.set(node, getParent(context, node)),
+      'FunctionDeclaration, FunctionExpression, ArrowFunctionExpression': (node: estree.Node) => {
+        functionsWithParent.set(node, getParent(context, node));
+        const enclosing = functionStack.at(-1);
+        if (enclosing) {
+          functionsWithNested.add(enclosing);
+        }
+        functionStack.push(node);
+      },
+      ':matches(FunctionDeclaration, FunctionExpression, ArrowFunctionExpression):exit': () => {
+        functionStack.pop();
+      },
+      AssignmentExpression: (node: estree.Node) =>
+        collectWrites((node as estree.AssignmentExpression).left),
+      UpdateExpression: (node: estree.Node) =>
+        collectWrites((node as estree.UpdateExpression).argument),
+      UnaryExpression: (node: estree.Node) => {
+        const unary = node as estree.UnaryExpression;
+        if (unary.operator === 'delete') {
+          collectWrites(unary.argument);
+        }
+      },
+      'ForInStatement, ForOfStatement': (node: estree.Node) =>
+        collectWrites((node as estree.ForInStatement | estree.ForOfStatement).left),
       CallExpression: (node: estree.Node) => {
         const call = node as estree.CallExpression;
         const factory = getModuleFactory(call, context);
         if (factory) {
           functionsDefiningModule.push(factory);
+        }
+        const initializer = getScopeInitializer(call, context);
+        if (initializer) {
+          scopeInitializers.set(initializer.factory, { path: initializer.path, call });
         }
         excludeInvokedFunction(call.callee);
       },
@@ -136,6 +203,97 @@ function getModuleFactory(
     args.pop();
   }
   return args.length === 0 ? factory : undefined;
+}
+
+function getScopeInitializer(call: estree.CallExpression, context: Rule.RuleContext) {
+  if ('optional' in call && call.optional) {
+    return undefined;
+  }
+  const path = getMemberPath(call.callee, false);
+  const name = path?.join('.');
+  if (
+    !path ||
+    !['sap.ui.define', 'require', 'sap.ui.require', 'System.register'].includes(name!) ||
+    isGlobalShadowed(context.sourceCode, call, path[0])
+  ) {
+    return undefined;
+  }
+  const args = call.arguments.map(unwrapTypeScriptValue);
+  if (name === 'sap.ui.define' && isStringLiteral(args[0])) {
+    args.shift();
+  }
+  const [dependencies, factory, extra] = args;
+  if (
+    args.length < 2 ||
+    args.length > 3 ||
+    dependencies?.type !== 'ArrayExpression' ||
+    !dependencies.elements.every(isStringLiteral) ||
+    !isSynchronousFunction(factory)
+  ) {
+    return undefined;
+  }
+  if (extra) {
+    if (name === 'sap.ui.define') {
+      if (extra.type !== 'Literal' || typeof extra.value !== 'boolean') {
+        return undefined;
+      }
+    } else if (name === 'System.register') {
+      if (
+        extra.type !== 'ArrayExpression' ||
+        extra.elements.length !== dependencies.elements.length ||
+        !extra.elements.every(
+          element => element && unwrapTypeScriptValue(element).type === 'ObjectExpression',
+        )
+      ) {
+        return undefined;
+      }
+    } else if (!isFunctionNode(extra)) {
+      return undefined;
+    }
+  }
+  return { factory, path };
+}
+
+function isSynchronousFunction(node: estree.Node | undefined): node is estree.FunctionExpression {
+  return node?.type === 'FunctionExpression' && !node.async && !node.generator;
+}
+
+function getMemberPath(expression: estree.Node, allowComputed: boolean): string[] | undefined {
+  const node = allowComputed ? unwrapTypeScriptValue(expression) : expression;
+  if (node.type === 'Identifier') {
+    return ['sap', 'require', 'System'].includes(node.name) ? [node.name] : undefined;
+  }
+  if (node.type !== 'MemberExpression' || (!allowComputed && (node.computed || node.optional))) {
+    return undefined;
+  }
+  const object = getMemberPath(node.object, allowComputed);
+  if (!object) {
+    return undefined;
+  }
+  if (!node.computed && node.property.type === 'Identifier') {
+    return [...object, node.property.name];
+  }
+  const property = unwrapTypeScriptValue(node.property);
+  return [
+    ...object,
+    property.type === 'Literal' && typeof property.value === 'string' ? property.value : '*',
+  ];
+}
+
+function isPathPrefix(prefix: string[], path: string[]): boolean {
+  return (
+    prefix.length <= path.length &&
+    prefix.every((part, index) => part === '*' || part === path[index])
+  );
+}
+
+function isStableGlobalRoot(context: Rule.RuleContext, node: estree.Node, name: string): boolean {
+  const variable = getVariableFromName(context, name, node);
+  const references = variable?.references ?? context.sourceCode.scopeManager?.globalScope?.through;
+  return (
+    references !== undefined &&
+    !references.some(reference => reference.identifier.name === name && reference.isWrite())
+  );
 }
 
 function isStringLiteral(node: estree.Node | null | undefined): boolean {
