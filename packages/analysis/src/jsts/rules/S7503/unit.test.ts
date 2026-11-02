@@ -452,7 +452,26 @@ async function save(): Promise<void> {
   doSomething();
 }
 `,
-          errors: 1,
+          errors: [
+            {
+              message: 'Review this async function: it has no await expression.',
+              line: 3,
+              column: 1,
+              endLine: 3,
+              endColumn: 20,
+              suggestions: [
+                {
+                  desc: 'Remove async if this function does not need it.',
+                  output: `
+declare function doSomething(): void;
+function save(): void {
+  doSomething();
+}
+`,
+                },
+              ],
+            },
+          ],
           filename,
         },
         {
