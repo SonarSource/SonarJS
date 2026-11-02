@@ -23,7 +23,12 @@ import {
   type IssueLocation,
   getMainFunctionTokenLocation,
 } from '../helpers/location.js';
-import { type FunctionNodeType, isFunctionNode } from '../helpers/ast.js';
+import {
+  type FunctionNodeType,
+  isFunctionNode,
+  unwrapTypeScriptExpression,
+} from '../helpers/ast.js';
+import { isGlobalShadowed } from '../helpers/module.js';
 import type { RuleContext } from '../helpers/type.js';
 import { childrenOf, getParent } from '../helpers/ancestor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
@@ -41,6 +46,15 @@ export const rule: Rule.RuleModule = {
     let functionsWithParent: Map<estree.Node, estree.Node | undefined>;
     let functionsDefiningModule: estree.Node[];
     let functionsImmediatelyInvoked: estree.Node[];
+    function excludeInvokedFunction(expression: estree.Node) {
+      const value = getFinalValue(expression);
+      if (
+        (value.type === 'FunctionExpression' || value.type === 'ArrowFunctionExpression') &&
+        !value.generator
+      ) {
+        functionsImmediatelyInvoked.push(value);
+      }
+    }
     return {
       Program: () => {
         functionsWithParent = new Map<estree.Node, estree.Node>();
@@ -59,15 +73,73 @@ export const rule: Rule.RuleModule = {
       },
       'FunctionDeclaration, FunctionExpression, ArrowFunctionExpression': (node: estree.Node) =>
         functionsWithParent.set(node, getParent(context, node)),
-      "CallExpression[callee.type='Identifier'][callee.name='define'] FunctionExpression": (
-        node: estree.Node,
-      ) => functionsDefiningModule.push(node),
-      "NewExpression[callee.type='FunctionExpression'], CallExpression[callee.type='FunctionExpression']":
-        (node: estree.Node) =>
-          functionsImmediatelyInvoked.push((node as estree.NewExpression).callee),
+      CallExpression: (node: estree.Node) => {
+        const call = node as estree.CallExpression;
+        const factory = getModuleFactory(call, context);
+        if (factory) {
+          functionsDefiningModule.push(factory);
+        }
+        excludeInvokedFunction(call.callee);
+      },
+      NewExpression: (node: estree.Node) => {
+        const callee = getFinalValue((node as estree.NewExpression).callee);
+        if (callee.type === 'FunctionExpression' && !callee.async) {
+          excludeInvokedFunction(callee);
+        }
+      },
+      TaggedTemplateExpression: (node: estree.Node) =>
+        excludeInvokedFunction((node as estree.TaggedTemplateExpression).tag),
     };
   },
 };
+
+function unwrapTypeScriptValue(expression: estree.Node): estree.Node {
+  const value = unwrapTypeScriptExpression(expression);
+  const tsValue = value as unknown as TSESTree.Node;
+  return tsValue.type === 'TSInstantiationExpression'
+    ? unwrapTypeScriptValue(tsValue.expression as unknown as estree.Node)
+    : value;
+}
+
+function getFinalValue(expression: estree.Node): estree.Node {
+  const value = unwrapTypeScriptValue(expression);
+  return value.type === 'SequenceExpression'
+    ? getFinalValue(value.expressions[value.expressions.length - 1])
+    : value;
+}
+
+function getModuleFactory(
+  call: estree.CallExpression,
+  context: Rule.RuleContext,
+): estree.FunctionExpression | undefined {
+  if (
+    call.callee.type !== 'Identifier' ||
+    call.callee.name !== 'define' ||
+    isGlobalShadowed(context.sourceCode, call, 'define')
+  ) {
+    return undefined;
+  }
+  const args = call.arguments.map(unwrapTypeScriptValue);
+  const factory = args.pop();
+  if (factory?.type !== 'FunctionExpression' || factory.generator) {
+    return undefined;
+  }
+  if (isStringLiteral(args[0])) {
+    args.shift();
+  }
+  if (args.length === 1 && args[0].type === 'ArrayExpression') {
+    if (!args[0].elements.every(isStringLiteral)) {
+      return undefined;
+    }
+    args.pop();
+  }
+  return args.length === 0 ? factory : undefined;
+}
+
+function isStringLiteral(node: estree.Node | null | undefined): boolean {
+  const value = node && unwrapTypeScriptValue(node);
+  return value?.type === 'Literal' && typeof value.value === 'string';
+}
 
 function raiseOnUnauthorizedComplexity(
   node: FunctionNodeType,

@@ -14,7 +14,10 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { DefaultParserRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
+import {
+  NoTypeCheckingRuleTester,
+  DefaultParserRuleTester,
+} from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { rule } from './rule.js';
 import type { EncodedMessage, IssueLocation } from '../helpers/location.js';
 import { describe, it } from 'node:test';
@@ -152,7 +155,7 @@ describe('S1541', () => {
         },
         {
           code: `
-      define([], "module name", function(){  // AMD PATTERN - OK
+      define("module name", [], function(){  // AMD PATTERN - OK
         var a = true && false && true;
       });
       `,
@@ -464,3 +467,128 @@ function location(
 ): IssueLocation {
   return { line, column, endLine, endColumn, message };
 }
+
+describe('S1541 function exclusions', () => {
+  const body = 'if (a) {} if (b) {}';
+  const functions = [`function () { ${body} }`, `() => { ${body} }`];
+  const options = [{ threshold: 2 }];
+  const report = (code: string) => ({
+    code,
+    options,
+    errors: [{ message: /Function has a complexity of 3 which is greater than 2 authorized/ }],
+  });
+
+  for (const [name, tester] of [
+    ['JavaScript', new DefaultParserRuleTester()],
+    ['TypeScript', new NoTypeCheckingRuleTester()],
+  ] as const) {
+    it(`function exclusions in ${name}`, () => {
+      tester.run(`function exclusions in ${name}`, rule, {
+        valid: [
+          ...functions.flatMap(fn => [
+            `(${fn})()`,
+            `(${fn})?.()`,
+            `(async ${fn})()`,
+            `(${fn})\`template\``,
+            `(async ${fn})\`template\``,
+            `(0, (1, ${fn}))()`,
+          ]),
+          `new (function () { ${body} })()`,
+          `define(function () { ${body} })`,
+          `define('module', function () { ${body} })`,
+          `define([], function () { ${body} })`,
+          `define('module', ['dependency'], function () { ${body} })`,
+        ].map(code => ({ code, options })),
+        invalid: [
+          ...functions.flatMap(fn => [
+            `const value = ${fn}`,
+            `consume(${fn})`,
+            `(${fn}, other)()`,
+            `(condition ? ${fn} : other)()`,
+            `(${fn}).call(null)`,
+            `(${fn}).apply(null, [])`,
+            `(${fn}).bind(null)`,
+            `(${fn}).bind(null)()`,
+            `(${fn})[method]()`,
+          ]),
+          `(function* () { ${body} })()`,
+          `(async function* () { ${body} })()`,
+          `(function* () { ${body} })\`template\``,
+          `new (async function () { ${body} })()`,
+          `new (() => { ${body} })()`,
+          `define([], wrap(function () { ${body} }))`,
+          `define([], function () { const helper = function () { ${body} }; })`,
+          `function define() {} define([], function () { ${body} })`,
+          `const define = other; define([], function () { ${body} })`,
+          `function outer(define) { define([], function () { ${body} }) }`,
+          `import define from 'other'; define([], function () { ${body} })`,
+          `object.define([], function () { ${body} })`,
+          `define([], 'module', function () { ${body} })`,
+          `define(dependencies, function () { ${body} })`,
+          `define([dependency], function () { ${body} })`,
+          `define([...dependencies], function () { ${body} })`,
+          `define([,], function () { ${body} })`,
+          `define([], function () { ${body} }, extra)`,
+          `define([], function* () { ${body} })`,
+          `define(() => { ${body} })`,
+          `define('module', () => { ${body} })`,
+          `define([], () => { ${body} })`,
+          `define('module', ['dependency'], () => { ${body} })`,
+          `define([], async () => { ${body} })`,
+        ].map(report),
+      });
+    });
+  }
+
+  it('TypeScript function wrappers', () => {
+    new NoTypeCheckingRuleTester().run('TypeScript function wrappers', rule, {
+      valid: functions
+        .flatMap(fn => [
+          `((${fn}) as unknown as Function)()`,
+          `((${fn}) satisfies Function)()`,
+          `(${fn})!()`,
+          `(<Function>(${fn}))()`,
+          `((0, ((${fn}) as Function)) satisfies Function)()`,
+          `((${fn}) as Function)\`template\``,
+        ])
+        .concat([
+          `define('module' as string, [] satisfies string[], (function () { ${body} }) as Function)`,
+          `define([], (function<T>() { ${body} })<number>)`,
+          `define(['dep' as string], function () { ${body} })`,
+          `define(['dep' satisfies string, 'other'!, <string>'last'], function () { ${body} })`,
+          `((function<T>() { ${body} })<number>)()`,
+          `((<T,>() => { ${body} })<number>)()`,
+          `((function<T>() { ${body} })<number>)?.()`,
+          `((async function<T>() { ${body} })<number>)()`,
+          `((async <T,>() => { ${body} })<number>)()`,
+          `((function<T>() { ${body} })<number>)\`template\``,
+          `((<T,>() => { ${body} })<number>)\`template\``,
+          `new ((function<T>() { ${body} })<number>)()`,
+          `((0, ((<T,>() => { ${body} })<number>)) as Function)()`,
+        ])
+        .map(code => ({ code, options, filename: 'file.ts' })),
+      invalid: [
+        `((function* () { ${body} }) as Function)()`,
+        `((() => { ${body} }) as Function).call(null)`,
+        `define(dependencies as string[], (function () { ${body} }) as Function)`,
+        `declare function define(...args: any[]): void; define([], function () { ${body} })`,
+        `define([], (() => { ${body} }) as Function)`,
+        `define([], (<T,>() => { ${body} })<number>)`,
+        `define([dependency as string], function () { ${body} })`,
+        `define([...dependencies as string[]], function () { ${body} })`,
+        `define([, 'dep' as string], function () { ${body} })`,
+        `define([], (function*<T>() { ${body} })<number>)`,
+        `define([], (0, (function<T>() { ${body} })<number>))`,
+        `define([], wrap((function<T>() { ${body} })<number>))`,
+        `const value = (function<T>() { ${body} })<number>`,
+        `consume((<T,>() => { ${body} })<number>)`,
+        `((function*<T>() { ${body} })<number>)()`,
+        `((async function*<T>() { ${body} })<number>)()`,
+        `((function*<T>() { ${body} })<number>)\`template\``,
+        `new ((async function<T>() { ${body} })<number>)()`,
+        `new ((<T,>() => { ${body} })<number>)()`,
+        `((<T,>() => { ${body} })<number>).call(null)`,
+      ].map(report),
+    });
+  });
+});
