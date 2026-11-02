@@ -103,9 +103,11 @@ function unwrapTypeScriptValue(expression: estree.Node): estree.Node {
 
 function getFinalValue(expression: estree.Node): estree.Node {
   const value = unwrapTypeScriptValue(expression);
-  return value.type === 'SequenceExpression'
-    ? getFinalValue(value.expressions.at(-1)!)
-    : value;
+  if (value.type !== 'SequenceExpression') {
+    return value;
+  }
+  const lastExpression = value.expressions.at(-1);
+  return lastExpression ? getFinalValue(lastExpression) : value;
 }
 
 function getModuleFactory(
