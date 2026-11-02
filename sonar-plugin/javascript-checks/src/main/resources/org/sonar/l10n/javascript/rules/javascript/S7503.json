@@ -1,5 +1,5 @@
 {
-  "title": "Async functions without asynchronous work should be reviewed.",
+  "title": "Async functions should use async features",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
