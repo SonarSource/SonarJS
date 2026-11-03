@@ -27,18 +27,19 @@ import {
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getSymbolAtLocation, getTypeFromTreeNode, isArrayLikeType } from '../helpers/type.js';
 import { localAncestorsChain } from '../helpers/ancestor.js';
-import { getStaticExpressionValue, unwrapTypeScriptExpression } from '../helpers/ast.js';
+import {
+  getStaticExpressionValue,
+  isTypeScriptExpressionWrapper,
+  unwrapTypeScriptExpression,
+} from '../helpers/ast.js';
 import { isStrictNullChecksEnabled } from '../helpers/compiler-options.js';
 import * as meta from './generated-meta.js';
 
 const arrayMutatingMethods = new Set(['reverse', 'sort']);
-const transparentExpressionTypes = new Set([
-  'ChainExpression',
-  'TSNonNullExpression',
-  'TSAsExpression',
-  'TSSatisfiesExpression',
-  'TSTypeAssertion',
-]);
+
+function isTransparentExpression(node: TSESTree.Node): boolean {
+  return node.type === 'ChainExpression' || isTypeScriptExpressionWrapper(node);
+}
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -142,7 +143,7 @@ function isGetAccessor(node: estree.Node, services: RequiredParserServices): boo
 
 function isInSelfAssignment(mutatedArray: estree.Node, node?: estree.Node): boolean {
   let assignment = (node as TSESTree.Node).parent;
-  while (assignment && transparentExpressionTypes.has(assignment.type)) {
+  while (assignment && isTransparentExpression(assignment)) {
     assignment = assignment.parent;
   }
   return (
@@ -180,10 +181,7 @@ function isStandaloneExpression(node: estree.Node) {
     returnIdx > -1 &&
     ancestors
       .slice(0, returnIdx)
-      .every(
-        ancestor =>
-          transparentExpressionTypes.has(ancestor.type) || ancestor.type === 'LogicalExpression',
-      )
+      .every(ancestor => isTransparentExpression(ancestor) || ancestor.type === 'LogicalExpression')
   );
 }
 
@@ -196,7 +194,7 @@ function isReturnedExpression(node: estree.Node) {
       .slice(0, returnIdx)
       .every(
         ancestor =>
-          transparentExpressionTypes.has(ancestor.type) ||
+          isTransparentExpression(ancestor) ||
           [
             'ArrayExpression',
             'ObjectExpression',
