@@ -49,8 +49,8 @@ export const rule: Rule.RuleModule = {
     const threshold =
       (context.options as FromSchema<typeof meta.schema>)[0]?.threshold ?? DEFAULT_THRESHOLD;
     let functionsWithParent: Map<estree.Node, estree.Node | undefined>;
-    let functionsDefiningModule: estree.Node[];
-    let functionsImmediatelyInvoked: estree.Node[];
+    let functionsDefiningModule: Set<estree.Node>;
+    let functionsImmediatelyInvoked: Set<estree.Node>;
     let functionStack: estree.Node[];
     let functionsWithNested: Set<estree.Node>;
     let scopeInitializers: Map<estree.Node, { path: string[]; call: estree.CallExpression }>;
@@ -80,14 +80,14 @@ export const rule: Rule.RuleModule = {
         (value.type === 'FunctionExpression' || value.type === 'ArrowFunctionExpression') &&
         !value.generator
       ) {
-        functionsImmediatelyInvoked.push(value);
+        functionsImmediatelyInvoked.add(value);
       }
     }
     return {
       Program: () => {
         functionsWithParent = new Map<estree.Node, estree.Node>();
-        functionsDefiningModule = [];
-        functionsImmediatelyInvoked = [];
+        functionsDefiningModule = new Set();
+        functionsImmediatelyInvoked = new Set();
         functionStack = [];
         functionsWithNested = new Set();
         scopeInitializers = new Map();
@@ -105,14 +105,11 @@ export const rule: Rule.RuleModule = {
             );
           }
           if (functionsWithNested.has(factory) && stablePaths.get(key)) {
-            functionsDefiningModule.push(factory);
+            functionsDefiningModule.add(factory);
           }
         }
         for (const [func, parent] of functionsWithParent.entries()) {
-          if (
-            !functionsDefiningModule.includes(func) &&
-            !functionsImmediatelyInvoked.includes(func)
-          ) {
+          if (!functionsDefiningModule.has(func) && !functionsImmediatelyInvoked.has(func)) {
             raiseOnUnauthorizedComplexity(func as FunctionNodeType, parent, threshold, context);
           }
         }
@@ -144,7 +141,7 @@ export const rule: Rule.RuleModule = {
         const call = node as estree.CallExpression;
         const factory = getModuleFactory(call, context);
         if (factory) {
-          functionsDefiningModule.push(factory);
+          functionsDefiningModule.add(factory);
         }
         const initializer = getScopeInitializer(call, context);
         if (initializer) {
