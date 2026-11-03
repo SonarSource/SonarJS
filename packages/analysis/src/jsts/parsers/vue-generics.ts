@@ -199,10 +199,10 @@ function prepareAmbientBinding(source: ts.SourceFile, statement: ts.VariableStat
   }
   const start = statement.getStart(source);
   const keywordStart = list.getStart(source);
+  // var and let have the same width. Pad let to preserve the mapped keyword span.
   const keywordLength = list.flags & ts.NodeFlags.Const ? 'const'.length : 'var'.length;
   const edits: Edit[] = [
     { start, end: keywordStart, text: '' },
-    // Keep the replacement keyword's offsets for VariableStatement node mapping.
     {
       start: keywordStart,
       end: keywordStart + keywordLength,
