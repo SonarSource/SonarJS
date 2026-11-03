@@ -100,26 +100,22 @@ function projectSetup(
     return null;
   }
   const { edits, imports, removed, starts } = prepared;
-  let name = '__sonar_setup';
-  while (source.text.includes(name) || parameters.includes(name)) {
-    name += '_';
-  }
   const standalone = ts.isSourceFile(container);
   const insertion = standalone ? 0 : container.getStart(source);
   const async = setupNeedsAsync(container) ? 'async ' : '';
   edits.push({
     start: insertion,
     end: insertion,
-    // An arrow preserves the script's lexical this/arguments. The trailing comma
-    // disambiguates a single unconstrained type parameter from JSX.
-    text: `const ${name} = ${async}<${parameters}\n,>() =>${standalone ? '{\n' : ''}`,
+    // An arrow preserves lexical this/arguments; void avoids a synthetic binding.
+    // The trailing comma disambiguates an unconstrained type parameter from JSX.
+    text: `void (${async}<${parameters}\n,>() =>${standalone ? '{\n' : ''}`,
   });
   if (!standalone) {
-    edits.push({ start: container.end, end: container.end, text: ';\n' });
+    edits.push({ start: container.end, end: container.end, text: ');\n' });
   }
   const rendered = renderProjection(source.text, edits, imports);
   return (
-    rendered && { ...rendered, code: rendered.code + (standalone ? '\n};' : ''), removed, starts }
+    rendered && { ...rendered, code: rendered.code + (standalone ? '\n});' : ''), removed, starts }
   );
 }
 

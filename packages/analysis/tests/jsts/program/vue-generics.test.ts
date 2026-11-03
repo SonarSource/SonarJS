@@ -106,6 +106,13 @@ function services(source: SourceCode) {
   return result;
 }
 
+function semanticDiagnostics(program: ts.Program) {
+  return program.getSemanticDiagnostics().map(diagnostic => ({
+    code: diagnostic.code,
+    message: ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'),
+  }));
+}
+
 describe('Vue generic compiler representation', () => {
   beforeEach(() => {
     clearSourceFileContentCache();
@@ -147,7 +154,7 @@ oldApi();
         const typed = services(source);
         expect(typed.program).toBe(program);
         expect(program.getSyntacticDiagnostics()).toEqual([]);
-        expect(program.getSemanticDiagnostics()).toEqual([]);
+        expect(semanticDiagnostics(program)).toEqual([]);
         const parameters = nodes(
           source,
           node => node.type === 'Identifier' && ['T', 'U', 'V'].includes(node.name),
@@ -217,7 +224,7 @@ await value;
       for (const node of nodes(source, node => node.type === 'Identifier' && node.name === 'U')) {
         expect(typed.getTypeAtLocation(node).flags & ts.TypeFlags.TypeParameter).toBeTruthy();
       }
-      expect(program.getSemanticDiagnostics()).toEqual([]);
+      expect(semanticDiagnostics(program)).toEqual([]);
     });
     it(`${builder ? 'builder' : 'standard'}: preserves lexical this without introducing an arguments binding`, async () => {
       const raw =
@@ -235,6 +242,17 @@ await value;
               diagnostic.code === 2304 && String(diagnostic.messageText).includes('arguments'),
           ),
       ).toBe(true);
+    });
+    it(`${builder ? 'builder' : 'standard'}: avoids collisions with escaped module identifiers`, async () => {
+      const raw =
+        '<script lang="ts">const __sonar_\\u0073etup: number = 1;</script>' +
+        '<script setup lang="ts" generic="T">const value = __sonar_\\u0073etup;</script>';
+      const program = create(raw, builder);
+      const source = await parse(raw, program);
+      const typed = services(source);
+      const value = nodes(source, node => node.type === 'Identifier' && node.name === 'value')[0];
+      expect(typed.getTypeAtLocation(value).flags & ts.TypeFlags.Number).toBeTruthy();
+      expect(semanticDiagnostics(program)).toEqual([]);
     });
     it(`${builder ? 'builder' : 'standard'}: keeps real aliases and normal-script bindings outside the generic scope`, async () => {
       const raw = `<script lang="ts">type T = number; const outside: T = 1;</script>
@@ -255,7 +273,7 @@ function shadow() { type T = boolean; const local: T = true; return local; }
       expect(typeOf('inside').flags & ts.TypeFlags.TypeParameter).toBeTruthy();
       expect(typeOf('outside').flags & ts.TypeFlags.Number).toBeTruthy();
       expect(typeOf('local').flags & ts.TypeFlags.BooleanLiteral).toBeTruthy();
-      expect(program.getSemanticDiagnostics()).toEqual([]);
+      expect(semanticDiagnostics(program)).toEqual([]);
     });
   }
   it('rejects typed services when a surviving node cannot be mapped', () => {
