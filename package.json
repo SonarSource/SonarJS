@@ -64,7 +64,7 @@
     "@types/aria-query": "5.0.4",
     "@types/bytes": "3.1.6",
     "@types/css-tree": "3.2.0",
-    "@types/estree": "1.0.9",
+    "@types/estree": "1.0.10",
     "@types/estree-jsx": "1.0.5",
     "@types/functional-red-black-tree": "1.0.6",
     "@types/lodash.merge": "4.6.9",
