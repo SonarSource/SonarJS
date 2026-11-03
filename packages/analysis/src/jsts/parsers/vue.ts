@@ -20,6 +20,12 @@ import { buildVueParserOptions } from './options.js';
 import { FileSystemMap } from '../../common/filesystem.js';
 
 type ScriptParserOptions = NonNullable<Parameters<typeof parsersMap.typescript.parseForESLint>[1]>;
+type ScriptParser = {
+  parseForESLint(
+    code: string,
+    options: ScriptParserOptions,
+  ): ReturnType<typeof parsersMap.typescript.parseForESLint>;
+};
 
 type VueScript = {
   code: string;
@@ -62,23 +68,20 @@ export function getVueScript(file: string, raw: string, jsx: boolean): VueScript
     try {
       const result = parsersMap.vuejs.parseForESLint(raw, {
         ...buildVueParserOptions('ts', { filePath: file }, { jsx: attemptJsx }),
-        parser: {
-          parseForESLint(code: string, options: ScriptParserOptions) {
-            const parsed = parsersMap.typescript.parseForESLint(code, syntaxOnly(options));
-            return {
-              ...parsed,
-              services: {
-                ...parsed.services,
-                [projectionKey]: {
-                  code,
-                  jsx: attemptJsx,
-                  // Like typescript-eslint, treat the unknown .vue extension as TS/TSX.
-                  scriptKind: attemptJsx ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
-                },
+        parser: vueScriptParsers((code, options, typescript) => {
+          const parsed = parsersMap.typescript.parseForESLint(code, syntaxOnly(options));
+          return {
+            ...parsed,
+            services: {
+              ...parsed.services,
+              [projectionKey]: {
+                code,
+                jsx: attemptJsx,
+                scriptKind: scriptKindFor(typescript, attemptJsx),
               },
-            };
-          },
-        },
+            },
+          };
+        }),
       });
       script = (result.services as { [projectionKey]?: VueScript } | undefined)?.[projectionKey];
       break;
@@ -121,26 +124,46 @@ export function createVueSourceFile(
  * text or mode. Never expose a complete script Program to Vue's auxiliary parses,
  * nor a stale/incompatible SourceFile to its final script parse.
  */
-export function createVueScriptParser(program?: ts.Program): {
-  parseForESLint(
+export function createVueScriptParser(program?: ts.Program): Record<string, ScriptParser> {
+  return vueScriptParsers((code, options, typescript) => {
+    const sourceFile = options.filePath ? program?.getSourceFile(options.filePath) : undefined;
+    const script = sourceFile ? sourceFileScripts.get(sourceFile) : undefined;
+    const matches =
+      script?.code === code &&
+      sourceFile?.text === code &&
+      script.jsx === !!options.ecmaFeatures?.jsx &&
+      script.scriptKind === scriptKindFor(typescript, script.jsx);
+    return parsersMap.typescript.parseForESLint(code, {
+      ...syntaxOnly(options),
+      programs: matches && program ? [program] : undefined,
+    });
+  });
+}
+
+/** Let Vue select the script language, including its choice for combined scripts. */
+function vueScriptParsers(
+  parseForESLint: (
     code: string,
     options: ScriptParserOptions,
-  ): ReturnType<typeof parsersMap.typescript.parseForESLint>;
-} {
-  return {
-    parseForESLint(code: string, options: ScriptParserOptions) {
-      const sourceFile = options.filePath ? program?.getSourceFile(options.filePath) : undefined;
-      const script = sourceFile ? sourceFileScripts.get(sourceFile) : undefined;
-      const matches =
-        script?.code === code &&
-        sourceFile?.text === code &&
-        script.jsx === !!options.ecmaFeatures?.jsx;
-      return parsersMap.typescript.parseForESLint(code, {
-        ...syntaxOnly(options),
-        programs: matches && program ? [program] : undefined,
-      });
-    },
+    typescript: boolean,
+  ) => ReturnType<typeof parsersMap.typescript.parseForESLint>,
+) {
+  const javascript = {
+    parseForESLint: (code: string, options: ScriptParserOptions) =>
+      parseForESLint(code, options, false),
   };
+  const typescript = {
+    parseForESLint: (code: string, options: ScriptParserOptions) =>
+      parseForESLint(code, options, true),
+  };
+  return { js: javascript, jsx: javascript, ts: typescript, tsx: typescript };
+}
+
+function scriptKindFor(typescript: boolean, jsx: boolean): ts.ScriptKind {
+  if (typescript) {
+    return jsx ? ts.ScriptKind.TSX : ts.ScriptKind.TS;
+  }
+  return jsx ? ts.ScriptKind.JSX : ts.ScriptKind.JS;
 }
 
 function syntaxOnly(options: ScriptParserOptions): ScriptParserOptions {

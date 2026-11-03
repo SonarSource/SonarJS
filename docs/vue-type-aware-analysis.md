@@ -13,17 +13,22 @@ Vue forwards the final script result's services to the outer result, so this cap
 setup, combined-script and generic rewriting. It does not depend on which inner call runs last:
 CSS expressions can be parsed after the script.
 
-The host creates a SourceFile from that representation, with explicit TS/TSX ScriptKind, while
+The host creates a SourceFile from that representation, with explicit JS/JSX or TS/TSX ScriptKind, while
 `readFile` continues to return the raw SFC. Internal `allowNonTsExtensions` enables `.vue` roots
 in configured and orphan Programs. Projection and SourceFile caches are cleared with the raw
 content cache after scanner analysis and retained for IDE requests.
+
+Vue selects the inner parser by the script's `lang` attribute, defaulting to JavaScript.
+The shared adapter uses that selection for both preparation and final parsing, including Vue's
+choice of the setup language for combined scripts. JavaScript SourceFiles preserve JSDoc type
+annotations, while TypeScript scripts retain TypeScript semantics.
 
 Every Vue SourceFile is marked as an external module through TypeScript's
 `setExternalModuleIndicator` callback. This keeps bindings in scripts without imports or exports
 local to their component, without adding synthetic text that would change the node mappings.
 
 The typed inner parser only supplies a Program for a SourceFile created from this representation,
-with exactly matching text and JSX mode. It clears `programs`, `project` and `projectService`
+with exactly matching text, script language and JSX mode. It clears `programs`, `project` and `projectService`
 for other calls. This matters because typescript-eslint accepts supplied SourceFiles by filename
 without checking their text, and Vue's auxiliary parses use the same filename for different snippets.
 Stale or incompatible Programs fall back to syntax-only parsing.
@@ -54,8 +59,11 @@ Generic attributes are approximated as aliases of their constraints by Vue's par
 report a necessary `Option<T>` argument as the default `Option<unknown>`. This predates the
 March 2024 removal of Vue typing: the same seven S4157 findings in ruling's `c-select.vue`
 reproduce with the former dependency versions (vue-eslint-parser 9.3.2, typescript-eslint
-6.14.0 and TypeScript 5.3.3). Ruling expectations retain these findings as a documented
-upstream limitation.
+6.14.0 and TypeScript 5.3.3). S4157 now suppresses reports whose argument or target defaults
+depend on a synthetic Vue generic alias, including through local aliases. Real declarations
+that shadow a Vue generic and unrelated redundant arguments remain eligible for reporting.
+The generic approximation still applies to other type-aware rules; full generic semantics
+require a different compiler representation.
 
 ## Vuetify performance and ruling changes
 

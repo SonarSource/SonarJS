@@ -17,8 +17,10 @@
 import { beforeEach, describe, it } from 'node:test';
 import { expect } from 'expect';
 import ts from 'typescript';
-import { Linter } from 'eslint';
+import { Linter, type SourceCode, type Rule } from 'eslint';
 import { rule as deprecationRule } from '../../../src/jsts/rules/S1874/rule.js';
+import { rule as stringComparisonRule } from '../../../src/jsts/rules/S3003/rule.js';
+import { rule as unnecessaryTypeArgumentsRule } from '../../../src/jsts/rules/S4157/index.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { build } from '../../../src/jsts/builders/build.js';
 import { IncrementalCompilerHost } from '../../../src/jsts/program/compilerHost.js';
@@ -46,6 +48,7 @@ const setup = `<script setup lang="ts">${script}</script>`;
 const template = '<template><p>{{ n }}</p></template>';
 const ordinary = `<script lang="ts">${script}</script>`;
 const normalExport = '<script lang="ts">export const outside = 1;</script>';
+const jsdocScript = '/** @param {string} n */\nfunction compare(n) { return "100" < n; }';
 
 const cases: [string, string, string | undefined][] = [
   [
@@ -88,6 +91,20 @@ async function parsed(raw: string, program?: ts.Program, jsx?: boolean) {
   }).sourceCode;
 }
 
+function verify(sourceCode: SourceCode, rule: Rule.RuleModule) {
+  return new Linter({ cwd: baseDir }).verify(
+    sourceCode,
+    [
+      {
+        files: ['**/*.vue'],
+        plugins: { test: { rules: { rule } } },
+        rules: { 'test/rule': 'error' },
+      },
+    ],
+    { filename: file },
+  );
+}
+
 async function identifierTypes(raw: string, program: ts.Program) {
   const sourceCode = await parsed(raw, program);
   const services = sourceCode.parserServices;
@@ -124,6 +141,89 @@ describe('Vue scripts in SonarJS Programs', () => {
   });
 
   for (const builder of [false, true]) {
+    for (const raw of [
+      `<script>${jsdocScript}</script>`,
+      `<script setup>${jsdocScript}</script>`,
+      `<script lang="js">${jsdocScript}</script>`,
+      `<script lang="jsx">${jsdocScript}\nconst el = <div/>;</script>`,
+      `<script>export const outside = 1;</script><script setup>${jsdocScript}</script>`,
+      `<script setup>${jsdocScript}</script><script>export const outside = 1;</script>`,
+    ]) {
+      it(`${builder ? 'builder' : 'standard'}: preserves JSDoc types in ${raw}`, async () => {
+        setSourceFilesContext({ [file]: { fileContent: raw } });
+        const config = options();
+        const host = new IncrementalCompilerHost(config.options, baseDir);
+        const program = builder
+          ? ts
+              .createSemanticDiagnosticsBuilderProgram(config.rootNames, config.options, host)
+              .getProgram()
+          : createStandardProgram({ ...config, host });
+        expect(new Set(await identifierTypes(raw, program))).toEqual(new Set(['string']));
+        const messages = verify(await parsed(raw, program), stringComparisonRule);
+        expect(messages).toHaveLength(1);
+        expect(messages[0].message).toBe('Convert operands of this use of "<" to number type.');
+      });
+    }
+    for (const combined of [false, true]) {
+      it(`${builder ? 'builder' : 'standard'}: protects Vue generic arguments (combined=${combined})`, async () => {
+        const raw = `${combined ? normalExport : ''}<script setup lang="ts" generic="T extends unknown, S extends string">
+type Option<U = unknown> = { value: U };
+type Alias = T;
+let n: Option<T>;
+let alias: Option<Alias>;
+type StringOption<U = string> = { value: U };
+let constrained: StringOption<S>;
+type VueDefault<U = T> = { value: U };
+let defaulted: VueDefault<unknown>;
+declare function make<U = T>(): U;
+const called = make<unknown>();
+declare class Box<U = T> { value: U; }
+const created = new Box<unknown>();
+interface View<U = T> { value: U; }
+let view: View<unknown>;
+type WithVueField<U = unknown> = { value: U; vue: T };
+let unrelated: WithVueField<unknown>;
+let redundant: Option<unknown>;
+function shadow<T = unknown>() { let local: Option<T>; }
+function local() { type T = unknown; let redundantLocal: Option<T>; }
+</script>`;
+        setSourceFilesContext({ [file]: { fileContent: raw } });
+        const config = options();
+        const host = new IncrementalCompilerHost(config.options, baseDir);
+        const program = builder
+          ? ts
+              .createSemanticDiagnosticsBuilderProgram(config.rootNames, config.options, host)
+              .getProgram()
+          : createStandardProgram({ ...config, host });
+        const sourceCode = await parsed(raw, program);
+        const messages = verify(sourceCode, unnecessaryTypeArgumentsRule);
+        expect(messages).toHaveLength(3);
+        expect(messages.map(message => message.line)).toEqual([
+          sourceCode.getLocFromIndex(raw.indexOf('WithVueField<unknown>')).line,
+          sourceCode.getLocFromIndex(raw.indexOf('Option<unknown>')).line,
+          sourceCode.getLocFromIndex(raw.indexOf('Option<T>;', raw.indexOf('function local'))).line,
+        ]);
+        expect(messages.every(message => message.fix)).toBe(true);
+      });
+    }
+    it(`${builder ? 'builder' : 'standard'}: reports redundant arguments in ordinary Vue scripts`, async () => {
+      const raw =
+        '<script lang="ts">type Option<T = unknown> = { value: T }; let n: Option<unknown>;</script>';
+      setSourceFilesContext({ [file]: { fileContent: raw } });
+      const config = options();
+      const host = new IncrementalCompilerHost(config.options, baseDir);
+      const program = builder
+        ? ts
+            .createSemanticDiagnosticsBuilderProgram(config.rootNames, config.options, host)
+            .getProgram()
+        : createStandardProgram({ ...config, host });
+      const messages = verify(await parsed(raw, program), unnecessaryTypeArgumentsRule);
+      expect(messages).toHaveLength(1);
+      expect(messages[0].fix).toEqual({
+        range: [raw.lastIndexOf('<unknown>'), raw.lastIndexOf('<unknown>') + '<unknown>'.length],
+        text: '',
+      });
+    });
     for (const scriptTag of ['script', 'script setup']) {
       it(`${builder ? 'builder' : 'standard'}: isolates ${scriptTag} bindings across components`, async () => {
         const other = normalizeToAbsolutePath('/vue-project/Other.vue');
@@ -192,6 +292,12 @@ describe('Vue scripts in SonarJS Programs', () => {
     expect((await parsed(ordinary, rawProgram)).parserServices.program).toBeFalsy();
   });
 
+  it('keeps S4157 syntax-only when a Vue generic script has no Program', async () => {
+    const raw =
+      '<script setup lang="ts" generic="T extends unknown">type Option<U = unknown> = U; let n: Option<T>;</script>';
+    expect(verify(await parsed(raw), unnecessaryTypeArgumentsRule)).toEqual([]);
+  });
+
   it('rejects a different JSX mode even when the script text is identical', async () => {
     setSourceFilesContext({ [file]: { fileContent: ordinary } });
     const config = options();
@@ -202,6 +308,22 @@ describe('Vue scripts in SonarJS Programs', () => {
     });
     expect((await parsed(ordinary, program, true)).parserServices.program).toBeFalsy();
     expect((await parsed(ordinary, program, false)).parserServices.program).toBe(program);
+  });
+
+  it('rebuilds for script language changes even when the generated text is identical', async () => {
+    const raw = `<script lang="js">${jsdocScript}</script>`;
+    setSourceFilesContext({ [file]: { fileContent: raw } });
+    const getProgram = () => createOrGetCachedProgramForFile(baseDir, file, options)!;
+    const initial = getProgram();
+    expect(await identifierTypes(raw, initial)).toContain('string');
+    const changed = raw.replace('lang="js"', 'lang="ts"');
+    expect((await parsed(changed, initial)).parserServices.program).toBeFalsy();
+    setSourceFilesContext({ [file]: { fileContent: changed } });
+    const updated = getProgram();
+    expect(updated).not.toBe(initial);
+    expect(updated.getSourceFile(file)?.text).toBe(initial.getSourceFile(file)?.text);
+    expect(await identifierTypes(changed, updated)).toContain('any');
+    expect((await parsed(raw, updated)).parserServices.program).toBeFalsy();
   });
 
   it('keeps malformed Vue files in the Program without failing other files', async () => {

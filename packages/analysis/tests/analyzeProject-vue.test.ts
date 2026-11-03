@@ -56,51 +56,62 @@ describe('Vue project analysis', () => {
     await rm(baseDir, { recursive: true, force: true });
   });
 
-  for (const sonarlint of [false, true]) {
-    for (const configured of [false, true]) {
-      it(`uses script types in ${sonarlint ? 'IDE' : 'batch'} ${configured ? 'configured' : 'orphan'} Programs`, async () => {
-        if (configured) {
-          await writeFile(
-            join(baseDir, 'tsconfig.json'),
-            JSON.stringify({ compilerOptions: { noLib: true }, include: ['*.vue', '*.ts'] }),
-          );
-        }
-        const filePath = normalizeToAbsolutePath(join(baseDir, 'Component.vue'));
-        const configuration = createConfigurationFromInput({ baseDir, sonarlint });
-        const input = await sanitizeInputFiles(
-          { [filePath]: { filePath, fileContent: raw } },
-          configuration,
-        );
-        await initFileStoresForAnalysis(configuration, input.files);
-        const archivePath = join(baseDir, 'selection.pb.gz');
-        const recorder = new ProgramSelectionArchive(
-          archivePath,
-          normalizeToAbsolutePath(baseDir),
-          'record',
-        );
-        const results = await analyzeProject(
-          { rules, bundles: [], programSelection: sonarlint ? undefined : recorder },
-          configuration,
-        );
-        recorder.end();
-        const file = results.files[filePath];
-        assert(file && 'issues' in file);
-        assert.equal(file.issues.length, 1);
-        assert.equal(file.issues[0].line, 6);
-        if (!sonarlint) {
-          const replay = new ProgramSelectionArchive(
-            archivePath,
-            normalizeToAbsolutePath(baseDir),
-            'replay',
-          );
-          await initFileStoresForAnalysis(configuration, input.files);
-          const restored = await analyzeProject(
-            { rules, bundles: [], programSelection: replay },
+  for (const [name, source] of [
+    ['TypeScript', raw],
+    [
+      'JavaScript JSDoc',
+      raw
+        .replace(' lang="ts"', '')
+        .replace('import { label } from "./dep";', '/** @type {string} */ const label = "200";'),
+    ],
+  ]) {
+    for (const sonarlint of [false, true]) {
+      for (const configured of [false, true]) {
+        it(`uses ${name} types in ${sonarlint ? 'IDE' : 'batch'} ${configured ? 'configured' : 'orphan'} Programs`, async () => {
+          await writeFile(join(baseDir, 'Component.vue'), source);
+          if (configured) {
+            await writeFile(
+              join(baseDir, 'tsconfig.json'),
+              JSON.stringify({ compilerOptions: { noLib: true }, include: ['*.vue', '*.ts'] }),
+            );
+          }
+          const filePath = normalizeToAbsolutePath(join(baseDir, 'Component.vue'));
+          const configuration = createConfigurationFromInput({ baseDir, sonarlint });
+          const input = await sanitizeInputFiles(
+            { [filePath]: { filePath, fileContent: source } },
             configuration,
           );
-          assert.deepEqual(restored.files[filePath], file);
-        }
-      });
+          await initFileStoresForAnalysis(configuration, input.files);
+          const archivePath = join(baseDir, 'selection.pb.gz');
+          const recorder = new ProgramSelectionArchive(
+            archivePath,
+            normalizeToAbsolutePath(baseDir),
+            'record',
+          );
+          const results = await analyzeProject(
+            { rules, bundles: [], programSelection: sonarlint ? undefined : recorder },
+            configuration,
+          );
+          recorder.end();
+          const file = results.files[filePath];
+          assert(file && 'issues' in file);
+          assert.equal(file.issues.length, 1);
+          assert.equal(file.issues[0].line, 6);
+          if (!sonarlint) {
+            const replay = new ProgramSelectionArchive(
+              archivePath,
+              normalizeToAbsolutePath(baseDir),
+              'replay',
+            );
+            await initFileStoresForAnalysis(configuration, input.files);
+            const restored = await analyzeProject(
+              { rules, bundles: [], programSelection: replay },
+              configuration,
+            );
+            assert.deepEqual(restored.files[filePath], file);
+          }
+        });
+      }
     }
   }
 
