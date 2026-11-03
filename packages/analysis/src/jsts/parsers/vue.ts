@@ -149,14 +149,16 @@ export function createVueScriptParser(raw: string, program?: ts.Program): Script
     parseForESLint(code, options) {
       const sourceFile = options.filePath ? program?.getSourceFile(options.filePath) : undefined;
       const script = sourceFile ? sourceFileScripts.get(sourceFile) : undefined;
-      const current = script && getVueScript(options.filePath!, raw, script.jsx);
-      const matches =
+      const candidate =
         script?.code === code &&
         sourceFile?.text === script.compilerCode &&
-        script.compilerCode === current?.compilerCode &&
-        script.jsx === !!options.ecmaFeatures?.jsx &&
+        script.jsx === !!options.ecmaFeatures?.jsx;
+      const current = candidate && getVueScript(options.filePath!, raw, script.jsx);
+      const matches =
+        current &&
+        script?.compilerCode === current.compilerCode &&
         script.scriptKind === current?.scriptKind &&
-        current?.generics !== null;
+        current.generics !== null;
       const parsed = parsersMap.typescript.parseForESLint(code, {
         ...syntaxOnly(options),
         programs: matches && !script?.generics && program ? [program] : undefined,
