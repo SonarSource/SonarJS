@@ -25,11 +25,18 @@ SourceFile has exactly matching text, script language and JSX mode. Auxiliary pa
 Programs remain syntax-only. Generic scripts use the mapped services described below.
 The inner parser retains a direct parser interface for consumers such as S125's comment analysis.
 
+SourceFile binding is instance-based: the representation factory attaches parser metadata to
+the exact AST held by the Program. Cache hits also pass through that factory, preserving the
+cached instance while rebinding its metadata. Cache entries must match compiler text, script
+kind and parsing options. Matching text alone does not register an externally supplied AST.
+
 Script edits invalidate the compiler representation. Template/style edits can reuse the Program
 when that representation is unchanged. Each host retains the raw contents it served and applies
 supplied dependency edits once per request before reusing a builder. Shared SourceFile metadata
-remains available across hosts. Scanner cleanup clears the projection and SourceFile caches;
-IDE requests retain them for incremental updates.
+remains available across hosts. Scanner cleanup clears the SourceFile caches and calls
+`clearFileRepresentationCaches` for strategy-owned preparation caches. The shared source cache
+does not call Vue directly. Preparation cleanup retains metadata needed by live Programs;
+IDE requests retain preparation caches for incremental updates.
 
 Vue restores ESTree locations to the raw SFC while TypeScript nodes retain generated positions.
 S1874 maps compiler diagnostics through those node maps and omits synthetic diagnostics without
@@ -60,12 +67,14 @@ invalidate the Program even when Vue produces identical alias text. Supplied Pro
 against both representations before any typed services are exposed.
 
 Unsupported projections remain syntax-only for the whole component. These include ambient
-functions/classes, ambient destructuring, namespaces, export lists and value/default exports inside
-setup. Invalid syntax in the component's generated compiler representation also rejects typed
-services, even when node mappings are complete. Semantic errors and syntax errors in dependencies
-do not trigger this fallback. Any missing mapping for a previously mapped surviving node also
-rejects typed services. This fallback preserves syntax analysis without exposing constraint aliases
-as genuine generic types. Full Vue macro and template semantics remain outside this integration.
+functions/classes, ambient destructuring, ambient `unique symbol` bindings, namespaces, export
+lists and value/default exports inside setup. A `unique symbol` binding requires `const`, whose
+semantics cannot be preserved by the local definite-assignment rewrite. Invalid syntax in the
+component's generated compiler representation also rejects typed services, even when node mappings
+are complete. Semantic errors and syntax errors in dependencies do not trigger this fallback. Any
+missing mapping for a previously mapped surviving node also rejects typed services. This fallback
+preserves syntax analysis without exposing constraint aliases as genuine generic types. Full Vue
+macro and template semantics remain outside this integration.
 
 ## Compatibility
 

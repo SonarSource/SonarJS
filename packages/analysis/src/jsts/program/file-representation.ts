@@ -15,7 +15,12 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import ts from 'typescript';
-import { createVueSourceFile, getVueScript, isVueFile } from '../parsers/vue.js';
+import {
+  clearVueScriptCache,
+  createVueSourceFile,
+  getVueScript,
+  isVueFile,
+} from '../parsers/vue.js';
 import { jsxEnabledFor } from '../parsers/options.js';
 
 type LanguageVersion = ts.ScriptTarget | ts.CreateSourceFileOptions;
@@ -25,7 +30,16 @@ export interface FileRepresentation {
   readonly text: string;
   readonly scriptKind?: ts.ScriptKind;
   readonly reusable: boolean;
-  createSourceFile(file: string, languageVersion: LanguageVersion): ts.SourceFile;
+  /**
+   * Bind representation metadata to a new or cached SourceFile. A supplied cache
+   * entry must already match the text, script kind and parsing options. Preserve
+   * its identity: the Program and parser services must share the same instance.
+   */
+  createSourceFile(
+    file: string,
+    languageVersion: LanguageVersion,
+    cached?: ts.SourceFile,
+  ): ts.SourceFile;
 }
 
 interface FileRepresentationStrategy {
@@ -37,10 +51,10 @@ const plain: FileRepresentationStrategy = {
     return {
       text: raw,
       reusable: true,
-      createSourceFile(file, languageVersion) {
+      createSourceFile(file, languageVersion, cached) {
         const target =
           typeof languageVersion === 'number' ? languageVersion : languageVersion.languageVersion;
-        return ts.createSourceFile(file, raw, target, true);
+        return cached ?? ts.createSourceFile(file, raw, target, true);
       },
     };
   },
@@ -53,8 +67,8 @@ const vue: FileRepresentationStrategy = {
       text: script?.compilerCode ?? '',
       scriptKind: script?.scriptKind ?? ts.ScriptKind.TS,
       reusable: script !== undefined,
-      createSourceFile: (name, languageVersion) =>
-        createVueSourceFile(name, script, languageVersion),
+      createSourceFile: (name, languageVersion, cached) =>
+        createVueSourceFile(name, script, languageVersion, cached),
     };
   },
 };
@@ -65,6 +79,11 @@ export function prepareFileRepresentation(
   options: ts.CompilerOptions,
 ): FileRepresentation {
   return (isVueFile(file) ? vue : plain).prepare(file, raw, options);
+}
+
+/** Keep representation-specific cache ownership out of the shared source cache. */
+export function clearFileRepresentationCaches(): void {
+  clearVueScriptCache();
 }
 
 export function equivalentRepresentations(

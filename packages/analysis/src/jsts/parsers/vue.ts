@@ -47,6 +47,8 @@ const projections = new FileSystemMap<
   string,
   { raw: string; scripts: Map<boolean, VueScript | undefined> }
 >();
+// Parser services require metadata on the exact SourceFile held by the Program.
+// The representation factory binds it for both newly parsed and cached instances.
 const sourceFileScripts = new WeakMap<ts.SourceFile, VueScript>();
 
 export function isVueFile(file: string): boolean {
@@ -119,22 +121,27 @@ export function createVueSourceFile(
   file: string,
   script: VueScript | undefined,
   languageVersion: ts.ScriptTarget | ts.CreateSourceFileOptions,
+  cached?: ts.SourceFile,
 ): ts.SourceFile {
-  const sourceFile = ts.createSourceFile(
-    file,
-    script?.compilerCode ?? '',
-    {
-      ...(typeof languageVersion === 'number' ? { languageVersion } : languageVersion),
-      // Every SFC has module scope, even without imports or exports.
-      setExternalModuleIndicator: source => {
-        Object.assign(source, { externalModuleIndicator: true });
+  const sourceFile =
+    cached ??
+    ts.createSourceFile(
+      file,
+      script?.compilerCode ?? '',
+      {
+        ...(typeof languageVersion === 'number' ? { languageVersion } : languageVersion),
+        // Every SFC has module scope, even without imports or exports.
+        setExternalModuleIndicator: source => {
+          Object.assign(source, { externalModuleIndicator: true });
+        },
       },
-    },
-    true,
-    script?.scriptKind ?? ts.ScriptKind.TS,
-  );
+      true,
+      script?.scriptKind ?? ts.ScriptKind.TS,
+    );
   if (script) {
     sourceFileScripts.set(sourceFile, script);
+  } else {
+    sourceFileScripts.delete(sourceFile);
   }
   return sourceFile;
 }

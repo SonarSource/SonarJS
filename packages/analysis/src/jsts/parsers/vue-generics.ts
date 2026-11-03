@@ -231,7 +231,12 @@ function prepareAmbientBinding(source: ts.SourceFile, statement: ts.VariableStat
   if (
     list.declarations.some(
       declaration =>
-        !ts.isIdentifier(declaration.name) || !declaration.type || declaration.initializer,
+        !ts.isIdentifier(declaration.name) ||
+        !declaration.type ||
+        declaration.initializer ||
+        // unique symbol requires const; normalizing it to let would widen its type.
+        (ts.isTypeOperatorNode(declaration.type) &&
+          declaration.type.operator === ts.SyntaxKind.UniqueKeyword),
     )
   ) {
     return null;

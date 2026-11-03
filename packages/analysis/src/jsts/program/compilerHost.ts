@@ -296,7 +296,6 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
 
     const { jsx, importHelpers } = this.compilerOptions;
     const representation = prepareFileRepresentation(normalized, content, this.compilerOptions);
-    const { scriptKind } = representation;
 
     // Check global cache (unless forced to create new)
     if (!shouldCreateNewSourceFile) {
@@ -306,10 +305,10 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
         contentHash,
         jsx,
         importHelpers,
-        scriptKind,
+        representation.scriptKind,
       );
       if (cached?.text === representation.text) {
-        return cached;
+        return representation.createSourceFile(fileName, languageVersionOrOptions, cached);
       }
     }
 
@@ -322,7 +321,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
       sourceFile,
       jsx,
       importHelpers,
-      scriptKind,
+      representation.scriptKind,
     );
     return sourceFile;
   }
