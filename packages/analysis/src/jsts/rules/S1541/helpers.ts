@@ -20,6 +20,8 @@ import type { Rule, Scope } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { unwrapTypeScriptExpression } from '../helpers/ast.js';
 
+const MAX_MODULE_FACTORY_ARGUMENTS = 3;
+
 /**
  * `(factory as Function)` -> `factory`
  * `factory<number>` -> `factory`
@@ -102,7 +104,7 @@ export function getModuleFactory(
     call.callee.type !== 'Identifier' ||
     call.callee.name !== 'define' ||
     call.arguments.length < 1 ||
-    call.arguments.length > 3
+    call.arguments.length > MAX_MODULE_FACTORY_ARGUMENTS
   ) {
     return undefined;
   }
