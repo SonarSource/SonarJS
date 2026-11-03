@@ -558,3 +558,26 @@ describe('S4043 with strict null checks', () => {
     });
   });
 });
+
+describe('S4043 with implicit strict null checks', () => {
+  it('reports optional calls on nullable arrays', () => {
+    const ruleTester = new RuleTester({
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures/implicit-strict'),
+      },
+    });
+    ruleTester.run('S4043 implicit strict nullable arrays', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: `function nullable(items: number[] | undefined) {
+            const sorted = items?.sort();
+          }`,
+          filename: path.join(import.meta.dirname, 'fixtures/implicit-strict/index.ts'),
+          errors: 1,
+        },
+      ],
+    });
+  });
+});
