@@ -28,6 +28,7 @@ import { generateMeta } from '../helpers/generate-meta.js';
 import { getSymbolAtLocation, getTypeFromTreeNode, isArrayLikeType } from '../helpers/type.js';
 import { localAncestorsChain } from '../helpers/ancestor.js';
 import { getStaticExpressionValue, unwrapTypeScriptExpression } from '../helpers/ast.js';
+import { isStrictNullChecksEnabled } from '../helpers/compiler-options.js';
 import * as meta from './generated-meta.js';
 
 const arrayMutatingMethods = new Set(['reverse', 'sort']);
@@ -110,7 +111,7 @@ function isArrayMutatingCall(
   const type = getTypeFromTreeNode(memberExpression.object, services);
   const options = services.program.getCompilerOptions();
   const receiverType =
-    memberExpression.optional && (options.strictNullChecks ?? options.strict)
+    memberExpression.optional && isStrictNullChecksEnabled(options)
       ? services.program.getTypeChecker().getNonNullableType(type)
       : type;
   return isArrayLikeType(receiverType, services);
