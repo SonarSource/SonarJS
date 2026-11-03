@@ -32,8 +32,19 @@ import * as meta from './generated-meta.js';
 // Suppresses reports on functions that must satisfy a Promise-returning contract,
 // e.g. `const load: () => Promise<T> = async () => null`, and on 'use server' functions.
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
+  const ruleMeta = generateMeta(meta, rule.meta);
   return interceptReport(
-    { ...rule, meta: generateMeta(meta, rule.meta) },
+    {
+      ...rule,
+      meta: {
+        ...ruleMeta,
+        messages: {
+          ...ruleMeta.messages,
+          missingAwait: 'Review this async function: it has no await expression.',
+          removeAsync: 'Remove async if this function does not need it.',
+        },
+      },
+    },
     (context, descriptor) => {
       const services = context.sourceCode.parserServices;
       if (
