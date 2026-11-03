@@ -32,6 +32,13 @@ import { isStrictNullChecksEnabled } from '../helpers/compiler-options.js';
 import * as meta from './generated-meta.js';
 
 const arrayMutatingMethods = new Set(['reverse', 'sort']);
+const transparentExpressionTypes = new Set([
+  'ChainExpression',
+  'TSNonNullExpression',
+  'TSAsExpression',
+  'TSSatisfiesExpression',
+  'TSTypeAssertion',
+]);
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -134,8 +141,10 @@ function isGetAccessor(node: estree.Node, services: RequiredParserServices): boo
 }
 
 function isInSelfAssignment(mutatedArray: estree.Node, node?: estree.Node): boolean {
-  const parent = (node as TSESTree.Node).parent;
-  const assignment = parent?.type === 'ChainExpression' ? parent.parent : parent;
+  let assignment = (node as TSESTree.Node).parent;
+  while (assignment && transparentExpressionTypes.has(assignment.type)) {
+    assignment = assignment.parent;
+  }
   return (
     // check assignment
     assignment?.type === 'AssignmentExpression' &&
@@ -171,7 +180,10 @@ function isStandaloneExpression(node: estree.Node) {
     returnIdx > -1 &&
     ancestors
       .slice(0, returnIdx)
-      .every(ancestor => ['ChainExpression', 'LogicalExpression'].includes(ancestor.type))
+      .every(
+        ancestor =>
+          transparentExpressionTypes.has(ancestor.type) || ancestor.type === 'LogicalExpression',
+      )
   );
 }
 
@@ -182,14 +194,15 @@ function isReturnedExpression(node: estree.Node) {
     returnIdx > -1 &&
     ancestors
       .slice(0, returnIdx)
-      .every(ancestor =>
-        [
-          'ArrayExpression',
-          'ObjectExpression',
-          'ConditionalExpression',
-          'SpreadElement',
-          'ChainExpression',
-        ].includes(ancestor.type),
+      .every(
+        ancestor =>
+          transparentExpressionTypes.has(ancestor.type) ||
+          [
+            'ArrayExpression',
+            'ObjectExpression',
+            'ConditionalExpression',
+            'SpreadElement',
+          ].includes(ancestor.type),
       )
   );
 }

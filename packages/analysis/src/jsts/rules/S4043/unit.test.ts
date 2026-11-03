@@ -540,8 +540,32 @@ describe('S4043 with strict null checks', () => {
           filename,
         },
         {
+          code: `function returnedWithAssertion(items: number[] | undefined) {
+            return (items?.sort() as number[]);
+          }`,
+          filename,
+        },
+        {
+          code: `function returnedWithNonNull(items: number[] | undefined) {
+            return items?.sort()!;
+          }`,
+          filename,
+        },
+        {
           code: `function selfAssigned(items: number[] | undefined) {
             items = items?.sort();
+          }`,
+          filename,
+        },
+        {
+          code: `function selfAssignedWithNonNull(items: number[] | undefined) {
+            items = items?.sort()!;
+          }`,
+          filename,
+        },
+        {
+          code: `function standaloneWithNonNull(items: number[] | undefined) {
+            items?.sort()!;
           }`,
           filename,
         },
@@ -565,6 +589,21 @@ describe('S4043 with strict null checks', () => {
         },
       ],
       invalid: [
+        {
+          code: `function selfAssignedWithFallback(items: number[] | undefined) {
+            items = items?.sort() ?? [];
+          }`,
+          filename,
+          errors: 1,
+        },
+        {
+          code: `function nestedWithNonNull(items: number[] | undefined) {
+            consume(items?.sort()!);
+          }
+          function consume(items: number[]) {}`,
+          filename,
+          errors: 1,
+        },
         {
           code: `function iteratedWithFallback(items: number[] | undefined) {
             for (const item of items?.sort() ?? []) {}
