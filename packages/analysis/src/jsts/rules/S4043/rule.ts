@@ -135,23 +135,29 @@ function isGetAccessor(node: estree.Node, services: RequiredParserServices): boo
 
 function isInSelfAssignment(mutatedArray: estree.Node, node?: estree.Node): boolean {
   const parent = (node as TSESTree.Node).parent;
+  const assignment = parent?.type === 'ChainExpression' ? parent.parent : parent;
   return (
     // check assignment
-    parent?.type === 'AssignmentExpression' &&
-    parent.operator === '=' &&
-    parent.left.type === 'Identifier' &&
+    assignment?.type === 'AssignmentExpression' &&
+    assignment.operator === '=' &&
+    assignment.left.type === 'Identifier' &&
     mutatedArray.type === 'Identifier' &&
-    parent.left.name === mutatedArray.name
+    assignment.left.name === mutatedArray.name
   );
 }
 
 function isForOfIterable(context: Rule.RuleContext, node: estree.Node): boolean {
-  return context.sourceCode
-    .getAncestors(node)
-    .some(
-      ancestor =>
-        ancestor.type === 'ForOfStatement' && unwrapTypeScriptExpression(ancestor.right) === node,
+  return context.sourceCode.getAncestors(node).some(ancestor => {
+    if (ancestor.type !== 'ForOfStatement') {
+      return false;
+    }
+    const iterable = unwrapTypeScriptExpression(ancestor.right);
+    return (
+      iterable === node ||
+      (iterable.type === 'ChainExpression' &&
+        unwrapTypeScriptExpression(iterable.expression) === node)
     );
+  });
 }
 
 function isForbiddenOperation(node: estree.Node) {
@@ -177,9 +183,13 @@ function isReturnedExpression(node: estree.Node) {
     ancestors
       .slice(0, returnIdx)
       .every(ancestor =>
-        ['ArrayExpression', 'ObjectExpression', 'ConditionalExpression', 'SpreadElement'].includes(
-          ancestor.type,
-        ),
+        [
+          'ArrayExpression',
+          'ObjectExpression',
+          'ConditionalExpression',
+          'SpreadElement',
+          'ChainExpression',
+        ].includes(ancestor.type),
       )
   );
 }
