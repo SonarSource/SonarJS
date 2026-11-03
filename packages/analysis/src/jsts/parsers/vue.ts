@@ -124,20 +124,22 @@ export function createVueSourceFile(
  * text or mode. Never expose a complete script Program to Vue's auxiliary parses,
  * nor a stale/incompatible SourceFile to its final script parse.
  */
-export function createVueScriptParser(program?: ts.Program): Record<string, ScriptParser> {
-  return vueScriptParsers((code, options, typescript) => {
-    const sourceFile = options.filePath ? program?.getSourceFile(options.filePath) : undefined;
-    const script = sourceFile ? sourceFileScripts.get(sourceFile) : undefined;
-    const matches =
-      script?.code === code &&
-      sourceFile?.text === code &&
-      script.jsx === !!options.ecmaFeatures?.jsx &&
-      script.scriptKind === scriptKindFor(typescript, script.jsx);
-    return parsersMap.typescript.parseForESLint(code, {
-      ...syntaxOnly(options),
-      programs: matches && program ? [program] : undefined,
-    });
-  });
+export function createVueScriptParser(raw: string, program?: ts.Program): ScriptParser {
+  return {
+    parseForESLint(code, options) {
+      const sourceFile = options.filePath ? program?.getSourceFile(options.filePath) : undefined;
+      const script = sourceFile ? sourceFileScripts.get(sourceFile) : undefined;
+      const matches =
+        script?.code === code &&
+        sourceFile?.text === code &&
+        script.jsx === !!options.ecmaFeatures?.jsx &&
+        script.scriptKind === getVueScript(options.filePath!, raw, script.jsx)?.scriptKind;
+      return parsersMap.typescript.parseForESLint(code, {
+        ...syntaxOnly(options),
+        programs: matches && program ? [program] : undefined,
+      });
+    },
+  };
 }
 
 /** Let Vue select the script language, including its choice for combined scripts. */

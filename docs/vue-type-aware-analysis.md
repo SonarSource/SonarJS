@@ -18,9 +18,10 @@ The host creates a SourceFile from that representation, with explicit JS/JSX or 
 in configured and orphan Programs. Projection and SourceFile caches are cleared with the raw
 content cache after scanner analysis and retained for IDE requests.
 
-Vue selects the inner parser by the script's `lang` attribute, defaulting to JavaScript.
-The shared adapter uses that selection for both preparation and final parsing, including Vue's
-choice of the setup language for combined scripts. JavaScript SourceFiles preserve JSDoc type
+During preparation, Vue selects the inner parser by the script's `lang` attribute, defaulting to
+JavaScript, and chooses the setup language for combined scripts. This cached selection controls
+the SourceFile's ScriptKind and the final Program guard. The final inner parser retains its direct
+parser interface for consumers such as S125's comment analysis. JavaScript SourceFiles preserve JSDoc type
 annotations, while TypeScript scripts retain TypeScript semantics.
 
 Every Vue SourceFile is marked as an external module through TypeScript's

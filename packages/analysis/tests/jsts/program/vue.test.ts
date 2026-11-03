@@ -21,6 +21,7 @@ import { Linter, type SourceCode, type Rule } from 'eslint';
 import { rule as deprecationRule } from '../../../src/jsts/rules/S1874/rule.js';
 import { rule as stringComparisonRule } from '../../../src/jsts/rules/S3003/rule.js';
 import { rule as unnecessaryTypeArgumentsRule } from '../../../src/jsts/rules/S4157/index.js';
+import { rule as commentedCodeRule } from '../../../src/jsts/rules/S125/rule.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { build } from '../../../src/jsts/builders/build.js';
 import { IncrementalCompilerHost } from '../../../src/jsts/program/compilerHost.js';
@@ -40,6 +41,8 @@ import { getProgramCacheManager } from '../../../src/jsts/program/cache/programC
 import { isRequiredParserServices } from '../../../src/jsts/rules/helpers/parser-services.js';
 import { normalizeToAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import { jsTsInput } from '../tools/helpers/input.js';
+import { buildVueParserOptions } from '../../../src/jsts/parsers/options.js';
+import { createVueScriptParser } from '../../../src/jsts/parsers/vue.js';
 
 const baseDir = normalizeToAbsolutePath('/vue-project');
 const file = normalizeToAbsolutePath('/vue-project/Component.vue');
@@ -296,6 +299,37 @@ function local() { type T = unknown; let redundantLocal: Option<T>; }
     const raw =
       '<script setup lang="ts" generic="T extends unknown">type Option<U = unknown> = U; let n: Option<T>;</script>';
     expect(verify(await parsed(raw), unnecessaryTypeArgumentsRule)).toEqual([]);
+  });
+
+  it('preserves the direct inner-parser interface used by commented-code analysis', async () => {
+    for (const lang of ['js', 'ts']) {
+      const raw = `<script lang="${lang}">// const value = 42;\nconst n = 1;</script>`;
+      setSourceFilesContext({ [file]: { fileContent: raw } });
+      const config = options();
+      const program = createStandardProgram({
+        ...config,
+        host: new IncrementalCompilerHost(config.options, baseDir),
+      });
+      const sourceCode = await parsed(raw, program);
+      const messages = new Linter({ cwd: baseDir }).verify(
+        sourceCode,
+        [
+          {
+            files: ['**/*.vue'],
+            languageOptions: {
+              parserOptions: buildVueParserOptions('ts', {
+                parser: createVueScriptParser(raw, program),
+              }),
+            },
+            plugins: { test: { rules: { rule: commentedCodeRule } } },
+            rules: { 'test/rule': 'error' },
+          },
+        ],
+        { filename: file },
+      );
+      expect(messages).toHaveLength(1);
+      expect(messages[0].message).toBe('Remove this commented out code.');
+    }
   });
 
   it('rejects a different JSX mode even when the script text is identical', async () => {

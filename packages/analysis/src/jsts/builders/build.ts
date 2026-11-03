@@ -63,7 +63,10 @@ function parseAsTypescript(input: JsTsAnalysisInput, vueFile: boolean, context: 
   const parserOptions: Linter.ParserOptions = vueFile
     ? buildVueParserOptions(
         'ts',
-        { filePath: input.filePath, parser: createVueScriptParser(input.program) },
+        {
+          filePath: input.filePath,
+          parser: createVueScriptParser(input.fileContent, input.program),
+        },
         context,
       )
     : buildTsParserOptions(
@@ -104,7 +107,10 @@ function retryVueTsWithFlippedJsx(
       parser,
       buildVueParserOptions(
         'ts',
-        { filePath: input.filePath, parser: createVueScriptParser(input.program) },
+        {
+          filePath: input.filePath,
+          parser: createVueScriptParser(input.fileContent, input.program),
+        },
         { ...context, jsx: retryJsx },
       ),
     );
