@@ -32,7 +32,6 @@ import {
   isTypeScriptExpressionWrapper,
   unwrapTypeScriptExpression,
 } from '../helpers/ast.js';
-import { isStrictNullChecksEnabled } from '../helpers/compiler-options.js';
 import * as meta from './generated-meta.js';
 
 const arrayMutatingMethods = new Set(['reverse', 'sort']);
@@ -117,11 +116,9 @@ function isArrayMutatingCall(
   services: RequiredParserServices,
 ) {
   const type = getTypeFromTreeNode(memberExpression.object, services);
-  const options = services.program.getCompilerOptions();
-  const receiverType =
-    memberExpression.optional && isStrictNullChecksEnabled(options)
-      ? services.program.getTypeChecker().getNonNullableType(type)
-      : type;
+  const receiverType = memberExpression.optional
+    ? services.program.getTypeChecker().getNonNullableType(type)
+    : type;
   return isArrayLikeType(receiverType, services);
 }
 
