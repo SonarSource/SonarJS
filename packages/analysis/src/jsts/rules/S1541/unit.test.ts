@@ -520,6 +520,8 @@ describe('S1541 function exclusions', () => {
           `define([], function () { const helper = function () { ${body} }; })`,
           `function define() {} define([], function () { ${body} })`,
           `const define = other; define([], function () { ${body} })`,
+          `define = customCallbackHandler; define([], function () { ${body} })`,
+          `define([], function () { ${body} }); define = customCallbackHandler`,
           `function outer(define) { define([], function () { ${body} }) }`,
           `import define from 'other'; define([], function () { ${body} })`,
           `object.define([], function () { ${body} })`,

@@ -23,7 +23,7 @@ import {
   type IssueLocation,
   getMainFunctionTokenLocation,
 } from '../helpers/location.js';
-import { type FunctionNodeType, isFunctionNode, getVariableFromName } from '../helpers/ast.js';
+import { type FunctionNodeType, isFunctionNode } from '../helpers/ast.js';
 import { isGlobalShadowed } from '../helpers/module.js';
 import type { RuleContext } from '../helpers/type.js';
 import { childrenOf, getParent } from '../helpers/ancestor.js';
@@ -31,7 +31,13 @@ import { generateMeta } from '../helpers/generate-meta.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
-import { getPropertyAccessPath, unwrapTypeScriptValue } from './helpers.js';
+import {
+  getModuleFactory,
+  getPropertyAccessPath,
+  isStableGlobalRoot,
+  isStringLiteral,
+  unwrapTypeScriptValue,
+} from './helpers.js';
 
 const DEFAULT_THRESHOLD = 10;
 const SAP_UI_DEFINE = 'sap.ui.define';
@@ -167,34 +173,6 @@ function getFinalValue(expression: estree.Node): estree.Node {
   return lastExpression ? getFinalValue(lastExpression) : value;
 }
 
-function getModuleFactory(
-  call: estree.CallExpression,
-  context: Rule.RuleContext,
-): estree.FunctionExpression | undefined {
-  if (
-    call.callee.type !== 'Identifier' ||
-    call.callee.name !== 'define' ||
-    isGlobalShadowed(context.sourceCode, call, 'define')
-  ) {
-    return undefined;
-  }
-  const args = call.arguments.map(unwrapTypeScriptValue);
-  const factory = args.pop();
-  if (factory?.type !== 'FunctionExpression' || factory.generator) {
-    return undefined;
-  }
-  if (isStringLiteral(args[0])) {
-    args.shift();
-  }
-  if (args.length === 1 && args[0].type === 'ArrayExpression') {
-    if (!args[0].elements.every(isStringLiteral)) {
-      return undefined;
-    }
-    args.pop();
-  }
-  return args.length === 0 ? factory : undefined;
-}
-
 function getScopeInitializer(call: estree.CallExpression, context: Rule.RuleContext) {
   if ('optional' in call && call.optional) {
     return undefined;
@@ -260,20 +238,6 @@ function isPathPrefix(prefix: string[], path: string[]): boolean {
     prefix.length <= path.length &&
     prefix.every((part, index) => part === '*' || part === path[index])
   );
-}
-
-function isStableGlobalRoot(context: Rule.RuleContext, node: estree.Node, name: string): boolean {
-  const variable = getVariableFromName(context, name, node);
-  const references = variable?.references ?? context.sourceCode.scopeManager?.globalScope?.through;
-  return (
-    references !== undefined &&
-    !references.some(reference => reference.identifier.name === name && reference.isWrite())
-  );
-}
-
-function isStringLiteral(node: estree.Node | null | undefined): boolean {
-  const value = node && unwrapTypeScriptValue(node);
-  return value?.type === 'Literal' && typeof value.value === 'string';
 }
 
 function raiseOnUnauthorizedComplexity(
