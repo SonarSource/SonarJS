@@ -55,6 +55,7 @@ export const rule: Rule.RuleModule = {
     let functionsWithNested: Set<estree.Node>;
     let scopeInitializers: Map<estree.Node, { path: string[]; call: estree.CallExpression }>;
     let writtenPaths: string[][];
+    let stableDefine: boolean | undefined;
     /**
      * `sap.ui.define = other` -> ['sap', 'ui', 'define']
      * `({ x: sap.ui.define } = source)` -> the same path
@@ -100,6 +101,7 @@ export const rule: Rule.RuleModule = {
         functionsWithNested = new Set();
         scopeInitializers = new Map();
         writtenPaths = [];
+        stableDefine = undefined;
       },
       'Program:exit': () => {
         const stablePaths = new Map<string, boolean>();
@@ -148,7 +150,7 @@ export const rule: Rule.RuleModule = {
       CallExpression: (node: estree.Node) => {
         const call = node as estree.CallExpression;
         const factory = getModuleFactory(call, context);
-        if (factory) {
+        if (factory && (stableDefine ??= isStableGlobalRoot(context, call, 'define'))) {
           functionsDefiningModule.add(factory);
         }
         const initializer = getScopeInitializer(call, context);

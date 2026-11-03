@@ -91,10 +91,9 @@ function getStaticPropertyName(property: estree.Node): string | undefined {
 }
 
 /**
- * Match a bare `define` call with an AMD signature and no writes to `define`.
+ * Match an unshadowed bare `define` call with an AMD signature.
  *
  * `define([], function () {})` -> the function node
- * `define = other; define([], function () {})` -> undefined
  */
 export function getModuleFactory(
   call: estree.CallExpression,
@@ -103,8 +102,7 @@ export function getModuleFactory(
   if (
     call.callee.type !== 'Identifier' ||
     call.callee.name !== 'define' ||
-    isGlobalShadowed(context.sourceCode, call, 'define') ||
-    !isStableGlobalRoot(context, call, 'define')
+    isGlobalShadowed(context.sourceCode, call, 'define')
   ) {
     return undefined;
   }
