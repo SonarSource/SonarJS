@@ -71,7 +71,6 @@
 12164,
 12184,
 12200,
-12206,
 12445,
 13096,
 13381,
@@ -104,7 +103,6 @@
 22342,
 22378,
 22755,
-22765,
 23127,
 23163,
 23169,
@@ -205,7 +203,6 @@
 1606
 ],
 "TypeScript:src/compiler/sourcemap.ts": [
-276,
 322,
 323,
 361,
@@ -345,9 +342,6 @@
 "TypeScript:src/server/builder.ts": [
 338
 ],
-"TypeScript:src/server/client.ts": [
-509
-],
 "TypeScript:src/server/editorServices.ts": [
 448,
 943,
@@ -396,8 +390,7 @@
 845
 ],
 "TypeScript:src/services/codefixes/disableJsDiagnostics.ts": [
-11,
-27
+11
 ],
 "TypeScript:src/services/codefixes/fixClassSuperMustPrecedeThisAccess.ts": [
 21
@@ -455,7 +448,6 @@
 1622
 ],
 "TypeScript:src/services/formatting/formatting.ts": [
-143,
 159,
 178,
 473

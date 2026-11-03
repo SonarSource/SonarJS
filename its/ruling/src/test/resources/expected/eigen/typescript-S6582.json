@@ -37,7 +37,6 @@
 ],
 "eigen:src/app/Scenes/Artwork/Artwork.tsx": [
 124,
-124,
 126,
 348,
 362
@@ -168,9 +167,6 @@
 "eigen:src/app/Scenes/Favorites/FavoriteShows.tsx": [
 139
 ],
-"eigen:src/app/Scenes/Home/Components/HomeHero.tsx": [
-12
-],
 "eigen:src/app/Scenes/Inbox/Components/ActiveBids/ActiveBid.tsx": [
 83,
 130,
@@ -180,6 +176,8 @@
 74
 ],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/ConversationSnippet.tsx": [
+79,
+83,
 89
 ],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/Conversations.tsx": [

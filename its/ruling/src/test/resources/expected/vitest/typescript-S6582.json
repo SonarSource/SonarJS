@@ -56,15 +56,8 @@
 "vitest:packages/utils/src/serialize.ts": [
 70
 ],
-"vitest:packages/vitest/src/integrations/env/loader.ts": [
-73
-],
 "vitest:packages/vitest/src/integrations/env/utils.ts": [
 96
-],
-"vitest:packages/vitest/src/node/config/resolveConfig.ts": [
-1015,
-1036
 ],
 "vitest:packages/vitest/src/node/core.ts": [
 781,
@@ -113,9 +106,6 @@
 ],
 "vitest:packages/vitest/src/runtime/moduleRunner/nativeModuleMocker.ts": [
 189
-],
-"vitest:packages/vitest/src/runtime/moduleRunner/startVitestModuleRunner.ts": [
-159
 ],
 "vitest:packages/vitest/src/runtime/vm/esm-executor.ts": [
 196

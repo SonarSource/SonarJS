@@ -12,9 +12,6 @@
 508,
 542
 ],
-"knockout:src/binding/bindingProvider.js": [
-58
-],
 "knockout:src/binding/defaultBindings/textInput.js": [
 3,
 14
@@ -53,7 +50,6 @@
 ],
 "knockout:src/subscribables/subscribable.js": [
 161,
-166,
 178
 ],
 "knockout:src/templating/jquery.tmpl/jqueryTmplTemplateEngine.js": [
@@ -73,12 +69,10 @@
 83
 ],
 "knockout:src/utils.js": [
-222,
 353,
 361,
 373,
 404,
-452,
 539,
 548
 ],
