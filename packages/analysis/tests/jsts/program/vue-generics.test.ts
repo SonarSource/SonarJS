@@ -219,6 +219,23 @@ await value;
       }
       expect(program.getSemanticDiagnostics()).toEqual([]);
     });
+    it(`${builder ? 'builder' : 'standard'}: preserves lexical this without introducing an arguments binding`, async () => {
+      const raw =
+        '<script setup lang="ts" generic="T">const self = this; const args = arguments;</script>';
+      const program = create(raw, builder);
+      const source = await parse(raw, program);
+      const typed = services(source);
+      const self = nodes(source, node => node.type === 'ThisExpression')[0];
+      expect(typed.getTypeAtLocation(self).flags & ts.TypeFlags.Undefined).toBeTruthy();
+      expect(
+        program
+          .getSemanticDiagnostics()
+          .some(
+            diagnostic =>
+              diagnostic.code === 2304 && String(diagnostic.messageText).includes('arguments'),
+          ),
+      ).toBe(true);
+    });
     it(`${builder ? 'builder' : 'standard'}: keeps real aliases and normal-script bindings outside the generic scope`, async () => {
       const raw = `<script lang="ts">type T = number; const outside: T = 1;</script>
 <script setup lang="ts" generic="T extends string">

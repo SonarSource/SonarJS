@@ -106,15 +106,42 @@ function projectSetup(
   }
   const standalone = ts.isSourceFile(container);
   const insertion = standalone ? 0 : container.getStart(source);
+  const async = setupNeedsAsync(container) ? 'async ' : '';
   edits.push({
     start: insertion,
     end: insertion,
-    text: `async function ${name}<${parameters}>()${standalone ? '{\n' : ''}`,
+    // An arrow preserves the script's lexical this/arguments. The trailing comma
+    // disambiguates a single unconstrained type parameter from JSX.
+    text: `const ${name} = ${async}<${parameters}\n,>() =>${standalone ? '{\n' : ''}`,
   });
+  if (!standalone) {
+    edits.push({ start: container.end, end: container.end, text: ';\n' });
+  }
   const rendered = renderProjection(source.text, edits, imports);
   return (
-    rendered && { ...rendered, code: rendered.code + (standalone ? '\n}' : ''), removed, starts }
+    rendered && { ...rendered, code: rendered.code + (standalone ? '\n};' : ''), removed, starts }
   );
+}
+
+function setupNeedsAsync(container: ts.SourceFile | ts.Block) {
+  let needsAsync = false;
+  const visit = (node: ts.Node) => {
+    if (ts.isFunctionLike(node)) {
+      return;
+    }
+    if (
+      ts.isAwaitExpression(node) ||
+      (ts.isForOfStatement(node) && node.awaitModifier) ||
+      (ts.isVariableDeclarationList(node) &&
+        (node.flags & ts.NodeFlags.AwaitUsing) === ts.NodeFlags.AwaitUsing)
+    ) {
+      needsAsync = true;
+    } else {
+      ts.forEachChild(node, visit);
+    }
+  };
+  visit(container);
+  return needsAsync;
 }
 
 function prepareSetupEdits(

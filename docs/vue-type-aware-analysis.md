@@ -43,7 +43,8 @@ setup function. The parameters, constraints and defaults come from Vue's public 
 Only synthetic aliases absent from the final ESLint AST are removed. Ordinary script statements
 remain at module scope; setup imports are hoisted outside the function. Simple typed ambient
 variables become definitely assigned local bindings, so their types can refer to the parameters
-without illegal ambient declarations inside a function. The function is async to allow setup await.
+without illegal ambient declarations inside a function. An arrow preserves the script's lexical
+`this` and `arguments`, and becomes async when setup uses top-level await.
 
 ESLint still receives Vue's unchanged AST, scope manager, tokens and restored SFC locations. The
 final inner parse runs syntax-only, then maps its original TypeScript nodes to the semantic
