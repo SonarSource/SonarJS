@@ -1332,6 +1332,19 @@ describe('S7739', () => {
           code: `import { dialects } from '@cucumber/gherkin'; const indentation = { Feature: 0, given: 2, when: 2, then: 2 };`,
           filename: tsTestFilePath,
         },
+        ...[
+          `export const INDENTATION_DEFAULTS: Readonly<Record<string, number>> = { Feature: 0, given: 2, when: 2, then: 2 };`,
+          `const indentation: Readonly<Record<string, number>> = { ...defaults, Feature: 0, given: 2, when: 2, then: 2 };`,
+          `const indentation: Record<string, number> = { Feature: 0, given: 2, when: 2, then: 2 };`,
+          `const indentation = ({ Feature: 0, given: 2, when: 2, then: 2 }) as const;`,
+          `const indentation = ({ Feature: 0, given: 2, when: 2, then: 2 })!;`,
+          `const indentation = ({ Feature: 0, given: 2, when: 2, then: 2 }) satisfies Record<string, number>;`,
+          `const indentation = <Record<string, number>>{ Feature: 0, given: 2, when: 2, then: 2 };`,
+          `const indentation = (({ Feature: 0, given: 2, when: 2, then: 2 }) as const) satisfies Record<string, number>;`,
+        ].map(code => ({
+          code: `import { dialects } from '@cucumber/gherkin'; ${code}`,
+          filename: tsTestFilePath,
+        })),
         {
           code: `
           class CustomPromiseLike implements PromiseLike<string> {
@@ -1381,9 +1394,8 @@ describe('S7739', () => {
       ],
       invalid: [
         ...[
-          `import { dialects } from '@cucumber/gherkin'; export const INDENTATION_DEFAULTS: Readonly<Record<string, number>> = { Feature: 0, given: 2, when: 2, then: 2 };`,
-          `import { dialects } from '@cucumber/gherkin'; const indentation: Readonly<Record<string, number>> = { ...defaults, Feature: 0, given: 2, when: 2, then: 2 };`,
-          `import { dialects } from '@cucumber/gherkin'; const indentation: Record<string, number> = { Feature: 0, given: 2, when: 2, then: 2 };`,
+          `import { dialects } from '@cucumber/gherkin'; const indentation = Object.freeze({ Feature: 0, given: 2, when: 2, then: 2 });`,
+          `import { dialects } from '@cucumber/gherkin'; const indentation = makeMap({ Feature: 0, given: 2, when: 2, then: 2 });`,
           `export const INDENTATION_DEFAULTS = { Feature: 0, given: 2, when: 2, then: 2 };`,
           `const indentation = { Feature: 0, given: 2, when: 2, then: 2 };`,
           `import { dialects } from '@cucumber/gherkin'; const indentation = { Feature: 0, given: 2, then: 2 };`,

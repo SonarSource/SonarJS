@@ -17,8 +17,12 @@
 import type { Rule } from 'eslint';
 import type { Node } from 'estree';
 import { ASTUtils, type TSESTree } from '@typescript-eslint/utils';
-import { getNodeParent } from '../../helpers/ancestor.js';
-import { isNumberLiteral, isTypeOnlyImportDeclaration } from '../../helpers/ast.js';
+import { findFirstMatchingAncestor, getNodeParent } from '../../helpers/ancestor.js';
+import {
+  isNumberLiteral,
+  isTypeOnlyImportDeclaration,
+  unwrapTypeScriptExpression,
+} from '../../helpers/ast.js';
 import { getImportDeclarations } from '../../helpers/module.js';
 
 const GHERKIN_KEYWORDS = ['Feature', 'given', 'when', 'then'];
@@ -30,7 +34,7 @@ const GHERKIN_KEYWORDS = ['Feature', 'given', 'when', 'then'];
  *
  * The reported node is `Property.key` in a const object initializer.
  * A runtime Gherkin import identifies the map. Later members must not
- * replace the selected `then` value. A type annotation keeps it reportable.
+ * replace the selected `then` value. TypeScript type syntax does not change the map.
  */
 export function isGherkinIndentationMap(context: Rule.RuleContext, node: Node): boolean {
   const property = getNodeParent(node);
@@ -48,12 +52,15 @@ export function isGherkinIndentationMap(context: Rule.RuleContext, node: Node): 
     return false;
   }
 
-  const declarator = getNodeParent(object) as TSESTree.Node;
+  const declarator = findFirstMatchingAncestor(
+    object as TSESTree.Node,
+    ancestor => ancestor.type === 'VariableDeclarator',
+  );
   if (
-    declarator.type !== 'VariableDeclarator' ||
-    declarator.init !== object ||
+    declarator?.type !== 'VariableDeclarator' ||
+    !declarator.init ||
+    unwrapTypeScriptExpression(declarator.init) !== object ||
     declarator.id.type !== 'Identifier' ||
-    declarator.id.typeAnnotation != null ||
     declarator.parent.type !== 'VariableDeclaration' ||
     declarator.parent.kind !== 'const'
   ) {
