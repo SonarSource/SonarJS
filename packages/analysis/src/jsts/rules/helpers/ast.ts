@@ -175,11 +175,7 @@ export function isArrayExpression(node: estree.Node | undefined): node is estree
 
 export function isTypeScriptExpressionWrapper(
   node: TSESTree.Node,
-): node is
-  | TSESTree.TSNonNullExpression
-  | TSESTree.TSAsExpression
-  | TSESTree.TSSatisfiesExpression
-  | TSESTree.TSTypeAssertion {
+): node is TSESTree.Node & { expression: TSESTree.Expression } {
   return (
     node.type === 'TSNonNullExpression' ||
     node.type === 'TSAsExpression' ||
