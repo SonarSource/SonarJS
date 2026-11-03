@@ -1,102 +1,48 @@
 # Type-aware analysis of Vue scripts
 
-SonarJS supplies Vue script SourceFiles through the same `IncrementalCompilerHost` used by
-batch Programs and IDE builder Programs. Templates and parser helpers use syntax-only parsing.
-This restores script-level type-aware rules without delegating Program updates to typescript-eslint.
+SonarJS owns Vue script Programs in both batch and IDE analysis. Templates and parser helpers
+remain syntax-only. Full template typing, component export generation and Vue macro semantics
+are outside this integration.
 
-## Script representation
+## Preparing the compiler representation
 
-`packages/analysis/src/jsts/parsers/vue.ts` owns the representation shared by the compiler host
-and the inner parser. On a cache miss it runs a syntax-only `vue-eslint-parser` pass. A custom
-inner parser attaches an enumerable Symbol service containing its received script text and mode.
-Vue forwards the final script result's services to the outer result, so this captures Vue's own
-setup, combined-script and generic rewriting. It does not depend on which inner call runs last:
-CSS expressions can be parsed after the script.
+`packages/analysis/src/jsts/parsers/vue.ts` runs a cached syntax-only `vue-eslint-parser` pass.
+Its inner parser attaches the received script text and parsing mode as an enumerable Symbol
+service. Vue forwards the final script's services, so the adapter captures Vue's own setup,
+combined-script and generic transformations, independently of auxiliary parser calls.
 
-The host creates a SourceFile from that representation, with explicit JS/JSX or TS/TSX ScriptKind, while
-`readFile` continues to return the raw SFC. Internal `allowNonTsExtensions` enables `.vue` roots
-in configured and orphan Programs. Projection and SourceFile caches are cleared with the raw
-content cache after scanner analysis and retained for IDE requests.
+Vue selects the script language from `lang`, defaulting to JavaScript and using the setup
+language for combined scripts. The compiler host creates a JS/JSX or TS/TSX SourceFile from
+that representation. JavaScript scripts retain JSDoc typing. Every Vue SourceFile has module
+scope, including scripts without imports or exports. Host reads still return the raw SFC.
 
-During preparation, Vue selects the inner parser by the script's `lang` attribute, defaulting to
-JavaScript, and chooses the setup language for combined scripts. This cached selection controls
-the SourceFile's ScriptKind and the final Program guard. The final inner parser retains its direct
-parser interface for consumers such as S125's comment analysis. JavaScript SourceFiles preserve JSDoc type
-annotations, while TypeScript scripts retain TypeScript semantics.
+## Supplying and updating Programs
 
-Every Vue SourceFile is marked as an external module through TypeScript's
-`setExternalModuleIndicator` callback. This keeps bindings in scripts without imports or exports
-local to their component, without adding synthetic text that would change the node mappings.
+The final inner parser receives a Program only when the prepared SourceFile has exactly matching
+text, script language and JSX mode. Auxiliary parses and stale Programs remain syntax-only.
+The inner parser retains a direct parser interface for consumers such as S125's comment analysis.
 
-The typed inner parser only supplies a Program for a SourceFile created from this representation,
-with exactly matching text, script language and JSX mode. It clears `programs`, `project` and `projectService`
-for other calls. This matters because typescript-eslint accepts supplied SourceFiles by filename
-without checking their text, and Vue's auxiliary parses use the same filename for different snippets.
-Stale or incompatible Programs fall back to syntax-only parsing.
+Script edits invalidate the compiler representation. Template/style edits can reuse the Program
+when that representation is unchanged. Each host retains the raw contents it served and applies
+supplied dependency edits once per request before reusing a builder. Shared SourceFile metadata
+remains available across hosts. Scanner cleanup clears the projection and SourceFile caches;
+IDE requests retain them for incremental updates.
 
-Raw edits invalidate projections. IDE builders can retain the Program when generated script text
-and mode stay identical after a template/style edit. All supplied edits to Program members are
-applied before reusing a builder, including changes to imported dependencies. Script changes
-invalidate the SourceFile and rebuild the builder; analysis itself never patches Program text.
-Hosts retain the raw contents they have served for every file, including TypeScript dependencies,
-so one host updating the shared content cache cannot hide an edit from another cached Program.
-Each cached host synchronizes dependency edits once per request, using the context revision
-rather than the files object's identity, so analyzing multiple files does not repeatedly scan
-the entire request.
+Vue restores ESTree locations to the raw SFC while TypeScript nodes retain generated positions.
+S1874 maps compiler diagnostics through those node maps and omits synthetic diagnostics without
+a verified original location.
 
-Vue remaps ESTree positions to the raw file, while mapped TypeScript nodes retain generated
-positions. S1874 maps compiler suggestion diagnostics back through the node maps before reporting.
-Synthetic diagnostics with no verified original location are omitted.
+## Generic limitations and compatibility
 
-The compatibility tests exercise the services-forwarding contract, ordinary/setup/combined/reversed
-scripts, generics, JS/JSX/TSX, JSX retries, empty scripts, locations, stale Programs and builder edits.
-Keep these tests when upgrading either parser. A future upstream prepared-script API could remove
-the extra syntax-only pass without duplicating Vue's transformations in SonarJS.
+Vue's parser approximates generic setup parameters as aliases to their constraints: `T extends unknown`
+becomes `type T = unknown`. This loses the actual generic relationship and can cause incorrect
+S4157 removal fixes, including indirect uses such as `Option<typeof value>` when `value: T`.
+S4157 is therefore disabled for the entire component when a script declares Vue generics. This
+also skips genuinely redundant type arguments. Other type-aware rules remain enabled, with the
+underlying generic approximation still applying. Precise generic support requires a different
+compiler representation.
 
-This is script analysis. Vue component export generation, full macro semantics and template type
-checking are not provided by this adapter. Explicit `disableTypeChecking` remains supported.
-Generic attributes are approximated as aliases of their constraints by Vue's parser. For example,
-`generic="T extends unknown"` produces `type T = unknown`, which can make S4157 incorrectly
-report a necessary `Option<T>` argument as the default `Option<unknown>`. This predates the
-March 2024 removal of Vue typing: the same seven S4157 findings in ruling's `c-select.vue`
-reproduce with the former dependency versions (vue-eslint-parser 9.3.2, typescript-eslint
-6.14.0 and TypeScript 5.3.3). S4157 now suppresses reports whose argument or target defaults
-depend on a synthetic Vue generic alias, including through local aliases. Real declarations
-that shadow a Vue generic and unrelated redundant arguments remain eligible for reporting.
-The generic approximation still applies to other type-aware rules; full generic semantics
-require a different compiler representation.
-
-## Vuetify performance and ruling changes
-
-Run the existing ruling project in its own process from a checkout with dependencies, generated
-metadata/protobuf files and the ruling source submodule prepared:
-
-```sh
-npx tsx --tsconfig packages/tsconfig.test.json --test packages/ruling/projects/vuetify.ruling.test.ts
-```
-
-Every ruling project writes `target/ruling-performance/<project>.json` before comparing expected
-issues and prints a `RULING_PERFORMANCE` JSON line. CI uploads these reports in the
-`js-ts-ruling-performance-<sha>` artifact even when expected issues differ. Vuetify's report contains:
-
-- Elapsed file-store initialization plus project analysis time, excluding report writing/comparison.
-  Filesystem-cache runs also include capture finalization; compare runs using the same mode.
-- Peak process RSS and final heap usage in MiB. RSS includes runtime/module loading; final heap is
-  sensitive to GC timing and is not a retained-memory measurement.
-- Node version, OS and architecture, analyzed/Vue file counts, errors, parsing errors and issue count.
-- Attempted, successful and failed Program creation counts from existing analysis telemetry.
-
-For a before/after comparison, use the same Node/dependency versions, ruling source revision,
-configuration and machine. Copy each report before the next run overwrites it. Use at least three
-fresh processes per revision, run serially without other heavy workloads, and compare medians.
-Keep the individual samples and revision identities. The CI ruling suite runs projects concurrently;
-its reports are useful for trends, while controlled isolated reruns provide better regression estimates.
-
-Check file/error counts alongside timings: skipping files or losing type information can otherwise
-look like a speedup. Review issue differences separately; restoring types can both add findings and
-remove unresolved-import false positives. A ruling mismatch still leaves its performance report.
-
-The relevant baseline is current syntax-only Vue analysis. This measures the cost of restoring
-types, rather than asserting a speedup over the much older watch-program implementation. The
-old repeated snippet replacements are absent by construction, but type graph construction and
-queries still cost CPU/memory, and the preparation pass adds syntax work per changed raw file/mode.
+Compatibility tests cover service forwarding, ordinary/setup/combined scripts, generics,
+JS/JSDoc/JSX/TSX, JSX retries, locations, module isolation and standard/builder updates. Keep
+these tests when upgrading either parser. An upstream prepared-script API could replace the
+extra syntax-only preparation pass. Explicit `disableTypeChecking` remains supported.
