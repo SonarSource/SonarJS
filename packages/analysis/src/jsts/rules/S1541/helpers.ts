@@ -98,11 +98,7 @@ export function getModuleFactory(
   call: estree.CallExpression,
   context: Rule.RuleContext,
 ): estree.FunctionExpression | undefined {
-  if (
-    call.callee.type !== 'Identifier' ||
-    call.callee.name !== 'define' ||
-    hasRuntimeBinding(context, call, 'define')
-  ) {
+  if (call.callee.type !== 'Identifier' || call.callee.name !== 'define') {
     return undefined;
   }
   const args = call.arguments.map(unwrapTypeScriptValue);
@@ -119,7 +115,7 @@ export function getModuleFactory(
     }
     args.pop();
   }
-  return args.length === 0 ? factory : undefined;
+  return args.length === 0 && !hasRuntimeBinding(context, call, 'define') ? factory : undefined;
 }
 
 /** Type-only declarations do not shadow a runtime value. */
@@ -149,7 +145,7 @@ function getRuntimeVariable(
 ): Scope.Variable | undefined {
   let scope: Scope.Scope | null = context.sourceCode.getScope(node);
   while (scope) {
-    const variable = scope.variables.find(candidate => candidate.name === name);
+    const variable = scope.set.get(name);
     if (variable && !hasOnlyTypeDefinitions(variable)) {
       return variable;
     }

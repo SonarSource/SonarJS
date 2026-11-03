@@ -69,3 +69,35 @@ it('checks global define writes without scanning scope references', () => {
     }
   }
 });
+
+it('does not scan scope declarations for require calls or valid define factories', () => {
+  const code = [
+    ...Array.from({ length: 200 }, (_, index) => `var v${index} = require('dep');`),
+    'define([], function () { if (x) {} if (x) {} });',
+  ].join('\n');
+  let scans = 0;
+  const measuredRule: Rule.RuleModule = {
+    ...rule,
+    create(context) {
+      const listeners = rule.create(context);
+      return {
+        ...listeners,
+        Program(node) {
+          for (const scope of context.sourceCode.scopeManager!.scopes) {
+            scope.variables.find = () => {
+              scans++;
+              return undefined;
+            };
+          }
+          listeners.Program!(node);
+        },
+      };
+    },
+  };
+  const issues = new Linter().verify(code, {
+    plugins: { test: { rules: { complexity: measuredRule } } },
+    rules: { 'test/complexity': ['error', { threshold: 2 }] },
+  });
+  assert.equal(issues.length, 0);
+  assert.equal(scans, 0);
+});

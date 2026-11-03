@@ -184,11 +184,7 @@ function getScopeInitializer(call: estree.CallExpression, context: Rule.RuleCont
   }
   const path = getPropertyAccessPath(call.callee, false);
   const name = path?.join('.') ?? '';
-  if (
-    !path ||
-    ![SAP_UI_DEFINE, 'require', 'sap.ui.require', 'System.register'].includes(name) ||
-    hasRuntimeBinding(context, call, path[0])
-  ) {
+  if (!path || ![SAP_UI_DEFINE, 'require', 'sap.ui.require', 'System.register'].includes(name)) {
     return undefined;
   }
   const args = call.arguments.map(unwrapTypeScriptValue);
@@ -205,7 +201,10 @@ function getScopeInitializer(call: estree.CallExpression, context: Rule.RuleCont
   ) {
     return undefined;
   }
-  if (!isValidScopeInitializerExtra(name, extra, dependencies.elements.length)) {
+  if (
+    !isValidScopeInitializerExtra(name, extra, dependencies.elements.length) ||
+    hasRuntimeBinding(context, call, path[0])
+  ) {
     return undefined;
   }
   return { factory, path };
