@@ -16,10 +16,9 @@
  */
 
 import type estree from 'estree';
-import type { Rule } from 'eslint';
+import type { Rule, Scope } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { getVariableFromName, unwrapTypeScriptExpression } from '../helpers/ast.js';
-import { isGlobalShadowed } from '../helpers/module.js';
+import { unwrapTypeScriptExpression } from '../helpers/ast.js';
 
 /**
  * `(factory as Function)` -> `factory`
@@ -102,7 +101,7 @@ export function getModuleFactory(
   if (
     call.callee.type !== 'Identifier' ||
     call.callee.name !== 'define' ||
-    isGlobalShadowed(context.sourceCode, call, 'define')
+    (getRuntimeVariable(context, call, 'define')?.defs.length ?? 0) > 0
   ) {
     return undefined;
   }
@@ -133,12 +132,39 @@ export function isStableGlobalRoot(
   node: estree.Node,
   name: string,
 ): boolean {
-  const variable = getVariableFromName(context, name, node);
+  const variable = getRuntimeVariable(context, node, name);
   const references = variable?.references ?? context.sourceCode.scopeManager?.globalScope?.through;
   return (
     references !== undefined &&
     !references.some(reference => reference.identifier.name === name && reference.isWrite())
   );
+}
+
+/** Type-only definitions do not bind a name at runtime. */
+function hasOnlyTypeDefinitions(variable: Scope.Variable): boolean {
+  return (
+    variable.defs.length > 0 &&
+    variable.defs.every(def => {
+      const type = (def.node as TSESTree.Node).type;
+      return type === 'TSTypeAliasDeclaration' || type === 'TSInterfaceDeclaration';
+    })
+  );
+}
+
+function getRuntimeVariable(
+  context: Rule.RuleContext,
+  node: estree.Node,
+  name: string,
+): Scope.Variable | undefined {
+  let scope: Scope.Scope | null = context.sourceCode.getScope(node);
+  while (scope) {
+    const variable = scope.variables.find(candidate => candidate.name === name);
+    if (variable && !hasOnlyTypeDefinitions(variable)) {
+      return variable;
+    }
+    scope = scope.upper;
+  }
+  return undefined;
 }
 
 /**

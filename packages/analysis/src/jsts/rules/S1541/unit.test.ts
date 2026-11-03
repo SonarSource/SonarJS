@@ -567,6 +567,8 @@ describe('S1541 function exclusions', () => {
           `((<T,>() => { ${body} })<number>)\`template\``,
           `new ((function<T>() { ${body} })<number>)()`,
           `((0, ((<T,>() => { ${body} })<number>)) as Function)()`,
+          `type define = string; define([], function () { ${body} })`,
+          `interface define { value: string } define([], function () { ${body} })`,
         ])
         .map(code => ({ code, options, filename: 'file.ts' })),
       invalid: [
@@ -574,6 +576,10 @@ describe('S1541 function exclusions', () => {
         `((() => { ${body} }) as Function).call(null)`,
         `define(dependencies as string[], (function () { ${body} }) as Function)`,
         `declare function define(...args: any[]): void; define([], function () { ${body} })`,
+        `type define = string; define = other; define([], function () { ${body} })`,
+        `type define = string; define([], function () { ${body} }); define = other`,
+        `type define = string; function define() {} define([], function () { ${body} })`,
+        `function outer(define) { function inner() { type define = string; define([], function () { ${body} }) } }`,
         `define([], (() => { ${body} }) as Function)`,
         `define([], (<T,>() => { ${body} })<number>)`,
         `define([dependency as string], function () { ${body} })`,
