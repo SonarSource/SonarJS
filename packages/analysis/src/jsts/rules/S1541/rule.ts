@@ -55,6 +55,10 @@ export const rule: Rule.RuleModule = {
     let functionsWithNested: Set<estree.Node>;
     let scopeInitializers: Map<estree.Node, { path: string[]; call: estree.CallExpression }>;
     let writtenPaths: string[][];
+    /**
+     * `sap.ui.define = other` -> ['sap', 'ui', 'define']
+     * `({ x: sap.ui.define } = source)` -> the same path
+     */
     function collectWrites(target: estree.Node) {
       const value = unwrapTypeScriptValue(target);
       const path = getPropertyAccessPath(value, true);
@@ -74,6 +78,10 @@ export const rule: Rule.RuleModule = {
         collectWrites(value.argument);
       }
     }
+    /**
+     * `(function () {})()` -> exclude the function
+     * `(function* () {})()` -> keep the function
+     */
     function excludeInvokedFunction(expression: estree.Node) {
       const value = getFinalValue(expression);
       if (
@@ -161,6 +169,7 @@ export const rule: Rule.RuleModule = {
   },
 };
 
+/** `(0, (factory as Function))` -> `factory` */
 function getFinalValue(expression: estree.Node): estree.Node {
   const value = unwrapTypeScriptValue(expression);
   if (value.type !== 'SequenceExpression') {
@@ -170,6 +179,10 @@ function getFinalValue(expression: estree.Node): estree.Node {
   return lastExpression ? getFinalValue(lastExpression) : value;
 }
 
+/**
+ * `sap.ui.define([], function () {})` -> factory and ['sap', 'ui', 'define']
+ * `sap.ui['define']([], function () {})` -> undefined
+ */
 function getScopeInitializer(call: estree.CallExpression, context: Rule.RuleContext) {
   if ('optional' in call && call.optional) {
     return undefined;
@@ -203,6 +216,11 @@ function getScopeInitializer(call: estree.CallExpression, context: Rule.RuleCont
   return { factory, path };
 }
 
+/**
+ * `sap.ui.define([], function () {}, true)` -> true
+ * `System.register(['dep'], function () {}, [{}])` -> true
+ * `sap.ui.define([], function () {}, 0)` -> false
+ */
 function isValidScopeInitializerExtra(
   name: string,
   extra: estree.Node | undefined,
@@ -226,10 +244,16 @@ function isValidScopeInitializerExtra(
   return isFunctionNode(extra);
 }
 
+/**
+ * `function () {}` -> true
+ * `async function () {}` -> false
+ * `() => {}` -> false
+ */
 function isSynchronousFunction(node: estree.Node | undefined): node is estree.FunctionExpression {
   return node?.type === 'FunctionExpression' && !node.async && !node.generator;
 }
 
+/** `['sap', 'ui', '*']` matches `['sap', 'ui', 'define']`. */
 function isPathPrefix(prefix: string[], path: string[]): boolean {
   return (
     prefix.length <= path.length &&
