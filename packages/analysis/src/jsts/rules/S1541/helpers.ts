@@ -98,7 +98,12 @@ export function getModuleFactory(
   call: estree.CallExpression,
   context: Rule.RuleContext,
 ): estree.FunctionExpression | undefined {
-  if (call.callee.type !== 'Identifier' || call.callee.name !== 'define') {
+  if (
+    call.callee.type !== 'Identifier' ||
+    call.callee.name !== 'define' ||
+    call.arguments.length < 1 ||
+    call.arguments.length > 3
+  ) {
     return undefined;
   }
   const args = call.arguments.map(unwrapTypeScriptValue);

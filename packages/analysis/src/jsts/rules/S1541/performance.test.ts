@@ -18,6 +18,7 @@
 import assert from 'node:assert/strict';
 import { it } from 'node:test';
 import { Linter, type Rule } from 'eslint';
+import type estree from 'estree';
 import { rule } from './rule.js';
 
 it('checks global define writes without scanning scope references', () => {
@@ -100,4 +101,49 @@ it('does not scan scope declarations for require calls or valid define factories
   });
   assert.equal(issues.length, 0);
   assert.equal(scans, 0);
+});
+
+it('does not walk receiver paths for unrelated method calls', () => {
+  const callCount = 200;
+  const code = 'client.services.users.load([], function () { if (x) {} if (x) {} });'.repeat(
+    callCount,
+  );
+  let receiverReads = 0;
+  const measuredRule: Rule.RuleModule = {
+    ...rule,
+    create(context) {
+      const listeners = rule.create(context);
+      return {
+        ...listeners,
+        CallExpression(node) {
+          const { callee } = node as estree.CallExpression;
+          assert.equal(callee.type, 'MemberExpression');
+          const member = callee as estree.MemberExpression;
+          const object = member.object;
+          Object.defineProperty(member, 'object', {
+            configurable: true,
+            get() {
+              receiverReads++;
+              return object;
+            },
+          });
+          try {
+            listeners.CallExpression!(node);
+          } finally {
+            Object.defineProperty(member, 'object', {
+              configurable: true,
+              writable: true,
+              value: object,
+            });
+          }
+        },
+      };
+    },
+  };
+  const issues = new Linter().verify(code, {
+    plugins: { test: { rules: { complexity: measuredRule } } },
+    rules: { 'test/complexity': ['error', { threshold: 2 }] },
+  });
+  assert.equal(issues.length, callCount);
+  assert.equal(receiverReads, 0);
 });

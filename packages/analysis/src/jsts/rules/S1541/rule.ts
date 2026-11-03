@@ -179,10 +179,22 @@ function getFinalValue(expression: estree.Node): estree.Node {
  * `sap.ui['define']([], function () {})` -> undefined
  */
 function getScopeInitializer(call: estree.CallExpression, context: Rule.RuleContext) {
-  if ('optional' in call && call.optional) {
+  const { callee } = call;
+  if (
+    ('optional' in call && call.optional) ||
+    call.arguments.length < 2 ||
+    call.arguments.length > MAX_SCOPE_INITIALIZER_ARGUMENTS + 1 ||
+    (callee.type === 'Identifier'
+      ? callee.name !== 'require'
+      : callee.type !== 'MemberExpression' ||
+        callee.computed ||
+        callee.optional ||
+        callee.property.type !== 'Identifier' ||
+        !['define', 'require', 'register'].includes(callee.property.name))
+  ) {
     return undefined;
   }
-  const path = getPropertyAccessPath(call.callee, false);
+  const path = getPropertyAccessPath(callee, false);
   const name = path?.join('.') ?? '';
   if (!path || ![SAP_UI_DEFINE, 'require', 'sap.ui.require', 'System.register'].includes(name)) {
     return undefined;
