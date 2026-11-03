@@ -498,6 +498,7 @@ describe('S1541 function exclusions', () => {
           `define('module', function () { ${body} })`,
           `define([], function () { ${body} })`,
           `define('module', ['dependency'], function () { ${body} })`,
+          `function local(define) { define = other; } define([], function () { ${body} })`,
         ].map(code => ({ code, options })),
         invalid: [
           ...functions.flatMap(fn => [
@@ -522,6 +523,11 @@ describe('S1541 function exclusions', () => {
           `const define = other; define([], function () { ${body} })`,
           `define = customCallbackHandler; define([], function () { ${body} })`,
           `define([], function () { ${body} }); define = customCallbackHandler`,
+          `define ||= other; define([], function () { ${body} })`,
+          `define++; define([], function () { ${body} })`,
+          `for (define of items) {} define([], function () { ${body} })`,
+          `({ value: define } = source); define([], function () { ${body} })`,
+          `function change() { define = other; } define([], function () { ${body} })`,
           `function outer(define) { define([], function () { ${body} }) }`,
           `import define from 'other'; define([], function () { ${body} })`,
           `object.define([], function () { ${body} })`,
@@ -759,6 +765,33 @@ describe('S1541 loader scope initializers', () => {
     new NoTypeCheckingRuleTester().run('TypeScript loader values', rule, {
       valid: [],
       invalid: [
+        ...calls.flatMap(code => {
+          const path = code.slice(0, code.indexOf('('));
+          const root = path.split('.')[0];
+          return [
+            ...[`type ${root} = string`, `interface ${root} {}`].map(declaration => {
+              const source = `${declaration}; ${code}`;
+              return {
+                code: source,
+                options,
+                filename: 'file.ts',
+                errors: [{ message, column: source.indexOf('nested') + 1 }],
+              };
+            }),
+            ...[root, path].map(target => ({
+              ...retained(
+                `function change() { type ${root} = string; ${target} = other; } ${code}`,
+              ),
+              filename: 'file.ts',
+            })),
+            {
+              ...retained(
+                `function outer(${root}) { function inner() { type ${root} = string; ${code} } }`,
+              ),
+              filename: 'file.ts',
+            },
+          ];
+        }),
         ...[
           `sap.ui.define('module' as string, ['dep' satisfies string] as string[], (${factory}) as Function, false as boolean)`,
           `require([] satisfies string[], (${factory})!)`,

@@ -20,7 +20,7 @@ import { it } from 'node:test';
 import { Linter, type Rule } from 'eslint';
 import { rule } from './rule.js';
 
-it('scans global define references once per Program', () => {
+it('checks global define writes without scanning scope references', () => {
   const moduleCount = 100;
   const factory = 'define([], function () { if (x) {} if (x) {} });';
   const modules = factory.repeat(moduleCount);
@@ -58,13 +58,13 @@ it('scans global define references once per Program', () => {
         plugins: { test: { rules: { complexity: measuredRule } } },
         rules: { 'test/complexity': ['error', { threshold: 2 }] },
       };
-      // The local call must not set the cached global result.
+      // A local call must not affect global define matching.
       const code = `function local(define) { ${factory} } ${modules} ${write}`;
       for (let pass = 0; pass < 2; pass++) {
         checks = 0;
         const issues = linter.verify(code, config);
         assert.equal(issues.length, write ? moduleCount + 1 : 1);
-        assert.equal(checks, moduleCount + (write ? 1 : 0));
+        assert.equal(checks, 0);
       }
     }
   }

@@ -24,7 +24,6 @@ import {
   getMainFunctionTokenLocation,
 } from '../helpers/location.js';
 import { type FunctionNodeType, isFunctionNode } from '../helpers/ast.js';
-import { isGlobalShadowed } from '../helpers/module.js';
 import type { RuleContext } from '../helpers/type.js';
 import { childrenOf, getParent } from '../helpers/ancestor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
@@ -34,7 +33,7 @@ import * as meta from './generated-meta.js';
 import {
   getModuleFactory,
   getPropertyAccessPath,
-  isStableGlobalRoot,
+  hasRuntimeBinding,
   isStringLiteral,
   unwrapTypeScriptValue,
 } from './helpers.js';
@@ -53,9 +52,8 @@ export const rule: Rule.RuleModule = {
     let functionsImmediatelyInvoked: Set<estree.Node>;
     let functionStack: estree.Node[];
     let functionsWithNested: Set<estree.Node>;
-    let scopeInitializers: Map<estree.Node, { path: string[]; call: estree.CallExpression }>;
+    let scopeInitializers: Map<estree.Node, string[]>;
     let writtenPaths: string[][];
-    let stableDefine: boolean | undefined;
     /**
      * `sap.ui.define = other` -> ['sap', 'ui', 'define']
      * `({ x: sap.ui.define } = source)` -> the same path
@@ -64,7 +62,7 @@ export const rule: Rule.RuleModule = {
       const value = unwrapTypeScriptValue(target);
       const path = getPropertyAccessPath(value, true);
       if (path) {
-        if (!isGlobalShadowed(context.sourceCode, value, path[0])) {
+        if (!hasRuntimeBinding(context, value, path[0])) {
           writtenPaths.push(path);
         }
       } else if (value.type === 'ArrayPattern') {
@@ -101,20 +99,15 @@ export const rule: Rule.RuleModule = {
         functionsWithNested = new Set();
         scopeInitializers = new Map();
         writtenPaths = [];
-        stableDefine = undefined;
       },
       'Program:exit': () => {
         const stablePaths = new Map<string, boolean>();
-        for (const [factory, { path, call }] of scopeInitializers) {
+        for (const [factory, path] of scopeInitializers) {
           const key = path.join('.');
-          if (!stablePaths.has(key)) {
-            stablePaths.set(
-              key,
-              isStableGlobalRoot(context, call, path[0]) &&
-                !writtenPaths.some(write => isPathPrefix(write, path)),
-            );
-          }
-          if (functionsWithNested.has(factory) && stablePaths.get(key)) {
+          const stable =
+            stablePaths.get(key) ?? !writtenPaths.some(write => isPathPrefix(write, path));
+          stablePaths.set(key, stable);
+          if ((path[0] === 'define' || functionsWithNested.has(factory)) && stable) {
             functionsDefiningModule.add(factory);
           }
         }
@@ -150,12 +143,12 @@ export const rule: Rule.RuleModule = {
       CallExpression: (node: estree.Node) => {
         const call = node as estree.CallExpression;
         const factory = getModuleFactory(call, context);
-        if (factory && (stableDefine ??= isStableGlobalRoot(context, call, 'define'))) {
-          functionsDefiningModule.add(factory);
+        if (factory) {
+          scopeInitializers.set(factory, ['define']);
         }
         const initializer = getScopeInitializer(call, context);
         if (initializer) {
-          scopeInitializers.set(initializer.factory, { path: initializer.path, call });
+          scopeInitializers.set(initializer.factory, initializer.path);
         }
         excludeInvokedFunction(call.callee);
       },
@@ -194,7 +187,7 @@ function getScopeInitializer(call: estree.CallExpression, context: Rule.RuleCont
   if (
     !path ||
     ![SAP_UI_DEFINE, 'require', 'sap.ui.require', 'System.register'].includes(name) ||
-    isGlobalShadowed(context.sourceCode, call, path[0])
+    hasRuntimeBinding(context, call, path[0])
   ) {
     return undefined;
   }

@@ -33,7 +33,7 @@ export function unwrapTypeScriptValue(expression: estree.Node): estree.Node {
 }
 
 /**
- * Get the property path of an expression rooted at `sap`, `require`, or `System`.
+ * Get the property path of an expression rooted at `define`, `sap`, `require`, or `System`.
  *
  * `sap.ui.define` -> ['sap', 'ui', 'define']
  * `other.ui.define` -> undefined
@@ -54,7 +54,7 @@ export function getPropertyAccessPath(
     return getPropertyAccessPath(node.expression, allowComputed);
   }
   if (node.type === 'Identifier') {
-    return ['sap', 'require', 'System'].includes(node.name) ? [node.name] : undefined;
+    return ['define', 'sap', 'require', 'System'].includes(node.name) ? [node.name] : undefined;
   }
   if (node.type !== 'MemberExpression' || (!allowComputed && (node.computed || node.optional))) {
     return undefined;
@@ -101,7 +101,7 @@ export function getModuleFactory(
   if (
     call.callee.type !== 'Identifier' ||
     call.callee.name !== 'define' ||
-    (getRuntimeVariable(context, call, 'define')?.defs.length ?? 0) > 0
+    hasRuntimeBinding(context, call, 'define')
   ) {
     return undefined;
   }
@@ -122,22 +122,13 @@ export function getModuleFactory(
   return args.length === 0 ? factory : undefined;
 }
 
-/**
- * For root `define`:
- * `define([], factory)` -> true when `define` has no writes
- * `define = other; define([], factory)` -> false
- */
-export function isStableGlobalRoot(
+/** Type-only declarations do not shadow a runtime value. */
+export function hasRuntimeBinding(
   context: Rule.RuleContext,
   node: estree.Node,
   name: string,
 ): boolean {
-  const variable = getRuntimeVariable(context, node, name);
-  const references = variable?.references ?? context.sourceCode.scopeManager?.globalScope?.through;
-  return (
-    references !== undefined &&
-    !references.some(reference => reference.identifier.name === name && reference.isWrite())
-  );
+  return (getRuntimeVariable(context, node, name)?.defs.length ?? 0) > 0;
 }
 
 /** Type-only definitions do not bind a name at runtime. */
