@@ -753,22 +753,24 @@ describe('S1541 loader scope initializers', () => {
     new NoTypeCheckingRuleTester().run('TypeScript loader values', rule, {
       valid: [],
       invalid: [
-        `sap.ui.define('module' as string, ['dep' satisfies string] as string[], (${factory}) as Function, false as boolean)`,
-        `require([] satisfies string[], (${factory})!)`,
-        `sap.ui.require([], (${factory.replace('function ()', 'function<T> ()')})<number>)`,
-        `System.register([] as string[], (${factory}) satisfies Function, [] as object[])`,
-      ].map(code => ({
-        code,
-        options,
-        filename: 'file.ts',
-        errors: [{ message, column: code.indexOf('nested') + 1 }],
-      })),
-      ...[
-        `(sap.ui as any).define = other; sap.ui.define([], ${factory})`,
-        `(sap as any).ui.require = other; sap.ui.require([], ${factory})`,
-        `(System.register as Function) = other; System.register([], ${factory})`,
-        `(require as Function) = other; require([], ${factory})`,
-      ].map(code => ({ ...retained(code), filename: 'file.ts' })),
+        ...[
+          `sap.ui.define('module' as string, ['dep' satisfies string] as string[], (${factory}) as Function, false as boolean)`,
+          `require([] satisfies string[], (${factory})!)`,
+          `sap.ui.require([], (${factory.replace('function ()', 'function<T> ()')})<number>)`,
+          `System.register([] as string[], (${factory}) satisfies Function, [] as object[])`,
+        ].map(code => ({
+          code,
+          options,
+          filename: 'file.ts',
+          errors: [{ message, column: code.indexOf('nested') + 1 }],
+        })),
+        ...[
+          `(sap.ui as any).define = other; sap.ui.define([], ${factory})`,
+          `(sap as any).ui.require = other; sap.ui.require([], ${factory})`,
+          `(System.register as Function) = other; System.register([], ${factory})`,
+          `(require as Function) = other; require([], ${factory})`,
+        ].map(code => ({ ...retained(code), filename: 'file.ts' })),
+      ],
     });
   });
 });
