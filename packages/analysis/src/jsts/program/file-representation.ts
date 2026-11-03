@@ -50,7 +50,7 @@ const vue: FileRepresentationStrategy = {
   prepare(file, raw, options) {
     const script = getVueScript(file, raw, jsxEnabledFor(options));
     return {
-      text: script?.code ?? '',
+      text: script?.compilerCode ?? '',
       scriptKind: script?.scriptKind ?? ts.ScriptKind.TS,
       reusable: script !== undefined,
       createSourceFile: (name, languageVersion) =>

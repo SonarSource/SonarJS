@@ -18,6 +18,11 @@ import ts from 'typescript';
 import { parsersMap } from './eslint.js';
 import { buildVueParserOptions } from './options.js';
 import { FileSystemMap } from '../../common/filesystem.js';
+import {
+  prepareVueGenerics,
+  applyVueGenericServices,
+  type VueGenericProjection,
+} from './vue-generics.js';
 
 type ScriptParserOptions = NonNullable<Parameters<typeof parsersMap.typescript.parseForESLint>[1]>;
 type ScriptParser = {
@@ -28,9 +33,13 @@ type ScriptParser = {
 };
 
 type VueScript = {
-  code: string;
-  jsx: boolean;
-  scriptKind: ts.ScriptKind;
+  /** Text supplied by Vue to the inner ESLint parser. */
+  readonly code: string;
+  /** Text used by the compiler; differs for genuine generic setup functions. */
+  readonly compilerCode: string;
+  readonly jsx: boolean;
+  readonly scriptKind: ts.ScriptKind;
+  readonly generics?: VueGenericProjection | null;
 };
 
 const projectionKey = Symbol('SonarJS Vue script');
@@ -76,6 +85,7 @@ export function getVueScript(file: string, raw: string, jsx: boolean): VueScript
               ...parsed.services,
               [projectionKey]: {
                 code,
+                source: parsed.services.esTreeNodeToTSNodeMap.get(parsed.ast),
                 jsx: attemptJsx,
                 scriptKind: scriptKindFor(typescript, attemptJsx),
               },
@@ -83,7 +93,18 @@ export function getVueScript(file: string, raw: string, jsx: boolean): VueScript
           };
         }),
       });
-      script = (result.services as { [projectionKey]?: VueScript } | undefined)?.[projectionKey];
+      const captured = (
+        result.services as
+          | {
+              [projectionKey]?: Omit<VueScript, 'compilerCode'> & { source: ts.SourceFile };
+            }
+          | undefined
+      )?.[projectionKey];
+      if (captured) {
+        const { source, ...prepared } = captured;
+        const generics = prepareVueGenerics(result, source);
+        script = { ...prepared, generics, compilerCode: generics?.code ?? prepared.code };
+      }
       break;
     } catch {
       // Preserve the normal Vue/Babel error and fallback paths during actual analysis.
@@ -101,11 +122,10 @@ export function createVueSourceFile(
 ): ts.SourceFile {
   const sourceFile = ts.createSourceFile(
     file,
-    script?.code ?? '',
+    script?.compilerCode ?? '',
     {
       ...(typeof languageVersion === 'number' ? { languageVersion } : languageVersion),
-      // Every SFC has module scope, even without imports or exports. Preserve the
-      // exact script text so TypeScript/ESTree node mappings remain valid.
+      // Every SFC has module scope, even without imports or exports.
       setExternalModuleIndicator: source => {
         Object.assign(source, { externalModuleIndicator: true });
       },
@@ -129,15 +149,21 @@ export function createVueScriptParser(raw: string, program?: ts.Program): Script
     parseForESLint(code, options) {
       const sourceFile = options.filePath ? program?.getSourceFile(options.filePath) : undefined;
       const script = sourceFile ? sourceFileScripts.get(sourceFile) : undefined;
+      const current = script && getVueScript(options.filePath!, raw, script.jsx);
       const matches =
         script?.code === code &&
-        sourceFile?.text === code &&
+        sourceFile?.text === script.compilerCode &&
+        script.compilerCode === current?.compilerCode &&
         script.jsx === !!options.ecmaFeatures?.jsx &&
-        script.scriptKind === getVueScript(options.filePath!, raw, script.jsx)?.scriptKind;
-      return parsersMap.typescript.parseForESLint(code, {
+        script.scriptKind === current?.scriptKind &&
+        current?.generics !== null;
+      const parsed = parsersMap.typescript.parseForESLint(code, {
         ...syntaxOnly(options),
-        programs: matches && program ? [program] : undefined,
+        programs: matches && !script?.generics && program ? [program] : undefined,
       });
+      return matches && current?.generics && program && sourceFile
+        ? applyVueGenericServices(parsed, current.generics, program, sourceFile)
+        : parsed;
     },
   };
 }

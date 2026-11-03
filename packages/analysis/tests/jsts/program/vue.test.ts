@@ -65,12 +65,12 @@ const cases: [string, string, string | undefined][] = [
   [
     'generic setup',
     `${template}<script setup lang="ts" generic="T extends string">const n: T = 'a' as T;</script>`,
-    'string',
+    'T',
   ],
   [
     'generic combined',
     `${normalExport}<script setup lang="ts" generic="T extends string">const n: T = 'a' as T;</script>`,
-    'string',
+    'T',
   ],
   ['JavaScript', `${template}<script>const n = 1; n.toFixed();</script>`, '1'],
   ['JSX', '<script lang="jsx">const n = 1; const el = <div>{n}</div>;</script>', '1'],
@@ -168,7 +168,7 @@ describe('Vue scripts in SonarJS Programs', () => {
       });
     }
     for (const combined of [false, true]) {
-      it(`${builder ? 'builder' : 'standard'}: skips S4157 for generic Vue components (combined=${combined})`, async () => {
+      it(`${builder ? 'builder' : 'standard'}: reports only genuinely redundant arguments in generic Vue components (combined=${combined})`, async () => {
         const raw = `${combined ? normalExport : ''}<script setup lang="ts" generic="T extends unknown">
 type Option<U = unknown> = { value: U };
 type Alias = T;
@@ -189,8 +189,13 @@ function compare(label: string) { return "100" < label; }
           : createStandardProgram({ ...config, host });
         const sourceCode = await parsed(raw, program);
         expect(sourceCode.parserServices.program).toBe(program);
-        // This deliberately also excludes the genuinely redundant argument.
-        expect(verify(sourceCode, unnecessaryTypeArgumentsRule)).toEqual([]);
+        const messages = verify(sourceCode, unnecessaryTypeArgumentsRule);
+        expect(messages).toHaveLength(1);
+        const argument = raw.lastIndexOf('<unknown>');
+        expect(messages[0].fix).toEqual({
+          range: [argument, argument + '<unknown>'.length],
+          text: '',
+        });
         expect(verify(sourceCode, stringComparisonRule)).toHaveLength(1);
       });
     }
