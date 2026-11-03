@@ -229,8 +229,62 @@ describe('S6582 with TypeScript 6 implicit strictNullChecks', () => {
           }`,
           filename,
         },
+        {
+          code: `interface Item { name: string } declare function consume(value: string): void; declare const item: Item | null; declare const prefix: string; consume(prefix || (item && item.name));`,
+          filename,
+        },
+        {
+          code: `interface Entry { version: string } declare const file: Entry | undefined; declare function consume(value: string | false): void; consume((file !== undefined && file.version) ?? 'fallback');`,
+          filename,
+        },
+        {
+          code: `interface Entry { version: string } function f(file: Entry | undefined): string | false { return (file !== undefined && file.version) ?? 'fallback'; }`,
+          filename,
+        },
       ],
       invalid: [
+        {
+          code: `interface Node { parent?: Node } function parent(node: Node): Node { return node && node.parent; }`,
+          output: `interface Node { parent?: Node } function parent(node: Node): Node { return node?.parent; }`,
+          filename,
+          errors: 1,
+        },
+        {
+          code: `interface Entry { version: string } function getVersion(file: Entry | undefined): string { return file && file.version; }`,
+          output: `interface Entry { version: string } function getVersion(file: Entry | undefined): string { return file?.version; }`,
+          filename,
+          errors: 1,
+        },
+        {
+          code: `interface Entry { version: string } declare function use(value: string): void; function f(file: Entry | undefined) { use(file && file.version); }`,
+          output: `interface Entry { version: string } declare function use(value: string): void; function f(file: Entry | undefined) { use(file?.version); }`,
+          filename,
+          errors: 1,
+        },
+        {
+          code: `interface Entry { version: string } function f(file: Entry | undefined): { version: string } { return { version: file && file.version }; }`,
+          output: `interface Entry { version: string } function f(file: Entry | undefined): { version: string } { return { version: file?.version }; }`,
+          filename,
+          errors: 1,
+        },
+        {
+          code: `interface Entry { version: string } function f(file: Entry | undefined) { let value: string; value = file && file.version; }`,
+          output: `interface Entry { version: string } function f(file: Entry | undefined) { let value: string; value = file?.version; }`,
+          filename,
+          errors: 1,
+        },
+        {
+          code: `interface Entry { version: string } declare const file: Entry; function f(): string { return file !== undefined && file.version; }`,
+          output: null,
+          filename,
+          errors: 1,
+        },
+        {
+          code: `interface Entry { version: string } declare const file: Entry | undefined; declare function consume(value: string): void; consume((file !== undefined && file.version) || 'fallback');`,
+          output: `interface Entry { version: string } declare const file: Entry | undefined; declare function consume(value: string): void; consume((file?.version) || 'fallback');`,
+          filename,
+          errors: 1,
+        },
         {
           code: `function f(arr: string[] | null) { if (arr && arr.length) {} }`,
           filename,
@@ -422,12 +476,6 @@ describe('S6582', () => {
           filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
         },
         {
-          // FP: angular.js line 768 pattern — a.prop || (a[0] && a[0].prop) inside a string-typed call
-          // The && is inside an || whose contextual type is string (excludes undefined)
-          code: `declare function lowercase(s: string): string; declare const el: { nodeName: string; 0?: { nodeName: string } }; function f() { return lowercase(el.nodeName || (el[0] && el[0].nodeName)); }`,
-          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
-        },
-        {
           // FP: desktop/tutorial-assessor.ts pattern — a !== undefined && a.method() in boolean return
           // commit?.parentSHAs.some() returns boolean|undefined, not assignable to boolean return type
           code: `interface Commit { parentSHAs: string[] } function hasMultipleCommits(commit: Commit | undefined): boolean { return commit !== undefined && commit.parentSHAs.some(x => x.length > 0) }`,
@@ -445,6 +493,25 @@ describe('S6582', () => {
         },
       ],
       invalid: [
+        {
+          // An undefined-only guard already produces undefined before the rewrite.
+          code: `declare function lowercase(s: string): string; declare const el: { nodeName: string; 0?: { nodeName: string } }; function f() { return lowercase(el.nodeName || (el[0] && el[0].nodeName)); }`,
+          output: `declare function lowercase(s: string): string; declare const el: { nodeName: string; 0?: { nodeName: string } }; function f() { return lowercase(el.nodeName || (el[0]?.nodeName)); }`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+          errors: 1,
+        },
+        {
+          code: `interface Item { name: string } declare function consume(value: string): void; declare const item: Item | null; consume((item && item.name) || 'fallback');`,
+          output: `interface Item { name: string } declare function consume(value: string): void; declare const item: Item | null; consume((item?.name) || 'fallback');`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+          errors: 1,
+        },
+        {
+          code: `interface Item { name: string } declare function consume(value: string): void; declare const item: Item | null; consume((item && item.name) ?? 'fallback');`,
+          output: `interface Item { name: string } declare function consume(value: string): void; declare const item: Item | null; consume((item?.name) ?? 'fallback');`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+          errors: 1,
+        },
         {
           // boolean context (if-condition): no contextual type — optional chaining is type-safe
           code: `function f(arr: string[] | null) { if (arr && arr.length) {} }`,

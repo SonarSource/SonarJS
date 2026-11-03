@@ -43,12 +43,14 @@
 3511,
 3529,
 3756,
+3869,
 4382,
 4421,
 4755,
 5131,
 5225,
 5252,
+5989,
 6055,
 6204,
 6236,
@@ -230,7 +232,8 @@
 "TypeScript:src/compiler/transformers/generators.ts": [
 1640,
 1657,
-1948
+1948,
+2056
 ],
 "TypeScript:src/compiler/transformers/module/module.ts": [
 1358,
@@ -242,13 +245,16 @@
 1774
 ],
 "TypeScript:src/compiler/transformers/ts.ts": [
+864,
 1246,
 1443,
 2569,
 2587
 ],
 "TypeScript:src/compiler/tsc.ts": [
-310
+310,
+381,
+381
 ],
 "TypeScript:src/compiler/utilities.ts": [
 88,
@@ -268,6 +274,7 @@
 1577,
 1586,
 1587,
+1639,
 1664,
 1666,
 1674,
@@ -322,7 +329,9 @@
 "TypeScript:src/harness/harnessLanguageService.ts": [
 151,
 189,
-323
+259,
+323,
+620
 ],
 "TypeScript:src/harness/projectsRunner.ts": [
 106,
@@ -367,6 +376,8 @@
 63
 ],
 "TypeScript:src/server/session.ts": [
+609,
+610,
 805,
 1149
 ],
@@ -376,6 +387,9 @@
 "TypeScript:src/server/typingsInstaller/nodeTypingsInstaller.ts": [
 162,
 162
+],
+"TypeScript:src/server/typingsInstaller/typingsInstaller.ts": [
+25
 ],
 "TypeScript:src/services/classifier.ts": [
 701,
@@ -420,7 +434,9 @@
 1198
 ],
 "TypeScript:src/services/documentHighlights.ts": [
-49
+49,
+54,
+136
 ],
 "TypeScript:src/services/documentRegistry.ts": [
 124
@@ -475,11 +491,14 @@
 533
 ],
 "TypeScript:src/services/services.ts": [
+873,
+878,
 1003,
 1044,
 1052,
 1053,
 1116,
+1147,
 1214,
 1509,
 2117

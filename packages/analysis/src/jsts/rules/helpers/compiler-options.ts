@@ -14,9 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type ts from 'typescript';
+import ts from 'typescript';
 
-/** Returns TypeScript's effective strict-null setting for a compiler program. */
-export function isStrictNullChecksEnabled(options: ts.CompilerOptions): boolean {
-  return options.strictNullChecks ?? options.strict ?? true;
+/** Returns the effective strict-null setting for the TypeScript compiler used by this analyzer. */
+export function isStrictNullChecksEnabled(
+  options: ts.CompilerOptions,
+  compilerVersion = ts.versionMajorMinor,
+): boolean {
+  return options.strictNullChecks ?? options.strict ?? Number.parseInt(compilerVersion, 10) >= 6;
 }

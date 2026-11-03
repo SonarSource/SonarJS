@@ -19,15 +19,25 @@ import assert from 'node:assert/strict';
 import { isStrictNullChecksEnabled } from './compiler-options.js';
 
 describe('isStrictNullChecksEnabled', () => {
-  it('uses the TypeScript 6 default when strict flags are absent', () => {
-    assert.equal(isStrictNullChecksEnabled({}), true);
+  it('uses the active compiler default when strict flags are absent', () => {
+    assert.equal(isStrictNullChecksEnabled({}, '5.9'), false);
+    assert.equal(isStrictNullChecksEnabled({}, '6.0'), true);
+    assert.equal(isStrictNullChecksEnabled({}, '7.0'), true);
   });
 
   it('honors strict and explicit strictNullChecks overrides', () => {
-    assert.equal(isStrictNullChecksEnabled({ strict: true }), true);
-    assert.equal(isStrictNullChecksEnabled({ strict: false }), false);
-    assert.equal(isStrictNullChecksEnabled({ strictNullChecks: false }), false);
-    assert.equal(isStrictNullChecksEnabled({ strict: true, strictNullChecks: false }), false);
-    assert.equal(isStrictNullChecksEnabled({ strict: false, strictNullChecks: true }), true);
+    for (const version of ['5.9', '6.0']) {
+      assert.equal(isStrictNullChecksEnabled({ strict: true }, version), true);
+      assert.equal(isStrictNullChecksEnabled({ strict: false }, version), false);
+      assert.equal(isStrictNullChecksEnabled({ strictNullChecks: false }, version), false);
+      assert.equal(
+        isStrictNullChecksEnabled({ strict: true, strictNullChecks: false }, version),
+        false,
+      );
+      assert.equal(
+        isStrictNullChecksEnabled({ strict: false, strictNullChecks: true }, version),
+        true,
+      );
+    }
   });
 });

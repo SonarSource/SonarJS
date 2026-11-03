@@ -196,7 +196,77 @@ export const rule: Rule.RuleModule = {
       return current;
     }
 
+    function hasAbsorbingFallback(node: Rule.Node) {
+      let current = node;
+      while (current.parent?.type === 'LogicalExpression') {
+        const parent = current.parent;
+        if ((parent.operator === '||' || parent.operator === '??') && parent.left === current) {
+          return canFallbackAbsorbGuard(node, parent.operator);
+        }
+        if (parent.operator !== '&&') {
+          return false;
+        }
+        current = parent;
+      }
+      return false;
+    }
+
+    function isNullishComparisonGuard(node: Rule.Node) {
+      if (node.type !== 'BinaryExpression' || (node.operator !== '!==' && node.operator !== '!=')) {
+        return false;
+      }
+      const leftType = getTypeOfNode(node.left as Rule.Node);
+      const rightType = getTypeOfNode(node.right as Rule.Node);
+      if (!leftType || !rightType) {
+        return false;
+      }
+      const nullish = ts.TypeFlags.Null | ts.TypeFlags.Undefined;
+      return (
+        ((leftType.flags & nullish) !== 0 && allowsNullOrUndefined(rightType)) ||
+        ((rightType.flags & nullish) !== 0 && allowsNullOrUndefined(leftType))
+      );
+    }
+
+    function canFallbackAbsorbGuard(node: Rule.Node, operator: '||' | '??') {
+      if (node.type !== 'LogicalExpression') {
+        return false;
+      }
+      if (isNullishComparisonGuard(node.left as Rule.Node)) {
+        return operator === '||';
+      }
+      const guardType = getTypeOfNode(node.left as Rule.Node);
+      if (!guardType) {
+        return false;
+      }
+      const nonNullishFalsy =
+        (ts.TypeFlags.PossiblyFalsy &
+          ~(ts.TypeFlags.Null | ts.TypeFlags.Undefined | ts.TypeFlags.Void)) |
+        ts.TypeFlags.Any |
+        ts.TypeFlags.Unknown |
+        ts.TypeFlags.TypeParameter;
+      const constituents = guardType.isUnion() ? guardType.types : [guardType];
+      return constituents.every(type => (type.flags & nonNullishFalsy) === 0);
+    }
+
+    function guardCanReturnNullOrFalse(node: Rule.Node) {
+      if (node.type !== 'LogicalExpression') {
+        return false;
+      }
+      if (isNullishComparisonGuard(node.left as Rule.Node)) {
+        return true;
+      }
+      const guardType = getTypeOfNode(node.left as Rule.Node);
+      if (!guardType) {
+        return false;
+      }
+      const constituents = guardType.isUnion() ? guardType.types : [guardType];
+      return constituents.some(type => (type.flags & ts.TypeFlags.Null) !== 0);
+    }
+
     function hasTypeUnsafeContextualType(node: Rule.Node) {
+      if (!guardCanReturnNullOrFalse(node)) {
+        return false;
+      }
       const contextualType = getContextualTypeOfNode(getContextualTypeSubject(node));
       return contextualType != null && !allowsUndefined(contextualType);
     }
@@ -241,11 +311,15 @@ export const rule: Rule.RuleModule = {
         node.operator !== '&&' ||
         node.right.type === 'BinaryExpression' ||
         parent?.type !== 'CallExpression' ||
-        !parent.arguments.includes(subject as never)
+        !parent.arguments.includes(subject as never) ||
+        hasAbsorbingFallback(node)
       ) {
         return false;
       }
 
+      if (!guardCanReturnNullOrFalse(node)) {
+        return false;
+      }
       const contextualType = getContextualTypeOfNode(subject);
       return contextualType != null && !allowsUndefined(contextualType);
     }
@@ -269,6 +343,9 @@ export const rule: Rule.RuleModule = {
         return false;
       }
 
+      if (!guardCanReturnNullOrFalse(node)) {
+        return false;
+      }
       const targetType = getTypeOfNode(parent.left as Rule.Node);
       return targetType != null && !allowsUndefined(targetType);
     }
@@ -379,10 +456,10 @@ export const rule: Rule.RuleModule = {
         (parent.operator === '||' || parent.operator === '??') &&
         parent.left === node
       ) {
-        // The upstream rule may emit the fix as a suggestion (not autofix) when the
-        // operands don't include undefined, because optional chaining would change the
-        // type from T|null to T|undefined in isolation. Since the enclosing ||/??
-        // absorbs any undefined the rewrite introduces, the fix is safe as an autofix.
+        if (!canFallbackAbsorbGuard(node, parent.operator)) {
+          return;
+        }
+        // The fallback absorbs undefined introduced by a nullish guard.
         const suggestFix = descriptor.suggest?.[0]?.fix;
         if (suggestFix == null) {
           ctx.report(descriptor);
