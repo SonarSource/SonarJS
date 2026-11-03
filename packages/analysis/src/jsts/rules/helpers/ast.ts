@@ -173,14 +173,24 @@ export function isArrayExpression(node: estree.Node | undefined): node is estree
   return node?.type === 'ArrayExpression';
 }
 
+export function isTypeScriptExpressionWrapper(
+  node: TSESTree.Node,
+): node is
+  | TSESTree.TSNonNullExpression
+  | TSESTree.TSAsExpression
+  | TSESTree.TSSatisfiesExpression
+  | TSESTree.TSTypeAssertion {
+  return (
+    node.type === 'TSNonNullExpression' ||
+    node.type === 'TSAsExpression' ||
+    node.type === 'TSSatisfiesExpression' ||
+    node.type === 'TSTypeAssertion'
+  );
+}
+
 export function unwrapTypeScriptExpression<T extends Node>(node: T): T {
   let unwrapped = node as unknown as TSESTree.Node;
-  while (
-    unwrapped.type === 'TSNonNullExpression' ||
-    unwrapped.type === 'TSAsExpression' ||
-    unwrapped.type === 'TSSatisfiesExpression' ||
-    unwrapped.type === 'TSTypeAssertion'
-  ) {
+  while (isTypeScriptExpressionWrapper(unwrapped)) {
     unwrapped = unwrapped.expression;
   }
   return unwrapped as unknown as T;
