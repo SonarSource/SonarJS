@@ -25,7 +25,7 @@ import {
 } from '../helpers/location.js';
 import { type FunctionNodeType, isFunctionNode } from '../helpers/ast.js';
 import type { RuleContext } from '../helpers/type.js';
-import { childrenOf, getParent } from '../helpers/ancestor.js';
+import { getParent } from '../helpers/ancestor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { FromSchema } from 'json-schema-to-ts';
@@ -47,10 +47,10 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const threshold =
       (context.options as FromSchema<typeof meta.schema>)[0]?.threshold ?? DEFAULT_THRESHOLD;
-    let functionsWithParent: Map<estree.Node, estree.Node | undefined>;
+    let functions: FunctionInfo[];
     let functionsDefiningModule: Set<estree.Node>;
     let functionsImmediatelyInvoked: Set<estree.Node>;
-    let functionStack: estree.Node[];
+    let functionStack: FunctionInfo[];
     let functionsWithNested: Set<estree.Node>;
     let scopeInitializers: Map<estree.Node, string[]>;
     let writtenPaths: string[][];
@@ -92,7 +92,7 @@ export const rule: Rule.RuleModule = {
     }
     return {
       Program: () => {
-        functionsWithParent = new Map<estree.Node, estree.Node>();
+        functions = [];
         functionsDefiningModule = new Set();
         functionsImmediatelyInvoked = new Set();
         functionStack = [];
@@ -111,23 +111,38 @@ export const rule: Rule.RuleModule = {
             functionsDefiningModule.add(factory);
           }
         }
-        for (const [func, parent] of functionsWithParent.entries()) {
+        for (const { node: func, parent, tokens } of functions) {
           if (!functionsDefiningModule.has(func) && !functionsImmediatelyInvoked.has(func)) {
-            raiseOnUnauthorizedComplexity(func as FunctionNodeType, parent, threshold, context);
+            raiseOnUnauthorizedComplexity(func, parent, tokens, threshold, context);
           }
         }
       },
       'FunctionDeclaration, FunctionExpression, ArrowFunctionExpression': (node: estree.Node) => {
-        functionsWithParent.set(node, getParent(context, node));
+        const info: FunctionInfo = {
+          node: node as FunctionNodeType,
+          parent: getParent(context, node),
+          tokens: [],
+        };
+        functions.push(info);
         const enclosing = functionStack.at(-1);
         if (enclosing) {
-          functionsWithNested.add(enclosing);
+          functionsWithNested.add(enclosing.node);
         }
-        functionStack.push(node);
+        functionStack.push(info);
       },
       ':matches(FunctionDeclaration, FunctionExpression, ArrowFunctionExpression):exit': () => {
         functionStack.pop();
       },
+      'ConditionalExpression, LogicalExpression, SwitchCase, IfStatement, ForStatement, ForInStatement, ForOfStatement, WhileStatement, DoWhileStatement':
+        (node: estree.Node) => {
+          const enclosing = functionStack.at(-1);
+          if (enclosing) {
+            const token = getComplexityToken(node, context);
+            if (token) {
+              enclosing.tokens.push(token);
+            }
+          }
+        },
       AssignmentExpression: (node: estree.Node) =>
         collectWrites((node as estree.AssignmentExpression).left),
       UpdateExpression: (node: estree.Node) =>
@@ -270,10 +285,20 @@ function isPathPrefix(prefix: string[], path: string[]): boolean {
 function raiseOnUnauthorizedComplexity(
   node: FunctionNodeType,
   parent: estree.Node | undefined,
+  branchTokens: ComplexityToken[],
   threshold: number,
   context: Rule.RuleContext,
 ): void {
-  const tokens = computeCyclomaticComplexity(node, parent, context);
+  const tokens: ComplexityToken[] = [
+    {
+      loc: getMainFunctionTokenLocation(
+        node as TSESTree.FunctionLike,
+        parent as TSESTree.Node,
+        context as unknown as RuleContext,
+      ),
+    },
+    ...branchTokens,
+  ];
   const complexity = tokens.length;
   if (complexity > threshold) {
     context.report({
@@ -310,91 +335,44 @@ function toSecondaryLocation(token: ComplexityToken): IssueLocation {
   };
 }
 
-function computeCyclomaticComplexity(
-  node: estree.Node,
-  parent: estree.Node | undefined,
-  context: Rule.RuleContext,
-): ComplexityToken[] {
-  const visitor = new FunctionComplexityVisitor(node, parent, context);
-  visitor.visit();
-  return visitor.getComplexityTokens();
-}
-
 interface ComplexityToken {
   loc: AST.SourceLocation;
 }
 
-class FunctionComplexityVisitor {
-  private readonly tokens: ComplexityToken[] = [];
+interface FunctionInfo {
+  node: FunctionNodeType;
+  parent: estree.Node | undefined;
+  tokens: ComplexityToken[];
+}
 
-  constructor(
-    private readonly root: estree.Node,
-    private readonly parent: estree.Node | undefined,
-    private readonly context: Rule.RuleContext,
-  ) {}
-
-  visit() {
-    const visitNode = (node: estree.Node) => {
-      const { sourceCode } = this.context;
-      let token: ComplexityToken | undefined | null;
-
-      if (isFunctionNode(node)) {
-        if (node === this.root) {
-          token = {
-            loc: getMainFunctionTokenLocation(
-              node as TSESTree.FunctionLike,
-              this.parent as TSESTree.Node,
-              this.context as unknown as RuleContext,
-            ),
-          };
-        } else {
-          return;
-        }
-      } else {
-        switch (node.type) {
-          case 'ConditionalExpression':
-            token = sourceCode.getFirstTokenBetween(
-              node.test,
-              node.consequent,
-              token => token.value === '?',
-            );
-            break;
-          case 'SwitchCase':
-            // ignore default case
-            if (!node.test) {
-              break;
-            }
-          case 'IfStatement':
-          case 'ForStatement':
-          case 'ForInStatement':
-          case 'ForOfStatement':
-          case 'WhileStatement':
-          case 'DoWhileStatement':
-            token = sourceCode.getFirstToken(node);
-            break;
-          case 'LogicalExpression':
-            token = sourceCode.getFirstTokenBetween(
-              node.left,
-              node.right,
-              token => token.value === node.operator,
-            );
-            break;
-        }
+function getComplexityToken(
+  node: estree.Node,
+  context: Rule.RuleContext,
+): ComplexityToken | null | undefined {
+  const { sourceCode } = context;
+  switch (node.type) {
+    case 'ConditionalExpression':
+      return sourceCode.getFirstTokenBetween(
+        node.test,
+        node.consequent,
+        token => token.value === '?',
+      );
+    case 'SwitchCase':
+      if (!node.test) {
+        return undefined;
       }
-
-      if (token) {
-        this.tokens.push(token);
-      }
-
-      for (const childNode of childrenOf(node, sourceCode.visitorKeys)) {
-        visitNode(childNode);
-      }
-    };
-
-    visitNode(this.root);
-  }
-
-  getComplexityTokens() {
-    return this.tokens;
+    case 'IfStatement':
+    case 'ForStatement':
+    case 'ForInStatement':
+    case 'ForOfStatement':
+    case 'WhileStatement':
+    case 'DoWhileStatement':
+      return sourceCode.getFirstToken(node);
+    case 'LogicalExpression':
+      return sourceCode.getFirstTokenBetween(
+        node.left,
+        node.right,
+        token => token.value === node.operator,
+      );
   }
 }

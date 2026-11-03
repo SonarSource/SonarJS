@@ -147,3 +147,42 @@ it('does not walk receiver paths for unrelated method calls', () => {
   assert.equal(issues.length, callCount);
   assert.equal(receiverReads, 0);
 });
+
+it('does not traverse function bodies again when reporting complexity', () => {
+  let bodyReads = 0;
+  const measuredRule: Rule.RuleModule = {
+    ...rule,
+    create(context) {
+      const listeners = rule.create(context);
+      return {
+        ...listeners,
+        'Program:exit'(node) {
+          const fn = (node as estree.Program).body[0] as estree.FunctionDeclaration;
+          const body = fn.body;
+          Object.defineProperty(fn, 'body', {
+            configurable: true,
+            get() {
+              bodyReads++;
+              return body;
+            },
+          });
+          try {
+            listeners['Program:exit']!(node);
+          } finally {
+            Object.defineProperty(fn, 'body', {
+              configurable: true,
+              writable: true,
+              value: body,
+            });
+          }
+        },
+      };
+    },
+  };
+  const issues = new Linter().verify('function f() { if (x) {} if (x) {} }', {
+    plugins: { test: { rules: { complexity: measuredRule } } },
+    rules: { 'test/complexity': ['error', { threshold: 2 }] },
+  });
+  assert.equal(issues.length, 1);
+  assert.equal(bodyReads, 0);
+});
