@@ -48,8 +48,7 @@ export const rule: Rule.RuleModule = {
     const threshold =
       (context.options as FromSchema<typeof meta.schema>)[0]?.threshold ?? DEFAULT_THRESHOLD;
     let functions: FunctionInfo[];
-    let functionsDefiningModule: Set<estree.Node>;
-    let functionsImmediatelyInvoked: Set<estree.Node>;
+    let functionsToExclude: Set<estree.Node>;
     let functionStack: FunctionInfo[];
     let functionsWithNested: Set<estree.Node>;
     let scopeInitializers: Map<estree.Node, string[]>;
@@ -87,14 +86,13 @@ export const rule: Rule.RuleModule = {
         (value.type === 'FunctionExpression' || value.type === 'ArrowFunctionExpression') &&
         !value.generator
       ) {
-        functionsImmediatelyInvoked.add(value);
+        functionsToExclude.add(value);
       }
     }
     return {
       Program: () => {
         functions = [];
-        functionsDefiningModule = new Set();
-        functionsImmediatelyInvoked = new Set();
+        functionsToExclude = new Set();
         functionStack = [];
         functionsWithNested = new Set();
         scopeInitializers = new Map();
@@ -108,11 +106,11 @@ export const rule: Rule.RuleModule = {
             stablePaths.get(key) ?? !writtenPaths.some(write => isPathPrefix(write, path));
           stablePaths.set(key, stable);
           if ((path[0] === 'define' || functionsWithNested.has(factory)) && stable) {
-            functionsDefiningModule.add(factory);
+            functionsToExclude.add(factory);
           }
         }
         for (const { node: func, parent, tokens } of functions) {
-          if (!functionsDefiningModule.has(func) && !functionsImmediatelyInvoked.has(func)) {
+          if (!functionsToExclude.has(func)) {
             raiseOnUnauthorizedComplexity(func, parent, tokens, threshold, context);
           }
         }
