@@ -364,6 +364,8 @@ const editableHtmlHosts = [
   '<div contentEditable={`true`} tabIndex={0} />',
   '<span contentEditable="true" tabIndex="0" />',
   '<span contentEditable="plaintext-only" tabIndex="0" />',
+  '<div contentEditable="TRUE" tabIndex={0} />',
+  '<div contentEditable="PLAINTEXT-ONLY" tabIndex={0} />',
   '<svg><foreignObject><div contentEditable tabIndex={0} /></foreignObject></svg>',
   '<div contentEditable={true as const} tabIndex={0} />',
   '<div contentEditable={"true" satisfies string} tabIndex={0} />',
