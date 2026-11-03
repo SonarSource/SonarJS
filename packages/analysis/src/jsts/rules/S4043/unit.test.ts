@@ -534,6 +534,24 @@ describe('S4043 with strict null checks', () => {
     ruleTester.run('S4043 strict nullable arrays', rule, {
       valid: [
         {
+          code: `function returned(items: number[] | undefined) {
+            return items?.sort();
+          }`,
+          filename,
+        },
+        {
+          code: `function selfAssigned(items: number[] | undefined) {
+            items = items?.sort();
+          }`,
+          filename,
+        },
+        {
+          code: `function iterated(items: number[] | undefined) {
+            for (const item of items?.sort()!) {}
+          }`,
+          filename,
+        },
+        {
           code: `function optionalMethod(items: number[] | undefined) {
             const result = items.sort?.();
           }`,
@@ -547,6 +565,13 @@ describe('S4043 with strict null checks', () => {
         },
       ],
       invalid: [
+        {
+          code: `function iteratedWithFallback(items: number[] | undefined) {
+            for (const item of items?.sort() ?? []) {}
+          }`,
+          filename,
+          errors: 1,
+        },
         {
           code: `function nullable(items: number[] | undefined) {
             const sorted = items?.sort();
