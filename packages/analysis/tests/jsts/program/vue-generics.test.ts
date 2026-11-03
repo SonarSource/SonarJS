@@ -120,6 +120,52 @@ describe('Vue generic compiler representation', () => {
   });
   for (const builder of [false, true]) {
     for (const order of ['setup', 'normal-first', 'setup-first']) {
+      for (const declaration of [
+        'export interface Props<U> { value: U }',
+        'export /* keep this comment */ type Props<U> = { value: U };',
+      ]) {
+        it(`${builder ? 'builder' : 'standard'}: preserves exported setup types (${order}, ${declaration})`, async () => {
+          const setup = `<script setup lang="ts" generic="T extends string">
+${declaration}
+const props: Props<T> = { value: 'a' as T };
+const redundantGeneric = props.value as T;
+const text: string = 'a';
+const redundant = text as string;
+</script>`;
+          const raw =
+            order === 'normal-first'
+              ? normal + setup
+              : setup + (order === 'setup-first' ? normal : '');
+          const program = create(raw, builder);
+          const source = await parse(raw, program);
+          const typed = services(source);
+          expect(typed.program).toBe(program);
+          expect(program.getSyntacticDiagnostics()).toEqual([]);
+          expect(semanticDiagnostics(program)).toEqual([]);
+          const exported = nodes(
+            source,
+            node =>
+              node.type === 'TSInterfaceDeclaration' || node.type === 'TSTypeAliasDeclaration',
+          )[0];
+          const mapped = typed.esTreeNodeToTSNodeMap.get(exported);
+          expect(ts.isInterfaceDeclaration(mapped) || ts.isTypeAliasDeclaration(mapped)).toBe(true);
+          expect(typed.tsNodeToESTreeNodeMap.get(mapped)).toBe(exported);
+          const value = nodes(
+            source,
+            node => node.type === 'Identifier' && node.name === 'value',
+          ).at(-1)!;
+          expect(typed.getTypeAtLocation(value).flags & ts.TypeFlags.TypeParameter).toBeTruthy();
+          const messages = verify(source, assertions);
+          expect(messages).toHaveLength(2);
+          for (const assertion of [' as T;', ' as string;']) {
+            const start = raw.indexOf(assertion);
+            expect(messages.find(message => message.fix?.range[0] === start)?.fix).toEqual({
+              range: [start, start + assertion.length - ';'.length],
+              text: '',
+            });
+          }
+        });
+      }
       it(`${builder ? 'builder' : 'standard'}: preserves generic relationships and original fixes (${order})`, async () => {
         const setup = `<script setup lang="ts" generic="T extends string, U extends unknown = unknown, V extends T = T">
 import type { Text } from './dep';
@@ -294,6 +340,8 @@ function shadow() { type T = boolean; const local: T = true; return local; }
     'declare class External { value: T; }',
     'declare const { value }: { value: T };',
     'namespace Local { export type Value = T; }',
+    'export const value = 1;',
+    'export default interface Props { value: T }',
   ]) {
     it(`keeps unsupported setup declarations syntax-only: ${declaration}`, async () => {
       const raw = `<script setup lang="ts" generic="T">${declaration}</script>`;

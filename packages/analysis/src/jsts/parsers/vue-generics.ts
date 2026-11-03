@@ -153,14 +153,13 @@ function prepareSetupEdits(
     edits.push({ ...range, text: blank(source.text.slice(range.start, range.end)) });
   }
   for (const statement of container.statements) {
+    const modifiers = ts.canHaveModifiers(statement) ? ts.getModifiers(statement) : undefined;
+    const exported = modifiers?.find(modifier => modifier.kind === ts.SyntaxKind.ExportKeyword);
     if (ts.isImportDeclaration(statement) || ts.isImportEqualsDeclaration(statement)) {
       const range = { start: statement.getFullStart(), end: statement.end };
       imports.push(range);
       edits.push({ ...range, text: blank(source.text.slice(range.start, range.end)) });
-    } else if (
-      ts.canHaveModifiers(statement) &&
-      ts.getModifiers(statement)?.some(modifier => modifier.kind === ts.SyntaxKind.DeclareKeyword)
-    ) {
+    } else if (modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.DeclareKeyword)) {
       // Ambient bindings can depend on the generic parameter. Keep them local and
       // definitely assigned, without putting an illegal `declare` in the function.
       if (!ts.isVariableStatement(statement)) {
@@ -173,14 +172,36 @@ function prepareSetupEdits(
       edits.push(...ambient.edits);
       starts.set(statement.getStart(source), statement.declarationList.getStart(source));
     } else if (
+      exported &&
+      (ts.isInterfaceDeclaration(statement) || ts.isTypeAliasDeclaration(statement)) &&
+      !modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.DefaultKeyword)
+    ) {
+      const keyword = statement
+        .getChildren(source)
+        .find(
+          child =>
+            child.kind === ts.SyntaxKind.InterfaceKeyword ||
+            child.kind === ts.SyntaxKind.TypeKeyword,
+        );
+      if (!keyword) {
+        return null;
+      }
+      // Vue permits type-only exports. Remove only the modifier inside the function
+      // and map the declaration's former export start to its declaration keyword.
+      edits.push({
+        start: exported.getStart(source),
+        end: exported.end,
+        text: blank(exported.getText(source)),
+      });
+      starts.set(statement.getStart(source), keyword.getStart(source));
+    } else if (
       ts.isModuleDeclaration(statement) ||
       ts.isExportDeclaration(statement) ||
       ts.isExportAssignment(statement) ||
-      (ts.canHaveModifiers(statement) &&
-        ts.getModifiers(statement)?.some(modifier => modifier.kind === ts.SyntaxKind.ExportKeyword))
+      exported
     ) {
-      // Namespaces cannot move inside a function. Exports in setup are rejected
-      // by Vue's compiler; don't invent semantics for either case.
+      // Namespaces cannot move inside a function. Value/default exports in setup
+      // are rejected by Vue's compiler; don't invent semantics for these forms.
       return null;
     }
   }

@@ -45,6 +45,8 @@ remain at module scope; setup imports are hoisted outside the function. Simple t
 variables become definitely assigned local bindings, so their types can refer to the parameters
 without illegal ambient declarations inside a function. An arrow preserves the script's lexical
 `this` and `arguments`, and becomes async when setup uses top-level await.
+Type-only `export interface` and `export type` declarations remain in the setup function
+with their export modifier removed and their declaration starts remapped.
 
 ESLint still receives Vue's unchanged AST, scope manager, tokens and restored SFC locations. The
 final inner parse runs syntax-only, then maps its original TypeScript nodes to the semantic
@@ -58,9 +60,9 @@ invalidate the Program even when Vue produces identical alias text. Supplied Pro
 against both representations before any typed services are exposed.
 
 Unsupported projections remain syntax-only for the whole component. These include ambient
-functions/classes, ambient destructuring, namespaces and exports inside setup. Any missing mapping for a
-previously mapped surviving node also rejects typed services. This fallback preserves syntax
-analysis without exposing constraint aliases as genuine generic types. Full Vue macro and
+functions/classes, ambient destructuring, namespaces, export lists and value/default exports inside
+setup. Any missing mapping for a previously mapped surviving node also rejects typed services.
+This fallback preserves syntax analysis without exposing constraint aliases as genuine generic types. Full Vue macro and
 template semantics remain outside this integration.
 
 ## Compatibility
