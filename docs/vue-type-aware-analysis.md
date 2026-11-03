@@ -61,9 +61,11 @@ against both representations before any typed services are exposed.
 
 Unsupported projections remain syntax-only for the whole component. These include ambient
 functions/classes, ambient destructuring, namespaces, export lists and value/default exports inside
-setup. Any missing mapping for a previously mapped surviving node also rejects typed services.
-This fallback preserves syntax analysis without exposing constraint aliases as genuine generic types. Full Vue macro and
-template semantics remain outside this integration.
+setup. Invalid syntax in the component's generated compiler representation also rejects typed
+services, even when node mappings are complete. Semantic errors and syntax errors in dependencies
+do not trigger this fallback. Any missing mapping for a previously mapped surviving node also
+rejects typed services. This fallback preserves syntax analysis without exposing constraint aliases
+as genuine generic types. Full Vue macro and template semantics remain outside this integration.
 
 ## Compatibility
 

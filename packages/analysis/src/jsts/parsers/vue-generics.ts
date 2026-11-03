@@ -303,6 +303,11 @@ export function applyVueGenericServices(
   program: ts.Program,
   source: ts.SourceFile,
 ): ScriptResult {
+  // Complete mappings do not guarantee valid synthetic syntax. Check only this
+  // projection; semantic errors and syntax errors in dependencies remain analyzable.
+  if (program.getSyntacticDiagnostics(source).length > 0) {
+    return parsed;
+  }
   const previous = parsed.services;
   const syntaxSource = previous.esTreeNodeToTSNodeMap.get(parsed.ast);
   if (!syntaxSource) {

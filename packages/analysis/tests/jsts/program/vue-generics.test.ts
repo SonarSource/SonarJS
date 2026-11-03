@@ -238,6 +238,58 @@ oldApi();
         expect(deprecated[0].line).toBe(source.getLocFromIndex(raw.lastIndexOf('oldApi()')).line);
       });
     }
+    it(`${builder ? 'builder' : 'standard'}: rejects malformed compiler code even when original nodes still map`, () => {
+      const raw =
+        '<script setup lang="ts" generic="T extends string">const value = "a" as T;</script>';
+      const script = getVueScript(file, raw, true)!;
+      // Corrupt only synthetic code after the original statements. Their mapped
+      // kinds and offsets remain valid, so mapping completeness cannot reject it.
+      const projection = { ...script.generics!, code: script.compilerCode + '\n)' };
+      const compilerSource = Object.assign(
+        ts.createSourceFile(file, projection.code, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX),
+        { version: '0' },
+      );
+      const config = options();
+      const host = ts.createCompilerHost(config.options);
+      host.getSourceFile = name => (name === file ? compilerSource : undefined);
+      const program = builder
+        ? ts
+            .createSemanticDiagnosticsBuilderProgram(config.rootNames, config.options, host)
+            .getProgram()
+        : createStandardProgram({ ...config, host });
+      expect(program.getSourceFile(file)).toBe(compilerSource);
+      expect(program.getSyntacticDiagnostics(compilerSource)).toEqual([
+        expect.objectContaining({ code: 1128 }),
+      ]);
+      const parsed = parsersMap.typescript.parseForESLint(script.code, { filePath: file });
+      const result = applyVueGenericServices(parsed, projection, program, compilerSource);
+      expect(result.services.program === null).toBe(true);
+      expect(result).toBe(parsed);
+    });
+    it(`${builder ? 'builder' : 'standard'}: retains typed services for semantic errors in the component`, async () => {
+      const raw =
+        '<script setup lang="ts" generic="T extends string">const wrong: number = "a"; const value = "a" as T;</script>';
+      const program = create(raw, builder);
+      expect(program.getSyntacticDiagnostics()).toEqual([]);
+      expect(semanticDiagnostics(program)).toEqual([expect.objectContaining({ code: 2322 })]);
+      expect(services(await parse(raw, program)).program).toBe(program);
+    });
+    it(`${builder ? 'builder' : 'standard'}: retains typed services for syntax errors in a dependency`, async () => {
+      const raw =
+        '<script setup lang="ts" generic="T extends string">import { text } from "./dep"; const value = text as T;</script>';
+      const program = create(raw, builder, 'export const text: string = "";\n)');
+      expect(program.getSyntacticDiagnostics(program.getSourceFile(file)!)).toEqual([]);
+      expect(program.getSyntacticDiagnostics()).toEqual([
+        expect.objectContaining({ code: 1128, file: program.getSourceFile(dependency) }),
+      ]);
+      const source = await parse(raw, program);
+      const typed = services(source);
+      expect(typed.program).toBe(program);
+      const text = nodes(source, node => node.type === 'Identifier' && node.name === 'text').at(
+        -1,
+      )!;
+      expect(typed.getTypeAtLocation(text).flags & ts.TypeFlags.String).toBeTruthy();
+    });
     it(`${builder ? 'builder' : 'standard'}: hoists value imports and preserves JSX and top-level await`, async () => {
       const raw = `<script setup lang="tsx" generic="T extends string">
 import { text } from './dep';
