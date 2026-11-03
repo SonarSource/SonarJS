@@ -26,15 +26,14 @@ import {
 } from '../../../shared/src/helpers/files.js';
 import { sonarjs } from './analysis-metadata-proto.js';
 import {
-  COMPILER_OPTION_PATHS,
-  COMPILER_OPTION_PATH_LISTS,
   readContextConfiguration,
   PROJECT_CONFIGURATION_PATHS,
   PROJECT_RELATIVE_PATH_PREFIX,
   REPLAYABLE_CONFIGURATION_FIELDS,
   type ReplayableConfiguration,
 } from './configuration-fields.js';
-import { objectFromStruct, structFromObject } from './struct-conversion.js';
+import { structFromObject } from './struct-conversion.js';
+import { compilerOptionsForStorage, restoreCompilerOptions } from './compiler-options-paths.js';
 import {
   normalizeProjectRoot,
   relativeProjectPath,
@@ -259,7 +258,7 @@ export class ProgramSelectionArchive {
                 configured: {
                   tsconfigPath: this.toRelative(program.tsconfig),
                   compilerOptions: structFromObject(
-                    this.compilerOptionsForStorage(program.compilerOptions),
+                    this.storableCompilerOptions(program.compilerOptions),
                   ),
                 },
               }
@@ -267,7 +266,7 @@ export class ProgramSelectionArchive {
                 id,
                 orphan: {
                   compilerOptions: structFromObject(
-                    this.compilerOptionsForStorage(program.compilerOptions),
+                    this.storableCompilerOptions(program.compilerOptions),
                   ),
                 },
               },
@@ -413,13 +412,13 @@ export class ProgramSelectionArchive {
       return {
         kind: 'configured',
         tsconfig: this.fromRelative(entry.configured.tsconfigPath),
-        compilerOptions: this.restoreCompilerOptions(entry.configured.compilerOptions),
+        compilerOptions: this.restoredCompilerOptions(entry.configured.compilerOptions),
       };
     }
     if (entry.orphan?.compilerOptions) {
       return {
         kind: 'orphan',
-        compilerOptions: this.restoreCompilerOptions(entry.orphan.compilerOptions),
+        compilerOptions: this.restoredCompilerOptions(entry.orphan.compilerOptions),
       };
     }
     throw new Error(`Program ${entry.id} has no descriptor`);
@@ -451,49 +450,14 @@ export class ProgramSelectionArchive {
     return absolutePath;
   }
 
-  private compilerOptionsForStorage(options: ts.CompilerOptions): Record<string, unknown> {
-    return Object.fromEntries(
-      Object.entries(options).map(([key, value]) => {
-        if (COMPILER_OPTION_PATHS.has(key) && typeof value === 'string') {
-          return [key, this.portableCompilerOptionPath(value)];
-        }
-        if (COMPILER_OPTION_PATH_LISTS.has(key) && Array.isArray(value)) {
-          return [
-            key,
-            value.map(item =>
-              typeof item === 'string' ? this.portableCompilerOptionPath(item) : item,
-            ),
-          ];
-        }
-        if (key === 'paths' && value && typeof value === 'object') {
-          return [
-            key,
-            this.mapCompilerOptionPaths(value, item => this.portableCompilerOptionPath(item)),
-          ];
-        }
-        return [key, value];
-      }),
-    );
+  private storableCompilerOptions(options: ts.CompilerOptions): Record<string, unknown> {
+    return compilerOptionsForStorage(options, item => this.portableCompilerOptionPath(item));
   }
 
-  private restoreCompilerOptions(struct: {
+  private restoredCompilerOptions(struct: {
     fields?: Record<string, unknown> | null;
   }): ts.CompilerOptions {
-    const options = objectFromStruct(struct);
-    for (const [key, value] of Object.entries(options)) {
-      if (COMPILER_OPTION_PATHS.has(key) && typeof value === 'string') {
-        options[key] = this.restoreCompilerOptionPath(value);
-      } else if (COMPILER_OPTION_PATH_LISTS.has(key) && Array.isArray(value)) {
-        options[key] = value.map(item =>
-          typeof item === 'string' ? this.restoreCompilerOptionPath(item) : item,
-        );
-      } else if (key === 'paths' && value && typeof value === 'object') {
-        options[key] = this.mapCompilerOptionPaths(value, item =>
-          this.restoreCompilerOptionPath(item),
-        );
-      }
-    }
-    return options as ts.CompilerOptions;
+    return restoreCompilerOptions(struct, item => this.restoreCompilerOptionPath(item));
   }
 
   private portableCompilerOptionPath(value: string): string {
@@ -514,19 +478,5 @@ export class ProgramSelectionArchive {
     }
     const relativePath = value.slice(PROJECT_RELATIVE_PATH_PREFIX.length);
     return relativePath === '' ? this.baseDir : this.fromRelative(relativePath);
-  }
-
-  private mapCompilerOptionPaths(
-    value: object,
-    transform: (path: string) => string,
-  ): Record<string, unknown> {
-    return Object.fromEntries(
-      Object.entries(value).map(([key, paths]) => [
-        key,
-        Array.isArray(paths)
-          ? paths.map(item => (typeof item === 'string' ? transform(item) : item))
-          : paths,
-      ]),
-    );
   }
 }
