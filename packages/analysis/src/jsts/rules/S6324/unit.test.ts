@@ -17,14 +17,14 @@
 import { DefaultParserRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { rule } from './rule.js';
 import { describe, it } from 'node:test';
-import { doesNotThrow } from 'node:assert';
+import { expect } from 'expect';
 
 const CONTROL_CHAR_MESSAGE = 'Remove this control character.';
 
 describe('S6324', () => {
   it('recognizes fixed brackets in groups and exact-one repetitions', () => {
     const ruleTester = new DefaultParserRuleTester();
-    doesNotThrow(() =>
+    expect(() =>
       ruleTester.run('Fixed terminal introducers', rule, {
         valid: [
           { code: String.raw`/\x1b(?:\[)31m/` },
@@ -78,7 +78,7 @@ describe('S6324', () => {
           },
         ],
       }),
-    );
+    ).not.toThrow();
   });
 
   describe('bounded OSC matchers', () => {
@@ -140,632 +140,642 @@ describe('S6324', () => {
     for (const { name, ...testCase } of cases) {
       it(name, () => {
         const ruleTester = new DefaultParserRuleTester();
-        ruleTester.run('No control characters in bounded OSC matchers', rule, {
-          valid: [testCase],
-          invalid: [],
-        });
+        expect(() =>
+          ruleTester.run('No control characters in bounded OSC matchers', rule, {
+            valid: [testCase],
+            invalid: [],
+          }),
+        ).not.toThrow();
       });
     }
 
     it('keeps standalone controls reportable across separate regexes', () => {
       const ruleTester = new DefaultParserRuleTester();
-      ruleTester.run('OSC exemptions are local to each regex', rule, {
-        valid: [],
-        invalid: [
-          {
-            code: String.raw`/${oscPattern}/;
+      expect(() =>
+        ruleTester.run('OSC exemptions are local to each regex', rule, {
+          valid: [],
+          invalid: [
+            {
+              code: String.raw`/${oscPattern}/;
 /\x07/;`,
-            errors: [
-              {
-                message: CONTROL_CHAR_MESSAGE,
-                line: 2,
-                column: 2,
-                endLine: 2,
-                endColumn: 6,
-              },
-            ],
-          },
-          {
-            code: String.raw`/\x07/;
+              errors: [
+                {
+                  message: CONTROL_CHAR_MESSAGE,
+                  line: 2,
+                  column: 2,
+                  endLine: 2,
+                  endColumn: 6,
+                },
+              ],
+            },
+            {
+              code: String.raw`/\x07/;
 /${oscPattern}/;`,
-            errors: [
-              {
-                message: CONTROL_CHAR_MESSAGE,
-                line: 1,
-                column: 2,
-                endLine: 1,
-                endColumn: 6,
-              },
-            ],
-          },
-        ],
-      });
+              errors: [
+                {
+                  message: CONTROL_CHAR_MESSAGE,
+                  line: 1,
+                  column: 2,
+                  endLine: 1,
+                  endColumn: 6,
+                },
+              ],
+            },
+          ],
+        }),
+      ).not.toThrow();
     });
 
     it('requires every payload delimiter exclusion', () => {
       const ruleTester = new DefaultParserRuleTester();
-      ruleTester.run('Incomplete OSC payload exclusions', rule, {
-        valid: [],
-        invalid: [
-          {
-            // BEL is not excluded.
-            code: String.raw`/\x9d[^\x1b\x9c\x9d]*\x07/`,
-            errors: 2,
-          },
-          {
-            // ESC is not excluded.
-            code: String.raw`/\x9d[^\x07\x9c\x9d]*\x07/`,
-            errors: 2,
-          },
-          {
-            // C1 ST is not excluded.
-            code: String.raw`/\x9d[^\x07\x1b\x9d]*\x07/`,
-            errors: 3,
-          },
-          {
-            // C1 OSC is not excluded.
-            code: String.raw`/\x1b\][^\x07\x1b\x9c]*\x07/`,
-            errors: 3,
-          },
-        ],
-      });
+      expect(() =>
+        ruleTester.run('Incomplete OSC payload exclusions', rule, {
+          valid: [],
+          invalid: [
+            {
+              // BEL is not excluded.
+              code: String.raw`/\x9d[^\x1b\x9c\x9d]*\x07/`,
+              errors: 2,
+            },
+            {
+              // ESC is not excluded.
+              code: String.raw`/\x9d[^\x07\x9c\x9d]*\x07/`,
+              errors: 2,
+            },
+            {
+              // C1 ST is not excluded.
+              code: String.raw`/\x9d[^\x07\x1b\x9d]*\x07/`,
+              errors: 3,
+            },
+            {
+              // C1 OSC is not excluded.
+              code: String.raw`/\x1b\][^\x07\x1b\x9c]*\x07/`,
+              errors: 3,
+            },
+          ],
+        }),
+      ).not.toThrow();
     });
 
     it('keeps controls outside a complete bounded matcher reportable', () => {
       const ruleTester = new DefaultParserRuleTester();
-      ruleTester.run('No control characters outside bounded OSC matchers', rule, {
-        valid: [],
-        invalid: [
-          {
-            code: String.raw`/(?:\x1b\]|\x9d)?[^\x07\x1b\x9c\x9d]*(?:\x07|\x1b\\)/`,
-            errors: 4,
-          },
-          {
-            code: String.raw`/(?:\x1b\]|foo)[^\x07\x1b\x9c\x9d]*(?:\x07|\x1b\\)/`,
-            errors: 4,
-          },
-          {
-            code: String.raw`/\x1b\][^\x07\x1b\x9c\x9d]*(?:\x07|\x1b\\|foo)/`,
-            errors: 4,
-          },
-          {
-            code: `/(?=${oscPattern})/`,
-            errors: 4,
-          },
-          {
-            code: `/${oscPattern}\\x07/`,
-            errors: 1,
-          },
-          {
-            code: `/${oscPattern}|\\x07/`,
-            errors: 1,
-          },
-          {
-            // Excluding an unrelated control does not exempt that control.
-            code: String.raw`/\x1b\][^\x07\x1b\x9c\x9d\x18]*\x07/`,
-            errors: 1,
-          },
-        ],
-      });
+      expect(() =>
+        ruleTester.run('No control characters outside bounded OSC matchers', rule, {
+          valid: [],
+          invalid: [
+            {
+              code: String.raw`/(?:\x1b\]|\x9d)?[^\x07\x1b\x9c\x9d]*(?:\x07|\x1b\\)/`,
+              errors: 4,
+            },
+            {
+              code: String.raw`/(?:\x1b\]|foo)[^\x07\x1b\x9c\x9d]*(?:\x07|\x1b\\)/`,
+              errors: 4,
+            },
+            {
+              code: String.raw`/\x1b\][^\x07\x1b\x9c\x9d]*(?:\x07|\x1b\\|foo)/`,
+              errors: 4,
+            },
+            {
+              code: `/(?=${oscPattern})/`,
+              errors: 4,
+            },
+            {
+              code: `/${oscPattern}\\x07/`,
+              errors: 1,
+            },
+            {
+              code: `/${oscPattern}|\\x07/`,
+              errors: 1,
+            },
+            {
+              // Excluding an unrelated control does not exempt that control.
+              code: String.raw`/\x1b\][^\x07\x1b\x9c\x9d\x18]*\x07/`,
+              errors: 1,
+            },
+          ],
+        }),
+      ).not.toThrow();
     });
   });
 
   it('S6324', () => {
     const ruleTester = new DefaultParserRuleTester();
-    ruleTester.run('No control characters in regular expressions', rule, {
-      valid: [
-        {
-          code: `/0/`,
-        },
-        {
-          code: String.raw`/\0/`,
-        },
-        {
-          code: String.raw`/\x20/`,
-        },
-        {
-          code: String.raw`/\u0020/`,
-        },
-        {
-          code: String.raw`/\u{001F}/`,
-        },
-        {
-          code: String.raw`/\cA/`,
-        },
-        {
-          code: String.raw`new RegExp('\t')`,
-        },
-        {
-          code: String.raw`new RegExp('\n')`,
-        },
-        // Control characters as character class range boundaries are compliant
-        {
-          code: String.raw`/[\x00-\x1f]/g`, // hex escape range
-        },
-        {
-          code: String.raw`/[\u0000-\u001f]/`, // unicode escape range
-        },
-        {
-          code: String.raw`/[\x01-\x08\x0e-\x1f]/`, // multiple control char ranges
-        },
-        {
-          code: String.raw`/[^\u0000-\u007F]/g`, // negated character class
-        },
-        {
-          code: String.raw`/[\x00-\x7F]/`, // full ASCII range
-        },
-        // Real-world patterns from ruling: escaping control chars, string sanitization
-        {
-          code: String.raw`/[\x00-\x1f\\]/g`, // escape pattern (like prototype.js string.inspect)
-        },
-        {
-          code: String.raw`/[^\u0000-\u007E]/g`, // non-ASCII filter (like normalizeText patterns)
-        },
-        {
-          code: String.raw`/[\x00-\x20\x7F]/g`, // git ref sanitization (ASCII control + DEL)
-        },
-        // Mixed ranges and standalone chars in character class: intentional character set construction
-        // (Fixes false positives for YAML, CSS, asciify patterns)
-        {
-          // Standalone chars (\x0b, \x0c) alongside ranges (\x00-\x08) should not flag
-          // because the presence of ranges indicates intentional character set construction
-          code: String.raw`/[\x00-\x08\x0b\x0c]/`,
-        },
-        {
-          // Control char escaping pattern from Jest's escapeControlCharacters
-          // Ranges with standalone chars to match specific control characters
-          code: String.raw`/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g`,
-        },
-        {
-          // YAML non-printable character pattern
-          // Combines ranges with excluded chars (tab, newline, carriage return are allowed)
-          code: String.raw`/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g`,
-        },
-        {
-          // Asciify pattern: escape control chars plus high bytes
-          code: String.raw`/[\x00-\x08\x0b\x0c\x0e-\x19\x80-\uffff]/g`,
-        },
-        {
-          // Git ref name sanitization: control chars, space, and special chars
-          // Range plus standalone DEL character
-          code: String.raw`/[\x00-\x20\x7F~^:?*\[\]\\|""<>]/g`,
-        },
-        {
-          // Unicode variation with mixed ranges and standalone
-          code: String.raw`/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g`,
-        },
-        // ANSI escape sequences - ESC followed by [ or ] should not be flagged
-        // CSI (Control Sequence Introducer) - ESC + [
-        {
-          // CSI sequence: ESC followed by [ indicates ANSI control sequence start
-          // Used for terminal colors, cursor control, etc.
-          code: String.raw`/\u001b\[\d+m/g`,
-        },
-        {
-          // CSI sequence with hex escape
-          code: String.raw`/\x1b\[\d+m/g`,
-        },
-        {
-          // CSI sequence for multiple parameters (like SGR - Select Graphic Rendition)
-          code: String.raw`/\u001b\[[\d;]+m/g`,
-        },
-        // OSC (Operating System Command) - ESC + ] ... BEL
-        {
-          // OSC sequence: ESC + ] starts OSC, BEL (\x07) terminates it
-          // Per xterm spec, BEL is valid only as OSC terminator
-          code: String.raw`/\x1b\][^\x00-\x1f\x80-\x9f]*\x07/`,
-        },
-        {
-          // OSC sequence with unicode escapes
-          code: String.raw`/\u001b\][^\u0000-\u001f\u0080-\u009f]*\u0007/`,
-        },
-        {
-          // OSC may end with the string terminator (ESC + \).
-          code: String.raw`/\x1b\][^\x00-\x1f\x80-\x9f]*\x1b\\/`,
-        },
-        {
-          // OSC may end with either BEL or the string terminator (ESC + \).
-          code: String.raw`/\x1b\][^\x00-\x1f\x80-\x9f]*(?:\x07|\x1b\\)/`,
-        },
-        {
-          // OSC may use the C1 string terminator instead of ESC + \.
-          code: String.raw`/\x1b\][^\x00-\x1f\x80-\x9f]*(?:\x07|\x9c)/`,
-        },
-        {
-          // An OSC terminator remains valid before ordinary terminal output.
-          code: String.raw`/\x1b\]0;title\x07label/`,
-        },
-        {
-          // A payload class that excludes every OSC terminator leaves BEL valid.
-          code: String.raw`/\x1b\][^\x00-\x1f\x9c\x9d]*\x07/`,
-        },
-        {
-          // A complete OSC sequence remains exempt inside a non-capturing group.
-          code: String.raw`/(?:\x1b\][^\x00-\x1f\x80-\x9f]*\x07)/`,
-        },
-        {
-          // Capturing terminator alternatives are valid when every branch is a terminator.
-          code: String.raw`/\x1b\][^\x00-\x1f\x80-\x9f]*(\x07|\x1b\\)/`,
-        },
-        {
-          // A complete OSC sequence may be followed by an end assertion.
-          code: String.raw`/^\x1b\]0;[^\x00-\x1f\x80-\x9f]*\x07$/`,
-        },
-        {
-          // A terminator may be followed by another OSC sequence.
-          code: String.raw`/\x1b\]0;[^\x00-\x1f\x80-\x9f]*\x07\x1b\]1;[^\x00-\x1f\x80-\x9f]*\x07/`,
-        },
-        {
-          // Combined ANSI control sequences pattern (like vscode ansiUtils.ts)
-          // Matches CSI, OSC, and simple ESC sequences
-          // Note: \x9b is C1 CSI (0x9b = 155) which is > 0x1f, so not flagged as control char
-          code: String.raw`/(?:\x1b\[|\x9b)[=?>!]?[\d;:]*["$#'* ]?[a-zA-Z@^\`{}|~]/`,
-        },
-        {
-          // ANSI CSI in non-capturing group (from GitHub Desktop actions-logs-ansii.ts)
-          // ESC in non-capturing group followed by [ should be exempted
-          code: String.raw`/(?:\u001b\[)(?:[?|#])?(?:(?:[0-9]{1,3})?(?:(?:;[0-9]{0,3})*)?[A-Z|a-z])/`,
-        },
-      ],
-      invalid: [
-        {
-          code: String.raw`/\x00/`,
-          errors: [
-            {
-              message: CONTROL_CHAR_MESSAGE,
-              line: 1,
-              endLine: 1,
-              column: 2,
-              endColumn: 6,
-            },
-          ],
-        },
-        {
-          code: String.raw`/\u001F/`,
-          errors: [
-            {
-              message: CONTROL_CHAR_MESSAGE,
-              line: 1,
-              endLine: 1,
-              column: 2,
-              endColumn: 8,
-            },
-          ],
-        },
-        {
-          code: String.raw`/\u{001F}/u`,
-          errors: [
-            {
-              message: CONTROL_CHAR_MESSAGE,
-              line: 1,
-              endLine: 1,
-              column: 2,
-              endColumn: 10,
-            },
-          ],
-        },
-        {
-          code: String.raw`var regex = new RegExp('\x1f\x1e')`,
-          errors: [
-            {
-              message: CONTROL_CHAR_MESSAGE,
-              line: 1,
-              endLine: 1,
-              column: 25,
-              endColumn: 29,
-            },
-            {
-              message: CONTROL_CHAR_MESSAGE,
-              line: 1,
-              endLine: 1,
-              column: 29,
-              endColumn: 33,
-            },
-          ],
-        },
-        {
-          code: String.raw`var regex = new RegExp('\x1fFOO\x00')`,
-          errors: 2,
-        },
-        {
-          code: String.raw`var regex = new RegExp('FOO\x1fFOO\x1f')`,
-          errors: 2,
-        },
-        {
-          code: String.raw`var regex = RegExp('\x1f')`,
-          errors: 1,
-        },
-        {
-          code: String.raw`const flags = ''; new RegExp("\\u001F", flags)`,
-          errors: 1,
-        },
-        {
-          // Standalone control characters inside character class should still be flagged
-          // \x0b and \x0c are NOT range boundaries here
-          code: String.raw`/[\x0b\x0c]/`,
-          errors: 2,
-        },
-        {
-          // Standalone control char should still be flagged when the only range is printable.
-          code: String.raw`/[\x01a-z]/`,
-          errors: 1,
-        },
-        {
-          // Multiple standalone control chars should still be flagged when mixed with a printable range.
-          code: String.raw`/[\x02\x03A-Z]/`,
-          errors: 2,
-        },
-        {
-          // Printable digit ranges must not exempt standalone control chars.
-          code: String.raw`/[0-9\x01]/`,
-          errors: 1,
-        },
-        {
-          // Existing VT/FF standalone cases stay noncompliant even when mixed with printable ranges.
-          code: String.raw`/[\x0b\x0ca-z]/`,
-          errors: 2,
-        },
-        {
-          // Interpreted control chars should also be reported when the only range is printable.
-          code: '/[\u0001A-Z]/',
-          errors: 1,
-        },
-        {
-          // Standalone NULL byte replacement (like saxparser.js)
-          code: String.raw`str.replace(/\u0000/g, '')`,
-          errors: 1,
-        },
-        {
-          // CRLF detection pattern - both flagged since hex escapes aren't excepted
-          code: String.raw`/\x0d\x0a/`,
-          errors: 2,
-        },
-        {
-          // Whitespace alternation pattern (like csslint.js) - unicode escapes not excepted
-          code: String.raw`/\u0009|\u000a|\u000c|\u000d|\u0020/`,
-          errors: 4, // tab, LF, FF, CR as unicode escapes; space (0x20) is not a control char
-        },
-        // ANSI-related: Cases that should STILL be flagged
-        {
-          // Positive shorthand classes are outside the bounded payload exception.
-          code: String.raw`/\x1b\][\d]\x07/`,
-          errors: 1,
-        },
-        {
-          // Unicode-property payloads are deliberately unsupported.
-          code: String.raw`/\x1b\]\p{L}+\x07/u`,
-          errors: 1,
-        },
-        {
-          // C1 CSI in literal payload text does not qualify for the exception.
-          code: String.raw`/\x1b\]0;title\x9b0m\x1b\\/`,
-          errors: 1,
-        },
-        {
-          // A wildcard may consume BEL and close OSC before the final ST.
-          code: String.raw`/\x1b\]0;title.\x1b\\/`,
-          errors: [
-            {
-              message: CONTROL_CHAR_MESSAGE,
-              column: 16,
-              endColumn: 20,
-            },
-          ],
-        },
-        {
-          // Lazy repetition can still consume earlier termination or cancellation.
-          code: String.raw`/\x1b\].*?\x1b\\/`,
-          errors: 1,
-        },
-        {
-          code: String.raw`/\x1b\].*?\x07/`,
-          errors: 1,
-        },
-        {
-          code: String.raw`/\u001b\].*?\u0007/`,
-          errors: 1,
-        },
-        {
-          code: String.raw`/\x1b\].*?(?:\x07|\x1b\\)/`,
-          errors: 2,
-        },
-        {
-          code: String.raw`/\x1b\].*?(?:\x07|\x9c)/`,
-          errors: 1,
-        },
-        {
-          // Wrapping the wildcard does not prove the payload safe.
-          code: String.raw`/\x1b\](?:.)+(\x07|\x1b\\)/`,
-          errors: 2,
-        },
-        {
-          // DotAll also allows OSC controls in the payload.
-          code: String.raw`/\x1b\].*\x1b\\/s`,
-          errors: 1,
-        },
-        {
-          // ESC not followed by [ or ] should still be flagged
-          code: String.raw`/\x1b[a-z]/`,
-          errors: 1,
-        },
-        {
-          // BEL without OSC sequence should still be flagged
-          // BEL is only valid as OSC terminator (after ESC + ])
-          code: String.raw`/\x07foo/`,
-          errors: 1,
-        },
-        {
-          // BEL in CSI sequence is NOT valid - should be flagged
-          // BEL is only valid as OSC terminator, not CSI terminator
-          code: String.raw`/\x1b\[.*?\x07/`,
-          errors: 1, // Only BEL should be flagged; ESC + [ is valid CSI
-        },
-        {
-          // An OSC introducer in another alternative does not make BEL a terminator.
-          code: String.raw`/(?:\x1b\].*?|\x07)/`,
-          errors: 1,
-        },
-        {
-          // BEL remains reportable when the OSC introducer is optional.
-          code: String.raw`/(?:\x1b\].*?)?(?:\x07|foo)/`,
-          errors: 1,
-        },
-        {
-          // BEL used only to assert an absent terminator is not an OSC terminator.
-          code: String.raw`/\x1b\](?!.*\x07)/`,
-          errors: 1,
-        },
-        {
-          // Every terminator alternative must be valid for an OSC sequence.
-          code: String.raw`/\x1b\].*?(?:\x07|foo)/`,
-          errors: 1,
-        },
-        {
-          // An invalid alternative keeps both OSC terminators reportable.
-          code: String.raw`/\x1b\].*?(?:\x07|\x1b\\|foo)/`,
-          errors: 2,
-        },
-        {
-          // A closed OSC cannot exempt a later standalone string terminator.
-          code: String.raw`/\x1b\]0;title\x07\x1b\\/`,
-          errors: 1,
-        },
-        {
-          // A C1 string terminator also closes an OSC sequence.
-          code: String.raw`/\x1b\]0;title\x9c\x1b\\/`,
-          errors: 1,
-        },
-        {
-          // A mandatory nested BEL closes the OSC before the later string terminator.
-          code: String.raw`/\x1b\]0;title(?:x\x07)\x1b\\/`,
-          errors: 2,
-        },
-        {
-          // An optional BEL does not prove that the OSC has already closed.
-          code: String.raw`/\x1b\]0;title\x07?\x1b\\/`,
-          errors: 2,
-        },
-        {
-          // A character class that can match BEL may close the OSC sequence.
-          code: String.raw`/\x1b\]0;title[\x07]\x1b\\/`,
-          errors: 2,
-        },
-        {
-          // A character class that matches C1 ST closes the OSC sequence.
-          code: String.raw`/\x1b\]0;title[\x9c]\x1b\\/`,
-          errors: 1,
-        },
-        {
-          // A character set that can match BEL may close the OSC sequence.
-          code: String.raw`/\x1b\]0;title[\D]\x1b\\/`,
-          errors: 1,
-        },
-        {
-          // A bare character set that can match BEL may close the OSC sequence.
-          code: String.raw`/\x1b\]\D\x1b\\/`,
-          errors: 1,
-        },
-        {
-          // An any-character class can match BEL before the explicit terminator.
-          code: String.raw`/\x1b\][\s\S]*?\x07/`,
-          errors: 1,
-        },
-        {
-          // A negated class that does not exclude OSC controls can match BEL.
-          code: String.raw`/\x1b\][^;]*\x07/`,
-          errors: 1,
-        },
-        {
-          // Unicode control properties can also match BEL before a later ST.
-          code: String.raw`/\x1b\]\p{Cc}\x1b\\/u`,
-          errors: 1,
-        },
-        {
-          // CAN cancels OSC before the later ST.
-          code: String.raw`/\x1b\]\x18\x1b\\/`,
-          errors: 2,
-        },
-        {
-          // CSI replaces OSC before the later ST.
-          code: String.raw`/\x1b\]\x1b\[m\x1b\\/`,
-          errors: 1,
-        },
-        {
-          // A backreference can replay a C1 ST before the later ST.
-          code: String.raw`/(\x9c)\x1b\]\1\x1b\\/`,
-          errors: 1,
-        },
-        {
-          // A grouped OSC introducer does not prove that a later ST belongs to it.
-          code: String.raw`/\x1b(?:\]0;title\x9c)\x1b\\/`,
-          errors: 2,
-        },
-        {
-          // A negated Unicode property can still match an OSC terminator.
-          code: String.raw`/\x1b\]0;[^\p{L}]\x1b\\/u`,
-          errors: 1,
-        },
-        {
-          // Consecutive repetitions can form an earlier ST across their boundary.
-          code: String.raw`/\x1b\](?:\\\x1b){2}\x1b\\/`,
-          errors: 2,
-        },
-        {
-          // A terminator split across a group is outside the bounded matcher grammar.
-          code: String.raw`/\x1b\]0;title\x1b(?:\\)\x1b\\/`,
-          errors: 2,
-        },
-        {
-          // A quantified ESC can still form an earlier string terminator.
-          code: String.raw`/\x1b\]0;title\x1b?\\\x1b\\/`,
-          errors: 2,
-        },
-        {
-          // Lookarounds between ST bytes are outside the bounded matcher grammar.
-          code: String.raw`/\x1b\]0;title\x1b(?=\\)\\\x1b\\/`,
-          errors: 2,
-        },
-        {
-          // An alternative with a non-backslash branch is not an ST terminator.
-          code: String.raw`/\x1b\]0;title\x1b(?:\\|x)/`,
-          errors: 1,
-        },
-        {
-          // An optional backslash does not prove an ST terminator.
-          code: String.raw`/\x1b\]0;title\x1b\\?/`,
-          errors: 1,
-        },
-        {
-          // A nullable prefix inside a group can precede an earlier string terminator.
-          code: String.raw`/\x1b\]0;title\x1b(?:x?\\)\x1b\\/`,
-          errors: 2,
-        },
-        {
-          // Nested nullable groups can also contain an earlier string terminator.
-          code: String.raw`/\x1b\]0;title(?:\x1b(?:x|)\\)\x1b\\/`,
-          errors: 2,
-        },
-        {
-          // ST nested in groups also closes the OSC sequence.
-          code: String.raw`/\x1b\]0;title(?:\x1b(?:\\))\x1b\\/`,
-          errors: 2,
-        },
-        {
-          // BEL inside a character class is not an OSC terminator.
-          code: String.raw`/\x1b\][^\x07]*/`,
-          errors: 1,
-        },
-        {
-          // Standalone ESC without sequence introducer
-          code: String.raw`/\u001b/`,
-          errors: 1,
-        },
-        {
-          // ESC followed by something other than [ or ]
-          code: String.raw`/\x1b\(/`,
-          errors: 1,
-        },
-      ],
-    });
+    expect(() =>
+      ruleTester.run('No control characters in regular expressions', rule, {
+        valid: [
+          {
+            code: `/0/`,
+          },
+          {
+            code: String.raw`/\0/`,
+          },
+          {
+            code: String.raw`/\x20/`,
+          },
+          {
+            code: String.raw`/\u0020/`,
+          },
+          {
+            code: String.raw`/\u{001F}/`,
+          },
+          {
+            code: String.raw`/\cA/`,
+          },
+          {
+            code: String.raw`new RegExp('\t')`,
+          },
+          {
+            code: String.raw`new RegExp('\n')`,
+          },
+          // Control characters as character class range boundaries are compliant
+          {
+            code: String.raw`/[\x00-\x1f]/g`, // hex escape range
+          },
+          {
+            code: String.raw`/[\u0000-\u001f]/`, // unicode escape range
+          },
+          {
+            code: String.raw`/[\x01-\x08\x0e-\x1f]/`, // multiple control char ranges
+          },
+          {
+            code: String.raw`/[^\u0000-\u007F]/g`, // negated character class
+          },
+          {
+            code: String.raw`/[\x00-\x7F]/`, // full ASCII range
+          },
+          // Real-world patterns from ruling: escaping control chars, string sanitization
+          {
+            code: String.raw`/[\x00-\x1f\\]/g`, // escape pattern (like prototype.js string.inspect)
+          },
+          {
+            code: String.raw`/[^\u0000-\u007E]/g`, // non-ASCII filter (like normalizeText patterns)
+          },
+          {
+            code: String.raw`/[\x00-\x20\x7F]/g`, // git ref sanitization (ASCII control + DEL)
+          },
+          // Mixed ranges and standalone chars in character class: intentional character set construction
+          // (Fixes false positives for YAML, CSS, asciify patterns)
+          {
+            // Standalone chars (\x0b, \x0c) alongside ranges (\x00-\x08) should not flag
+            // because the presence of ranges indicates intentional character set construction
+            code: String.raw`/[\x00-\x08\x0b\x0c]/`,
+          },
+          {
+            // Control char escaping pattern from Jest's escapeControlCharacters
+            // Ranges with standalone chars to match specific control characters
+            code: String.raw`/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g`,
+          },
+          {
+            // YAML non-printable character pattern
+            // Combines ranges with excluded chars (tab, newline, carriage return are allowed)
+            code: String.raw`/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/g`,
+          },
+          {
+            // Asciify pattern: escape control chars plus high bytes
+            code: String.raw`/[\x00-\x08\x0b\x0c\x0e-\x19\x80-\uffff]/g`,
+          },
+          {
+            // Git ref name sanitization: control chars, space, and special chars
+            // Range plus standalone DEL character
+            code: String.raw`/[\x00-\x20\x7F~^:?*\[\]\\|""<>]/g`,
+          },
+          {
+            // Unicode variation with mixed ranges and standalone
+            code: String.raw`/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g`,
+          },
+          // ANSI escape sequences - ESC followed by [ or ] should not be flagged
+          // CSI (Control Sequence Introducer) - ESC + [
+          {
+            // CSI sequence: ESC followed by [ indicates ANSI control sequence start
+            // Used for terminal colors, cursor control, etc.
+            code: String.raw`/\u001b\[\d+m/g`,
+          },
+          {
+            // CSI sequence with hex escape
+            code: String.raw`/\x1b\[\d+m/g`,
+          },
+          {
+            // CSI sequence for multiple parameters (like SGR - Select Graphic Rendition)
+            code: String.raw`/\u001b\[[\d;]+m/g`,
+          },
+          // OSC (Operating System Command) - ESC + ] ... BEL
+          {
+            // OSC sequence: ESC + ] starts OSC, BEL (\x07) terminates it
+            // Per xterm spec, BEL is valid only as OSC terminator
+            code: String.raw`/\x1b\][^\x00-\x1f\x80-\x9f]*\x07/`,
+          },
+          {
+            // OSC sequence with unicode escapes
+            code: String.raw`/\u001b\][^\u0000-\u001f\u0080-\u009f]*\u0007/`,
+          },
+          {
+            // OSC may end with the string terminator (ESC + \).
+            code: String.raw`/\x1b\][^\x00-\x1f\x80-\x9f]*\x1b\\/`,
+          },
+          {
+            // OSC may end with either BEL or the string terminator (ESC + \).
+            code: String.raw`/\x1b\][^\x00-\x1f\x80-\x9f]*(?:\x07|\x1b\\)/`,
+          },
+          {
+            // OSC may use the C1 string terminator instead of ESC + \.
+            code: String.raw`/\x1b\][^\x00-\x1f\x80-\x9f]*(?:\x07|\x9c)/`,
+          },
+          {
+            // An OSC terminator remains valid before ordinary terminal output.
+            code: String.raw`/\x1b\]0;title\x07label/`,
+          },
+          {
+            // A payload class that excludes every OSC terminator leaves BEL valid.
+            code: String.raw`/\x1b\][^\x00-\x1f\x9c\x9d]*\x07/`,
+          },
+          {
+            // A complete OSC sequence remains exempt inside a non-capturing group.
+            code: String.raw`/(?:\x1b\][^\x00-\x1f\x80-\x9f]*\x07)/`,
+          },
+          {
+            // Capturing terminator alternatives are valid when every branch is a terminator.
+            code: String.raw`/\x1b\][^\x00-\x1f\x80-\x9f]*(\x07|\x1b\\)/`,
+          },
+          {
+            // A complete OSC sequence may be followed by an end assertion.
+            code: String.raw`/^\x1b\]0;[^\x00-\x1f\x80-\x9f]*\x07$/`,
+          },
+          {
+            // A terminator may be followed by another OSC sequence.
+            code: String.raw`/\x1b\]0;[^\x00-\x1f\x80-\x9f]*\x07\x1b\]1;[^\x00-\x1f\x80-\x9f]*\x07/`,
+          },
+          {
+            // Combined ANSI control sequences pattern (like vscode ansiUtils.ts)
+            // Matches CSI, OSC, and simple ESC sequences
+            // Note: \x9b is C1 CSI (0x9b = 155) which is > 0x1f, so not flagged as control char
+            code: String.raw`/(?:\x1b\[|\x9b)[=?>!]?[\d;:]*["$#'* ]?[a-zA-Z@^\`{}|~]/`,
+          },
+          {
+            // ANSI CSI in non-capturing group (from GitHub Desktop actions-logs-ansii.ts)
+            // ESC in non-capturing group followed by [ should be exempted
+            code: String.raw`/(?:\u001b\[)(?:[?|#])?(?:(?:[0-9]{1,3})?(?:(?:;[0-9]{0,3})*)?[A-Z|a-z])/`,
+          },
+        ],
+        invalid: [
+          {
+            code: String.raw`/\x00/`,
+            errors: [
+              {
+                message: CONTROL_CHAR_MESSAGE,
+                line: 1,
+                endLine: 1,
+                column: 2,
+                endColumn: 6,
+              },
+            ],
+          },
+          {
+            code: String.raw`/\u001F/`,
+            errors: [
+              {
+                message: CONTROL_CHAR_MESSAGE,
+                line: 1,
+                endLine: 1,
+                column: 2,
+                endColumn: 8,
+              },
+            ],
+          },
+          {
+            code: String.raw`/\u{001F}/u`,
+            errors: [
+              {
+                message: CONTROL_CHAR_MESSAGE,
+                line: 1,
+                endLine: 1,
+                column: 2,
+                endColumn: 10,
+              },
+            ],
+          },
+          {
+            code: String.raw`var regex = new RegExp('\x1f\x1e')`,
+            errors: [
+              {
+                message: CONTROL_CHAR_MESSAGE,
+                line: 1,
+                endLine: 1,
+                column: 25,
+                endColumn: 29,
+              },
+              {
+                message: CONTROL_CHAR_MESSAGE,
+                line: 1,
+                endLine: 1,
+                column: 29,
+                endColumn: 33,
+              },
+            ],
+          },
+          {
+            code: String.raw`var regex = new RegExp('\x1fFOO\x00')`,
+            errors: 2,
+          },
+          {
+            code: String.raw`var regex = new RegExp('FOO\x1fFOO\x1f')`,
+            errors: 2,
+          },
+          {
+            code: String.raw`var regex = RegExp('\x1f')`,
+            errors: 1,
+          },
+          {
+            code: String.raw`const flags = ''; new RegExp("\\u001F", flags)`,
+            errors: 1,
+          },
+          {
+            // Standalone control characters inside character class should still be flagged
+            // \x0b and \x0c are NOT range boundaries here
+            code: String.raw`/[\x0b\x0c]/`,
+            errors: 2,
+          },
+          {
+            // Standalone control char should still be flagged when the only range is printable.
+            code: String.raw`/[\x01a-z]/`,
+            errors: 1,
+          },
+          {
+            // Multiple standalone control chars should still be flagged when mixed with a printable range.
+            code: String.raw`/[\x02\x03A-Z]/`,
+            errors: 2,
+          },
+          {
+            // Printable digit ranges must not exempt standalone control chars.
+            code: String.raw`/[0-9\x01]/`,
+            errors: 1,
+          },
+          {
+            // Existing VT/FF standalone cases stay noncompliant even when mixed with printable ranges.
+            code: String.raw`/[\x0b\x0ca-z]/`,
+            errors: 2,
+          },
+          {
+            // Interpreted control chars should also be reported when the only range is printable.
+            code: '/[\u0001A-Z]/',
+            errors: 1,
+          },
+          {
+            // Standalone NULL byte replacement (like saxparser.js)
+            code: String.raw`str.replace(/\u0000/g, '')`,
+            errors: 1,
+          },
+          {
+            // CRLF detection pattern - both flagged since hex escapes aren't excepted
+            code: String.raw`/\x0d\x0a/`,
+            errors: 2,
+          },
+          {
+            // Whitespace alternation pattern (like csslint.js) - unicode escapes not excepted
+            code: String.raw`/\u0009|\u000a|\u000c|\u000d|\u0020/`,
+            errors: 4, // tab, LF, FF, CR as unicode escapes; space (0x20) is not a control char
+          },
+          // ANSI-related: Cases that should STILL be flagged
+          {
+            // Positive shorthand classes are outside the bounded payload exception.
+            code: String.raw`/\x1b\][\d]\x07/`,
+            errors: 1,
+          },
+          {
+            // Unicode-property payloads are deliberately unsupported.
+            code: String.raw`/\x1b\]\p{L}+\x07/u`,
+            errors: 1,
+          },
+          {
+            // C1 CSI in literal payload text does not qualify for the exception.
+            code: String.raw`/\x1b\]0;title\x9b0m\x1b\\/`,
+            errors: 1,
+          },
+          {
+            // A wildcard may consume BEL and close OSC before the final ST.
+            code: String.raw`/\x1b\]0;title.\x1b\\/`,
+            errors: [
+              {
+                message: CONTROL_CHAR_MESSAGE,
+                column: 16,
+                endColumn: 20,
+              },
+            ],
+          },
+          {
+            // Lazy repetition can still consume earlier termination or cancellation.
+            code: String.raw`/\x1b\].*?\x1b\\/`,
+            errors: 1,
+          },
+          {
+            code: String.raw`/\x1b\].*?\x07/`,
+            errors: 1,
+          },
+          {
+            code: String.raw`/\u001b\].*?\u0007/`,
+            errors: 1,
+          },
+          {
+            code: String.raw`/\x1b\].*?(?:\x07|\x1b\\)/`,
+            errors: 2,
+          },
+          {
+            code: String.raw`/\x1b\].*?(?:\x07|\x9c)/`,
+            errors: 1,
+          },
+          {
+            // Wrapping the wildcard does not prove the payload safe.
+            code: String.raw`/\x1b\](?:.)+(\x07|\x1b\\)/`,
+            errors: 2,
+          },
+          {
+            // DotAll also allows OSC controls in the payload.
+            code: String.raw`/\x1b\].*\x1b\\/s`,
+            errors: 1,
+          },
+          {
+            // ESC not followed by [ or ] should still be flagged
+            code: String.raw`/\x1b[a-z]/`,
+            errors: 1,
+          },
+          {
+            // BEL without OSC sequence should still be flagged
+            // BEL is only valid as OSC terminator (after ESC + ])
+            code: String.raw`/\x07foo/`,
+            errors: 1,
+          },
+          {
+            // BEL in CSI sequence is NOT valid - should be flagged
+            // BEL is only valid as OSC terminator, not CSI terminator
+            code: String.raw`/\x1b\[.*?\x07/`,
+            errors: 1, // Only BEL should be flagged; ESC + [ is valid CSI
+          },
+          {
+            // An OSC introducer in another alternative does not make BEL a terminator.
+            code: String.raw`/(?:\x1b\].*?|\x07)/`,
+            errors: 1,
+          },
+          {
+            // BEL remains reportable when the OSC introducer is optional.
+            code: String.raw`/(?:\x1b\].*?)?(?:\x07|foo)/`,
+            errors: 1,
+          },
+          {
+            // BEL used only to assert an absent terminator is not an OSC terminator.
+            code: String.raw`/\x1b\](?!.*\x07)/`,
+            errors: 1,
+          },
+          {
+            // Every terminator alternative must be valid for an OSC sequence.
+            code: String.raw`/\x1b\].*?(?:\x07|foo)/`,
+            errors: 1,
+          },
+          {
+            // An invalid alternative keeps both OSC terminators reportable.
+            code: String.raw`/\x1b\].*?(?:\x07|\x1b\\|foo)/`,
+            errors: 2,
+          },
+          {
+            // A closed OSC cannot exempt a later standalone string terminator.
+            code: String.raw`/\x1b\]0;title\x07\x1b\\/`,
+            errors: 1,
+          },
+          {
+            // A C1 string terminator also closes an OSC sequence.
+            code: String.raw`/\x1b\]0;title\x9c\x1b\\/`,
+            errors: 1,
+          },
+          {
+            // A mandatory nested BEL closes the OSC before the later string terminator.
+            code: String.raw`/\x1b\]0;title(?:x\x07)\x1b\\/`,
+            errors: 2,
+          },
+          {
+            // An optional BEL does not prove that the OSC has already closed.
+            code: String.raw`/\x1b\]0;title\x07?\x1b\\/`,
+            errors: 2,
+          },
+          {
+            // A character class that can match BEL may close the OSC sequence.
+            code: String.raw`/\x1b\]0;title[\x07]\x1b\\/`,
+            errors: 2,
+          },
+          {
+            // A character class that matches C1 ST closes the OSC sequence.
+            code: String.raw`/\x1b\]0;title[\x9c]\x1b\\/`,
+            errors: 1,
+          },
+          {
+            // A character set that can match BEL may close the OSC sequence.
+            code: String.raw`/\x1b\]0;title[\D]\x1b\\/`,
+            errors: 1,
+          },
+          {
+            // A bare character set that can match BEL may close the OSC sequence.
+            code: String.raw`/\x1b\]\D\x1b\\/`,
+            errors: 1,
+          },
+          {
+            // An any-character class can match BEL before the explicit terminator.
+            code: String.raw`/\x1b\][\s\S]*?\x07/`,
+            errors: 1,
+          },
+          {
+            // A negated class that does not exclude OSC controls can match BEL.
+            code: String.raw`/\x1b\][^;]*\x07/`,
+            errors: 1,
+          },
+          {
+            // Unicode control properties can also match BEL before a later ST.
+            code: String.raw`/\x1b\]\p{Cc}\x1b\\/u`,
+            errors: 1,
+          },
+          {
+            // CAN cancels OSC before the later ST.
+            code: String.raw`/\x1b\]\x18\x1b\\/`,
+            errors: 2,
+          },
+          {
+            // CSI replaces OSC before the later ST.
+            code: String.raw`/\x1b\]\x1b\[m\x1b\\/`,
+            errors: 1,
+          },
+          {
+            // A backreference can replay a C1 ST before the later ST.
+            code: String.raw`/(\x9c)\x1b\]\1\x1b\\/`,
+            errors: 1,
+          },
+          {
+            // A grouped OSC introducer does not prove that a later ST belongs to it.
+            code: String.raw`/\x1b(?:\]0;title\x9c)\x1b\\/`,
+            errors: 2,
+          },
+          {
+            // A negated Unicode property can still match an OSC terminator.
+            code: String.raw`/\x1b\]0;[^\p{L}]\x1b\\/u`,
+            errors: 1,
+          },
+          {
+            // Consecutive repetitions can form an earlier ST across their boundary.
+            code: String.raw`/\x1b\](?:\\\x1b){2}\x1b\\/`,
+            errors: 2,
+          },
+          {
+            // A terminator split across a group is outside the bounded matcher grammar.
+            code: String.raw`/\x1b\]0;title\x1b(?:\\)\x1b\\/`,
+            errors: 2,
+          },
+          {
+            // A quantified ESC can still form an earlier string terminator.
+            code: String.raw`/\x1b\]0;title\x1b?\\\x1b\\/`,
+            errors: 2,
+          },
+          {
+            // Lookarounds between ST bytes are outside the bounded matcher grammar.
+            code: String.raw`/\x1b\]0;title\x1b(?=\\)\\\x1b\\/`,
+            errors: 2,
+          },
+          {
+            // An alternative with a non-backslash branch is not an ST terminator.
+            code: String.raw`/\x1b\]0;title\x1b(?:\\|x)/`,
+            errors: 1,
+          },
+          {
+            // An optional backslash does not prove an ST terminator.
+            code: String.raw`/\x1b\]0;title\x1b\\?/`,
+            errors: 1,
+          },
+          {
+            // A nullable prefix inside a group can precede an earlier string terminator.
+            code: String.raw`/\x1b\]0;title\x1b(?:x?\\)\x1b\\/`,
+            errors: 2,
+          },
+          {
+            // Nested nullable groups can also contain an earlier string terminator.
+            code: String.raw`/\x1b\]0;title(?:\x1b(?:x|)\\)\x1b\\/`,
+            errors: 2,
+          },
+          {
+            // ST nested in groups also closes the OSC sequence.
+            code: String.raw`/\x1b\]0;title(?:\x1b(?:\\))\x1b\\/`,
+            errors: 2,
+          },
+          {
+            // BEL inside a character class is not an OSC terminator.
+            code: String.raw`/\x1b\][^\x07]*/`,
+            errors: 1,
+          },
+          {
+            // Standalone ESC without sequence introducer
+            code: String.raw`/\u001b/`,
+            errors: 1,
+          },
+          {
+            // ESC followed by something other than [ or ]
+            code: String.raw`/\x1b\(/`,
+            errors: 1,
+          },
+        ],
+      }),
+    ).not.toThrow();
   });
 });
