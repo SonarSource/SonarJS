@@ -29,13 +29,8 @@ import type { CssIssue } from '../../css/linter/issues/issue.js';
  * This is the internal type used after sanitization. All fields are required
  * because sanitization fills in defaults, reads file content, and infers language.
  *
- * On SonarLint and Vue projects, TSConfig-based analysis relies on an automatically
- * created TypeScript Program's instance by TypeScript ESLint parser, which leaves
- * to it the lifecycle of such an instance.
- *
- * For all other cases, analysis relies on an automatically created TypeScript Program's
- * instance based on a TSConfig to control the lifecycle of the main internal
- * data structure used by TypeScript ESLint parser for performance reasons.
+ * SonarJS owns project Program construction and incremental updates, and passes
+ * the selected Program to TypeScript ESLint (including projected Vue scripts).
  *
  * @param fileType the file type to select the proper linting configuration (MAIN or TEST)
  * @param fileStatus the file status for incremental analysis (SAME, CHANGED, ADDED)

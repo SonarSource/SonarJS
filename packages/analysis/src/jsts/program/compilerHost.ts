@@ -16,7 +16,9 @@
  */
 import ts from 'typescript';
 import { readDirectory } from './filesystem.js';
+import { createVueSourceFile, getVueScript, isVueFile } from '../parsers/vue.js';
 import path from 'node:path/posix';
+import { jsxEnabledFor } from '../parsers/options.js';
 import {
   getSourceFileContentCache,
   getProvidedSourceFile,
@@ -58,6 +60,8 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
   // Used by TypeScript's builder programs for change detection.
   private readonly fileVersions = new FileSystemMap<string, number>();
   private readonly modifiedFiles = new FileSystemSet<string>();
+  // Each host must detect edits independently of other Programs' cache updates.
+  private readonly fileContents = new FileSystemMap<string, string>();
   private fsCallTracker: FsCall[] = [];
   private readonly baseHost: ts.CompilerHost;
 
@@ -79,13 +83,29 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     }
     const normalized = path.normalize(filePath);
     const cache = getSourceFileContentCache();
-    const oldContent = cache.get(normalized);
+    const oldContent = this.fileContents.get(normalized) ?? cache.get(normalized);
+    this.fileContents.set(normalized, content);
+    cache.set(normalized, content);
 
     if (oldContent === content) {
       return false; // No change
     }
 
-    cache.set(normalized, content);
+    if (isVueFile(normalized)) {
+      const jsx = jsxEnabledFor(this.compilerOptions);
+      const previous =
+        oldContent === undefined ? undefined : getVueScript(normalized, oldContent, jsx);
+      const current = getVueScript(normalized, content, jsx);
+      if (
+        previous?.code === current?.code &&
+        previous?.scriptKind === current?.scriptKind &&
+        current !== undefined
+      ) {
+        // Raw template/style changes still need Vue analysis, but unchanged script
+        // projections can reuse the existing semantic Program and SourceFile.
+        return false;
+      }
+    }
     this.fileVersions.set(normalized, (this.fileVersions.get(normalized) || 0) + 1);
     this.modifiedFiles.add(normalized);
 
@@ -240,41 +260,9 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
 
     const currentVersion = this.fileVersions.get(normalized) || 0;
     const contentHash = currentVersion.toString();
-
-    const scriptTarget =
-      typeof languageVersionOrOptions === 'number'
-        ? languageVersionOrOptions
-        : languageVersionOrOptions.languageVersion;
-
-    const { jsx, importHelpers } = this.compilerOptions;
-
-    // Check global cache (unless forced to create new)
-    if (!shouldCreateNewSourceFile) {
-      const cached = getCachedSourceFile(normalized, scriptTarget, contentHash, jsx, importHelpers);
-      if (cached) {
-        // Set version for builder programs
-        (cached as ts.SourceFile & { version?: string }).version = contentHash;
-        return cached;
-      }
-    }
-
-    // Try to read content (will use global cache or lazy load)
     const content = this.readFile(fileName);
     let sourceFile: (ts.SourceFile & { version?: string }) | undefined;
-    if (content !== undefined) {
-      // Parse the file
-      sourceFile = ts.createSourceFile(
-        fileName,
-        content,
-        scriptTarget,
-        true, // setNodeParents
-      );
-
-      // Store in global cache for reuse across programs
-      setCachedSourceFile(normalized, scriptTarget, contentHash, sourceFile, jsx, importHelpers);
-    } else {
-      // Fallback to base host for files not in our cache/context (e.g., TypeScript lib files).
-      // readFile returns undefined for these, but baseHost can resolve them.
+    if (content === undefined) {
       this.trackFsCall('getSourceFile-disk-fallback', fileName);
       sourceFile = this.baseHost.getSourceFile(
         fileName,
@@ -282,11 +270,76 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
         onError,
         shouldCreateNewSourceFile,
       );
+    } else {
+      this.fileContents.set(normalized, content);
+      sourceFile = this.getParsedSourceFile(
+        fileName,
+        content,
+        languageVersionOrOptions,
+        contentHash,
+        shouldCreateNewSourceFile,
+      );
     }
-
     if (sourceFile) {
       sourceFile.version = contentHash;
     }
+    return sourceFile;
+  }
+
+  /** Reuse a parsed representation only when both its options and text match. */
+  private getParsedSourceFile(
+    fileName: string,
+    content: string,
+    languageVersionOrOptions: ts.ScriptTarget | ts.CreateSourceFileOptions,
+    contentHash: string,
+    shouldCreateNewSourceFile?: boolean,
+  ): ts.SourceFile {
+    const normalized = path.normalize(fileName);
+    const scriptTarget =
+      typeof languageVersionOrOptions === 'number'
+        ? languageVersionOrOptions
+        : languageVersionOrOptions.languageVersion;
+
+    const { jsx, importHelpers } = this.compilerOptions;
+    const vue = isVueFile(fileName);
+    const script = vue
+      ? getVueScript(normalized, content, jsxEnabledFor(this.compilerOptions))
+      : undefined;
+    const scriptKind = vue ? (script?.scriptKind ?? ts.ScriptKind.TS) : undefined;
+
+    // Check global cache (unless forced to create new)
+    if (!shouldCreateNewSourceFile) {
+      const cached = getCachedSourceFile(
+        normalized,
+        scriptTarget,
+        contentHash,
+        jsx,
+        importHelpers,
+        scriptKind,
+      );
+      if (cached?.text === (vue ? (script?.code ?? '') : content)) {
+        return cached;
+      }
+    }
+
+    const sourceFile = vue
+      ? createVueSourceFile(fileName, script, languageVersionOrOptions)
+      : ts.createSourceFile(
+          fileName,
+          content,
+          scriptTarget,
+          true, // setNodeParents
+        );
+
+    setCachedSourceFile(
+      normalized,
+      scriptTarget,
+      contentHash,
+      sourceFile,
+      jsx,
+      importHelpers,
+      scriptKind,
+    );
     return sourceFile;
   }
 

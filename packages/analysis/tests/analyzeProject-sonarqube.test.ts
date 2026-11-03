@@ -306,7 +306,7 @@ describe('SonarQube project analysis', () => {
     expect(restored.files).toEqual(recorded.files);
   });
 
-  it('should replay Vue files from orphan entry-point groups even when TypeScript omits them', async () => {
+  it('should replay Vue files from orphan entry-point groups', async () => {
     const baseDir = normalizeToAbsolutePath(join(fixtures, 'program-selection-vue'));
     const filePath = normalizeToAbsolutePath(join(baseDir, 'prop-mutation.vue'));
     const archivePath = path.join(
