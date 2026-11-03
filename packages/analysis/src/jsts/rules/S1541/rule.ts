@@ -55,7 +55,7 @@ export const rule: Rule.RuleModule = {
     let writtenPaths: string[][];
     function collectWrites(target: estree.Node) {
       const value = unwrapTypeScriptValue(target);
-      const path = getLoaderReferencePath(value, true);
+      const path = getPropertyAccessPath(value, true);
       if (path) {
         if (!isGlobalShadowed(context.sourceCode, value, path[0])) {
           writtenPaths.push(path);
@@ -211,7 +211,7 @@ function getScopeInitializer(call: estree.CallExpression, context: Rule.RuleCont
   if ('optional' in call && call.optional) {
     return undefined;
   }
-  const path = getLoaderReferencePath(call.callee, false);
+  const path = getPropertyAccessPath(call.callee, false);
   const name = path?.join('.') ?? '';
   if (
     !path ||
@@ -269,16 +269,17 @@ function isSynchronousFunction(node: estree.Node | undefined): node is estree.Fu
 
 /**
  * `sap.ui.define` -> ['sap', 'ui', 'define'].
+ * `other.ui.define` -> undefined.
  * `sap.ui[key]` -> ['sap', 'ui', '*'] for write tracking.
  * `sap.ui[key]` -> undefined for call matching.
  */
-function getLoaderReferencePath(
+function getPropertyAccessPath(
   expression: estree.Node,
   allowComputed: boolean,
 ): string[] | undefined {
   const node = allowComputed ? unwrapTypeScriptValue(expression) : expression;
   if (allowComputed && node.type === 'ChainExpression') {
-    return getLoaderReferencePath(node.expression, allowComputed);
+    return getPropertyAccessPath(node.expression, allowComputed);
   }
   if (node.type === 'Identifier') {
     return ['sap', 'require', 'System'].includes(node.name) ? [node.name] : undefined;
@@ -286,7 +287,7 @@ function getLoaderReferencePath(
   if (node.type !== 'MemberExpression' || (!allowComputed && (node.computed || node.optional))) {
     return undefined;
   }
-  const object = getLoaderReferencePath(node.object, allowComputed);
+  const object = getPropertyAccessPath(node.object, allowComputed);
   if (!object) {
     return undefined;
   }
