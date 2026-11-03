@@ -21,6 +21,10 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import { getVariableFromName, unwrapTypeScriptExpression } from '../helpers/ast.js';
 import { isGlobalShadowed } from '../helpers/module.js';
 
+/**
+ * `(factory as Function)` -> `factory`
+ * `factory<number>` -> `factory`
+ */
 export function unwrapTypeScriptValue(expression: estree.Node): estree.Node {
   const value = unwrapTypeScriptExpression(expression);
   const tsValue = value as unknown as TSESTree.Node;
@@ -66,6 +70,12 @@ export function getPropertyAccessPath(
   return [...object, getStaticPropertyName(node.property) ?? '*'];
 }
 
+/**
+ * `obj['name']` -> 'name'
+ * `obj[42]` -> '42'
+ * obj[`name`] -> 'name'
+ * `obj[key]` -> undefined
+ */
 function getStaticPropertyName(property: estree.Node): string | undefined {
   const value = unwrapTypeScriptValue(property);
   if (
@@ -80,7 +90,12 @@ function getStaticPropertyName(property: estree.Node): string | undefined {
   return undefined;
 }
 
-/** Match a bare `define` call with an AMD signature and no writes to `define`. */
+/**
+ * Match a bare `define` call with an AMD signature and no writes to `define`.
+ *
+ * `define([], function () {})` -> the function node
+ * `define = other; define([], function () {})` -> undefined
+ */
 export function getModuleFactory(
   call: estree.CallExpression,
   context: Rule.RuleContext,
@@ -110,6 +125,11 @@ export function getModuleFactory(
   return args.length === 0 ? factory : undefined;
 }
 
+/**
+ * For root `define`:
+ * `define([], factory)` -> true when `define` has no writes
+ * `define = other; define([], factory)` -> false
+ */
 export function isStableGlobalRoot(
   context: Rule.RuleContext,
   node: estree.Node,
@@ -123,6 +143,11 @@ export function isStableGlobalRoot(
   );
 }
 
+/**
+ * `'dep'` -> true
+ * `dep` -> false
+ * `` `dep` `` -> false
+ */
 export function isStringLiteral(node: estree.Node | null | undefined): boolean {
   const value = node && unwrapTypeScriptValue(node);
   return value?.type === 'Literal' && typeof value.value === 'string';
