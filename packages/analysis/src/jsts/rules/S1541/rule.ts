@@ -23,12 +23,7 @@ import {
   type IssueLocation,
   getMainFunctionTokenLocation,
 } from '../helpers/location.js';
-import {
-  type FunctionNodeType,
-  isFunctionNode,
-  getVariableFromName,
-  unwrapTypeScriptExpression,
-} from '../helpers/ast.js';
+import { type FunctionNodeType, isFunctionNode, getVariableFromName } from '../helpers/ast.js';
 import { isGlobalShadowed } from '../helpers/module.js';
 import type { RuleContext } from '../helpers/type.js';
 import { childrenOf, getParent } from '../helpers/ancestor.js';
@@ -36,6 +31,7 @@ import { generateMeta } from '../helpers/generate-meta.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
+import { getPropertyAccessPath, unwrapTypeScriptValue } from './helpers.js';
 
 const DEFAULT_THRESHOLD = 10;
 const SAP_UI_DEFINE = 'sap.ui.define';
@@ -162,14 +158,6 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function unwrapTypeScriptValue(expression: estree.Node): estree.Node {
-  const value = unwrapTypeScriptExpression(expression);
-  const tsValue = value as unknown as TSESTree.Node;
-  return tsValue.type === 'TSInstantiationExpression'
-    ? unwrapTypeScriptValue(tsValue.expression as unknown as estree.Node)
-    : value;
-}
-
 function getFinalValue(expression: estree.Node): estree.Node {
   const value = unwrapTypeScriptValue(expression);
   if (value.type !== 'SequenceExpression') {
@@ -265,40 +253,6 @@ function isValidScopeInitializerExtra(
 
 function isSynchronousFunction(node: estree.Node | undefined): node is estree.FunctionExpression {
   return node?.type === 'FunctionExpression' && !node.async && !node.generator;
-}
-
-/**
- * `sap.ui.define` -> ['sap', 'ui', 'define'].
- * `other.ui.define` -> undefined.
- * `sap.ui[key]` -> ['sap', 'ui', '*'] for write tracking.
- * `sap.ui[key]` -> undefined for call matching.
- */
-function getPropertyAccessPath(
-  expression: estree.Node,
-  allowComputed: boolean,
-): string[] | undefined {
-  const node = allowComputed ? unwrapTypeScriptValue(expression) : expression;
-  if (allowComputed && node.type === 'ChainExpression') {
-    return getPropertyAccessPath(node.expression, allowComputed);
-  }
-  if (node.type === 'Identifier') {
-    return ['sap', 'require', 'System'].includes(node.name) ? [node.name] : undefined;
-  }
-  if (node.type !== 'MemberExpression' || (!allowComputed && (node.computed || node.optional))) {
-    return undefined;
-  }
-  const object = getPropertyAccessPath(node.object, allowComputed);
-  if (!object) {
-    return undefined;
-  }
-  if (!node.computed && node.property.type === 'Identifier') {
-    return [...object, node.property.name];
-  }
-  const property = unwrapTypeScriptValue(node.property);
-  return [
-    ...object,
-    property.type === 'Literal' && typeof property.value === 'string' ? property.value : '*',
-  ];
 }
 
 function isPathPrefix(prefix: string[], path: string[]): boolean {

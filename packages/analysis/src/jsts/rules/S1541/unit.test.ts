@@ -703,6 +703,7 @@ describe('S1541 loader scope initializers', () => {
                     `sap.ui = other; ${code}`,
                     `sap[key] = other; ${code}`,
                     `sap.ui[key] = other; ${code}`,
+                    `sap.ui[\`un\${key}\`] = other; ${code}`,
                   ]
                 : []),
               ...(root === 'System'
@@ -714,6 +715,8 @@ describe('S1541 loader scope initializers', () => {
             `delete sap?.ui.define; ${calls[0]}`,
             `delete (sap?.ui).require; ${calls[3]}`,
             `delete System?.register; ${calls[4]}`,
+            `sap.ui[\`define\`] = other; ${calls[0]}`,
+            `System[\`register\`] = other; ${calls[4]}`,
           ].map(code => retained(code)),
           ...(name === 'TypeScript'
             ? [retained(`delete (sap?.ui.define as any); ${calls[0]}`)]
@@ -727,6 +730,12 @@ describe('S1541 loader scope initializers', () => {
             return [
               `unrelated.value = other; ${code}`,
               `${root}.unrelated = other; ${code}`,
+              ...(root === 'sap' || root === 'System'
+                ? [`${root}[\`unrelated\`] = other; ${code}`, `${root}[42] = other; ${code}`]
+                : []),
+              ...(root === 'sap'
+                ? [`sap.ui[\`unrelated\`] = other; ${code}`, `sap.ui[42] = other; ${code}`]
+                : []),
               `function local(${root}) { ${root} = other; } ${code}`,
             ].map(value => ({
               code: value,
