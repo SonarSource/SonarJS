@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { isFileSystemCaseSensitive } from '../../../src/common/filesystem.js';
 import { describe, it, beforeEach } from 'node:test';
 import { expect } from 'expect';
 import ts from 'typescript';
@@ -52,6 +53,7 @@ describe('IncrementalCompilerHost', () => {
       archive.set('input.ts', 'exists', { ok: true, value: true });
       archive.flush();
       const session = installFsCache().beginAnalysis({
+        caseSensitivePaths: isFileSystemCaseSensitive(),
         archivePath,
         rootDir: temporary,
         mode: 'replay',

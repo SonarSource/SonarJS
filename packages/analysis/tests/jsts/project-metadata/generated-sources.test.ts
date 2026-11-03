@@ -3626,7 +3626,7 @@ plugins = [
     const disabledConfiguration = createConfiguration({ baseDir, detectGeneratedCode: false });
     await initFileStores(disabledConfiguration);
 
-    expect(generatedSourceStoreState.derivedFamilyByFile).toEqual(new Map());
+    expect(generatedSourceStoreState.derivedFamilyByFile.size).toBe(0);
     expect(generatedSourceStore.getFamily(generatedFile)).toBeUndefined();
     expect(observeGeneratedSources(disabledConfiguration)).toEqual({
       familyCount: 0,

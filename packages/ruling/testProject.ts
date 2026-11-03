@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { isFileSystemCaseSensitive } from '../analysis/src/common/filesystem.js';
 import { join, basename } from 'node:path/posix';
 import { writeResults } from './lits.js';
 import projects from './projects.json' with { type: 'json' };
@@ -126,6 +127,7 @@ async function beginFilesystemCacheSession(
 
   const { installFsCache } = await import('../shared/src/fs-cache/hook.js');
   return installFsCache().beginAnalysis({
+    caseSensitivePaths: isFileSystemCaseSensitive(),
     archivePath,
     rootDir: baseDir,
   });

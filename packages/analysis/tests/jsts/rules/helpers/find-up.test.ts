@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { Volume } from 'memfs';
-import { equal, throws } from 'node:assert';
+import { deepEqual, equal, throws } from 'node:assert';
 import type { Filesystem } from '../../../../src/jsts/rules/helpers/find-up/find-minimatch.js';
 import { patternInParentsCache } from '../../../../src/jsts/rules/helpers/find-up/all-in-parent-dirs.js';
 import { closestPatternCache } from '../../../../src/jsts/rules/helpers/find-up/closest.js';
@@ -33,6 +33,36 @@ describe('findUp', () => {
     patternInParentsCache.clear();
     closestPatternCache.clear();
   });
+
+  for (const root of ['C:/', '//server/share/']) {
+    it(`stops dependency searches at the Windows root ${root} on any host`, ({ mock }) => {
+      const filesystem = Volume.fromJSON({});
+      const reads = mock.method(filesystem, 'readdirSync');
+      const from = `${root}project/nested` as NormalizedAbsolutePath;
+      const topDir = root as NormalizedAbsolutePath;
+
+      equal(
+        patternInParentsCache
+          .get('package.json', filesystem as Filesystem)
+          .get(topDir)
+          .get(from).length,
+        0,
+      );
+      equal(
+        closestPatternCache
+          .get('package.json', filesystem as Filesystem)
+          .get(topDir)
+          .get(from),
+        undefined,
+      );
+      const expected = [`${root}project/nested`, `${root}project`, root];
+      deepEqual(
+        reads.mock.calls.map(call => call.arguments[0]),
+        [...expected, ...expected],
+      );
+    });
+  }
+
   it('only touches the filesystem when needed', ({ mock }) => {
     const filesystem = Volume.fromJSON({
       '/a/b/c/d/foo.bar': '/a/b/c/d/foo.bar content',

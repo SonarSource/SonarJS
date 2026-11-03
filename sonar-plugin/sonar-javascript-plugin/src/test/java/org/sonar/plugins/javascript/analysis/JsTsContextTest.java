@@ -17,8 +17,16 @@
 package org.sonar.plugins.javascript.analysis;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import java.util.Map;
 import org.junit.jupiter.api.Test;
+import org.sonar.api.SonarProduct;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.css.CssLanguage;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
@@ -26,6 +34,42 @@ import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.scanner.plugin.api.impl.config.MapSettings;
 
 class JsTsContextTest {
+
+  @Test
+  void shouldExcludeTheActualScannerWorkDirEvenWhenUserExclusionsAreEmpty() {
+    var context = mock(SensorContext.class, RETURNS_DEEP_STUBS);
+    when(context.config()).thenReturn(
+      new MapSettings().setProperty(JavaScriptPlugin.JS_EXCLUSIONS_KEY, "").asConfig()
+    );
+    for (var entry : Map.of(
+      "C:\\pa\\.sonarqube\\out\\.sonar",
+      "directory:C:/pa/.sonarqube/out/.sonar",
+      "/ci/.build/[scanner]{one}(x)",
+      "directory:/ci/.build/[scanner]{one}(x)"
+    ).entrySet()) {
+      when(context.fileSystem().workDir().getAbsolutePath()).thenReturn(entry.getKey());
+      assertThat(new JsTsContext<>(context).getJsTsExcludedPaths()).containsExactly(
+        entry.getValue()
+      );
+    }
+  }
+
+  @Test
+  void shouldKeepSonarLintExclusionsWithoutRequestingAScannerWorkDir() {
+    var context = mock(SensorContext.class, RETURNS_DEEP_STUBS);
+    when(context.runtime().getProduct()).thenReturn(SonarProduct.SONARLINT);
+    when(context.config()).thenReturn(
+      new MapSettings()
+        .setProperty(JavaScriptPlugin.JS_EXCLUSIONS_KEY, "vendor/**")
+        .setProperty(JavaScriptPlugin.TS_EXCLUSIONS_KEY, "**/generated/**")
+        .asConfig()
+    );
+    assertThat(new JsTsContext<>(context).getJsTsExcludedPaths()).containsExactly(
+      "vendor/**",
+      "**/generated/**"
+    );
+    verify(context, never()).fileSystem();
+  }
 
   @Test
   void shouldNormalizeConfiguredFileSuffixes() {

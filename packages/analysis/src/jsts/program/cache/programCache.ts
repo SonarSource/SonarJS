@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { FileSystemSet } from '../../../common/filesystem.js';
 import type ts from 'typescript';
 import path from 'node:path/posix';
 import type { IncrementalCompilerHost } from '../compilerHost.js';
@@ -102,7 +103,7 @@ export class ProgramCacheManager {
     host: IncrementalCompilerHost,
   ): void {
     const tsProgram = program.getProgram();
-    const filesInProgram = new Set<string>();
+    const filesInProgram = new FileSystemSet<string>();
 
     // Discover all files in program
     for (const sourceFile of tsProgram.getSourceFiles()) {

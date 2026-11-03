@@ -70,7 +70,7 @@ describe('files', () => {
     await initFileStores(configuration);
     const path = normalizeToAbsolutePath(join(fixtures, 'dependencies', 'package.json'));
     const content = await readFile(path);
-    expect(dependencyManifestStore.getPackageJsons()).toEqual(
+    expect(new Map(dependencyManifestStore.getPackageJsons())).toEqual(
       new Map([
         [
           dirname(path),

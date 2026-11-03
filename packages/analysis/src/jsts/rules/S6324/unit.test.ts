@@ -17,14 +17,14 @@
 import { DefaultParserRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { rule } from './rule.js';
 import { describe, it } from 'node:test';
-import { doesNotThrow } from 'node:assert';
+import assert from 'node:assert';
 
 const CONTROL_CHAR_MESSAGE = 'Remove this control character.';
 
 describe('S6324', () => {
   it('recognizes fixed brackets in groups and exact-one repetitions', () => {
     const ruleTester = new DefaultParserRuleTester();
-    doesNotThrow(() =>
+    assert.doesNotThrow(() =>
       ruleTester.run('Fixed terminal introducers', rule, {
         valid: [
           { code: String.raw`/\x1b(?:\[)31m/` },
@@ -140,7 +140,7 @@ describe('S6324', () => {
     for (const { name, ...testCase } of cases) {
       it(name, () => {
         const ruleTester = new DefaultParserRuleTester();
-        doesNotThrow(() =>
+        assert.doesNotThrow(() =>
           ruleTester.run('No control characters in bounded OSC matchers', rule, {
             valid: [testCase],
             invalid: [],
@@ -151,7 +151,7 @@ describe('S6324', () => {
 
     it('keeps standalone controls reportable across separate regexes', () => {
       const ruleTester = new DefaultParserRuleTester();
-      doesNotThrow(() =>
+      assert.doesNotThrow(() =>
         ruleTester.run('OSC exemptions are local to each regex', rule, {
           valid: [],
           invalid: [
@@ -188,7 +188,7 @@ describe('S6324', () => {
 
     it('requires every payload delimiter exclusion', () => {
       const ruleTester = new DefaultParserRuleTester();
-      doesNotThrow(() =>
+      assert.doesNotThrow(() =>
         ruleTester.run('Incomplete OSC payload exclusions', rule, {
           valid: [],
           invalid: [
@@ -219,7 +219,7 @@ describe('S6324', () => {
 
     it('keeps controls outside a complete bounded matcher reportable', () => {
       const ruleTester = new DefaultParserRuleTester();
-      doesNotThrow(() =>
+      assert.doesNotThrow(() =>
         ruleTester.run('No control characters outside bounded OSC matchers', rule, {
           valid: [],
           invalid: [

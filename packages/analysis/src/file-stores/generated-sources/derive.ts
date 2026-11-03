@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { pathsEqual } from '../../common/filesystem.js';
 import {
   dirnamePath,
   isRoot,
@@ -152,13 +153,14 @@ function getGeneratedSourcePackageJsonHierarchy(
   let currentDir = packageDir;
 
   while (true) {
-    const packageJson =
-      currentDir === packageDir ? currentPackageJson : packageJsons.get(currentDir);
+    const packageJson = pathsEqual(currentDir, packageDir)
+      ? currentPackageJson
+      : packageJsons.get(currentDir);
     if (packageJson) {
       manifests.push(packageJson);
     }
 
-    if (currentDir === baseDir || isRoot(currentDir)) {
+    if (pathsEqual(currentDir, baseDir) || isRoot(currentDir)) {
       return manifests;
     }
 

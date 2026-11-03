@@ -16,7 +16,7 @@
  */
 import { describe, it, type TestContext } from 'node:test';
 import { SourceCode } from 'eslint';
-import assert, { doesNotThrow } from 'node:assert/strict';
+import assert from 'node:assert/strict';
 import {
   DefaultParserRuleTester,
   NoTypeCheckingRuleTester,
@@ -396,7 +396,7 @@ describe('S6845 upstream sentinel', () => {
   it('upstream no-noninteractive-tabindex raises when a conditional only yields null or negative tab indexes', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 
-    doesNotThrow(() =>
+    assert.doesNotThrow(() =>
       ruleTester.run('no-noninteractive-tabindex', upstreamRule, {
         valid: [{ code: `<div tabIndex={disabled ? undefined : -1} />` }],
         invalid: [
@@ -415,7 +415,7 @@ describe('S6845', () => {
   it('accepts W3C dialog focus targets and the MDN error summary outside the Tab order', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 
-    doesNotThrow(() =>
+    assert.doesNotThrow(() =>
       ruleTester.run('no-noninteractive-tabindex', rule, {
         valid: programmaticFocusTargets.map(code => ({ code })),
         invalid: [
@@ -439,7 +439,7 @@ describe('S6845', () => {
   it('should not flag conditionals whose every branch keeps a noninteractive element out of the tab order', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 
-    doesNotThrow(() =>
+    assert.doesNotThrow(() =>
       ruleTester.run('no-noninteractive-tabindex', rule, {
         valid: [
           { code: `<div tabIndex={disabled ? null : -1} />` },
@@ -521,7 +521,7 @@ describe('S6845', () => {
   it('retains reports for unsupported values and unproven attribute combinations', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 
-    doesNotThrow(() =>
+    assert.doesNotThrow(() =>
       ruleTester.run('no-noninteractive-tabindex', rule, {
         valid: [],
         invalid: [

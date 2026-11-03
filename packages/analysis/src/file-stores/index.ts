@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { FileSystemMap, FileSystemSet, pathsEqual } from '../common/filesystem.js';
 import { SourceFileStore } from './source-files.js';
 import { DependencyManifestStore } from './dependency-manifests.js';
 import { GeneratedSourceStore } from './generated-sources/index.js';
@@ -117,11 +118,11 @@ export async function simulateFromInputFiles(
   // Keys in AnalyzableFiles are already normalized absolute paths
   const filePaths = Object.keys(inputFiles) as NormalizedAbsolutePath[];
 
-  const allDirs = new Set<NormalizedAbsolutePath>();
+  const allDirs = new FileSystemSet<NormalizedAbsolutePath>();
   // add all parent directories of input files up to the baseDir
   for (const filePath of filePaths) {
     let currentPath = dirnamePath(filePath);
-    while (baseDir !== currentPath && !isRoot(currentPath)) {
+    while (!pathsEqual(baseDir, currentPath) && !isRoot(currentPath)) {
       allDirs.add(currentPath);
       currentPath = dirnamePath(currentPath);
     }
@@ -174,8 +175,14 @@ async function processPendingFileStores(
 }
 
 function createFileStoreContext(inputFiles?: AnalyzableFiles): FileStoreContext {
-  const retainedPaths = new Set<NormalizedAbsolutePath>();
-  const files = new Map<NormalizedAbsolutePath, Promise<File>>();
+  const providedFiles = new FileSystemMap(
+    Object.entries(inputFiles ?? {}) as [
+      NormalizedAbsolutePath,
+      AnalyzableFiles[NormalizedAbsolutePath],
+    ][],
+  );
+  const retainedPaths = new FileSystemSet<NormalizedAbsolutePath>();
+  const files = new FileSystemMap<NormalizedAbsolutePath, Promise<File>>();
 
   return {
     retainFile(filePath) {
@@ -184,7 +191,7 @@ function createFileStoreContext(inputFiles?: AnalyzableFiles): FileStoreContext 
     getFile(filePath, fileContent) {
       let file = files.get(filePath);
       if (!file) {
-        const inputFile = inputFiles?.[filePath];
+        const inputFile = providedFiles.get(filePath);
         file = inputFile
           ? Promise.resolve(inputFile)
           : Promise.resolve(fileContent ?? readFile(filePath)).then(fileContent => ({

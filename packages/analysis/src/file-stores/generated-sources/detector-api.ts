@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { FileSystemSet } from '../../common/filesystem.js';
 import {
   normalizeToAbsolutePath,
   type NormalizedAbsolutePath,
@@ -136,7 +137,7 @@ export function resolveGeneratedOutputsFromLiteralPaths(
   const candidateDirs = Array.isArray(declaredFromDirs) ? declaredFromDirs : [declaredFromDirs];
 
   for (const outputPath of outputPaths) {
-    const seenResolvedPaths = new Set<NormalizedAbsolutePath>();
+    const seenResolvedPaths = new FileSystemSet<NormalizedAbsolutePath>();
     for (const declaredFromDir of candidateDirs) {
       const resolvedPath = resolveLiteralPath(outputPath, declaredFromDir, baseDir);
       if (!resolvedPath || seenResolvedPaths.has(resolvedPath)) {
