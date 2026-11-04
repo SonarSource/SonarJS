@@ -290,11 +290,14 @@ describe('analyze-project request handler', () => {
       });
     }
   }
+  // Each scope keeps the test-named file MAIN for rule selection: either through an explicit
+  // `sonar.inclusions` opt-in, or by being under `sonar.tests` but rejected by `sonar.test.exclusions`.
+  // The latter only holds when the test paths are resolved in the original CI namespace.
   for (const scopeSettings of [
     { sources: ['src'], inclusions: ['**/*.ts'] },
-    { sources: ['src'], tests: ['tests'] },
+    { sources: ['src'], tests: ['src'], testExclusions: ['**/main.test.ts'] },
     { sources: ['src'], inclusions: ['**/*.ts'], absolute: true },
-    { sources: ['src'], tests: ['tests'], absolute: true },
+    { sources: ['src'], tests: ['src'], testExclusions: ['**/main.test.ts'], absolute: true },
   ]) {
     it(`recomputes rule scope in the original CI namespace: ${JSON.stringify(scopeSettings)}`, async () => {
       const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'replay-rule-scope-'));
@@ -369,6 +372,7 @@ describe('analyze-project request handler', () => {
         tests: scopeSettings.tests?.map(value =>
           scopeSettings.absolute ? path.join(recordRoot, value) : value,
         ),
+        testExclusions: scopeSettings.testExclusions,
         inclusions: scopeSettings.inclusions?.map(value =>
           scopeSettings.absolute ? `${recordRoot}/${value}` : value,
         ),
