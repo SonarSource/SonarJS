@@ -31,6 +31,7 @@ import {
 } from '../../../src/jsts/program/tsconfig/options.js';
 import { clearProgramOptionsCache } from '../../../src/jsts/program/cache/programOptionsCache.js';
 import { clearTsConfigContentCache } from '../../../src/jsts/program/cache/tsconfigCache.js';
+import { isStrictNullChecksEnabled } from '../../../src/jsts/rules/helpers/compiler-options.js';
 import { getTypeScriptVersionSignal } from '../../../src/jsts/rules/helpers/dependency-manifests/dependencies.js';
 
 const fixtures = normalizeToAbsolutePath(path.join(normalizePath(import.meta.dirname), 'fixtures'));
@@ -288,6 +289,7 @@ describe('createProgramOptions', () => {
 
       expect(options.strict).toBe(false);
       expect(options.strictNullChecks).toBe(false);
+      expect(isStrictNullChecksEnabled(options)).toBe(false);
       expect(options.noImplicitAny).toBe(false);
       expect(options.strictFunctionTypes).toBe(false);
     });
@@ -305,6 +307,7 @@ describe('createProgramOptions', () => {
 
       expect(options.strict).toBe(false);
       expect(options.strictNullChecks).toBe(true);
+      expect(isStrictNullChecksEnabled(options)).toBe(true);
       expect(options.noImplicitAny).toBe(false);
       expect(options.strictFunctionTypes).toBe(false);
     });
@@ -338,6 +341,7 @@ describe('createProgramOptions', () => {
 
       expect(options.strict).toBeUndefined();
       expect(options.strictNullChecks).toBeUndefined();
+      expect(isStrictNullChecksEnabled(options)).toBe(true);
       expect(options.noImplicitAny).toBeUndefined();
     });
 
@@ -349,6 +353,7 @@ describe('createProgramOptions', () => {
       expect(getTypeScriptVersionSignal(baseDir)).toBeNull();
       expect(options.strict).toBeUndefined();
       expect(options.strictNullChecks).toBeUndefined();
+      expect(isStrictNullChecksEnabled(options)).toBe(true);
     });
   });
 

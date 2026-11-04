@@ -19,7 +19,6 @@
 import type { AST, Rule } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { isStrictCompilerOptionEnabled } from 'ts-api-utils';
 import ts from 'typescript';
 import { generateMeta } from '../helpers/generate-meta.js';
 import {
@@ -28,6 +27,7 @@ import {
 } from '../helpers/parser-services.js';
 import { report, toSecondaryLocation } from '../helpers/location.js';
 import { classifyTypesByOrigin } from '../helpers/type-origin.js';
+import { isStrictNullChecksEnabled } from '../helpers/compiler-options.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {
@@ -43,8 +43,7 @@ export const rule: Rule.RuleModule = {
       return {};
     }
     const canResolveTypes =
-      compilerOptions !== undefined &&
-      isStrictCompilerOptionEnabled(compilerOptions, 'strictNullChecks');
+      compilerOptions !== undefined && isStrictNullChecksEnabled(compilerOptions);
 
     function checkProperty(node: estree.Node) {
       const tsNode = node as TSESTree.Node as
