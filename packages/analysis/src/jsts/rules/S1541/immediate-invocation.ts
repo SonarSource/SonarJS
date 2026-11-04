@@ -22,6 +22,7 @@ import { unwrapTypeScriptValue } from './helpers.js';
  *
  * `(function () {})()` and `(0, () => {})()` return their function.
  * `(function* () {})()` and `(function () {}).call()` do not.
+ * The `.call` method can be replaced, so calling it might not run the function body.
  */
 export function getImmediatelyInvokedFunction(
   expression: estree.Node,
