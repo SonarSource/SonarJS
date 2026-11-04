@@ -139,9 +139,7 @@ function getComplexityToken(
         token => token.value === '?',
       );
     case 'SwitchCase':
-      if (!node.test) {
-        return undefined;
-      }
+      return node.test ? sourceCode.getFirstToken(node) : undefined;
     case 'IfStatement':
     case 'ForStatement':
     case 'ForInStatement':
