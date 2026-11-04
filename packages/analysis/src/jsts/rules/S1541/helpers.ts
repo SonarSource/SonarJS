@@ -99,7 +99,7 @@ function getStaticPropertyName(property: estree.Node): string | undefined {
  */
 export function getModuleFactory(
   call: estree.CallExpression,
-  context: Rule.RuleContext,
+  hasRuntimeBinding: (node: estree.Node, name: string) => boolean,
 ): estree.FunctionExpression | undefined {
   if (
     ('optional' in call && call.optional) ||
@@ -124,7 +124,7 @@ export function getModuleFactory(
     }
     args.pop();
   }
-  return args.length === 0 && !hasRuntimeBinding(context, call, 'define') ? factory : undefined;
+  return args.length === 0 && !hasRuntimeBinding(call, 'define') ? factory : undefined;
 }
 
 /** Type-only declarations do not shadow a runtime value. */

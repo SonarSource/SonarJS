@@ -27,6 +27,7 @@ import {
   getImmediatelyInvokedFunction,
 } from './immediate-invocation.js';
 import { createModuleInitializerTracker } from './module-initializers.js';
+import { hasRuntimeBinding } from './helpers.js';
 import * as meta from './generated-meta.js';
 
 const DEFAULT_THRESHOLD = 10;
@@ -37,7 +38,9 @@ export const rule: Rule.RuleModule = {
     const threshold =
       (context.options as FromSchema<typeof meta.schema>)[0]?.threshold ?? DEFAULT_THRESHOLD;
     const complexity = createComplexityTracker(context);
-    const moduleInitializers = createModuleInitializerTracker(context);
+    const moduleInitializers = createModuleInitializerTracker((node, name) =>
+      hasRuntimeBinding(context, node, name),
+    );
     const immediatelyExecuted = new Set<estree.Node>();
 
     function excludeIfExecuted(functionNode: estree.Node | undefined) {

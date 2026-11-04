@@ -26,18 +26,17 @@ import {
 } from '../helpers/location.js';
 import type { RuleContext } from '../helpers/type.js';
 
-/**
- * Count each function's entry and branch tokens without counting nested functions.
- * Call `reportOverThreshold` after all function and branch visitors have run.
- */
-export function createComplexityTracker(context: Rule.RuleContext) {
+/** Store branch tokens for the current function, separate from its nested functions. */
+export function createComplexityAccumulator(
+  getBranchToken: (node: estree.Node) => ComplexityToken | null | undefined,
+) {
   const functions: FunctionInfo[] = [];
   const functionStack: FunctionInfo[] = [];
   const functionsWithNested = new Set<estree.Node>();
 
   return {
-    enterFunction(node: FunctionNodeType) {
-      const info: FunctionInfo = { node, parent: getParent(context, node), tokens: [] };
+    enterFunction(node: FunctionNodeType, parent: estree.Node | undefined) {
+      const info: FunctionInfo = { node, parent, tokens: [] };
       functions.push(info);
       const enclosing = functionStack.at(-1);
       if (enclosing) {
@@ -51,7 +50,7 @@ export function createComplexityTracker(context: Rule.RuleContext) {
     addBranch(node: estree.Node) {
       const enclosing = functionStack.at(-1);
       if (enclosing) {
-        const token = getComplexityToken(node, context);
+        const token = getBranchToken(node);
         if (token) {
           enclosing.tokens.push(token);
         }
@@ -60,8 +59,24 @@ export function createComplexityTracker(context: Rule.RuleContext) {
     hasNestedFunction(node: estree.Node): boolean {
       return functionsWithNested.has(node);
     },
+    getFunctions(): readonly FunctionInfo[] {
+      return functions;
+    },
+  };
+}
+
+/** Connect complexity counting to ESLint token locations and issue reporting. */
+export function createComplexityTracker(context: Rule.RuleContext) {
+  const accumulator = createComplexityAccumulator(node => getComplexityToken(node, context));
+  return {
+    enterFunction(node: FunctionNodeType) {
+      accumulator.enterFunction(node, getParent(context, node));
+    },
+    leaveFunction: accumulator.leaveFunction,
+    addBranch: accumulator.addBranch,
+    hasNestedFunction: accumulator.hasNestedFunction,
     reportOverThreshold(threshold: number, isExcluded: (node: estree.Node) => boolean) {
-      for (const { node, parent, tokens } of functions) {
+      for (const { node, parent, tokens } of accumulator.getFunctions()) {
         if (!isExcluded(node)) {
           raiseOnUnauthorizedComplexity(node, parent, tokens, threshold, context);
         }

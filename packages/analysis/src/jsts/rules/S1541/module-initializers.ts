@@ -14,13 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { isFunctionNode } from '../helpers/ast.js';
 import {
   getModuleFactory,
   getPropertyAccessPath,
-  hasRuntimeBinding,
   isStringLiteral,
   unwrapTypeScriptValue,
 } from './helpers.js';
@@ -35,7 +33,9 @@ const MAX_SCOPE_INITIALIZER_ARGUMENTS = 3;
  * `sap.ui.define([], function () { function nested() {} })` can be excluded.
  * A write such as `sap.ui = other` keeps both functions checked.
  */
-export function createModuleInitializerTracker(context: Rule.RuleContext) {
+export function createModuleInitializerTracker(
+  hasRuntimeBinding: (node: estree.Node, name: string) => boolean,
+) {
   const scopeInitializers = new Map<estree.Node, string[]>();
   const writeTargets: estree.Node[] = [];
 
@@ -43,7 +43,7 @@ export function createModuleInitializerTracker(context: Rule.RuleContext) {
     const value = unwrapTypeScriptValue(target);
     const path = getPropertyAccessPath(value, true);
     if (path) {
-      if (!hasRuntimeBinding(context, value, path[0])) {
+      if (!hasRuntimeBinding(value, path[0])) {
         writtenPaths.push(path);
       }
     } else if (value.type === 'ArrayPattern') {
@@ -64,11 +64,11 @@ export function createModuleInitializerTracker(context: Rule.RuleContext) {
 
   return {
     recordCall(call: estree.CallExpression) {
-      const amdFactory = getModuleFactory(call, context);
+      const amdFactory = getModuleFactory(call, hasRuntimeBinding);
       if (amdFactory) {
         scopeInitializers.set(amdFactory, ['define']);
       }
-      const initializer = getScopeInitializer(call, context);
+      const initializer = getScopeInitializer(call, hasRuntimeBinding);
       if (initializer) {
         scopeInitializers.set(initializer.factory, initializer.path);
       }
@@ -105,7 +105,10 @@ export function createModuleInitializerTracker(context: Rule.RuleContext) {
  * `sap.ui.define([], function () {})` -> factory and ['sap', 'ui', 'define']
  * `sap.ui['define']([], function () {})` -> undefined
  */
-function getScopeInitializer(call: estree.CallExpression, context: Rule.RuleContext) {
+function getScopeInitializer(
+  call: estree.CallExpression,
+  hasRuntimeBinding: (node: estree.Node, name: string) => boolean,
+) {
   const { callee } = call;
   if (
     ('optional' in call && call.optional) ||
@@ -142,7 +145,7 @@ function getScopeInitializer(call: estree.CallExpression, context: Rule.RuleCont
   }
   if (
     !isValidScopeInitializerExtra(name, extra, dependencies.elements.length) ||
-    hasRuntimeBinding(context, call, path[0])
+    hasRuntimeBinding(call, path[0])
   ) {
     return undefined;
   }
