@@ -16,9 +16,8 @@
  */
 import ts from 'typescript';
 import { readDirectory } from './filesystem.js';
-import { createVueSourceFile, getVueScript, isVueFile } from '../parsers/vue.js';
+import { equivalentRepresentations, prepareFileRepresentation } from './file-representation.js';
 import path from 'node:path/posix';
-import { jsxEnabledFor } from '../parsers/options.js';
 import {
   getSourceFileContentCache,
   getProvidedSourceFile,
@@ -91,20 +90,15 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
       return false; // No change
     }
 
-    if (isVueFile(normalized)) {
-      const jsx = jsxEnabledFor(this.compilerOptions);
-      const previous =
-        oldContent === undefined ? undefined : getVueScript(normalized, oldContent, jsx);
-      const current = getVueScript(normalized, content, jsx);
-      if (
-        previous?.code === current?.code &&
-        previous?.scriptKind === current?.scriptKind &&
-        current !== undefined
-      ) {
-        // Raw template/style changes still need Vue analysis, but unchanged script
-        // projections can reuse the existing semantic Program and SourceFile.
-        return false;
-      }
+    const previous =
+      oldContent === undefined
+        ? undefined
+        : prepareFileRepresentation(normalized, oldContent, this.compilerOptions);
+    const current = prepareFileRepresentation(normalized, content, this.compilerOptions);
+    if (equivalentRepresentations(previous, current)) {
+      // Raw edits still need analysis; an unchanged compiler representation can
+      // retain its SourceFile and semantic Program.
+      return false;
     }
     this.fileVersions.set(normalized, (this.fileVersions.get(normalized) || 0) + 1);
     this.modifiedFiles.add(normalized);
@@ -301,11 +295,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
         : languageVersionOrOptions.languageVersion;
 
     const { jsx, importHelpers } = this.compilerOptions;
-    const vue = isVueFile(fileName);
-    const script = vue
-      ? getVueScript(normalized, content, jsxEnabledFor(this.compilerOptions))
-      : undefined;
-    const scriptKind = vue ? (script?.scriptKind ?? ts.ScriptKind.TS) : undefined;
+    const representation = prepareFileRepresentation(normalized, content, this.compilerOptions);
 
     // Check global cache (unless forced to create new)
     if (!shouldCreateNewSourceFile) {
@@ -315,21 +305,14 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
         contentHash,
         jsx,
         importHelpers,
-        scriptKind,
+        representation.scriptKind,
       );
-      if (cached?.text === (vue ? (script?.code ?? '') : content)) {
-        return cached;
+      if (cached?.text === representation.text) {
+        return representation.createSourceFile(fileName, languageVersionOrOptions, cached);
       }
     }
 
-    const sourceFile = vue
-      ? createVueSourceFile(fileName, script, languageVersionOrOptions)
-      : ts.createSourceFile(
-          fileName,
-          content,
-          scriptTarget,
-          true, // setNodeParents
-        );
+    const sourceFile = representation.createSourceFile(fileName, languageVersionOrOptions);
 
     setCachedSourceFile(
       normalized,
@@ -338,7 +321,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
       sourceFile,
       jsx,
       importHelpers,
-      scriptKind,
+      representation.scriptKind,
     );
     return sourceFile;
   }

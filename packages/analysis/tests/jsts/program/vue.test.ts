@@ -36,13 +36,18 @@ import {
 import {
   clearSourceFileContentCache,
   setSourceFilesContext,
+  setCachedSourceFile,
 } from '../../../src/jsts/program/cache/sourceFileCache.js';
 import { getProgramCacheManager } from '../../../src/jsts/program/cache/programCache.js';
 import { isRequiredParserServices } from '../../../src/jsts/rules/helpers/parser-services.js';
 import { normalizeToAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import { jsTsInput } from '../tools/helpers/input.js';
 import { buildVueParserOptions } from '../../../src/jsts/parsers/options.js';
-import { createVueScriptParser } from '../../../src/jsts/parsers/vue.js';
+import { createVueScriptParser, getVueScript } from '../../../src/jsts/parsers/vue.js';
+import {
+  clearFileRepresentationCaches,
+  prepareFileRepresentation,
+} from '../../../src/jsts/program/file-representation.js';
 
 const baseDir = normalizeToAbsolutePath('/vue-project');
 const file = normalizeToAbsolutePath('/vue-project/Component.vue');
@@ -65,12 +70,12 @@ const cases: [string, string, string | undefined][] = [
   [
     'generic setup',
     `${template}<script setup lang="ts" generic="T extends string">const n: T = 'a' as T;</script>`,
-    'string',
+    'T',
   ],
   [
     'generic combined',
     `${normalExport}<script setup lang="ts" generic="T extends string">const n: T = 'a' as T;</script>`,
-    'string',
+    'T',
   ],
   ['JavaScript', `${template}<script>const n = 1; n.toFixed();</script>`, '1'],
   ['JSX', '<script lang="jsx">const n = 1; const el = <div>{n}</div>;</script>', '1'],
@@ -144,6 +149,62 @@ describe('Vue scripts in SonarJS Programs', () => {
   });
 
   for (const builder of [false, true]) {
+    for (const [name, raw, type] of [
+      ['ordinary', ordinary, 'number'],
+      [
+        'generic',
+        '<script setup lang="ts" generic="T extends string">const n: T = "a" as T;</script>',
+        'T',
+      ],
+    ]) {
+      it(`${builder ? 'builder' : 'standard'}: binds representation metadata to cached ${name} SourceFiles`, async () => {
+        setSourceFilesContext({ [file]: { fileContent: raw } });
+        const config = options();
+        const target = ts.ScriptTarget.ESNext;
+        config.options.target = target;
+        const representation = prepareFileRepresentation(file, raw, config.options);
+        // Recreate the compiler AST without the parser metadata of its original instance.
+        const cached = ts.createSourceFile(
+          file,
+          representation.text,
+          {
+            languageVersion: target,
+            setExternalModuleIndicator: source => {
+              Object.assign(source, { externalModuleIndicator: true });
+            },
+          },
+          true,
+          representation.scriptKind,
+        );
+        const unregistered = createStandardProgram({
+          ...config,
+          host: {
+            ...ts.createCompilerHost(config.options),
+            getSourceFile: name => (name === file ? cached : undefined),
+          },
+        });
+        // Matching text alone does not make an externally supplied AST trusted.
+        expect((await parsed(raw, unregistered)).parserServices.program).toBeFalsy();
+        const host = new IncrementalCompilerHost(config.options, baseDir);
+        host.updateFile(file, raw);
+        setCachedSourceFile(
+          file,
+          target,
+          host.getFileVersion(file),
+          cached,
+          config.options.jsx,
+          config.options.importHelpers,
+          representation.scriptKind,
+        );
+        const program = builder
+          ? ts
+              .createSemanticDiagnosticsBuilderProgram(config.rootNames, config.options, host)
+              .getProgram()
+          : createStandardProgram({ ...config, host });
+        expect(program.getSourceFile(file) === cached).toBe(true);
+        expect(new Set(await identifierTypes(raw, program))).toEqual(new Set([type]));
+      });
+    }
     for (const raw of [
       `<script>${jsdocScript}</script>`,
       `<script setup>${jsdocScript}</script>`,
@@ -168,7 +229,7 @@ describe('Vue scripts in SonarJS Programs', () => {
       });
     }
     for (const combined of [false, true]) {
-      it(`${builder ? 'builder' : 'standard'}: skips S4157 for generic Vue components (combined=${combined})`, async () => {
+      it(`${builder ? 'builder' : 'standard'}: reports only genuinely redundant arguments in generic Vue components (combined=${combined})`, async () => {
         const raw = `${combined ? normalExport : ''}<script setup lang="ts" generic="T extends unknown">
 type Option<U = unknown> = { value: U };
 type Alias = T;
@@ -189,8 +250,13 @@ function compare(label: string) { return "100" < label; }
           : createStandardProgram({ ...config, host });
         const sourceCode = await parsed(raw, program);
         expect(sourceCode.parserServices.program).toBe(program);
-        // This deliberately also excludes the genuinely redundant argument.
-        expect(verify(sourceCode, unnecessaryTypeArgumentsRule)).toEqual([]);
+        const messages = verify(sourceCode, unnecessaryTypeArgumentsRule);
+        expect(messages).toHaveLength(1);
+        const argument = raw.lastIndexOf('<unknown>');
+        expect(messages[0].fix).toEqual({
+          range: [argument, argument + '<unknown>'.length],
+          text: '',
+        });
         expect(verify(sourceCode, stringComparisonRule)).toHaveLength(1);
       });
     }
@@ -275,6 +341,30 @@ function compare(label: string) { return "100" < label; }
         }
       });
     }
+  }
+
+  for (const [name, clear] of [
+    ['representation cleanup', clearFileRepresentationCaches],
+    ['shared source cleanup', clearSourceFileContentCache],
+  ] as const) {
+    it(`${name} clears preparation caches while retaining live Program bindings`, async () => {
+      const raw =
+        '<script setup lang="ts" generic="T extends string">const n: T = "a" as T;</script>';
+      setSourceFilesContext({ [file]: { fileContent: raw } });
+      const config = options();
+      const program = createStandardProgram({
+        ...config,
+        host: new IncrementalCompilerHost(config.options, baseDir),
+      });
+      const before = getVueScript(file, raw, true);
+      expect(before).toBeDefined();
+      expect(new Set(await identifierTypes(raw, program))).toEqual(new Set(['T']));
+      clear();
+      const after = getVueScript(file, raw, true);
+      expect(after).toBeDefined();
+      expect(after).not.toBe(before);
+      expect(new Set(await identifierTypes(raw, program))).toEqual(new Set(['T']));
+    });
   }
 
   it('rejects stale Programs instead of silently returning old types', async () => {

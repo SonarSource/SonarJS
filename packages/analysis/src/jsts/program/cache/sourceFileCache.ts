@@ -17,7 +17,7 @@
 import { FileSystemMap } from '../../../common/filesystem.js';
 import { debug } from '../../../../../shared/src/helpers/logging.js';
 import type ts from 'typescript';
-import { clearVueScriptCache } from '../../parsers/vue.js';
+import { clearFileRepresentationCaches } from '../file-representation.js';
 
 /**
  * Global cache for source file contents
@@ -169,7 +169,7 @@ export function invalidateParsedSourceFile(fileName: string): void {
  * Clear the source file content cache and parsed SourceFile cache
  */
 export function clearSourceFileContentCache(): void {
-  clearVueScriptCache();
+  clearFileRepresentationCaches();
   sourceFileContentCache.clear();
   parsedSourceFileCache.clear();
   currentFilesContext = null;
