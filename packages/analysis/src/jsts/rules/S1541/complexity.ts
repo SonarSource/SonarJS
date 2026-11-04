@@ -27,62 +27,79 @@ import {
 import type { RuleContext } from '../helpers/type.js';
 
 /** Store branch tokens for the current function, separate from its nested functions. */
-export function createComplexityAccumulator(
-  getBranchToken: (node: estree.Node) => ComplexityToken | null | undefined,
-) {
-  const functions: FunctionInfo[] = [];
-  const functionStack: FunctionInfo[] = [];
-  const functionsWithNested = new Set<estree.Node>();
+export class ComplexityAccumulator {
+  private readonly functions: FunctionInfo[] = [];
+  private readonly functionStack: FunctionInfo[] = [];
+  private readonly functionsWithNested = new Set<estree.Node>();
 
-  return {
-    enterFunction(node: FunctionNodeType, parent: estree.Node | undefined) {
-      const info: FunctionInfo = { node, parent, tokens: [] };
-      functions.push(info);
-      const enclosing = functionStack.at(-1);
-      if (enclosing) {
-        functionsWithNested.add(enclosing.node);
+  constructor(
+    private readonly getBranchToken: (node: estree.Node) => ComplexityToken | null | undefined,
+  ) {}
+
+  enterFunction(node: FunctionNodeType, parent: estree.Node | undefined) {
+    const info: FunctionInfo = { node, parent, tokens: [] };
+    this.functions.push(info);
+    const enclosing = this.functionStack.at(-1);
+    if (enclosing) {
+      this.functionsWithNested.add(enclosing.node);
+    }
+    this.functionStack.push(info);
+  }
+
+  leaveFunction() {
+    this.functionStack.pop();
+  }
+
+  addBranch(node: estree.Node) {
+    const enclosing = this.functionStack.at(-1);
+    if (enclosing) {
+      const token = this.getBranchToken(node);
+      if (token) {
+        enclosing.tokens.push(token);
       }
-      functionStack.push(info);
-    },
-    leaveFunction() {
-      functionStack.pop();
-    },
-    addBranch(node: estree.Node) {
-      const enclosing = functionStack.at(-1);
-      if (enclosing) {
-        const token = getBranchToken(node);
-        if (token) {
-          enclosing.tokens.push(token);
-        }
-      }
-    },
-    hasNestedFunction(node: estree.Node): boolean {
-      return functionsWithNested.has(node);
-    },
-    getFunctions(): readonly FunctionInfo[] {
-      return functions;
-    },
-  };
+    }
+  }
+
+  hasNestedFunction(node: estree.Node): boolean {
+    return this.functionsWithNested.has(node);
+  }
+
+  getFunctions(): readonly FunctionInfo[] {
+    return this.functions;
+  }
 }
 
 /** Connect complexity counting to ESLint token locations and issue reporting. */
-export function createComplexityTracker(context: Rule.RuleContext) {
-  const accumulator = createComplexityAccumulator(node => getComplexityToken(node, context));
-  return {
-    enterFunction(node: FunctionNodeType) {
-      accumulator.enterFunction(node, getParent(context, node));
-    },
-    leaveFunction: accumulator.leaveFunction,
-    addBranch: accumulator.addBranch,
-    hasNestedFunction: accumulator.hasNestedFunction,
-    reportOverThreshold(threshold: number, isExcluded: (node: estree.Node) => boolean) {
-      for (const { node, parent, tokens } of accumulator.getFunctions()) {
-        if (!isExcluded(node)) {
-          raiseOnUnauthorizedComplexity(node, parent, tokens, threshold, context);
-        }
+export class ComplexityTracker {
+  private readonly accumulator: ComplexityAccumulator;
+
+  constructor(private readonly context: Rule.RuleContext) {
+    this.accumulator = new ComplexityAccumulator(node => getComplexityToken(node, context));
+  }
+
+  enterFunction(node: FunctionNodeType) {
+    this.accumulator.enterFunction(node, getParent(this.context, node));
+  }
+
+  leaveFunction() {
+    this.accumulator.leaveFunction();
+  }
+
+  addBranch(node: estree.Node) {
+    this.accumulator.addBranch(node);
+  }
+
+  hasNestedFunction(node: estree.Node): boolean {
+    return this.accumulator.hasNestedFunction(node);
+  }
+
+  reportOverThreshold(threshold: number, isExcluded: (node: estree.Node) => boolean) {
+    for (const { node, parent, tokens } of this.accumulator.getFunctions()) {
+      if (!isExcluded(node)) {
+        raiseOnUnauthorizedComplexity(node, parent, tokens, threshold, this.context);
       }
-    },
-  };
+    }
+  }
 }
 
 function raiseOnUnauthorizedComplexity(

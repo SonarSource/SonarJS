@@ -21,7 +21,7 @@ import type estree from 'estree';
 import type { FromSchema } from 'json-schema-to-ts';
 import { type FunctionNodeType } from '../helpers/ast.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { createComplexityTracker } from './complexity.js';
+import { ComplexityTracker } from './complexity.js';
 import {
   getImmediatelyConstructedFunction,
   getImmediatelyInvokedFunction,
@@ -37,7 +37,7 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const threshold =
       (context.options as FromSchema<typeof meta.schema>)[0]?.threshold ?? DEFAULT_THRESHOLD;
-    const complexity = createComplexityTracker(context);
+    const complexity = new ComplexityTracker(context);
     const moduleInitializers = createModuleInitializerTracker((node, name) =>
       hasRuntimeBinding(context, node, name),
     );
@@ -86,8 +86,8 @@ export const rule: Rule.RuleModule = {
         ),
 
       'Program:exit': () => {
-        const moduleFactories = moduleInitializers.getExcludedFactories(
-          complexity.hasNestedFunction,
+        const moduleFactories = moduleInitializers.getExcludedFactories(node =>
+          complexity.hasNestedFunction(node),
         );
         complexity.reportOverThreshold(
           threshold,
