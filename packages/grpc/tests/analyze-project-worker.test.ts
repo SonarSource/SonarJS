@@ -76,6 +76,11 @@ class FakeParentThread {
 const workerData: WorkerData = { debugMemory: false };
 type AnalyzeProjectRequest = analyzeProjectProto.analyzeproject.v1.IAnalyzeProjectRequest;
 
+function getWorkerRequestTimeout(sequence: number): number {
+  // The first request also loads and instruments the full analyzer under NYC coverage.
+  return sequence === 1 ? 60_000 : 30_000;
+}
+
 function createAnalyzeProjectRequest(): AnalyzeProjectRequest {
   return {
     configuration: {
@@ -165,8 +170,8 @@ describe('analyze-project worker', () => {
           const requestId = String(++sequence);
           const key = `${baseDir}/${logical && isWindowsProjectPath(origin) ? 'MAIN.TEST.ts' : 'main.test.ts'}`;
           const timer = setTimeout(
-            () => finish(new Error('Portable replay worker timed out')),
-            30_000,
+            () => finish(new Error(`Portable replay worker request ${requestId} timed out`)),
+            getWorkerRequestTimeout(sequence),
           );
           const onError = (error: Error) => finish(error);
           const onMessage = (message: AnalyzeProjectWorkerOutMessage) => {
@@ -303,7 +308,10 @@ describe('analyze-project worker', () => {
     const analyze = (baseDir: string, mode: number, content?: string) =>
       new Promise<AnalyzeProjectWorkerOutMessage>((resolve, reject) => {
         const requestId = String(++sequence);
-        const timer = setTimeout(() => finish(new Error('CSS replay worker timed out')), 30_000);
+        const timer = setTimeout(
+          () => finish(new Error(`CSS replay worker request ${requestId} timed out`)),
+          getWorkerRequestTimeout(sequence),
+        );
         const onMessage = (message: AnalyzeProjectWorkerOutMessage) => {
           if (
             'requestId' in message &&
