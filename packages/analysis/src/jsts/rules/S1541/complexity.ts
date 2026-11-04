@@ -26,8 +26,14 @@ import {
 } from '../helpers/location.js';
 import type { RuleContext } from '../helpers/type.js';
 
+interface ComplexityTraversal {
+  leaveFunction(): void;
+  addBranch(node: estree.Node): void;
+  hasNestedFunction(node: estree.Node): boolean;
+}
+
 /** Store branch tokens for the current function, separate from its nested functions. */
-export class ComplexityAccumulator {
+export class ComplexityAccumulator implements ComplexityTraversal {
   private readonly functions: FunctionInfo[] = [];
   private readonly functionStack: FunctionInfo[] = [];
   private readonly functionsWithNested = new Set<estree.Node>();
@@ -70,7 +76,7 @@ export class ComplexityAccumulator {
 }
 
 /** Connect complexity counting to ESLint token locations and issue reporting. */
-export class ComplexityTracker {
+export class ComplexityTracker implements ComplexityTraversal {
   private readonly accumulator: ComplexityAccumulator;
 
   constructor(private readonly context: Rule.RuleContext) {
