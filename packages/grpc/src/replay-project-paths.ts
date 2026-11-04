@@ -82,7 +82,7 @@ export class ReplayProjectPaths {
     this.request.filesystemCache = undefined;
   }
 
-  /** Translate a delivered replay file before ending the session or resetting its path map. */
+  /** Translate a replay file before ending the session or resetting its path map. */
   sourceOnlyPath(file: string): NormalizedAbsolutePath {
     const original = this.originalPaths.get(file);
     const baseDir =

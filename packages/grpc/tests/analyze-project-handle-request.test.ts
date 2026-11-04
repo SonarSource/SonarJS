@@ -874,6 +874,7 @@ describe('analyze-project request handler', () => {
 
   for (const failure of [
     'cache miss',
+    'no-program cache miss',
     'unsupported operation',
     'in-file cache miss',
     'delivery error',
@@ -909,6 +910,7 @@ describe('analyze-project request handler', () => {
             baseDir,
             canAccessFileSystem: true,
             disableTypeChecking: !record && failure !== 'in-file cache miss',
+            createTsProgramForOrphanFiles: failure !== 'no-program cache miss',
           },
           files: Object.fromEntries(
             filenames.map(filename => [
@@ -962,6 +964,7 @@ describe('analyze-project request handler', () => {
             expect(events.map(({ event }) => event.messageType)).toEqual(['fileResult']);
             switch (failure) {
               case 'cache miss':
+              case 'no-program cache miss':
               case 'fallback error':
                 fs.statSync(path.join(recordRoot, 'not-observed-in-ci'));
                 break;
@@ -1044,7 +1047,9 @@ describe('analyze-project request handler', () => {
           ]);
           // Retain the result streamed with context; only the failed file uses source-only analysis.
           expect(converted[0].result!.issues!.map(issue => issue.ruleId).sort()).toEqual(
-            failure === 'in-file cache miss' ? ['S1116'] : ['S1116', 'S2871'],
+            failure === 'in-file cache miss' || failure === 'no-program cache miss'
+              ? ['S1116']
+              : ['S1116', 'S2871'],
           );
           for (const file of converted.slice(1)) {
             // The resumed program must still read the submitted edit of completed first.ts.

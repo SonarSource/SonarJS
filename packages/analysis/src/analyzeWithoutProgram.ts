@@ -67,7 +67,7 @@ export async function analyzeWithoutProgram(
       jsTsConfigFields,
       undefined,
       results,
-      undefined,
+      filenames,
       progressReport,
       incrementalResultsChannel,
     );

@@ -433,6 +433,8 @@ describe('analyze-project worker', () => {
             'third.ts',
           ]);
         }
+        // Unary analysis must use the same pending work, retaining results from before the failure.
+        if (phase === 'file analysis') fs.writeFileSync(visits, '');
         // Replay again with an edit: the failed context is unchanged and each retry uses current contents.
         expect(await analyze(false, false, '[80, 3, 9].sort((a, b) => a - b);')).toMatchObject([
           {
@@ -448,6 +450,14 @@ describe('analyze-project worker', () => {
             },
           },
         ]);
+        if (phase === 'file analysis') {
+          expect(fs.readFileSync(visits, 'utf8').trim().split('\n')).toEqual([
+            'first.ts',
+            'second.ts',
+            'second.ts',
+            'third.ts',
+          ]);
+        }
         artifacts.forEach((artifact, index) =>
           expect(fs.readFileSync(path.join(runtime, artifact))).toEqual(bytes[index]),
         );

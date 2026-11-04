@@ -24,6 +24,7 @@ import type { ProjectAnalysisTelemetry } from './telemetry.js';
 import type { ParsingError } from './contracts/project-analysis.js';
 import type { FileType } from './contracts/file.js';
 import type { ProgramSelectionArchive } from './program-selection/archive.js';
+import type { Configuration } from './common/configuration.js';
 
 export type ProjectAnalysisMeta = {
   warnings: string[];
@@ -122,6 +123,11 @@ export type ProjectAnalysisInput = {
   bundles: NormalizedAbsolutePath[];
   rulesWorkdir?: NormalizedAbsolutePath;
   programSelection?: ProgramSelectionArchive;
-  // Completed files remain program inputs, but must not be analyzed or emitted again.
-  completedFiles?: ReadonlySet<NormalizedAbsolutePath>;
+  onContextFailure?: (error: Error) => Promise<ProjectAnalysisRecovery>;
+};
+
+/** Restoring a context can change the filesystem namespace, while pending work stays in this run. */
+export type ProjectAnalysisRecovery = {
+  configuration: Configuration;
+  relocateFile: (file: NormalizedAbsolutePath) => NormalizedAbsolutePath;
 };

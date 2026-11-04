@@ -44,6 +44,10 @@ import { filesWithoutRecordedProgramOutcome } from '../../analysis/src/analyzeWi
 import { getJsTsConfigFields } from '../../analysis/src/common/configuration.js';
 import { isFileSystemCaseSensitive } from '../../analysis/src/common/filesystem.js';
 import { sourceFileStore } from '../../analysis/src/file-stores/index.js';
+import type {
+  ProjectAnalysisInput,
+  ProjectAnalysisRecovery,
+} from '../../analysis/src/projectAnalysis.js';
 import {
   normalizeToAbsolutePath,
   type NormalizedAbsolutePath,
@@ -180,6 +184,13 @@ function fallBackToSourceOnly(sessions: AnalysisSessions, reason: string): void 
   warn(sessions.fallbackWarning);
 }
 
+function fallBackAfterReplayError(sessions: AnalysisSessions, failure: unknown): void {
+  if (sessions.filesystemCacheSession?.mode !== 'replay' || !isFsCacheReplayError(failure)) {
+    throw failure;
+  }
+  fallBackToSourceOnly(sessions, `Could not replay SonarJS context: ${failure.message}`);
+}
+
 function beginAnalysisSessions(
   request: AnalyzeProjectProtoRequest,
   cacheMode: CacheMode | undefined,
@@ -226,6 +237,19 @@ async function normalizeProjectInput(
   cacheMode: CacheMode | undefined,
   sessions: AnalysisSessions,
 ) {
+  try {
+    return await normalizeProjectInputOnce(request, cacheMode, sessions);
+  } catch (failure) {
+    fallBackAfterReplayError(sessions, failure);
+    return normalizeProjectInputOnce(request, cacheMode, sessions);
+  }
+}
+
+async function normalizeProjectInputOnce(
+  request: AnalyzeProjectProtoRequest,
+  cacheMode: CacheMode | undefined,
+  sessions: AnalysisSessions,
+) {
   const restoredConfiguration = sessions.programSelection?.restoredConfiguration();
   if (restoredConfiguration && request.configuration) {
     // Configuration is evaluated in its original CI namespace. Submitted contents, rules,
@@ -262,11 +286,44 @@ async function normalizeProjectInput(
   return fallback;
 }
 
+async function restoreProjectInput(
+  request: AnalyzeProjectProtoRequest,
+  cacheMode: CacheMode | undefined,
+  sessions: AnalysisSessions,
+  input: Awaited<ReturnType<typeof normalizeAnalyzeProjectRequest>>,
+  failure: Error,
+): Promise<ProjectAnalysisRecovery> {
+  const paths = requireReplayPaths(sessions);
+  // Capture namespace translation before ending replay changes filesystem case semantics.
+  const relocatedFiles = new Map(
+    (Object.keys(sourceFileStore.getFiles()) as NormalizedAbsolutePath[]).map(file => [
+      file,
+      paths.sourceOnlyPath(file),
+    ]),
+  );
+  fallBackAfterReplayError(sessions, failure);
+  const restored = await normalizeProjectInput(request, cacheMode, sessions);
+  // Retain old mappings too: already produced issues can refer to files in the CI namespace.
+  for (const [file, original] of restored.pathMap) {
+    input.pathMap.set(file, original);
+  }
+  return {
+    configuration: restored.configuration,
+    relocateFile(file) {
+      const relocated = relocatedFiles.get(file);
+      if (!relocated) {
+        throw new InvalidAnalyzeProjectRequestError(`No restored path for ${file}`);
+      }
+      return relocated;
+    },
+  };
+}
+
 async function analyzeNormalizedProject(
   input: Awaited<ReturnType<typeof normalizeAnalyzeProjectRequest>>,
   programSelection: ProgramSelectionArchive | undefined,
   incrementalResultsChannel?: (result: AnalyzeProjectIncrementalEvent) => void,
-  completedFiles?: ReadonlySet<NormalizedAbsolutePath>,
+  onContextFailure?: ProjectAnalysisInput['onContextFailure'],
 ) {
   const wrappedIncrementalResultsChannel = incrementalResultsChannel
     ? (event: AnalyzeProjectIncrementalEvent['event']) =>
@@ -282,7 +339,7 @@ async function analyzeNormalizedProject(
       bundles: input.bundles,
       rulesWorkdir: input.rulesWorkdir,
       programSelection,
-      completedFiles,
+      onContextFailure,
     },
     input.configuration,
     wrappedIncrementalResultsChannel,
@@ -310,15 +367,9 @@ async function handleProjectAnalysis(
     beginAnalysisSessions(request, cacheMode, sessions);
     return await withAnalysisCancellation(async () => {
       logHeapStatistics(workerData?.debugMemory);
-      const completedFiles = new Set<NormalizedAbsolutePath>();
       let deliveryFailed = false;
       const publishEvent = incrementalResultsChannel
         ? (event: AnalyzeProjectIncrementalEvent) => {
-            const completedFile =
-              event.event.messageType === 'fileResult' &&
-              sessions.filesystemCacheSession?.mode === 'replay'
-                ? requireReplayPaths(sessions).sourceOnlyPath(event.event.filename)
-                : undefined;
             if (event.event.messageType === 'meta' && sessions.fallbackWarning) {
               event.event.warnings.push(sessions.fallbackWarning);
             }
@@ -328,32 +379,24 @@ async function handleProjectAnalysis(
               deliveryFailed = true;
               throw error;
             }
-            // Record completion only after delivery succeeds. Retain names, never file results.
-            if (completedFile !== undefined) {
-              completedFiles.add(completedFile);
-            }
           }
         : undefined;
-      const analyze = async (completed?: ReadonlySet<NormalizedAbsolutePath>) => {
-        const input = await normalizeProjectInput(request, cacheMode, sessions);
-        return analyzeNormalizedProject(input, sessions.programSelection, publishEvent, completed);
-      };
-      let result;
-      try {
-        result = await analyze();
-      } catch (error) {
-        if (
-          deliveryFailed ||
-          sessions.filesystemCacheSession?.mode !== 'replay' ||
-          !isFsCacheReplayError(error)
-        ) {
-          throw error;
-        }
-        fallBackToSourceOnly(sessions, `Could not replay SonarJS context: ${error.message}`);
-        // Rebuild context once in the same cancellation scope. Already delivered files stay
-        // available as submitted dependencies, but only unfinished files are analyzed again.
-        result = await analyze(completedFiles);
-      }
+      const input = await normalizeProjectInput(request, cacheMode, sessions);
+      const onContextFailure =
+        sessions.filesystemCacheSession?.mode === 'replay'
+          ? (failure: Error) => {
+              if (deliveryFailed) {
+                throw failure;
+              }
+              return restoreProjectInput(request, cacheMode, sessions, input, failure);
+            }
+          : undefined;
+      const result = await analyzeNormalizedProject(
+        input,
+        sessions.programSelection,
+        publishEvent,
+        onContextFailure,
+      );
       if (
         sessions.fallbackWarning &&
         !result.output.meta.warnings.includes(sessions.fallbackWarning)

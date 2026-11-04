@@ -15,10 +15,13 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { FileSystemSet } from './common/filesystem.js';
+import { isFsCacheReplayError } from '../../shared/src/fs-cache/hook.js';
 import {
   type ProjectAnalysisInput,
   type ProjectAnalysisOutput,
   createFileResults,
+  entriesOfFileResults,
+  type ProjectAnalysisRecovery,
 } from './projectAnalysis.js';
 import { analyzeWithProgram } from './analyzeWithProgram.js';
 import { analyzeWithIncrementalProgram } from './analyzeWithIncrementalProgram.js';
@@ -111,10 +114,14 @@ export async function analyzeProject(
     // including the entire TypeScript Program; the parsed SourceFile cache also remains live.
     // Release both before the next request loads another filesystem archive or TS program.
     if (!configuration.sonarlint) {
-      Linter.releaseAfterAnalysis();
-      clearSourceFileContentCache();
+      releaseAnalysisResources();
     }
   }
+}
+
+function releaseAnalysisResources(): void {
+  Linter.releaseAfterAnalysis();
+  clearSourceFileContentCache();
 }
 
 async function analyzeProjectWithCancellation(
@@ -122,23 +129,84 @@ async function analyzeProjectWithCancellation(
   configuration: Configuration,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ): Promise<ProjectAnalysisOutput> {
-  const { rules, bundles, rulesWorkdir, programSelection } = input;
-  const filesToAnalyze = sourceFileStore.getFiles();
-  // Keep completed files available as dependencies while resuming only unfinished analysis.
-  // analyzeFile decides per-file whether to run JS/TS, CSS, or both (for Vue/HTML files).
-  const pendingFiles = new FileSystemSet(Object.keys(filesToAnalyze) as NormalizedAbsolutePath[]);
-  for (const file of input.completedFiles ?? []) {
-    pendingFiles.delete(file);
-  }
-
+  const pendingFiles = new FileSystemSet(
+    Object.keys(sourceFileStore.getFiles()) as NormalizedAbsolutePath[],
+  );
   const results: ProjectAnalysisOutput = {
     files: createFileResults(),
-    meta: {
-      warnings: [],
-    },
+    meta: { warnings: [] },
   };
+  let currentInput = input;
+  let currentConfiguration = configuration;
+  let recover = input.onContextFailure;
+  let initializeTelemetry = true;
+  while (true) {
+    try {
+      if (initializeTelemetry) {
+        resetProjectAnalysisTelemetry();
+        initializeTelemetry = false;
+      }
+      await analyzePendingProjectFiles(
+        currentInput,
+        currentConfiguration,
+        pendingFiles,
+        results,
+        incrementalResultsChannel,
+      );
+      break;
+    } catch (failure) {
+      if (!recover || !isFsCacheReplayError(failure)) {
+        throw failure;
+      }
+      const restoreContext = recover;
+      recover = undefined;
+      releaseAnalysisResources();
+      const restored = await restoreContext(failure);
+      relocateAnalysisFiles(pendingFiles, results, restored.relocateFile);
+      currentInput = { ...input, programSelection: undefined };
+      currentConfiguration = restored.configuration;
+    }
+  }
+  if (isAnalysisCancelled()) {
+    error('Analysis has been cancelled');
+    incrementalResultsChannel?.({ messageType: 'cancelled' });
+  } else {
+    results.meta.telemetry = getProjectAnalysisTelemetry();
+    incrementalResultsChannel?.({ ...results.meta, messageType: 'meta' });
+  }
+  return results;
+}
+
+function relocateAnalysisFiles(
+  pendingFiles: Set<NormalizedAbsolutePath>,
+  results: ProjectAnalysisOutput,
+  relocateFile: ProjectAnalysisRecovery['relocateFile'],
+): void {
+  const pending = Array.from(pendingFiles, relocateFile);
+  pendingFiles.clear();
+  for (const file of pending) {
+    if (sourceFileStore.getFile(file)) {
+      pendingFiles.add(file);
+    }
+  }
+  const files = createFileResults();
+  for (const [file, result] of entriesOfFileResults(results.files)) {
+    files[relocateFile(file)] = result;
+  }
+  results.files = files;
+}
+
+async function analyzePendingProjectFiles(
+  input: ProjectAnalysisInput,
+  configuration: Configuration,
+  pendingFiles: Set<NormalizedAbsolutePath>,
+  results: ProjectAnalysisOutput,
+  incrementalResultsChannel?: (result: WsIncrementalResult) => void,
+): Promise<void> {
+  const { rules, bundles, rulesWorkdir, programSelection } = input;
+  // All submitted files remain available as dependencies, including already analyzed files.
+  const filesToAnalyze = sourceFileStore.getFiles();
   const { baseDir, environments, globals, sonarlint, canAccessFileSystem } = configuration;
-  resetProjectAnalysisTelemetry();
   getProjectAnalysisTelemetryCollector().recordGeneratedSources(
     generatedSourceStore.observeGeneratedSources(configuration, filesToAnalyze),
   );
@@ -218,14 +286,6 @@ async function analyzeProjectWithCancellation(
   } finally {
     progressReport.stop();
   }
-  if (isAnalysisCancelled()) {
-    error('Analysis has been cancelled');
-    incrementalResultsChannel?.({ messageType: 'cancelled' });
-  } else {
-    results.meta.telemetry = getProjectAnalysisTelemetry();
-    incrementalResultsChannel?.({ ...results.meta, messageType: 'meta' });
-  }
-  return results;
 }
 
 function recordNoProgramOutcomes(
