@@ -23,6 +23,7 @@ import ts from 'typescript';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getTypeFromTreeNode } from '../helpers/type.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
+import { isStrictNullChecksEnabled } from '../helpers/compiler-options.js';
 import {
   isRequiredParserServices,
   type RequiredParserServices,
@@ -209,7 +210,7 @@ function shouldSuppressNonNullAssertion(
   const tsNode = services.esTreeNodeToTSNodeMap.get(node.expression);
   const compilerOptions = services.program.getCompilerOptions();
 
-  if (compilerOptions.strictNullChecks || compilerOptions.strict) {
+  if (isStrictNullChecksEnabled(compilerOptions)) {
     const resolvedType = checker.getTypeAtLocation(tsNode);
     if (resolvedType.isUnion()) {
       return resolvedType.types.some(
