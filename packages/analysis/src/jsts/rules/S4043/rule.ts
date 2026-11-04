@@ -29,6 +29,7 @@ import { getSymbolAtLocation, getTypeFromTreeNode, isArrayLikeType } from '../he
 import { localAncestorsChain } from '../helpers/ancestor.js';
 import {
   getStaticExpressionValue,
+  isInOptionalChain,
   isTypeScriptExpressionWrapper,
   unwrapTypeScriptExpression,
 } from '../helpers/ast.js';
@@ -61,10 +62,16 @@ export const rule: Rule.RuleModule = {
           const method = getArrayMutatingMethod(callee);
           if (method && isArrayMutatingCall(callee, services)) {
             const mutatedArray = callee.object;
+            const unwrappedMutatedArray = unwrapTypeScriptExpression(
+              mutatedArray as TSESTree.Expression,
+            );
 
             if (
-              isIdentifierOrPropertyAccessExpression(mutatedArray, services) &&
-              !isInSelfAssignment(mutatedArray, node) &&
+              isIdentifierOrPropertyAccessExpression(
+                unwrappedMutatedArray as estree.Node,
+                services,
+              ) &&
+              !isInSelfAssignment(unwrappedMutatedArray as estree.Node, node) &&
               !isForOfIterable(context, node) &&
               isForbiddenOperation(node)
             ) {
@@ -83,7 +90,10 @@ export const rule: Rule.RuleModule = {
                       suggestedMethod,
                     },
                     fix: fixer => {
-                      const propertyText = context.sourceCode.getText(callee.property);
+                      const property = unwrapTypeScriptExpression(
+                        callee.property as TSESTree.Expression,
+                      );
+                      const propertyText = context.sourceCode.getText(property as estree.Node);
                       const fixedPropertyText = callee.computed
                         ? `${propertyText[0]}${suggestedMethod}${propertyText[0]}`
                         : suggestedMethod;
@@ -104,7 +114,8 @@ function getArrayMutatingMethod(memberExpression: estree.MemberExpression): stri
   const { computed, property } = memberExpression;
   let name: string | undefined;
   if (computed) {
-    name = getStaticExpressionValue(property as estree.Expression);
+    const unwrappedProperty = unwrapTypeScriptExpression(property as TSESTree.Expression);
+    name = getStaticExpressionValue(unwrappedProperty as estree.Expression);
   } else if (property.type === 'Identifier') {
     name = property.name;
   }
@@ -116,9 +127,10 @@ function isArrayMutatingCall(
   services: RequiredParserServices,
 ) {
   const type = getTypeFromTreeNode(memberExpression.object, services);
-  const receiverType = memberExpression.optional
-    ? services.program.getTypeChecker().getNonNullableType(type)
-    : type;
+  const receiverType =
+    memberExpression.optional || isInOptionalChain(memberExpression.object as TSESTree.Node)
+      ? services.program.getTypeChecker().getNonNullableType(type)
+      : type;
   return isArrayLikeType(receiverType, services);
 }
 
