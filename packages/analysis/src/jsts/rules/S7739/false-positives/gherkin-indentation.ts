@@ -50,7 +50,7 @@ export function isGherkinIndentationMap(context: Rule.RuleContext, node: Node): 
   );
 }
 
-function getNumericThenProperty(node: Node): TSESTree.Property | undefined {
+function getNumericThenProperty(node: Node): Extract<Node, { type: 'Property' }> | undefined {
   const property = getNodeParent(node);
   if (
     property?.type !== 'Property' ||
@@ -60,12 +60,12 @@ function getNumericThenProperty(node: Node): TSESTree.Property | undefined {
   ) {
     return undefined;
   }
-  return property as TSESTree.Property;
+  return property as Extract<Node, { type: 'Property' }>;
 }
 
 function getDirectConstObjectInitializer(
-  property: TSESTree.Property,
-): TSESTree.ObjectExpression | undefined {
+  property: Extract<Node, { type: 'Property' }>,
+): Extract<Node, { type: 'ObjectExpression' }> | undefined {
   const object = getNodeParent(property);
   if (object?.type !== 'ObjectExpression') {
     return undefined;
@@ -97,8 +97,8 @@ function hasGherkinImport(context: Rule.RuleContext): boolean {
 }
 
 function hasRequiredKeywordsWithoutLaterOverride(
-  object: TSESTree.ObjectExpression,
-  property: TSESTree.Property,
+  object: Extract<Node, { type: 'ObjectExpression' }>,
+  property: Extract<Node, { type: 'Property' }>,
 ): boolean {
   const propertyIndex = object.properties.indexOf(property);
   const keys = new Set<string>();
