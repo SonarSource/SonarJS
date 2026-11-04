@@ -18,7 +18,7 @@ import type estree from 'estree';
 import { isFunctionNode } from '../helpers/ast.js';
 import {
   getModuleFactory,
-  getPropertyAccessPath,
+  getModuleLoaderPath,
   isStringLiteral,
   unwrapTypeScriptValue,
 } from './helpers.js';
@@ -41,7 +41,7 @@ export function createModuleInitializerTracker(
 
   function collectWrite(target: estree.Node, writtenPaths: string[][]): void {
     const value = unwrapTypeScriptValue(target);
-    const path = getPropertyAccessPath(value, true);
+    const path = getModuleLoaderPath(value, true);
     if (path) {
       if (!hasRuntimeBinding(value, path[0])) {
         writtenPaths.push(path);
@@ -124,7 +124,7 @@ function getScopeInitializer(
   ) {
     return undefined;
   }
-  const path = getPropertyAccessPath(callee, false);
+  const path = getModuleLoaderPath(callee, false);
   const name = path?.join('.') ?? '';
   if (!path || ![SAP_UI_DEFINE, 'require', 'sap.ui.require', 'System.register'].includes(name)) {
     return undefined;

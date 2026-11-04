@@ -35,7 +35,7 @@ export function unwrapTypeScriptValue(expression: estree.Node): estree.Node {
 }
 
 /**
- * Get the property path of an expression rooted at `define`, `sap`, `require`, or `System`.
+ * Get a module loader path rooted at `define`, `sap`, `require`, or `System`.
  *
  * `sap.ui.define` -> ['sap', 'ui', 'define']
  * `other.ui.define` -> undefined
@@ -47,13 +47,13 @@ export function unwrapTypeScriptValue(expression: estree.Node): estree.Node {
  *
  * A `'*'` segment can match any property when the rule checks writes.
  */
-export function getPropertyAccessPath(
+export function getModuleLoaderPath(
   expression: estree.Node,
   allowComputed: boolean,
 ): string[] | undefined {
   const node = allowComputed ? unwrapTypeScriptValue(expression) : expression;
   if (allowComputed && node.type === 'ChainExpression') {
-    return getPropertyAccessPath(node.expression, allowComputed);
+    return getModuleLoaderPath(node.expression, allowComputed);
   }
   if (node.type === 'Identifier') {
     return ['define', 'sap', 'require', 'System'].includes(node.name) ? [node.name] : undefined;
@@ -61,7 +61,7 @@ export function getPropertyAccessPath(
   if (node.type !== 'MemberExpression' || (!allowComputed && (node.computed || node.optional))) {
     return undefined;
   }
-  const object = getPropertyAccessPath(node.object, allowComputed);
+  const object = getModuleLoaderPath(node.object, allowComputed);
   if (!object) {
     return undefined;
   }
