@@ -37,6 +37,20 @@ const GHERKIN_KEYWORDS = ['Feature', 'given', 'when', 'then'];
  * replace the selected `then` value. TypeScript type syntax does not change the map.
  */
 export function isGherkinIndentationMap(context: Rule.RuleContext, node: Node): boolean {
+  const property = getNumericThenProperty(node);
+  if (!property) {
+    return false;
+  }
+
+  const object = getDirectConstObjectInitializer(property);
+  return (
+    object != null &&
+    hasGherkinImport(context) &&
+    hasRequiredKeywordsWithoutLaterOverride(object, property)
+  );
+}
+
+function getNumericThenProperty(node: Node): TSESTree.Property | undefined {
   const property = getNodeParent(node);
   if (
     property?.type !== 'Property' ||
@@ -44,12 +58,17 @@ export function isGherkinIndentationMap(context: Rule.RuleContext, node: Node): 
     property.kind !== 'init' ||
     !isNumberLiteral(unwrapTypeScriptExpression(property.value))
   ) {
-    return false;
+    return undefined;
   }
+  return property as TSESTree.Property;
+}
 
+function getDirectConstObjectInitializer(
+  property: TSESTree.Property,
+): TSESTree.ObjectExpression | undefined {
   const object = getNodeParent(property);
   if (object?.type !== 'ObjectExpression') {
-    return false;
+    return undefined;
   }
 
   const declarator = findFirstMatchingAncestor(
@@ -64,17 +83,23 @@ export function isGherkinIndentationMap(context: Rule.RuleContext, node: Node): 
     declarator.parent.type !== 'VariableDeclaration' ||
     declarator.parent.kind !== 'const'
   ) {
-    return false;
+    return undefined;
   }
+  return object;
+}
 
+function hasGherkinImport(context: Rule.RuleContext): boolean {
   const hasGherkinImport = getImportDeclarations(context).some(
     declaration =>
       declaration.source.value === '@cucumber/gherkin' && !isTypeOnlyImportDeclaration(declaration),
   );
-  if (!hasGherkinImport) {
-    return false;
-  }
+  return hasGherkinImport;
+}
 
+function hasRequiredKeywordsWithoutLaterOverride(
+  object: TSESTree.ObjectExpression,
+  property: TSESTree.Property,
+): boolean {
   const propertyIndex = object.properties.indexOf(property);
   const keys = new Set<string>();
   for (const [index, member] of object.properties.entries()) {
