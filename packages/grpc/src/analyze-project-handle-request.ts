@@ -239,8 +239,8 @@ async function normalizeProjectInput(
 ) {
   try {
     return await normalizeProjectInputOnce(request, cacheMode, sessions);
-  } catch (failure) {
-    fallBackAfterReplayError(sessions, failure);
+  } catch (error) {
+    fallBackAfterReplayError(sessions, error);
     return normalizeProjectInputOnce(request, cacheMode, sessions);
   }
 }

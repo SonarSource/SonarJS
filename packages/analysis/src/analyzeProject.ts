@@ -136,36 +136,29 @@ async function analyzeProjectWithCancellation(
     files: createFileResults(),
     meta: { warnings: [] },
   };
-  let currentInput = input;
-  let currentConfiguration = configuration;
-  let recover = input.onContextFailure;
-  let initializeTelemetry = true;
-  while (true) {
-    try {
-      if (initializeTelemetry) {
-        resetProjectAnalysisTelemetry();
-        initializeTelemetry = false;
-      }
-      await analyzePendingProjectFiles(
-        currentInput,
-        currentConfiguration,
-        pendingFiles,
-        results,
-        incrementalResultsChannel,
-      );
-      break;
-    } catch (failure) {
-      if (!recover || !isFsCacheReplayError(failure)) {
-        throw failure;
-      }
-      const restoreContext = recover;
-      recover = undefined;
-      releaseAnalysisResources();
-      const restored = await restoreContext(failure);
-      relocateAnalysisFiles(pendingFiles, results, restored.relocateFile);
-      currentInput = { ...input, programSelection: undefined };
-      currentConfiguration = restored.configuration;
+  resetProjectAnalysisTelemetry();
+  try {
+    await analyzePendingProjectFiles(
+      input,
+      configuration,
+      pendingFiles,
+      results,
+      incrementalResultsChannel,
+    );
+  } catch (error) {
+    if (!input.onContextFailure || !isFsCacheReplayError(error)) {
+      throw error;
     }
+    releaseAnalysisResources();
+    const restored = await input.onContextFailure(error);
+    relocateAnalysisFiles(pendingFiles, results, restored.relocateFile);
+    await analyzePendingProjectFiles(
+      { ...input, programSelection: undefined },
+      restored.configuration,
+      pendingFiles,
+      results,
+      incrementalResultsChannel,
+    );
   }
   if (isAnalysisCancelled()) {
     error('Analysis has been cancelled');

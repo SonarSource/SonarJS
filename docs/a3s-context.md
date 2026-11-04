@@ -54,9 +54,9 @@ If replay fails with a missing filesystem observation or an unsupported filesyst
 SonarJS ends both replay sessions and retries once using the original request settings and submitted
 contents in the runtime project directory. Logs and response metadata warn that type information
 and dependency context may be incomplete for the remaining files. Results are streamed immediately.
-Replay and source-only analysis use one analysis loop, pending-file set, and result collection.
-If replay fails, that loop restores the source-only context, translates the pending work to the
-runtime namespace, and continues with unfinished files, including the file that failed. Already
+Replay and source-only analysis share the same file-processing code, pending-file set, and result
+collection. If replay fails, the catch block restores the source-only context, translates the pending
+work to the runtime namespace, and resumes unfinished files, including the file that failed. Already
 analyzed files remain available as submitted dependency inputs without being analyzed or emitted
 again. Results are not buffered for streaming, and unary results produced before the failure are
 also retained. The final stream can therefore contain context-backed results followed by source-only
