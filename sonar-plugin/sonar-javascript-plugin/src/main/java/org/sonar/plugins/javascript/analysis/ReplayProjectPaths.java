@@ -36,7 +36,7 @@ final class ReplayProjectPaths {
   @Nullable
   static ReplayProjectPaths read(String contextMetadata) {
     var metadata = JsonParser.parseString(contextMetadata).getAsJsonObject();
-    // SQAA owns analyzer-version compatibility; empty legacy metadata has no usable context.
+    // Empty legacy metadata has no usable context.
     if (metadata.size() == 0) {
       return null;
     }

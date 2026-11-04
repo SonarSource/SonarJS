@@ -35,6 +35,7 @@ import {
 } from './analyze-project-normalize.js';
 import {
   FS_CACHE_INSTALLATION,
+  isFsCacheReplayError,
   type FsCacheInstallation,
   type FsCacheSession,
 } from '../../shared/src/fs-cache/hook.js';
@@ -160,7 +161,17 @@ type AnalysisSessions = {
   filesystemCacheSession?: FsCacheSession;
   programSelection?: ProgramSelectionArchive;
   paths?: ReplayProjectPaths;
+  fallbackWarning?: string;
 };
+
+function fallBackToSourceOnly(sessions: AnalysisSessions, reason: string): void {
+  endAnalysisSessions(sessions.programSelection, sessions.filesystemCacheSession);
+  sessions.programSelection = undefined;
+  sessions.filesystemCacheSession = undefined;
+  sessions.paths!.restoreSourceOnlyRequest();
+  sessions.fallbackWarning = `${reason}; falling back to source-only analysis. Type information and dependency context may be incomplete.`;
+  warn(sessions.fallbackWarning);
+}
 
 function beginAnalysisSessions(
   request: AnalyzeProjectProtoRequest,
@@ -176,11 +187,10 @@ function beginAnalysisSessions(
       const programSelection = sessions.programSelection;
       const recordedBaseDir = programSelection?.replayBaseDir();
       if (!programSelection || !recordedBaseDir || !path.isAbsolute(recordedBaseDir)) {
-        warn(
-          'Unsupported SonarJS context: no compatible recorded project base directory; falling back to source-only analysis',
+        fallBackToSourceOnly(
+          sessions,
+          'Unsupported SonarJS context: no compatible recorded project base directory',
         );
-        sessions.programSelection = undefined;
-        sessions.paths.restoreSourceOnlyRequest();
         return;
       }
       sessions.filesystemCacheSession = beginFilesystemCacheAnalysis(
@@ -234,13 +244,10 @@ async function normalizeProjectInput(
   if (unsupportedFiles.length === 0) {
     return input;
   }
-  warn(
-    `Unsupported SonarJS context for ${unsupportedFiles.join(', ')}: no portable TypeScript program outcome; falling back to source-only analysis`,
+  fallBackToSourceOnly(
+    sessions,
+    `Unsupported SonarJS context for ${unsupportedFiles.join(', ')}: no portable TypeScript program outcome`,
   );
-  endAnalysisSessions(sessions.programSelection, sessions.filesystemCacheSession);
-  sessions.programSelection = undefined;
-  sessions.filesystemCacheSession = undefined;
-  sessions.paths.restoreSourceOnlyRequest();
   // Reinitialize the stores without the replay archive or recorded CI settings.
   // This follows the same tsconfig/orphan-program path as a request with no context.
   const fallback = await normalizeAnalyzeProjectRequest(request);
@@ -294,12 +301,47 @@ async function handleProjectAnalysis(
     beginAnalysisSessions(request, cacheMode, sessions);
     return await withAnalysisCancellation(async () => {
       logHeapStatistics(workerData?.debugMemory);
-      const input = await normalizeProjectInput(request, cacheMode, sessions);
-      const result = await analyzeNormalizedProject(
-        input,
-        sessions.programSelection,
-        incrementalResultsChannel,
-      );
+      const publishEvent = incrementalResultsChannel
+        ? (event: AnalyzeProjectIncrementalEvent) => {
+            if (event.event.messageType === 'meta' && sessions.fallbackWarning) {
+              event.event.warnings.push(sessions.fallbackWarning);
+            }
+            incrementalResultsChannel(event);
+          }
+        : undefined;
+      const analyze = async (channel = publishEvent) => {
+        const input = await normalizeProjectInput(request, cacheMode, sessions);
+        return analyzeNormalizedProject(input, sessions.programSelection, channel);
+      };
+      let result;
+      if (sessions.filesystemCacheSession?.mode === 'replay') {
+        // A failed replay may already have analyzed files. Publish its events only after
+        // success so the caller never receives results from both attempts.
+        const events: AnalyzeProjectIncrementalEvent[] = [];
+        try {
+          result = await analyze(publishEvent ? event => events.push(event) : undefined);
+        } catch (error) {
+          if (!sessions.filesystemCacheSession || !isFsCacheReplayError(error)) {
+            throw error;
+          }
+          fallBackToSourceOnly(sessions, `Could not replay SonarJS context: ${error.message}`);
+          events.length = 0;
+          // Retry once, in the same cancellation scope, with fresh stores and the original
+          // request settings and contents. No replay/native filesystem mixing is permitted.
+          result = await analyze();
+        }
+        for (const event of events) {
+          publishEvent?.(event);
+        }
+      } else {
+        result = await analyze();
+      }
+      if (
+        sessions.fallbackWarning &&
+        !result.output.meta.warnings.includes(sessions.fallbackWarning)
+      ) {
+        result.output.meta.warnings.push(sessions.fallbackWarning);
+      }
       logHeapStatistics(workerData?.debugMemory);
       return {
         type: 'success',

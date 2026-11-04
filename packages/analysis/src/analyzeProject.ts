@@ -160,58 +160,61 @@ async function analyzeProjectWithCancellation(
   cssLinter.initialize(input.cssRules ?? [], baseDir);
 
   const progressReport = new ProgressReport(pendingFiles.size);
-  if (pendingFiles.size) {
-    if (jsTsConfigFields.disableTypeChecking) {
-      info(
-        'Type checking is disabled (sonar.javascript.disableTypeChecking=true). All files will be analyzed without type information.',
-      );
-    } else if (sonarlint && rules.length) {
-      await analyzeWithIncrementalProgram(
-        filesToAnalyze,
-        results,
-        pendingFiles,
-        progressReport,
-        baseDir,
-        canAccessFileSystem,
-        jsTsConfigFields,
-        incrementalResultsChannel,
-      );
-    } else if (rules.length) {
-      await analyzeWithProgram(
-        filesToAnalyze,
-        results,
-        pendingFiles,
-        progressReport,
-        baseDir,
-        canAccessFileSystem,
-        jsTsConfigFields,
-        programSelection,
-        incrementalResultsChannel,
-      );
-    }
+  try {
     if (pendingFiles.size) {
-      const noProgramFiles = Array.from(pendingFiles).filter(filePath =>
-        isJsTsFile(filePath, jsTsConfigFields.shouldIgnoreParams),
-      );
-      const pendingJsTsCount = noProgramFiles.length;
-      if (pendingJsTsCount > 0 && !jsTsConfigFields.disableTypeChecking) {
+      if (jsTsConfigFields.disableTypeChecking) {
         info(
-          `Found ${pendingJsTsCount} JS/TS file(s) not part of any tsconfig.json: they will be analyzed without type information`,
+          'Type checking is disabled (sonar.javascript.disableTypeChecking=true). All files will be analyzed without type information.',
+        );
+      } else if (sonarlint && rules.length) {
+        await analyzeWithIncrementalProgram(
+          filesToAnalyze,
+          results,
+          pendingFiles,
+          progressReport,
+          baseDir,
+          canAccessFileSystem,
+          jsTsConfigFields,
+          incrementalResultsChannel,
+        );
+      } else if (rules.length) {
+        await analyzeWithProgram(
+          filesToAnalyze,
+          results,
+          pendingFiles,
+          progressReport,
+          baseDir,
+          canAccessFileSystem,
+          jsTsConfigFields,
+          programSelection,
+          incrementalResultsChannel,
         );
       }
-      await analyzeWithoutProgram(
-        pendingFiles,
-        filesToAnalyze,
-        results,
-        progressReport,
-        baseDir,
-        jsTsConfigFields,
-        incrementalResultsChannel,
-      );
-      recordNoProgramOutcomes(noProgramFiles, programSelection);
+      if (pendingFiles.size) {
+        const noProgramFiles = Array.from(pendingFiles).filter(filePath =>
+          isJsTsFile(filePath, jsTsConfigFields.shouldIgnoreParams),
+        );
+        const pendingJsTsCount = noProgramFiles.length;
+        if (pendingJsTsCount > 0 && !jsTsConfigFields.disableTypeChecking) {
+          info(
+            `Found ${pendingJsTsCount} JS/TS file(s) not part of any tsconfig.json: they will be analyzed without type information`,
+          );
+        }
+        await analyzeWithoutProgram(
+          pendingFiles,
+          filesToAnalyze,
+          results,
+          progressReport,
+          baseDir,
+          jsTsConfigFields,
+          incrementalResultsChannel,
+        );
+        recordNoProgramOutcomes(noProgramFiles, programSelection);
+      }
     }
+  } finally {
+    progressReport.stop();
   }
-  progressReport.stop();
   if (isAnalysisCancelled()) {
     error('Analysis has been cancelled');
     incrementalResultsChannel?.({ messageType: 'cancelled' });

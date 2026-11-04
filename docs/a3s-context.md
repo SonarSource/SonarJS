@@ -45,11 +45,23 @@ Only Node decodes these gzip/Protobuf attachments. Java and SQAA inspect their e
 but never decompress or parse them. Java no longer generates classes from the snapshot schema.
 The removed configuration, derived scope and project-root Protobuf fields are reserved.
 
-SQAA enforces the analyzer-version compatibility of CI contexts; there is no second format-version
-check in SonarJS. Missing or old `{}` collector metadata uses the established logged no-context
-fallback. Malformed metadata, incomplete attachments, corrupt snapshots or invalid paths must not
-masquerade as successful restoration. The real Java/Node recording-replay test checks this contract, while
-SQAA's adapter test verifies lossless forwarding without interpreting either attachment.
+SQAA can forward a context collected by an earlier analyzer release. SonarJS validates the
+filesystem archive format version; this does not guarantee that the current analyzer can replay
+every operation it needs from an older context.
+
+Missing or old `{}` collector metadata and unrecorded program selections use source-only analysis.
+If replay fails with a missing filesystem observation or an unsupported filesystem operation,
+SonarJS ends both replay sessions and retries once using the original request settings and submitted
+contents in the runtime project directory. Logs and response metadata warn that type information
+and dependency context may be incomplete. Replay events are buffered until the attempt succeeds,
+so a retry cannot mix partially replayed results with source-only results. This delays streamed
+replay results and retains them in memory until success. Cancellation applies across both attempts.
+
+Malformed metadata, incomplete attachment pairs, corrupt snapshots, invalid paths and unrelated
+analyzer errors remain failures. A source-only retry failure also propagates. Fallback is explicitly
+reported, rather than presented as successful context restoration. The real Java/Node
+recording-replay test checks the context contract, while SQAA's adapter test verifies lossless
+forwarding without interpreting either attachment.
 
 Project reproducibility remains bounded by `baseDir`. External CI dependencies and runtime files
 are not captured as portable project inputs. The filesystem/program-selection pairing and
