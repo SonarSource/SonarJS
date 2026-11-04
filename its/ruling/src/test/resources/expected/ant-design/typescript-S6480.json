@@ -2,11 +2,6 @@
 "ant-design:components/_util/ActionButton.tsx": [
 100
 ],
-"ant-design:components/affix/__tests__/Affix.test.tsx": [
-155,
-165,
-185
-],
 "ant-design:components/affix/index.tsx": [
 279,
 287
@@ -14,15 +9,6 @@
 "ant-design:components/alert/index.tsx": [
 171,
 206
-],
-"ant-design:components/anchor/__tests__/Anchor.test.tsx": [
-219,
-346,
-360,
-634,
-646,
-681,
-703
 ],
 "ant-design:components/avatar/avatar.tsx": [
 197
@@ -43,10 +29,6 @@
 ],
 "ant-design:components/card/Card.tsx": [
 120
-],
-"ant-design:components/cascader/__tests__/type.test.tsx": [
-81,
-88
 ],
 "ant-design:components/collapse/Collapse.tsx": [
 132
@@ -69,15 +51,6 @@
 329,
 360
 ],
-"ant-design:components/form/__tests__/ref.test.tsx": [
-46,
-54,
-62
-],
-"ant-design:components/form/__tests__/type.test.tsx": [
-34,
-58
-],
 "ant-design:components/input/ClearableLabeledInput.tsx": [
 59
 ],
@@ -99,11 +72,6 @@
 200,
 222
 ],
-"ant-design:components/input/__tests__/index.test.tsx": [
-324,
-338,
-395
-],
 "ant-design:components/mentions/index.tsx": [
 140,
 141
@@ -115,13 +83,6 @@
 158,
 164,
 216
-],
-"ant-design:components/modal/__tests__/Modal.test.tsx": [
-83
-],
-"ant-design:components/modal/__tests__/hook.test.tsx": [
-33,
-80
 ],
 "ant-design:components/modal/useModal/HookModal.tsx": [
 60
@@ -142,28 +103,8 @@
 "ant-design:components/rate/index.tsx": [
 28
 ],
-"ant-design:components/segmented/__tests__/index.test.tsx": [
-112,
-128,
-145,
-174,
-228,
-260,
-274
-],
-"ant-design:components/slider/__tests__/type.test.tsx": [
-9,
-9,
-22,
-23,
-36,
-37
-],
 "ant-design:components/slider/index.tsx": [
 158
-],
-"ant-design:components/statistic/__tests__/index.test.tsx": [
-149
 ],
 "ant-design:components/steps/index.tsx": [
 89,
@@ -243,16 +184,6 @@
 222,
 223,
 224
-],
-"ant-design:components/upload/__tests__/type.test.tsx": [
-17,
-31,
-45,
-86,
-120,
-161,
-181,
-190
 ],
 "ant-design:site/theme/template/Home/Banner/Background.tsx": [
 153

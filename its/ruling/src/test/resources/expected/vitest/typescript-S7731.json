@@ -1,7 +1,4 @@
 {
-"vitest:packages/ui/client/components/views/ViewReport.spec.ts": [
-81
-],
 "vitest:packages/ui/client/composables/explorer/collector.ts": [
 159,
 167,
