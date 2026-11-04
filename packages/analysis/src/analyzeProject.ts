@@ -193,27 +193,27 @@ async function analyzeProjectWithCancellation(
           incrementalResultsChannel,
         );
       }
-      if (pendingFiles.size) {
-        const noProgramFiles = Array.from(pendingFiles).filter(filePath =>
-          isJsTsFile(filePath, jsTsConfigFields.shouldIgnoreParams),
+    }
+    if (pendingFiles.size) {
+      const noProgramFiles = Array.from(pendingFiles).filter(filePath =>
+        isJsTsFile(filePath, jsTsConfigFields.shouldIgnoreParams),
+      );
+      const pendingJsTsCount = noProgramFiles.length;
+      if (pendingJsTsCount > 0 && !jsTsConfigFields.disableTypeChecking) {
+        info(
+          `Found ${pendingJsTsCount} JS/TS file(s) not part of any tsconfig.json: they will be analyzed without type information`,
         );
-        const pendingJsTsCount = noProgramFiles.length;
-        if (pendingJsTsCount > 0 && !jsTsConfigFields.disableTypeChecking) {
-          info(
-            `Found ${pendingJsTsCount} JS/TS file(s) not part of any tsconfig.json: they will be analyzed without type information`,
-          );
-        }
-        await analyzeWithoutProgram(
-          pendingFiles,
-          filesToAnalyze,
-          results,
-          progressReport,
-          baseDir,
-          jsTsConfigFields,
-          incrementalResultsChannel,
-        );
-        recordNoProgramOutcomes(noProgramFiles, programSelection);
       }
+      await analyzeWithoutProgram(
+        pendingFiles,
+        filesToAnalyze,
+        results,
+        progressReport,
+        baseDir,
+        jsTsConfigFields,
+        incrementalResultsChannel,
+      );
+      recordNoProgramOutcomes(noProgramFiles, programSelection);
     }
   } finally {
     progressReport.stop();

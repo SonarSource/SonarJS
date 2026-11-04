@@ -164,11 +164,18 @@ type AnalysisSessions = {
   fallbackWarning?: string;
 };
 
+function requireReplayPaths(sessions: AnalysisSessions): ReplayProjectPaths {
+  if (!sessions.paths) {
+    throw new InvalidAnalyzeProjectRequestError('Replay project paths are not initialized');
+  }
+  return sessions.paths;
+}
+
 function fallBackToSourceOnly(sessions: AnalysisSessions, reason: string): void {
   endAnalysisSessions(sessions.programSelection, sessions.filesystemCacheSession);
   sessions.programSelection = undefined;
   sessions.filesystemCacheSession = undefined;
-  sessions.paths!.restoreSourceOnlyRequest();
+  requireReplayPaths(sessions).restoreSourceOnlyRequest();
   sessions.fallbackWarning = `${reason}; falling back to source-only analysis. Type information and dependency context may be incomplete.`;
   warn(sessions.fallbackWarning);
 }
@@ -310,7 +317,7 @@ async function handleProjectAnalysis(
             const completedFile =
               event.event.messageType === 'fileResult' &&
               sessions.filesystemCacheSession?.mode === 'replay'
-                ? sessions.paths!.sourceOnlyPath(event.event.filename)
+                ? requireReplayPaths(sessions).sourceOnlyPath(event.event.filename)
                 : undefined;
             if (event.event.messageType === 'meta' && sessions.fallbackWarning) {
               event.event.warnings.push(sessions.fallbackWarning);
@@ -322,7 +329,9 @@ async function handleProjectAnalysis(
               throw error;
             }
             // Record completion only after delivery succeeds. Retain names, never file results.
-            if (completedFile !== undefined) completedFiles.add(completedFile);
+            if (completedFile !== undefined) {
+              completedFiles.add(completedFile);
+            }
           }
         : undefined;
       const analyze = async (completed?: ReadonlySet<NormalizedAbsolutePath>) => {
