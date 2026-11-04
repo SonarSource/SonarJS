@@ -16,7 +16,7 @@ Every analyzable file carries two classifications:
 Both explicit request files (`packages/analysis/src/common/input-sanitize.ts`) and
 filesystem-discovered files (`packages/analysis/src/file-stores/source-files.ts`) compute
 `ruleFileType` through `getFileTypeForRules` in
-`packages/analysis/src/common/filter/filter-path.ts`.
+`packages/analysis/src/common/rule-file-type.ts`.
 
 ## `ruleFileType` Precedence
 
@@ -51,7 +51,7 @@ Configuring `sonar.tests` does not turn off step 5 for files outside the test pa
   filenames.
 
 The test-related filename heuristic is private to `getFileTypeForRules` in
-`packages/analysis/src/common/filter/filter-path.ts`, outside the rule helpers, because it is a
+`packages/analysis/src/common/rule-file-type.ts`, outside the rule helpers, because it is a
 rule-selection concern. Rules cannot import it, and must not reimplement it.
 
 ## ESLint Plugin
