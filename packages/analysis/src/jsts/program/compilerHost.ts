@@ -20,7 +20,7 @@ import { equivalentRepresentations, prepareFileRepresentation } from './file-rep
 import path from 'node:path/posix';
 import {
   getSourceFileContentCache,
-  getCurrentFilesContext,
+  hasProvidedDirectory,
   getProvidedSourceFile,
   getCachedSourceFile,
   setCachedSourceFile,
@@ -367,12 +367,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     this.trackFsCall('directoryExists-disk', directoryName);
     // Supplied sources also establish their parent directories, just as fileExists
     // recognizes those sources without requiring a native file.
-    return (
-      this.baseHost.directoryExists!(normalized) ||
-      Object.keys(getCurrentFilesContext() ?? {}).some(file =>
-        pathIsUnder(path.dirname(file), normalized),
-      )
-    );
+    return this.baseHost.directoryExists?.(normalized) || hasProvidedDirectory(normalized);
   }
 
   getDirectories(directoryName: string): string[] {
@@ -381,7 +376,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
       return [];
     }
     this.trackFsCall('getDirectories-disk', directoryName);
-    return this.baseHost.getDirectories!(normalized);
+    return this.baseHost.getDirectories?.(normalized) ?? [];
   }
 
   readDirectory(
