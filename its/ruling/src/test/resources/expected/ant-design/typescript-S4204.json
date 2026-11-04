@@ -38,10 +38,6 @@
 219,
 219
 ],
-"ant-design:components/affix/__tests__/Affix.test.tsx": [
-215,
-222
-],
 "ant-design:components/affix/index.tsx": [
 68,
 127,
@@ -53,29 +49,12 @@
 43,
 44
 ],
-"ant-design:components/alert/__tests__/index.test.tsx": [
-112,
-116,
-134
-],
 "ant-design:components/anchor/Anchor.tsx": [
 114,
 258
 ],
 "ant-design:components/anchor/AnchorLink.tsx": [
 17
-],
-"ant-design:components/anchor/__tests__/Anchor.test.tsx": [
-157,
-197,
-199,
-252,
-288,
-355,
-399,
-464,
-575,
-643
 ],
 "ant-design:components/anchor/context.ts": [
 4
@@ -97,9 +76,6 @@
 "ant-design:components/badge/ScrollNumber.tsx": [
 78
 ],
-"ant-design:components/badge/__tests__/index.test.tsx": [
-162
-],
 "ant-design:components/badge/utils.tsx": [
 5
 ],
@@ -114,25 +90,6 @@
 ],
 "ant-design:components/button/LoadingIcon.tsx": [
 41
-],
-"ant-design:components/button/__tests__/delay-timer.test.tsx": [
-32,
-38,
-41,
-42
-],
-"ant-design:components/button/__tests__/index.test.tsx": [
-42,
-134,
-300
-],
-"ant-design:components/button/__tests__/wave.test.tsx": [
-6,
-13,
-15,
-25,
-106,
-109
 ],
 "ant-design:components/button/button.tsx": [
 19,
@@ -167,9 +124,6 @@
 ],
 "ant-design:components/comment/index.tsx": [
 39
-],
-"ant-design:components/config-provider/__tests__/theme.test.ts": [
-26
 ],
 "ant-design:components/config-provider/context.tsx": [
 69
@@ -216,12 +170,6 @@
 "ant-design:components/form/FormList.tsx": [
 25
 ],
-"ant-design:components/form/__tests__/ref.test.tsx": [
-14,
-18,
-19,
-20
-],
 "ant-design:components/form/context.tsx": [
 30
 ],
@@ -240,13 +188,6 @@
 ],
 "ant-design:components/input/ClearableLabeledInput.tsx": [
 24
-],
-"ant-design:components/input/__tests__/focus.test.tsx": [
-52
-],
-"ant-design:components/layout/__tests__/dynamic-breakpoint.test.tsx": [
-15,
-30
 ],
 "ant-design:components/layout/layout.tsx": [
 33
@@ -349,9 +290,6 @@
 "ant-design:components/radio/radioButton.tsx": [
 10
 ],
-"ant-design:components/segmented/__tests__/index.test.tsx": [
-258
-],
 "ant-design:components/select/index.tsx": [
 36,
 47,
@@ -443,10 +381,6 @@
 167,
 168
 ],
-"ant-design:components/transfer/__tests__/dropdown.test.tsx": [
-94,
-120
-],
 "ant-design:components/transfer/index.tsx": [
 37
 ],
@@ -487,9 +421,6 @@
 ],
 "ant-design:components/typography/Typography.tsx": [
 42
-],
-"ant-design:components/typography/__tests__/enter-key-callback.test.tsx": [
-22
 ],
 "ant-design:components/typography/hooks/useMergedConfig.ts": [
 4

@@ -1,13 +1,4 @@
 {
-"vitest:examples/fastify/test/app.test.ts": [
-34
-],
-"vitest:examples/profiling/test/prime-number.test.ts": [
-4
-],
-"vitest:examples/projects/packages/server/test/app.test.ts": [
-34
-],
 "vitest:packages/browser-playwright/src/commands/tab.ts": [
 9
 ],
