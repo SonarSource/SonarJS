@@ -95,12 +95,14 @@ function getStaticPropertyName(property: estree.Node): string | undefined {
  * Match an unshadowed bare `define` call with an AMD signature.
  *
  * `define([], function () {})` -> the function node
+ * `define?.([], function () {})` -> undefined
  */
 export function getModuleFactory(
   call: estree.CallExpression,
   context: Rule.RuleContext,
 ): estree.FunctionExpression | undefined {
   if (
+    ('optional' in call && call.optional) ||
     call.callee.type !== 'Identifier' ||
     call.callee.name !== 'define' ||
     call.arguments.length < 1 ||

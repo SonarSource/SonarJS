@@ -110,12 +110,13 @@ describe('S1541 components', () => {
     });
   });
 
-  it('invalidates loader factories after writes anywhere in the file', () => {
+  it('accepts only supported loader calls with stable paths', () => {
     tester.run('module initializers', moduleRule, {
       valid: [
         'define = other; define([], function () {})',
         'sap.ui.define([], function () {}); sap.ui = other',
         'sap.ui.define([], () => {})',
+        'define?.([], function () {})',
       ].map(code => ({ code })),
       invalid: [
         'define([], function () {})',

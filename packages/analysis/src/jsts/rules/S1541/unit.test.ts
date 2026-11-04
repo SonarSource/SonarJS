@@ -531,6 +531,8 @@ describe('S1541 function exclusions', () => {
           `function outer(define) { define([], function () { ${body} }) }`,
           `import define from 'other'; define([], function () { ${body} })`,
           `object.define([], function () { ${body} })`,
+          `define?.([], function () { ${body} })`,
+          `define?.('module', [], function () { ${body} })`,
           `define([], 'module', function () { ${body} })`,
           `define(dependencies, function () { ${body} })`,
           `define([dependency], function () { ${body} })`,
