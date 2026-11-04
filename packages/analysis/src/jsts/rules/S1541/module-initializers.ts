@@ -37,23 +37,28 @@ const MAX_SCOPE_INITIALIZER_ARGUMENTS = 3;
  */
 export function createModuleInitializerTracker(context: Rule.RuleContext) {
   const scopeInitializers = new Map<estree.Node, string[]>();
-  const writes: { node: estree.Node; path: string[] }[] = [];
+  const writeTargets: estree.Node[] = [];
 
-  function collectWrite(target: estree.Node): void {
+  function collectWrite(target: estree.Node, writtenPaths: string[][]): void {
     const value = unwrapTypeScriptValue(target);
     const path = getPropertyAccessPath(value, true);
     if (path) {
-      writes.push({ node: value, path });
+      if (!hasRuntimeBinding(context, value, path[0])) {
+        writtenPaths.push(path);
+      }
     } else if (value.type === 'ArrayPattern') {
-      value.elements.forEach(element => element && collectWrite(element));
+      value.elements.forEach(element => element && collectWrite(element, writtenPaths));
     } else if (value.type === 'ObjectPattern') {
       value.properties.forEach(property =>
-        collectWrite(property.type === 'RestElement' ? property.argument : property.value),
+        collectWrite(
+          property.type === 'RestElement' ? property.argument : property.value,
+          writtenPaths,
+        ),
       );
     } else if (value.type === 'AssignmentPattern') {
-      collectWrite(value.left);
+      collectWrite(value.left, writtenPaths);
     } else if (value.type === 'RestElement') {
-      collectWrite(value.argument);
+      collectWrite(value.argument, writtenPaths);
     }
   }
 
@@ -68,16 +73,19 @@ export function createModuleInitializerTracker(context: Rule.RuleContext) {
         scopeInitializers.set(initializer.factory, initializer.path);
       }
     },
-    recordWrite: collectWrite,
+    recordWrite(target: estree.Node) {
+      writeTargets.push(target);
+    },
     /** Resolve the file-wide write guard after visiting the whole file. */
     getExcludedFactories(hasNestedFunction: (node: estree.Node) => boolean): Set<estree.Node> {
       const excluded = new Set<estree.Node>();
       if (scopeInitializers.size === 0) {
         return excluded;
       }
-      const writtenPaths = writes
-        .filter(({ node, path }) => !hasRuntimeBinding(context, node, path[0]))
-        .map(({ path }) => path);
+      const writtenPaths: string[][] = [];
+      for (const target of writeTargets) {
+        collectWrite(target, writtenPaths);
+      }
       const stablePaths = new Map<string, boolean>();
       for (const [factory, path] of scopeInitializers) {
         const key = path.join('.');
