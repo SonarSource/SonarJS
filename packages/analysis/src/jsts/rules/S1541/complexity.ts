@@ -39,6 +39,19 @@ interface ComplexityAstAccess {
   getFunctionParent(node: FunctionNodeType): estree.Node | undefined;
 }
 
+/** Read branch tokens and function parents through ESLint. */
+class EslintComplexityAstAccess implements ComplexityAstAccess {
+  constructor(private readonly context: Rule.RuleContext) {}
+
+  getBranchToken(node: estree.Node): ComplexityToken | null | undefined {
+    return getComplexityToken(node, this.context);
+  }
+
+  getFunctionParent(node: FunctionNodeType): estree.Node | undefined {
+    return getParent(this.context, node);
+  }
+}
+
 /** Store branch tokens for the current function, separate from its nested functions. */
 export class ComplexityAccumulator implements ComplexityTraversal {
   private readonly functions: FunctionInfo[] = [];
@@ -85,11 +98,7 @@ export class ComplexityTracker implements ComplexityTraversal {
   private readonly accumulator: ComplexityAccumulator;
 
   constructor(private readonly context: Rule.RuleContext) {
-    const ast: ComplexityAstAccess = {
-      getBranchToken: node => getComplexityToken(node, context),
-      getFunctionParent: node => getParent(context, node),
-    };
-    this.accumulator = new ComplexityAccumulator(ast);
+    this.accumulator = new ComplexityAccumulator(new EslintComplexityAstAccess(context));
   }
 
   enterFunction(node: FunctionNodeType) {
