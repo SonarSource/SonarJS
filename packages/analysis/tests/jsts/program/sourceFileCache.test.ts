@@ -101,7 +101,7 @@ describe('sourceFileCache', () => {
     }
 
     describe('getCachedSourceFile', () => {
-      it('isolates semantic parse options and replaces changed module-indicator callbacks', () => {
+      it('isolates semantic parse options without comparing callback identity', () => {
         const options: ts.CreateSourceFileOptions = {
           languageVersion: ts.ScriptTarget.ESNext,
           impliedNodeFormat: ts.ModuleKind.ESNext,
@@ -110,22 +110,25 @@ describe('sourceFileCache', () => {
         };
         const source = ts.createSourceFile(testFileName, testContent, options, true);
         setCachedSourceFile(testFileName, options, '1', source);
-        expect(getCachedSourceFile(testFileName, { ...options }, '1')).toBe(source);
+        expect(
+          getCachedSourceFile(
+            testFileName,
+            {
+              ...options,
+              setExternalModuleIndicator: () => {},
+            },
+            '1',
+          ),
+        ).toBe(source);
         const overrides: Partial<ts.CreateSourceFileOptions>[] = [
           { impliedNodeFormat: ts.ModuleKind.CommonJS },
           { jsDocParsingMode: ts.JSDocParsingMode.ParseNone },
-          { setExternalModuleIndicator: () => {} },
         ];
         for (const override of overrides) {
           expect(
             getCachedSourceFile(testFileName, { ...options, ...override }, '1'),
           ).toBeUndefined();
         }
-        const replacement = { ...options, setExternalModuleIndicator: () => {} };
-        const replaced = ts.createSourceFile(testFileName, testContent, replacement, true);
-        setCachedSourceFile(testFileName, replacement, '1', replaced);
-        expect(getCachedSourceFile(testFileName, replacement, '1')).toBe(replaced);
-        expect(getCachedSourceFile(testFileName, options, '1')).toBeUndefined();
       });
 
       it('should return undefined for uncached file', () => {

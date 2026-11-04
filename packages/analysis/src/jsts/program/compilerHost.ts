@@ -20,6 +20,7 @@ import { equivalentRepresentations, prepareFileRepresentation } from './file-rep
 import path from 'node:path/posix';
 import {
   getSourceFileContentCache,
+  getCurrentFilesContext,
   getProvidedSourceFile,
   getCachedSourceFile,
   setCachedSourceFile,
@@ -291,6 +292,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     const normalized = path.normalize(fileName);
     const { jsx, importHelpers } = this.compilerOptions;
     const representation = prepareFileRepresentation(normalized, content, this.compilerOptions);
+    const cacheOptions = { ...this.compilerOptions, scriptKind: representation.scriptKind };
 
     // Check global cache (unless forced to create new)
     if (!shouldCreateNewSourceFile) {
@@ -300,7 +302,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
         contentHash,
         jsx,
         importHelpers,
-        representation.scriptKind,
+        cacheOptions,
       );
       if (cached?.text === representation.text) {
         return representation.createSourceFile(fileName, languageVersionOrOptions, cached);
@@ -316,7 +318,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
       sourceFile,
       jsx,
       importHelpers,
-      representation.scriptKind,
+      cacheOptions,
     );
     return sourceFile;
   }
@@ -363,7 +365,14 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
       return false;
     }
     this.trackFsCall('directoryExists-disk', directoryName);
-    return this.baseHost.directoryExists!(normalized);
+    // Supplied sources also establish their parent directories, just as fileExists
+    // recognizes those sources without requiring a native file.
+    return (
+      this.baseHost.directoryExists!(normalized) ||
+      Object.keys(getCurrentFilesContext() ?? {}).some(file =>
+        pathIsUnder(path.dirname(file), normalized),
+      )
+    );
   }
 
   getDirectories(directoryName: string): string[] {

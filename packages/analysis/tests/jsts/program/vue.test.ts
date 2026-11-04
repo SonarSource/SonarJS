@@ -194,7 +194,7 @@ describe('Vue scripts in SonarJS Programs', () => {
           cached,
           config.options.jsx,
           config.options.importHelpers,
-          representation.scriptKind,
+          { ...config.options, scriptKind: representation.scriptKind },
         );
         const program = builder
           ? ts
