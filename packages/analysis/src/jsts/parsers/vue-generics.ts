@@ -235,8 +235,7 @@ function prepareAmbientBinding(source: ts.SourceFile, statement: ts.VariableStat
         !declaration.type ||
         declaration.initializer ||
         // unique symbol requires const; normalizing it to let would widen its type.
-        (ts.isTypeOperatorNode(declaration.type) &&
-          declaration.type.operator === ts.SyntaxKind.UniqueKeyword),
+        isUniqueSymbol(declaration.type),
     )
   ) {
     return null;
@@ -260,6 +259,13 @@ function prepareAmbientBinding(source: ts.SourceFile, statement: ts.VariableStat
     })),
   ];
   return { edits };
+}
+
+function isUniqueSymbol(type: ts.TypeNode): boolean {
+  while (ts.isParenthesizedTypeNode(type)) {
+    type = type.type;
+  }
+  return ts.isTypeOperatorNode(type) && type.operator === ts.SyntaxKind.UniqueKeyword;
 }
 
 /** Copy ranges retain mappings; inserted/blanked text deliberately has none. */

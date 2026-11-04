@@ -120,26 +120,28 @@ describe('Vue generic compiler representation', () => {
   });
   for (const builder of [false, true]) {
     for (const order of ['setup', 'normal-first', 'setup-first']) {
-      it(`${builder ? 'builder' : 'standard'}: keeps ambient unique symbols syntax-only (${order})`, async () => {
-        const setup = `<script setup lang="ts" generic="T">
-declare const key: unique symbol;
+      for (const type of ['unique symbol', '(unique symbol)', '((unique symbol))']) {
+        it(`${builder ? 'builder' : 'standard'}: keeps ambient ${type} syntax-only (${order})`, async () => {
+          const setup = `<script setup lang="ts" generic="T">
+declare const key: ${type};
 type Box<U = symbol> = { value: U };
 declare const box: Box<typeof key>;
 const preserved: typeof key = box.value;
 </script>`;
-        const raw =
-          order === 'normal-first'
-            ? normal + setup
-            : setup + (order === 'setup-first' ? normal : '');
-        const program = create(raw, builder);
-        const source = await parse(raw, program);
-        expect(verify(source, argumentsRule)).toEqual([]);
-        expect(source.parserServices.program).toBeNull();
-        expect(getVueScript(file, raw, true)?.generics).toBeNull();
-        expect(semanticDiagnostics(program).filter(diagnostic => diagnostic.code === 1332)).toEqual(
-          [],
-        );
-      });
+          const raw =
+            order === 'normal-first'
+              ? normal + setup
+              : setup + (order === 'setup-first' ? normal : '');
+          const program = create(raw, builder);
+          const source = await parse(raw, program);
+          expect(verify(source, argumentsRule)).toEqual([]);
+          expect(source.parserServices.program).toBeNull();
+          expect(getVueScript(file, raw, true)?.generics).toBeNull();
+          expect(
+            semanticDiagnostics(program).filter(diagnostic => diagnostic.code === 1332),
+          ).toEqual([]);
+        });
+      }
       for (const declaration of [
         'export interface Props<U> { value: U }',
         'export /* keep this comment */ type Props<U> = { value: U };',
