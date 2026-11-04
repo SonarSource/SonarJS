@@ -289,11 +289,6 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     shouldCreateNewSourceFile?: boolean,
   ): ts.SourceFile {
     const normalized = path.normalize(fileName);
-    const scriptTarget =
-      typeof languageVersionOrOptions === 'number'
-        ? languageVersionOrOptions
-        : languageVersionOrOptions.languageVersion;
-
     const { jsx, importHelpers } = this.compilerOptions;
     const representation = prepareFileRepresentation(normalized, content, this.compilerOptions);
 
@@ -301,7 +296,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     if (!shouldCreateNewSourceFile) {
       const cached = getCachedSourceFile(
         normalized,
-        scriptTarget,
+        languageVersionOrOptions,
         contentHash,
         jsx,
         importHelpers,
@@ -316,7 +311,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
 
     setCachedSourceFile(
       normalized,
-      scriptTarget,
+      languageVersionOrOptions,
       contentHash,
       sourceFile,
       jsx,
@@ -362,6 +357,24 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     return this.baseDir;
   }
 
+  directoryExists(directoryName: string): boolean {
+    const normalized = normalizeToAbsolutePath(directoryName, this.baseDir);
+    if (this.shouldSkipNodeModulesOutsideBaseDir(normalized)) {
+      return false;
+    }
+    this.trackFsCall('directoryExists-disk', directoryName);
+    return this.baseHost.directoryExists!(normalized);
+  }
+
+  getDirectories(directoryName: string): string[] {
+    const normalized = normalizeToAbsolutePath(directoryName, this.baseDir);
+    if (this.shouldSkipNodeModulesOutsideBaseDir(normalized)) {
+      return [];
+    }
+    this.trackFsCall('getDirectories-disk', directoryName);
+    return this.baseHost.getDirectories!(normalized);
+  }
+
   readDirectory(
     rootDir: string,
     extensions: readonly string[],
@@ -398,8 +411,10 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     if (pathIsUnder(fileName, this.getDefaultLibLocation())) {
       return false;
     }
+    const canonical = canonicalFileName(fileName);
     return (
-      canonicalFileName(fileName).includes('/node_modules/') && !pathIsUnder(fileName, this.baseDir)
+      (canonical.includes('/node_modules/') || canonical.endsWith('/node_modules')) &&
+      !pathIsUnder(fileName, this.baseDir)
     );
   }
 }

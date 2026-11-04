@@ -45,6 +45,70 @@ describe('ProgramSelectionArchive', () => {
       new ProgramSelectionArchive(archive, root, 'replay', true, '{}').replayBaseDir(),
     ).toBeUndefined();
   });
+  it('passively retains baseline outcomes and replaces only outcomes learned by current analysis', () => {
+    const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'metadata-delta-'));
+    const root = normalizeToAbsolutePath(temporary);
+    const baselinePath = path.join(root, 'baseline.pb.gz');
+    const currentPath = path.join(root, 'current.pb.gz');
+    const file = (name: string) => normalizeToAbsolutePath(name + '.ts', root);
+    const changed = file('changed');
+    const ambient = file('ambient');
+    const unsubmitted = file('unsubmitted');
+    const noProgram = file('noProgram');
+    const nowConfigured = file('nowConfigured');
+    const nowFiltered = file('nowFiltered');
+    const nowOrphan = file('nowOrphan');
+    const configuredPeer = file('configuredPeer');
+    const nowNoProgram = file('nowNoProgram');
+    const noProgramToConfigured = file('noProgramToConfigured');
+    const noProgramToOrphan = file('noProgramToOrphan');
+    const tsconfig = normalizeToAbsolutePath('tsconfig.json', root);
+    try {
+      const baseline = new ProgramSelectionArchive(baselinePath, root, 'record');
+      baseline.recordOrphanGroup([changed, ambient, unsubmitted, nowConfigured, nowFiltered], {
+        allowJs: true,
+      });
+      for (const configured of [nowOrphan, configuredPeer, nowNoProgram]) {
+        baseline.recordConfigured(configured, tsconfig, { strictNullChecks: false });
+      }
+      for (const absent of [noProgram, noProgramToConfigured, noProgramToOrphan]) {
+        baseline.recordNoProgram(absent);
+      }
+      baseline.end();
+      const current = new ProgramSelectionArchive(currentPath, root, 'record');
+      current.seedFrom(baselinePath, '{}');
+      expect(current.hasSelection(changed)).toBe(true);
+      expect(current.hasSelection(unsubmitted)).toBe(true);
+      expect(current.hasNoProgram(noProgram)).toBe(true);
+      current.recordConfigured(nowConfigured, tsconfig, { strictNullChecks: true });
+      current.recordConfigured(noProgramToConfigured, tsconfig, { strictNullChecks: true });
+      current.recordNoProgram(nowFiltered);
+      current.recordNoProgram(nowNoProgram);
+      current.recordOrphanGroup([nowOrphan, noProgramToOrphan], { allowJs: true });
+      const roots = current.orphanEntryPoints([changed]);
+      expect(roots).toEqual([changed, ambient, unsubmitted]);
+      current.recordOrphanGroup(roots, { allowJs: true });
+      expect(() => current.recordNoProgram(nowConfigured)).toThrow('both a program and no-program');
+      current.end();
+      const replay = new ProgramSelectionArchive(currentPath, root, 'replay');
+      expect(replay.getRestoredSelections([changed])[0].rootNames).toEqual(roots);
+      for (const configured of [nowConfigured, noProgramToConfigured, configuredPeer]) {
+        expect(replay.getRestoredSelections([configured])[0].program).toMatchObject({
+          kind: 'configured',
+          compilerOptions: { strictNullChecks: true },
+        });
+      }
+      for (const orphan of [nowOrphan, noProgramToOrphan]) {
+        expect(replay.getRestoredSelections([orphan])[0].program.kind).toBe('orphan');
+      }
+      for (const absent of [noProgram, nowFiltered, nowNoProgram]) {
+        expect(replay.hasNoProgram(absent)).toBe(true);
+        expect(replay.hasSelection(absent)).toBe(false);
+      }
+    } finally {
+      fs.rmSync(temporary, { recursive: true, force: true });
+    }
+  });
   it('retains case-distinct metadata until the producer filesystem is active', () => {
     const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'metadata-case-startup-'));
     const root = normalizeToAbsolutePath(temporary);
@@ -65,6 +129,11 @@ describe('ProgramSelectionArchive', () => {
       expect(replay.hasSelection(lower)).toBe(false);
       expect(replay.hasNoProgram(lower)).toBe(true);
       expect(replay.hasNoProgram(upper)).toBe(false);
+      setArchivedFileSystemCaseSensitivity(false);
+      const current = new ProgramSelectionArchive(path.join(root, 'current.pb.gz'), root, 'record');
+      expect(() => current.seedFrom(archive, '{}')).toThrow('Duplicate program outcome');
+      expect(current.hasSelection(upper)).toBe(false);
+      expect(current.hasNoProgram(lower)).toBe(false);
     } finally {
       fs.rmSync(temporary, { recursive: true, force: true });
     }

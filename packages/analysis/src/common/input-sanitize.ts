@@ -29,6 +29,7 @@ import { type FileStatus, JSTS_ANALYSIS_DEFAULTS } from '../jsts/analysis/analys
 import type { RuleConfig as CssRuleConfig } from '../css/linter/config.js';
 import type { RuleConfig } from '../jsts/linter/config/rule-config.js';
 import { type AnalyzableFiles, createAnalyzableFiles } from '../projectAnalysis.js';
+import { captureProvidedFile } from '../../../shared/src/fs-cache/hook.js';
 
 export interface SanitizedProjectAnalysisInput {
   rules: RuleConfig[];
@@ -74,6 +75,9 @@ export async function sanitizeInputFiles(
       fileInput.fileContent === undefined
         ? await readFile(filePath)
         : stripBOM(fileInput.fileContent);
+    if (fileInput.fileContent !== undefined) {
+      captureProvidedFile(filePath, fileContent);
+    }
     let rawFileType: FileType | undefined = fileInput.fileType;
     if (rawFileType !== 'TEST') {
       // We cannot trust the caller to provide the correct fileType, so we attempt to infer it from

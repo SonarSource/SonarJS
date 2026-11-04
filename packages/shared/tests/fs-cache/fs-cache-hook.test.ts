@@ -585,79 +585,52 @@ describe('filesystem cache hook', () => {
     expect(replayedResult.fdBigint.nanoseconds).toBe('bigint');
   });
 
-  it('reuses consolidated filesystem state during record mode', () => {
+  it('observes native filesystem changes during record mode', () => {
     const temporary = temporaryDirectory();
     const root = path.join(temporary, 'root');
     const archive = path.join(temporary, 'consolidated.fscache');
     const file = path.join(root, 'input.ts');
     const directory = path.join(root, 'entries');
     fs.mkdirSync(directory, { recursive: true });
-    fs.writeFileSync(file, 'cached content');
+    fs.writeFileSync(file, 'initial content');
     fs.writeFileSync(path.join(directory, 'child.ts'), 'child');
     const script = `
       import { execFileSync } from 'node:child_process';
       import fs from 'node:fs';
       const file = ${JSON.stringify(file)};
       const directory = ${JSON.stringify(directory)};
-      const content = fs.readFileSync(file, 'utf8');
-      const size = fs.statSync(file).size;
+      fs.readFileSync(file, 'utf8');
+      fs.statSync(file);
       fs.statSync(file, { bigint: true });
-      const names = fs.readdirSync(directory, { withFileTypes: true }).map(entry => entry.name);
-
-      // Mutate from an unhooked child process to make reuse observable. The hooked filesystem
-      // rejects renameSync, and production analyses treat the root as stable.
+      fs.readdirSync(directory, { withFileTypes: true });
+      // Mutate externally: project writes are intentionally unsupported by the hook.
       execFileSync(process.execPath, [
         '--eval',
         "const fs = require('node:fs'); fs.renameSync(process.argv[1], process.argv[1] + '.moved'); fs.renameSync(process.argv[2], process.argv[2] + '.moved');",
         file,
         directory,
       ]);
-
-      const promisedContent = await fs.promises.readFile(file, 'utf8');
-      const promisedSize = (await fs.promises.stat(file)).size;
-      const descriptor = fs.openSync(file, 'r');
-      const descriptorContent = fs.readFileSync(descriptor, 'utf8');
-      const descriptorSize = fs.fstatSync(descriptor).size;
-      fs.closeSync(descriptor);
-      const opened = fs.opendirSync(directory);
-      const openedNames = [];
-      let entry;
-      while ((entry = opened.readSync()) !== null) openedNames.push(entry.name);
-      opened.closeSync();
-      const statistics = globalThis[Symbol.for('sonarjs.filesystemCache.installation')]
-        .getStatistics();
-      console.log(JSON.stringify({
-        content,
-        descriptorContent,
-        descriptorSize,
-        exists: fs.existsSync(file),
-        names,
-        openedNames,
-        promisedContent,
-        promisedSize,
-        size,
-        statistics,
-      }));
+      const errors = {};
+      for (const [name, observe] of Object.entries({
+        readFile: () => fs.promises.readFile(file, 'utf8'),
+        stat: () => fs.promises.stat(file),
+        open: () => fs.openSync(file, 'r'),
+        opendir: () => fs.opendirSync(directory),
+      })) {
+        try {
+          await observe();
+        } catch (error) {
+          errors[name] = error.code;
+        }
+      }
+      console.log(JSON.stringify({ errors, exists: fs.existsSync(file) }));
     `;
-
     const recorded = runInlineHook({ archive, root, script });
     expect(recorded.stderr).toBe('');
     expect(recorded.status).toBe(0);
-    const result = JSON.parse(recorded.stdout);
-    expect(result.statistics.hits).toBeGreaterThanOrEqual(5);
-    expect(result.statistics.misses).toBeGreaterThanOrEqual(3);
-    expect(result.statistics.paths).toBe(2);
-    delete result.statistics;
-    expect(result).toEqual({
-      content: 'cached content',
-      descriptorContent: 'cached content',
-      descriptorSize: 14,
-      exists: true,
-      names: ['child.ts'],
-      openedNames: ['child.ts'],
-      promisedContent: 'cached content',
-      promisedSize: 14,
-      size: 14,
+    expect(JSON.parse(recorded.stdout)).toEqual({
+      errors: { readFile: 'ENOENT', stat: 'ENOENT', open: 'ENOENT', opendir: 'ENOENT' },
+      exists: false,
     });
   });
 
@@ -1324,7 +1297,9 @@ describe('filesystem cache hook', () => {
         "require('node:fs').writeFileSync(process.argv[1], 'not an archive')",
         filesystemCacheArchive,
       ]);
-      session.end();
+      if (session.end() !== false || session.end() !== false) {
+        throw new Error('Failed persistence must remain observable across repeated end calls');
+      }
       fs.writeFileSync(afterSession, 'native fs restored');
       console.log(result);
     `;

@@ -23,6 +23,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -63,6 +64,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -91,6 +94,7 @@ import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.analysis.cache.CacheTestUtils;
 import org.sonar.plugins.javascript.analysis.cache.ContextSnapshotCache;
 import org.sonar.plugins.javascript.analyzeproject.grpc.AnalysisLanguage;
+import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectRequest;
 import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectStreamResponse;
 import org.sonar.plugins.javascript.analyzeproject.grpc.CpdToken;
 import org.sonar.plugins.javascript.analyzeproject.grpc.FileResultMessage;
@@ -512,11 +516,17 @@ class WebSensorTest {
       .hasRootCauseMessage("The restored JavaScript context is incomplete");
   }
 
-  @Test
-  void should_record_and_collect_filesystem_cache() throws Exception {
+  @ParameterizedTest
+  @ValueSource(booleans = { false, true })
+  void should_record_and_collect_filesystem_cache(boolean collectorFails) throws Exception {
     var filesystemCacheContext = mock(FilesystemCacheContext.class);
     when(filesystemCacheContext.isSupported()).thenReturn(true);
     when(filesystemCacheContext.isEnabled()).thenReturn(true);
+    if (collectorFails) {
+      doThrow(new IllegalStateException("collector unavailable"))
+        .when(filesystemCacheContext)
+        .collect(any(), any(), any());
+    }
     var sensor = createSensor(
       checks("S3923", "S2260", "S1451"),
       new AnalysisConsumers(),
@@ -539,6 +549,10 @@ class WebSensorTest {
       assertThat(analysisMetadata).doesNotExist();
       Files.writeString(archive, "archive");
       Files.writeString(analysisMetadata, "metadata");
+      Files.writeString(
+        Path.of(request.getFilesystemCache().getSnapshotManifestPath()),
+        "manifest"
+      );
       for (var message : getAnalysisStreamMessages(createProjectResponse(List.of(inputFile)))) {
         dispatchAnalysisStreamMessage(handler, message);
       }
@@ -566,6 +580,13 @@ class WebSensorTest {
     assertThat(analysisMetadataCaptor.getValue().getParent()).isEqualTo(
       archiveCaptor.getValue().getParent()
     );
+    assertThat(context.allIssues()).hasSize(2);
+    assertThat(secondContext.allIssues()).hasSize(2);
+    if (collectorFails) {
+      assertThat(logTester.logs(Level.WARN)).contains(
+        "Could not publish the JavaScript filesystem cache context"
+      );
+    }
   }
 
   @Test
@@ -603,8 +624,41 @@ class WebSensorTest {
 
     verify(filesystemCacheContext, org.mockito.Mockito.never()).collect(any(), any(), any());
     assertThat(logTester.logs(Level.WARN)).contains(
-      "The JavaScript filesystem cache archive was not created; no SQAA context will be published"
+      "The JavaScript filesystem cache context was not created; no SQAA context will be published"
     );
+  }
+
+  @ParameterizedTest
+  @ValueSource(booleans = { false, true })
+  void should_not_publish_context_without_a_completion_manifest(boolean emptyManifest) {
+    var collector = mock(FilesystemCacheContext.class);
+    when(collector.isSupported()).thenReturn(true);
+    when(collector.isEnabled()).thenReturn(true);
+    var sensor = createSensor(
+      checks("S3923", "S2260", "S1451"),
+      new AnalysisConsumers(),
+      null,
+      collector,
+      new WebSensorModuleConfiguration()
+    );
+    doAnswer(invocation -> {
+      ProjectAnalysisHandler handler = invocation.getArgument(0);
+      var cache = handler.getRequest().getFilesystemCache();
+      Files.writeString(Path.of(cache.getArchivePath()), "partial archive");
+      Files.writeString(Path.of(cache.getAnalysisMetadataPath()), "partial metadata");
+      if (emptyManifest) Files.writeString(Path.of(cache.getSnapshotManifestPath()), "");
+      for (var message : getAnalysisStreamMessages(createProjectResponse(List.of(inputFile)))) {
+        dispatchAnalysisStreamMessage(handler, message);
+      }
+      return handler.getFuture().join();
+    })
+      .when(bridgeServerMock)
+      .analyzeProject(any(ProjectAnalysisHandler.class));
+
+    sensor.execute(context);
+
+    verify(collector, never()).collect(any(), any(), any());
+    assertThat(context.allIssues()).hasSize(2);
   }
 
   @Test
@@ -1332,8 +1386,10 @@ class WebSensorTest {
     );
   }
 
-  @Test
-  void should_record_unchanged_files_from_warm_analysis_cache() throws IOException {
+  @ParameterizedTest
+  @ValueSource(booleans = { false, true })
+  void should_reuse_unchanged_files_without_a_usable_context_baseline(boolean corruptBaseline)
+    throws IOException {
     context = CacheTestUtils.createContextWithCache(
       baseDir,
       workDir,
@@ -1341,6 +1397,12 @@ class WebSensorTest {
     );
     context.fileSystem().add(inputFile);
     inputFile.setStatus(InputFile.Status.SAME);
+    if (corruptBaseline) {
+      when(context.previousCache().contains(startsWith("js:sqaa-context:"))).thenReturn(true);
+      when(context.previousCache().read(startsWith("js:sqaa-context:"))).thenReturn(
+        new ByteArrayInputStream(new byte[] { 0 })
+      );
+    }
     var filesystemCacheContext = mock(FilesystemCacheContext.class);
     when(filesystemCacheContext.isSupported()).thenReturn(true);
     when(filesystemCacheContext.isEnabled()).thenReturn(true);
@@ -1352,31 +1414,44 @@ class WebSensorTest {
       new WebSensorModuleConfiguration()
     );
 
-    var request = executeSensorAndCaptureHandler(sensor, context).getRequest();
+    var requestCaptor = new AtomicReference<AnalyzeProjectRequest>();
+    doAnswer(invocation -> {
+      ProjectAnalysisHandler handler = invocation.getArgument(0);
+      var request = handler.getRequest();
+      requestCaptor.set(request);
+      var cache = request.getFilesystemCache();
+      Files.writeString(Path.of(cache.getArchivePath()), "current request observations");
+      Files.writeString(Path.of(cache.getAnalysisMetadataPath()), "current request selections");
+      Files.writeString(Path.of(cache.getSnapshotManifestPath()), "manifest");
+      return null;
+    })
+      .when(bridgeServerMock)
+      .analyzeProject(any(ProjectAnalysisHandler.class));
+    sensor.execute(context);
+    var request = requestCaptor.get();
 
     assertThat(request.getFilesystemCache().getMode()).isEqualTo(
       FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD
     );
-    assertThat(request.getFilesMap()).containsKey(inputFile.absolutePath());
+    assertThat(request.getFilesMap()).isEmpty();
+    assertThat(request.getFilesystemCache().hasBaselineArchivePath()).isFalse();
     assertThat(request.getConfiguration().getAnalysisMode()).isEqualTo(
-      org.sonar.plugins.javascript.analyzeproject.grpc.AnalysisMode.ANALYSIS_MODE_DEFAULT
+      org.sonar.plugins.javascript.analyzeproject.grpc.AnalysisMode.ANALYSIS_MODE_SKIP_UNCHANGED
     );
-    assertThat(logTester.logs(Level.DEBUG)).doesNotContain(
+    verify(context.nextCache()).copyFromPrevious(
+      "js:filemetadata:" + PLUGIN_VERSION + ":" + inputFile.key()
+    );
+    assertThat(context.cpdTokens(inputFile.key())).hasSize(2);
+    verify(filesystemCacheContext, never()).collect(any(), any(), any());
+    assertThat(logTester.logs(Level.DEBUG)).contains(
       "Processing cache analysis of file: " + inputFile.uri()
     );
   }
 
-  @Test
-  void should_confirm_snapshot_cache_hits_before_reemitting_cpd() throws Exception {
-    checkSnapshotCacheResult(true);
-  }
-
-  @Test
-  void should_write_fresh_results_without_copying_a_rejected_snapshot_candidate() throws Exception {
-    checkSnapshotCacheResult(false);
-  }
-
-  private void checkSnapshotCacheResult(boolean hit) throws Exception {
+  @ParameterizedTest
+  @ValueSource(booleans = { false, true })
+  void should_handle_file_cache_hits_in_java_and_send_only_changed_files(boolean hasChangedFile)
+    throws Exception {
     context = CacheTestUtils.createContextWithCache(
       baseDir,
       workDir,
@@ -1384,6 +1459,8 @@ class WebSensorTest {
     );
     context.fileSystem().add(inputFile);
     inputFile.setStatus(InputFile.Status.SAME);
+    var changedFile = hasChangedFile ? createInputFile(context, "changed.ts") : null;
+    if (changedFile != null) changedFile.setStatus(InputFile.Status.CHANGED);
     var archive = tempDir.resolve("filesystem.pb.gz");
     var metadata = tempDir.resolve("programs.pb.gz");
     var manifest = tempDir.resolve("manifest.json");
@@ -1391,7 +1468,9 @@ class WebSensorTest {
     Files.writeString(metadata, "programs");
     Files.writeString(manifest, "manifest");
     var bytes = new AtomicReference<byte[]>();
+    var key = new AtomicReference<String>();
     doAnswer(call -> {
+      key.set(call.getArgument(0));
       bytes.set(((InputStream) call.getArgument(1)).readAllBytes());
       return null;
     })
@@ -1401,7 +1480,7 @@ class WebSensorTest {
       context,
       new ContextSnapshotCache.Snapshot(archive, metadata, manifest, "{}")
     );
-    var snapshotKey = "js:sqaa-context:1:" + PLUGIN_VERSION;
+    var snapshotKey = key.get();
     when(context.previousCache().contains(snapshotKey)).thenReturn(true);
     when(context.previousCache().read(snapshotKey)).thenAnswer(call ->
       new ByteArrayInputStream(bytes.get())
@@ -1416,31 +1495,17 @@ class WebSensorTest {
       filesystemCacheContext,
       new WebSensorModuleConfiguration()
     );
-    var handler = executeSensorAndCaptureHandler(sensor, context);
-    var request = handler.getRequest();
+    var request = executeSensorAndCaptureHandler(sensor, context).getRequest();
     assertThat(request.getFilesystemCache().hasBaselineArchivePath()).isTrue();
-    assertThat(
-      request.getFilesMap().get(inputFile.absolutePath()).getReuseCachedAnalysis()
-    ).isTrue();
-    verify(context.nextCache(), never()).copyFromPrevious(anyString());
-    handler.handleMessage(
-      AnalyzeProjectStreamResponse.newBuilder()
-        .setFileResult(
-          FileResultMessage.newBuilder()
-            .setFilePath(inputFile.absolutePath())
-            .setResult(ProjectAnalysisFileResult.newBuilder().setCacheHit(hit))
-        )
-        .build()
-    );
-    var metadataKey = "js:filemetadata:" + PLUGIN_VERSION + ":" + inputFile.key();
-    if (hit) {
-      assertThat(context.cpdTokens(inputFile.key())).hasSize(2);
-      verify(context.nextCache()).copyFromPrevious(metadataKey);
-      verify(context.nextCache(), never()).write(eq(metadataKey), any(byte[].class));
+    if (changedFile == null) {
+      assertThat(request.getFilesMap()).isEmpty();
     } else {
-      verify(context.nextCache(), never()).copyFromPrevious(anyString());
-      verify(context.nextCache()).write(eq(metadataKey), any(byte[].class));
+      assertThat(request.getFilesMap()).containsOnlyKeys(changedFile.absolutePath());
     }
+    assertThat(context.cpdTokens(inputFile.key())).hasSize(2);
+    verify(context.nextCache()).copyFromPrevious(
+      "js:filemetadata:" + PLUGIN_VERSION + ":" + inputFile.key()
+    );
   }
 
   @Test
@@ -1491,6 +1556,7 @@ class WebSensorTest {
       );
 
       logTester.clear();
+      contextItems.clear();
       var warm = realNodeCacheContext(nodeExecutable, source, cachedBytes, true);
       createSensor(
         checks("S2871"),
@@ -1506,12 +1572,58 @@ class WebSensorTest {
           ":" +
           warm.fileSystem().inputFiles(warm.fileSystem().predicates().all()).iterator().next().key()
       );
-      assertThat(logTester.logs(Level.DEBUG)).noneMatch(message ->
+      assertThat(logTester.logs(Level.DEBUG)).anyMatch(message ->
         message.startsWith("Processing cache analysis of file:")
       );
       assertThat(contextItems)
         .hasSize(2)
         .allSatisfy(item -> assertThat(item).isNotEmptyFile());
+
+      // A scanner cache predating context collection must still retain its ordinary file-cache hit.
+      var withoutContext = new HashMap<>(cachedBytes);
+      withoutContext.keySet().removeIf(key -> key.startsWith("js:sqaa-context:"));
+      var missingBaselineItems = new ArrayList<Path>();
+      var withoutBaseline = realNodeCacheContext(nodeExecutable, source, withoutContext, true);
+      createSensor(
+        checks("S2871"),
+        new AnalysisConsumers(),
+        null,
+        localRecordingCollector(missingBaselineItems),
+        new WebSensorModuleConfiguration()
+      ).execute(withoutBaseline);
+      assertThat(withoutBaseline.allIssues()).isEmpty();
+      assertThat(missingBaselineItems).isEmpty();
+      assertThat(withoutContext.keySet()).noneMatch(key -> key.startsWith("js:sqaa-context:"));
+      var cachedFile = withoutBaseline
+        .fileSystem()
+        .inputFiles(withoutBaseline.fileSystem().predicates().all())
+        .iterator()
+        .next();
+      verify(withoutBaseline.nextCache()).copyFromPrevious(
+        "js:filemetadata:" + PLUGIN_VERSION + ":" + cachedFile.key()
+      );
+
+      // Recording preserves the existing per-file cache policy for unindexed dependencies.
+      Files.writeString(baseDir.resolve("values.ts"), "export const values = { sort() {} };");
+      var dependencyCache = new HashMap<>(cachedBytes);
+      var dependencyItems = new ArrayList<Path>();
+      var dependencyChanged = realNodeCacheContext(nodeExecutable, source, dependencyCache, true);
+      createSensor(
+        checks("S2871"),
+        new AnalysisConsumers(),
+        null,
+        localRecordingCollector(dependencyItems),
+        new WebSensorModuleConfiguration()
+      ).execute(dependencyChanged);
+      assertThat(dependencyChanged.allIssues()).isEmpty();
+      assertThat(dependencyItems).hasSize(2);
+      var fileMetadataKey = "js:filemetadata:" + PLUGIN_VERSION + ":" + cachedFile.key();
+      verify(dependencyChanged.nextCache()).copyFromPrevious(fileMetadataKey);
+      verify(dependencyChanged.nextCache(), never()).write(eq(fileMetadataKey), any(byte[].class));
+      Files.writeString(
+        baseDir.resolve("values.ts"),
+        "export const values: number[] = [80, 3, 9];"
+      );
 
       // Preserve the real Java-produced pair for the separate SQAA adapter test.
       var exportDirectory = System.getProperty("sonarjs.localContextDirectory");
@@ -1642,6 +1754,16 @@ class WebSensorTest {
     Map<String, byte[]> cachedBytes,
     boolean unchanged
   ) throws IOException {
+    var sensorContext = realNodeSensorContext(nodeExecutable, cachedBytes);
+    var file = createInputFile(sensorContext, "main.ts", StandardCharsets.UTF_8, baseDir, contents);
+    file.setStatus(unchanged ? InputFile.Status.SAME : InputFile.Status.ADDED);
+    return sensorContext;
+  }
+
+  private SensorContextTester realNodeSensorContext(
+    String nodeExecutable,
+    Map<String, byte[]> cachedBytes
+  ) throws IOException {
     var sensorContext = createSensorContext(baseDir);
     sensorContext.setRuntime(
       TestSonarRuntime.forSonarQube(
@@ -1679,8 +1801,6 @@ class WebSensorTest {
       .when(next)
       .write(any(String.class), any(InputStream.class));
     sensorContext.setNextCache(next);
-    var file = createInputFile(sensorContext, "main.ts", StandardCharsets.UTF_8, baseDir, contents);
-    file.setStatus(unchanged ? InputFile.Status.SAME : InputFile.Status.ADDED);
     return sensorContext;
   }
 
