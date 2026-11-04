@@ -27,6 +27,7 @@ import {
 import type { RuleContext } from '../helpers/type.js';
 
 interface ComplexityTraversal {
+  enterFunction(node: FunctionNodeType): void;
   leaveFunction(): void;
   addBranch(node: estree.Node): void;
   hasNestedFunction(node: estree.Node): boolean;
@@ -40,10 +41,11 @@ export class ComplexityAccumulator implements ComplexityTraversal {
 
   constructor(
     private readonly getBranchToken: (node: estree.Node) => ComplexityToken | null | undefined,
+    private readonly getFunctionParent: (node: FunctionNodeType) => estree.Node | undefined,
   ) {}
 
-  enterFunction(node: FunctionNodeType, parent: estree.Node | undefined) {
-    const info: FunctionInfo = { node, parent, tokens: [] };
+  enterFunction(node: FunctionNodeType) {
+    const info: FunctionInfo = { node, parent: this.getFunctionParent(node), tokens: [] };
     this.functions.push(info);
     const enclosing = this.functionStack.at(-1);
     if (enclosing) {
@@ -80,11 +82,14 @@ export class ComplexityTracker implements ComplexityTraversal {
   private readonly accumulator: ComplexityAccumulator;
 
   constructor(private readonly context: Rule.RuleContext) {
-    this.accumulator = new ComplexityAccumulator(node => getComplexityToken(node, context));
+    this.accumulator = new ComplexityAccumulator(
+      node => getComplexityToken(node, context),
+      node => getParent(context, node),
+    );
   }
 
   enterFunction(node: FunctionNodeType) {
-    this.accumulator.enterFunction(node, getParent(this.context, node));
+    this.accumulator.enterFunction(node);
   }
 
   leaveFunction() {
