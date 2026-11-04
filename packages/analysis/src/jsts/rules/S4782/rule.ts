@@ -27,6 +27,7 @@ import {
 } from '../helpers/parser-services.js';
 import { report, toSecondaryLocation } from '../helpers/location.js';
 import { classifyTypesByOrigin } from '../helpers/type-origin.js';
+import { isStrictNullChecksEnabled } from '../helpers/compiler-options.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {
@@ -41,14 +42,12 @@ export const rule: Rule.RuleModule = {
     if (compilerOptions?.exactOptionalPropertyTypes) {
       return {};
     }
-    const canResolveTypes = hasTypeChecking
-      ? (compilerOptions?.strictNullChecks ?? compilerOptions?.strict ?? false)
-      : false;
+    const canResolveTypes =
+      compilerOptions !== undefined && isStrictNullChecksEnabled(compilerOptions);
 
     function checkProperty(node: estree.Node) {
       const tsNode = node as TSESTree.Node as
-        | TSESTree.PropertyDefinition
-        | TSESTree.TSPropertySignature;
+        TSESTree.PropertyDefinition | TSESTree.TSPropertySignature;
       const optionalToken = context.sourceCode.getFirstToken(node, token => token.value === '?');
       const rootType = tsNode.typeAnnotation?.typeAnnotation;
       if (!tsNode.optional || !optionalToken || !rootType) {
