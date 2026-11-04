@@ -469,6 +469,57 @@ describe('SonarQube project analysis', () => {
     }
   });
 
+  it('should select rules by central test classification with a partial sonar.tests', async () => {
+    const baseDir = join(fixtures, 'basic');
+    const classificationRules: RuleConfig[] = [
+      ...['S2068', 'S6418', 'S9382'].map(key => ({ key, fileTypeTargets: ['MAIN' as const] })),
+      ...['S2187', 'S2925'].map(key => ({ key, fileTypeTargets: ['TEST' as const] })),
+    ].map(({ key, fileTypeTargets }) => ({
+      key,
+      configurations: [],
+      fileTypeTargets,
+      language: 'js',
+      analysisModes: ['DEFAULT'],
+    }));
+    const fileContent = `
+      const dbPassword = 'xK9#mP2$vL5nQ8wR';
+      const secret = 'aB3dE6fH9jK2mN5pQ8sT1vW4yZ7cX0gLuRoIeYtq';
+      async function run(items) {
+        for (const item of items) {
+          await item();
+        }
+      }
+      cy.wait(1000);
+    `;
+    const files = {
+      testCase: join(baseDir, 'src/component.test.js'),
+      testHelper: join(baseDir, 'src/__tests__/helpers.js'),
+      explicitTest: join(baseDir, 'tests/login.js'),
+      production: join(baseDir, 'src/component.js'),
+    };
+    const configuration = await initForTest(
+      { baseDir, tests: ['tests'], disableTypeChecking: true },
+      Object.fromEntries(
+        Object.values(files).map(filePath => [
+          filePath,
+          { filePath, fileType: 'MAIN' as const, fileContent },
+        ]),
+      ),
+    );
+
+    const result = await analyzeProject({ rules: classificationRules, bundles: [] }, configuration);
+    const ruleIds = (filePath: string) => {
+      const fileResult = result.files[normalizeToAbsolutePath(filePath)];
+      assert(fileResult && 'issues' in fileResult);
+      return [...new Set(fileResult.issues.map(issue => issue.ruleId))].sort();
+    };
+
+    expect(ruleIds(files.testCase)).toEqual(['S2187', 'S2925']);
+    expect(ruleIds(files.testHelper)).toEqual(['S2925']);
+    expect(ruleIds(files.explicitTest)).toEqual(['S2925']);
+    expect(ruleIds(files.production)).toEqual(['S2068', 'S6418', 'S9382']);
+  });
+
   it('should analyze files from referenced tsconfigs', async () => {
     const baseDir = join(fixtures, 'referenced');
     const mainFile = join(baseDir, 'main.ts');

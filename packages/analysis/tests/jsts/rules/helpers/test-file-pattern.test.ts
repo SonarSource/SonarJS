@@ -16,11 +16,7 @@
  */
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import {
-  isAngularEnvironmentConfigFileCandidate,
-  isTestFile,
-  isTestRelatedFile,
-} from '../../../../src/jsts/rules/helpers/test-file-pattern.js';
+import { isTestFile } from '../../../../src/jsts/rules/helpers/test-file-pattern.js';
 
 describe('isTestFile', () => {
   it('matches the built-in JS/TS extensions when no extensions are given', () => {
@@ -61,86 +57,5 @@ describe('isTestFile', () => {
 
   it('does not match filenames that merely contain "test"', () => {
     expect(isTestFile('testimony.ts')).toBe(false);
-  });
-});
-
-describe('isTestRelatedFile', () => {
-  it('matches common test-relatedfile patterns', () => {
-    expect(isTestRelatedFile('foo.test.ts')).toBe(true);
-    expect(isTestRelatedFile('foo.spec.js')).toBe(true);
-    expect(isTestRelatedFile('foo.e2e.ts')).toBe(true);
-    expect(isTestRelatedFile('data.mock.js')).toBe(true);
-    expect(isTestRelatedFile('__tests__/foo.ts')).toBe(true);
-    expect(isTestRelatedFile('__mocks__/foo.ts')).toBe(true);
-  });
-
-  it('matches files with custom extensions', () => {
-    expect(isTestRelatedFile('foo.test.dummy', ['.dummy'])).toBe(true);
-    expect(isTestRelatedFile('foo.e2e.bar', ['.bar'])).toBe(true);
-  });
-
-  it('does not match files with different extensions', () => {
-    expect(isTestRelatedFile('foo.ts')).toBe(false);
-    expect(isTestRelatedFile('foo.test.js', ['.dummy'])).toBe(false);
-    expect(isTestRelatedFile('data.mock.js', ['.dummy'])).toBe(false);
-  });
-
-  it('matches files under __tests__ / __mocks__ regardless of the configured extensions', () => {
-    expect(isTestRelatedFile('__tests__/foo.ts', ['.dummy'])).toBe(true);
-    expect(isTestRelatedFile('src/__mocks__/style.css', ['.dummy'])).toBe(true);
-  });
-});
-
-describe('isAngularEnvironmentConfigFileCandidate', () => {
-  it('matches every test-related environment marker', () => {
-    for (const marker of ['test', 'spec', 'cy', 'e2e', 'mock']) {
-      expect(
-        isAngularEnvironmentConfigFileCandidate(`src/environments/environment.${marker}.ts`),
-      ).toBe(true);
-    }
-  });
-
-  it('accepts both the singular and plural environment directory names', () => {
-    expect(isAngularEnvironmentConfigFileCandidate('src/environment/environment.test.ts')).toBe(
-      true,
-    );
-    expect(isAngularEnvironmentConfigFileCandidate('environments/environment.test.ts')).toBe(true);
-    expect(
-      isAngularEnvironmentConfigFileCandidate('/home/me/app/src/environments/environment.test.ts'),
-    ).toBe(true);
-  });
-
-  it('does not check the extension', () => {
-    expect(isAngularEnvironmentConfigFileCandidate('src/environments/environment.test.js')).toBe(
-      true,
-    );
-    expect(isAngularEnvironmentConfigFileCandidate('src/environments/environment.test.dummy')).toBe(
-      true,
-    );
-  });
-
-  it('does not match an environment file outside an environment(s) directory', () => {
-    expect(isAngularEnvironmentConfigFileCandidate('environment.test.ts')).toBe(false);
-    expect(isAngularEnvironmentConfigFileCandidate('src/environment.test.ts')).toBe(false);
-    expect(isAngularEnvironmentConfigFileCandidate('src/myenvironments/environment.test.ts')).toBe(
-      false,
-    );
-    expect(
-      isAngularEnvironmentConfigFileCandidate('src/environments/sub/environment.test.ts'),
-    ).toBe(false);
-  });
-
-  it('does not match environment files without a test-related marker', () => {
-    expect(isAngularEnvironmentConfigFileCandidate('src/environments/environment.ts')).toBe(false);
-    expect(isAngularEnvironmentConfigFileCandidate('src/environments/environment.prod.ts')).toBe(
-      false,
-    );
-    expect(isAngularEnvironmentConfigFileCandidate('src/environments/foo.test.ts')).toBe(false);
-  });
-
-  it('expects forward-slash separators (paths are normalized before the check)', () => {
-    expect(
-      isAngularEnvironmentConfigFileCandidate(String.raw`src\environments\environment.test.ts`),
-    ).toBe(false);
   });
 });
