@@ -38,6 +38,12 @@
 "vitest:packages/mocker/src/node/mockerPlugin.ts": [
 52
 ],
+"vitest:packages/ui/client/components/BrowserIframe.vue": [
+29
+],
+"vitest:packages/ui/client/components/CodeMirrorContainer.vue": [
+38
+],
 "vitest:packages/ui/client/composables/codemirror.ts": [
 67
 ],

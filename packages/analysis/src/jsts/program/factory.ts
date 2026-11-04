@@ -14,6 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import {
+  canonicalFileName,
+  isFileSystemCaseSensitive,
+  pathsEqual,
+} from '../../common/filesystem.js';
+import { readDirectory } from './filesystem.js';
 import ts from 'typescript';
 import { IncrementalCompilerHost } from './compilerHost.js';
 import {
@@ -23,12 +29,18 @@ import {
 } from './tsconfig/options.js';
 import { info } from '../../../../shared/src/helpers/logging.js';
 import { getProgramCacheManager } from './cache/programCache.js';
-import { getCurrentFilesContext } from './cache/sourceFileCache.js';
+import {
+  getCurrentFilesContext,
+  getProvidedSourceFile,
+  getSourceFilesContextVersion,
+} from './cache/sourceFileCache.js';
 import {
   normalizeToAbsolutePath,
   type NormalizedAbsolutePath,
 } from '../../../../shared/src/helpers/files.js';
 import { getOptionalProjectAnalysisTelemetryCollector } from '../../telemetry.js';
+
+const synchronizedHostVersions = new WeakMap<IncrementalCompilerHost, number>();
 
 function createBuilderProgramWithHost(
   programOptions: ProgramOptions,
@@ -148,14 +160,17 @@ export function createProgramFromSingleFile(
     rootNames: [fileName],
     host: {
       ...compilerHost,
+      getCanonicalFileName: canonicalFileName,
+      useCaseSensitiveFileNames: isFileSystemCaseSensitive,
+      readDirectory,
       getSourceFile: (name: string) => {
-        if (name === fileName) {
+        if (pathsEqual(name, fileName)) {
           return sourceFile;
         }
         return compilerHost.getSourceFile(name, target);
       },
-      fileExists: (name: string) => name === fileName || ts.sys.fileExists(name),
-      readFile: (name: string) => (name === fileName ? contents : ts.sys.readFile(name)),
+      fileExists: (name: string) => pathsEqual(name, fileName) || ts.sys.fileExists(name),
+      readFile: (name: string) => (pathsEqual(name, fileName) ? contents : ts.sys.readFile(name)),
     },
   };
 
@@ -178,7 +193,7 @@ export function createOrGetCachedProgramForFile(
   skipNodeModuleLookupOutsideBaseDir = false,
 ) {
   const cacheManager = getProgramCacheManager();
-  const fileContent = getCurrentFilesContext()?.[sourceFile]?.fileContent;
+  const contextVersion = getSourceFilesContextVersion();
 
   // Try to find an existing program containing this file
   const cachedProgram = cacheManager.findProgramForFile(sourceFile);
@@ -188,11 +203,7 @@ export function createOrGetCachedProgramForFile(
     const tsProgram = program.getProgram();
     const totalFiles = tsProgram.getSourceFiles().length;
 
-    // Found a match! Update host if file content changed
-    // The host's updateFile() method compares content and returns whether it changed
-    const wasUpdated = host.updateFile(sourceFile, fileContent);
-
-    if (wasUpdated) {
+    if (updateCachedProgramFiles(host, tsProgram, sourceFile)) {
       info(
         `Cache HIT: Recreating program with changes from ${sourceFile} (${totalFiles} files, no changes)`,
       );
@@ -205,9 +216,11 @@ export function createOrGetCachedProgramForFile(
 
       // Update cache with new program
       cacheManager.updateProgramInCache(cacheKey, updatedProgram);
+      synchronizedHostVersions.set(host, contextVersion);
 
       return updatedProgram.getProgram();
     } else {
+      synchronizedHostVersions.set(host, contextVersion);
       info(`Cache HIT: Reusing program for ${sourceFile} (${totalFiles} files, no changes)`);
       return program.getProgram();
     }
@@ -232,6 +245,27 @@ export function createOrGetCachedProgramForFile(
 
   // Store in cache
   cacheManager.storeProgram(programOptions, builderProgram, host);
+  synchronizedHostVersions.set(host, contextVersion);
 
   return builderProgram.getProgram();
+}
+
+/** Apply dependency edits before type queries, scanning the request once per host. */
+function updateCachedProgramFiles(
+  host: IncrementalCompilerHost,
+  program: ts.Program,
+  sourceFile: NormalizedAbsolutePath,
+): boolean {
+  const filesContext = getCurrentFilesContext();
+  let wasUpdated = host.updateFile(sourceFile, getProvidedSourceFile(sourceFile)?.fileContent);
+  if (synchronizedHostVersions.get(host) === getSourceFilesContextVersion()) {
+    return wasUpdated;
+  }
+  for (const [file, context] of Object.entries(filesContext ?? {})) {
+    if (!pathsEqual(file, sourceFile) && program.getSourceFile(file)) {
+      wasUpdated =
+        host.updateFile(file as NormalizedAbsolutePath, context.fileContent) || wasUpdated;
+    }
+  }
+  return wasUpdated;
 }

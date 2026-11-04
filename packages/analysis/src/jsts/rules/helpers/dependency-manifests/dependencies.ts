@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { Rule, SourceCode } from 'eslint';
+import { FileSystemMap } from '../filesystem.js';
 import { ComputedCache } from '../cache.js';
 import fs from 'node:fs';
 import { extname } from 'node:path/posix';
@@ -39,7 +40,7 @@ const MODULE_TYPE_BY_EXTENSION: Readonly<Record<string, ModuleType>> = {
  * Exported for tests.
  */
 class DependenciesCache {
-  private readonly cache = new Map<
+  private readonly cache = new FileSystemMap<
     NormalizedAbsolutePath,
     Map<NormalizedAbsolutePath, DependenciesList>
   >();
@@ -47,7 +48,7 @@ class DependenciesCache {
   get(dir: NormalizedAbsolutePath, topDir: NormalizedAbsolutePath): DependenciesList {
     let entriesByTopDir = this.cache.get(dir);
     if (!entriesByTopDir) {
-      entriesByTopDir = new Map();
+      entriesByTopDir = new FileSystemMap();
       this.cache.set(dir, entriesByTopDir);
     }
 
@@ -105,6 +106,7 @@ export const moduleTypeCache = new ComputedCache(
     const [firstManifest] = getDependencyManifests(closestDependencyManifestDirName, topDir, fs);
     return firstManifest?.moduleType;
   },
+  new FileSystemMap(),
 );
 
 /**

@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { pathsEqual } from '../common/filesystem.js';
 import { debug, error, info } from '../../../shared/src/helpers/logging.js';
 import { basename } from 'node:path/posix';
 import { Minimatch } from 'minimatch';
@@ -70,10 +71,16 @@ export class TsConfigStore implements FileStore {
 
   addDiscoveredTsConfig(tsconfig: NormalizedAbsolutePath) {
     // Add to the appropriate list based on the current mode
-    if (this.usingPropertyTsConfigs() && !this.foundPropertyTsConfigs.includes(tsconfig)) {
+    if (
+      this.usingPropertyTsConfigs() &&
+      !this.foundPropertyTsConfigs.some(file => pathsEqual(file, tsconfig))
+    ) {
       info(`Discovered referenced tsconfig: ${tsconfig}`);
       this.foundPropertyTsConfigs.push(tsconfig);
-    } else if (this.usingLookupTsConfigs() && !this.foundLookupTsConfigs.includes(tsconfig)) {
+    } else if (
+      this.usingLookupTsConfigs() &&
+      !this.foundLookupTsConfigs.some(file => pathsEqual(file, tsconfig))
+    ) {
       info(`Discovered referenced tsconfig: ${tsconfig}`);
       this.foundLookupTsConfigs.push(tsconfig);
     }
@@ -82,7 +89,7 @@ export class TsConfigStore implements FileStore {
   dirtyCachesIfNeeded(configuration: Configuration) {
     const { baseDir, canAccessFileSystem, tsConfigPaths, fsEvents } = configuration;
     if (
-      this.baseDir !== baseDir ||
+      !pathsEqual(this.baseDir, baseDir) ||
       this.canAccessFileSystem !== canAccessFileSystem ||
       this.propertyTsConfigsHash !== this.computeTsConfigsHash(tsConfigPaths) ||
       this.projectFileDiscoveryConfigKey !== getProjectFileDiscoveryConfigKey(configuration)
@@ -92,7 +99,7 @@ export class TsConfigStore implements FileStore {
     }
     for (const filename of fsEvents) {
       if (
-        this.getTsConfigs().includes(filename) ||
+        this.getTsConfigs().some(file => pathsEqual(file, filename)) ||
         (this.usingLookupTsConfigs() && this.filenameMatchesTsConfig(filename)) ||
         (this.usingPropertyTsConfigs() && this.filenameMatchesProvidedTsConfig(filename))
       ) {
@@ -162,13 +169,13 @@ export class TsConfigStore implements FileStore {
   }
 
   filenameMatchesTsConfig(filename: NormalizedAbsolutePath) {
-    return basename(filename) === TSCONFIG_JSON;
+    return pathsEqual(basename(filename), TSCONFIG_JSON);
   }
 
   filenameMatchesProvidedTsConfig(filename: NormalizedAbsolutePath) {
     return this.providedPropertyTsConfigs?.some(
       providedTsConfig =>
-        providedTsConfig.path === filename || providedTsConfig.pattern.match(filename),
+        pathsEqual(providedTsConfig.path, filename) || providedTsConfig.pattern.match(filename),
     );
   }
 

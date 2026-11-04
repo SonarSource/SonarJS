@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { FileSystemMap, pathsEqual } from '../common/filesystem.js';
 import { debug } from '../../../shared/src/helpers/logging.js';
 import type { FileStore } from './store-type.js';
 import {
@@ -44,7 +45,12 @@ type ManifestFilesByName = Record<
 
 function createManifestFilesByName(): ManifestFilesByName {
   return Object.fromEntries(
-    PRELOADABLE_DEPENDENCY_MANIFESTS.map(manifestName => [manifestName, new Map()]),
+    PRELOADABLE_DEPENDENCY_MANIFESTS.map(
+      (manifestName): [PreloadableDependencyManifestName, Map<NormalizedAbsolutePath, File>] => [
+        manifestName,
+        new FileSystemMap<NormalizedAbsolutePath, File>(),
+      ],
+    ),
   ) as ManifestFilesByName;
 }
 
@@ -56,7 +62,7 @@ export class DependencyManifestStore implements FileStore {
   private readonly dirnameToParent: Map<
     NormalizedAbsolutePath,
     NormalizedAbsolutePath | undefined
-  > = new Map();
+  > = new FileSystemMap();
 
   async isInitialized(configuration: Configuration, _inputFiles?: AnalyzableFiles) {
     this.dirtyCachesIfNeeded(configuration);
@@ -73,7 +79,7 @@ export class DependencyManifestStore implements FileStore {
   dirtyCachesIfNeeded(configuration: Configuration) {
     const { baseDir, canAccessFileSystem, fsEvents } = configuration;
     if (
-      baseDir !== this.baseDir ||
+      !pathsEqual(baseDir, this.baseDir) ||
       canAccessFileSystem !== this.canAccessFileSystem ||
       getProjectFileDiscoveryConfigKey(configuration) !== this.projectFileDiscoveryConfigKey
     ) {

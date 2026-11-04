@@ -161,6 +161,15 @@
 "vitest:packages/spy/src/index.ts": [
 569
 ],
+"vitest:packages/ui/client/components/explorer/ExplorerItem.vue": [
+66
+],
+"vitest:packages/ui/client/components/views/ViewEditor.vue": [
+97
+],
+"vitest:packages/ui/client/components/views/ViewModuleGraph.vue": [
+301
+],
 "vitest:packages/ui/client/composables/client/state.ts": [
 16
 ],

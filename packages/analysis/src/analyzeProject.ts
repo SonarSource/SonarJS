@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { FileSystemSet } from './common/filesystem.js';
 import {
   type ProjectAnalysisInput,
   type ProjectAnalysisOutput,
@@ -125,7 +126,7 @@ async function analyzeProjectWithCancellation(
   const filesToAnalyze = sourceFileStore.getFiles();
   // All files go into pendingFiles - analyzeFile decides per-file whether to
   // run JS/TS analysis, CSS analysis, or both (for Vue/HTML files).
-  const pendingFiles = new Set(Object.keys(filesToAnalyze) as NormalizedAbsolutePath[]);
+  const pendingFiles = new FileSystemSet(Object.keys(filesToAnalyze) as NormalizedAbsolutePath[]);
 
   const results: ProjectAnalysisOutput = {
     files: createFileResults(),
