@@ -47,7 +47,23 @@ describe('S4043', () => {
           code: 'function self(items: number[]) { items = items[`sort`](); }',
         },
         {
+          code: `class Example {
+            #sort() {
+              return [1, 2];
+            }
+
+            run() {
+              const result = this.#sort();
+            }
+          }`,
+        },
+        {
           code: 'function iterate(items: number[]) { for (const item of items[`sort`]()) {} }',
+        },
+        {
+          code: `function parenthesizedOptionalAccess(box?: { items: number[] }) {
+            const sorted = (box?.items).sort();
+          }`,
         },
         {
           code: `
@@ -200,6 +216,48 @@ describe('S4043', () => {
         {
           code: `function generic<T extends number[]>(items: T) { const result = items.sort(); }`,
           errors: 1,
+        },
+        {
+          code: `function optionalAccessEarlierInChain(box?: { items: number[] }) {
+            const sorted = box?.items.sort();
+          }`,
+          errors: 1,
+        },
+        {
+          code: `function assertedReceiver(items: number[]) {
+            const sorted = (items as number[]).sort();
+          }`,
+          errors: [
+            {
+              messageId: 'moveMethod',
+              suggestions: [
+                {
+                  desc: 'Replace with "toSorted" method',
+                  output: `function assertedReceiver(items: number[]) {
+            const sorted = (items as number[]).toSorted();
+          }`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `function assertedStaticKey(items: number[]) {
+            const sorted = items['sort' as const]();
+          }`,
+          errors: [
+            {
+              messageId: 'moveMethod',
+              suggestions: [
+                {
+                  desc: 'Replace with "toSorted" method',
+                  output: `function assertedStaticKey(items: number[]) {
+            const sorted = items['toSorted']();
+          }`,
+                },
+              ],
+            },
+          ],
         },
         {
           code: `function chainedAssertion(items: number[]) {

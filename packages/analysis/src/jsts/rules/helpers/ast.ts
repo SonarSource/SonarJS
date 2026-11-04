@@ -192,6 +192,27 @@ export function unwrapTypeScriptExpression<T extends Node>(node: T): T {
   return unwrapped as unknown as T;
 }
 
+/**
+ * Returns whether an expression belongs to an optional chain, without crossing
+ * a chain boundary created by parentheses.
+ */
+export function isInOptionalChain(node: TSESTree.Node): boolean {
+  let current = node;
+  while (current.type === 'MemberExpression' || current.type === 'CallExpression') {
+    if (current.optional) {
+      return true;
+    }
+    if (current.type === 'MemberExpression') {
+      current = current.object;
+    } else if (current.callee.type !== 'Super') {
+      current = current.callee;
+    } else {
+      return false;
+    }
+  }
+  return false;
+}
+
 export function isRequireModule(node: estree.CallExpression, ...moduleNames: string[]) {
   if (isIdentifier(node.callee, 'require') && node.arguments.length === 1) {
     const argument = node.arguments[0];
