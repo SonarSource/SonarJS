@@ -18,7 +18,7 @@ import { strict as assert } from 'node:assert';
 import { it } from 'node:test';
 import { parse } from '@typescript-eslint/parser';
 import type estree from 'estree';
-import { createModuleInitializerTracker } from './module-initializers.js';
+import { ModuleInitializerTracker } from './module-initializers.js';
 
 function statements(code: string): estree.Statement[] {
   return (parse(code) as unknown as estree.Program).body as estree.Statement[];
@@ -38,7 +38,7 @@ it('accepts direct AMD factories and rejects optional calls', () => {
   ] as const) {
     const call = callFrom(statements(code)[0]);
     const factory = call.arguments.at(-1) as estree.Node;
-    const tracker = createModuleInitializerTracker(() => false);
+    const tracker = new ModuleInitializerTracker(() => false);
     tracker.recordCall(call);
     assert.equal(tracker.getExcludedFactories(() => false).has(factory), excluded, code);
   }
@@ -47,7 +47,7 @@ it('accepts direct AMD factories and rejects optional calls', () => {
 it('requires nested functions for named loader paths', () => {
   const call = callFrom(statements('sap.ui.define([], function () {})')[0]);
   const factory = call.arguments[1] as estree.Node;
-  const tracker = createModuleInitializerTracker(() => false);
+  const tracker = new ModuleInitializerTracker(() => false);
   tracker.recordCall(call);
   assert.equal(tracker.getExcludedFactories(() => false).has(factory), false);
   assert.equal(tracker.getExcludedFactories(() => true).has(factory), true);
@@ -61,12 +61,12 @@ it('uses a file-wide write guard and a supplied runtime binding check', () => {
   const factory = call.arguments[1] as estree.Node;
   const write = (writeStatement as estree.ExpressionStatement)
     .expression as estree.AssignmentExpression;
-  const tracker = createModuleInitializerTracker(() => false);
+  const tracker = new ModuleInitializerTracker(() => false);
   tracker.recordCall(call);
   tracker.recordWrite(write.left);
   assert.equal(tracker.getExcludedFactories(() => true).has(factory), false);
 
-  const boundTracker = createModuleInitializerTracker((_node, name) => name === 'sap');
+  const boundTracker = new ModuleInitializerTracker((_node, name) => name === 'sap');
   boundTracker.recordCall(call);
   assert.equal(boundTracker.getExcludedFactories(() => true).has(factory), false);
 });

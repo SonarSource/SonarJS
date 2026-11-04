@@ -33,72 +33,71 @@ const MAX_SCOPE_INITIALIZER_ARGUMENTS = 3;
  * `sap.ui.define([], function () { function nested() {} })` can be excluded.
  * A write such as `sap.ui = other` keeps both functions checked.
  */
-export function createModuleInitializerTracker(
-  hasRuntimeBinding: (node: estree.Node, name: string) => boolean,
-) {
-  const scopeInitializers = new Map<estree.Node, string[]>();
-  const writeTargets: estree.Node[] = [];
+export class ModuleInitializerTracker {
+  private readonly scopeInitializers = new Map<estree.Node, string[]>();
+  private readonly writeTargets: estree.Node[] = [];
 
-  function collectWrite(target: estree.Node, writtenPaths: string[][]): void {
+  constructor(private readonly hasRuntimeBinding: (node: estree.Node, name: string) => boolean) {}
+
+  private collectWrite(target: estree.Node, writtenPaths: string[][]): void {
     const value = unwrapTypeScriptValue(target);
     const path = getModuleLoaderPath(value, true);
     if (path) {
-      if (!hasRuntimeBinding(value, path[0])) {
+      if (!this.hasRuntimeBinding(value, path[0])) {
         writtenPaths.push(path);
       }
     } else if (value.type === 'ArrayPattern') {
-      value.elements.forEach(element => element && collectWrite(element, writtenPaths));
+      value.elements.forEach(element => element && this.collectWrite(element, writtenPaths));
     } else if (value.type === 'ObjectPattern') {
       value.properties.forEach(property =>
-        collectWrite(
+        this.collectWrite(
           property.type === 'RestElement' ? property.argument : property.value,
           writtenPaths,
         ),
       );
     } else if (value.type === 'AssignmentPattern') {
-      collectWrite(value.left, writtenPaths);
+      this.collectWrite(value.left, writtenPaths);
     } else if (value.type === 'RestElement') {
-      collectWrite(value.argument, writtenPaths);
+      this.collectWrite(value.argument, writtenPaths);
     }
   }
 
-  return {
-    recordCall(call: estree.CallExpression) {
-      const amdFactory = getModuleFactory(call, hasRuntimeBinding);
-      if (amdFactory) {
-        scopeInitializers.set(amdFactory, ['define']);
-      }
-      const initializer = getScopeInitializer(call, hasRuntimeBinding);
-      if (initializer) {
-        scopeInitializers.set(initializer.factory, initializer.path);
-      }
-    },
-    recordWrite(target: estree.Node) {
-      writeTargets.push(target);
-    },
-    /** Resolve the file-wide write guard after visiting the whole file. */
-    getExcludedFactories(hasNestedFunction: (node: estree.Node) => boolean): Set<estree.Node> {
-      const excluded = new Set<estree.Node>();
-      if (scopeInitializers.size === 0) {
-        return excluded;
-      }
-      const writtenPaths: string[][] = [];
-      for (const target of writeTargets) {
-        collectWrite(target, writtenPaths);
-      }
-      const stablePaths = new Map<string, boolean>();
-      for (const [factory, path] of scopeInitializers) {
-        const key = path.join('.');
-        const stable =
-          stablePaths.get(key) ?? !writtenPaths.some(write => isPathPrefix(write, path));
-        stablePaths.set(key, stable);
-        if (stable && (path[0] === 'define' || hasNestedFunction(factory))) {
-          excluded.add(factory);
-        }
-      }
+  recordCall(call: estree.CallExpression) {
+    const amdFactory = getModuleFactory(call, this.hasRuntimeBinding);
+    if (amdFactory) {
+      this.scopeInitializers.set(amdFactory, ['define']);
+    }
+    const initializer = getScopeInitializer(call, this.hasRuntimeBinding);
+    if (initializer) {
+      this.scopeInitializers.set(initializer.factory, initializer.path);
+    }
+  }
+
+  recordWrite(target: estree.Node) {
+    this.writeTargets.push(target);
+  }
+
+  /** Resolve the file-wide write guard after visiting the whole file. */
+  getExcludedFactories(hasNestedFunction: (node: estree.Node) => boolean): Set<estree.Node> {
+    const excluded = new Set<estree.Node>();
+    if (this.scopeInitializers.size === 0) {
       return excluded;
-    },
-  };
+    }
+    const writtenPaths: string[][] = [];
+    for (const target of this.writeTargets) {
+      this.collectWrite(target, writtenPaths);
+    }
+    const stablePaths = new Map<string, boolean>();
+    for (const [factory, path] of this.scopeInitializers) {
+      const key = path.join('.');
+      const stable = stablePaths.get(key) ?? !writtenPaths.some(write => isPathPrefix(write, path));
+      stablePaths.set(key, stable);
+      if (stable && (path[0] === 'define' || hasNestedFunction(factory))) {
+        excluded.add(factory);
+      }
+    }
+    return excluded;
+  }
 }
 
 /**
