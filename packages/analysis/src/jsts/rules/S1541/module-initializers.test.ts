@@ -70,3 +70,44 @@ it('uses a file-wide write guard and a supplied runtime binding check', () => {
   boundTracker.recordCall(call);
   assert.equal(boundTracker.getExcludedFactories(() => true).has(factory), false);
 });
+
+it('checks writes only while an eligible loader path remains', () => {
+  const [callStatement, firstWrite, secondWrite] = statements(
+    'sap.ui.define([], function () {}); sap.ui = other; sap.ui.define = other',
+  );
+  let bindingChecks = 0;
+  const tracker = new ModuleInitializerTracker(() => {
+    bindingChecks++;
+    return false;
+  });
+  tracker.recordCall(callFrom(callStatement));
+  bindingChecks = 0;
+  for (const statement of [firstWrite, secondWrite]) {
+    const write = (statement as estree.ExpressionStatement)
+      .expression as estree.AssignmentExpression;
+    tracker.recordWrite(write.left);
+  }
+
+  assert.equal(tracker.getExcludedFactories(() => false).size, 0);
+  assert.equal(bindingChecks, 0);
+  assert.equal(tracker.getExcludedFactories(() => true).size, 0);
+  assert.equal(bindingChecks, 1);
+});
+
+it('keeps an unrelated loader path after a write', () => {
+  const [sapStatement, systemStatement, writeStatement] = statements(
+    'sap.ui.define([], function () {}); System.register([], function () {}); sap.ui = other',
+  );
+  const sapCall = callFrom(sapStatement);
+  const systemCall = callFrom(systemStatement);
+  const write = (writeStatement as estree.ExpressionStatement)
+    .expression as estree.AssignmentExpression;
+  const tracker = new ModuleInitializerTracker(() => false);
+  tracker.recordCall(sapCall);
+  tracker.recordCall(systemCall);
+  tracker.recordWrite(write.left);
+
+  const excluded = tracker.getExcludedFactories(() => true);
+  assert.equal(excluded.has(sapCall.arguments[1] as estree.Node), false);
+  assert.equal(excluded.has(systemCall.arguments[1] as estree.Node), true);
+});

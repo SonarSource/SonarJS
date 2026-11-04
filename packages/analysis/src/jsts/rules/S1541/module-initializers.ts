@@ -39,26 +39,40 @@ export class ModuleInitializerTracker {
 
   constructor(private readonly hasRuntimeBinding: (node: estree.Node, name: string) => boolean) {}
 
-  private collectWrite(target: estree.Node, writtenPaths: string[][]): void {
+  private invalidateWithWrite(target: estree.Node, remainingPaths: Map<string, string[]>): void {
     const value = unwrapTypeScriptValue(target);
     const path = getModuleLoaderPath(value, true);
     if (path) {
       if (!this.hasRuntimeBinding(value, path[0])) {
-        writtenPaths.push(path);
+        for (const [key, candidate] of remainingPaths) {
+          if (isPathPrefix(path, candidate)) {
+            remainingPaths.delete(key);
+          }
+        }
       }
     } else if (value.type === 'ArrayPattern') {
-      value.elements.forEach(element => element && this.collectWrite(element, writtenPaths));
+      for (const element of value.elements) {
+        if (remainingPaths.size === 0) {
+          break;
+        }
+        if (element) {
+          this.invalidateWithWrite(element, remainingPaths);
+        }
+      }
     } else if (value.type === 'ObjectPattern') {
-      value.properties.forEach(property =>
-        this.collectWrite(
+      for (const property of value.properties) {
+        if (remainingPaths.size === 0) {
+          break;
+        }
+        this.invalidateWithWrite(
           property.type === 'RestElement' ? property.argument : property.value,
-          writtenPaths,
-        ),
-      );
+          remainingPaths,
+        );
+      }
     } else if (value.type === 'AssignmentPattern') {
-      this.collectWrite(value.left, writtenPaths);
+      this.invalidateWithWrite(value.left, remainingPaths);
     } else if (value.type === 'RestElement') {
-      this.collectWrite(value.argument, writtenPaths);
+      this.invalidateWithWrite(value.argument, remainingPaths);
     }
   }
 
@@ -83,16 +97,23 @@ export class ModuleInitializerTracker {
     if (this.scopeInitializers.size === 0) {
       return excluded;
     }
-    const writtenPaths: string[][] = [];
-    for (const target of this.writeTargets) {
-      this.collectWrite(target, writtenPaths);
-    }
-    const stablePaths = new Map<string, boolean>();
+    const eligibleFactories = new Map<estree.Node, string>();
+    const remainingPaths = new Map<string, string[]>();
     for (const [factory, path] of this.scopeInitializers) {
-      const key = path.join('.');
-      const stable = stablePaths.get(key) ?? !writtenPaths.some(write => isPathPrefix(write, path));
-      stablePaths.set(key, stable);
-      if (stable && (path[0] === 'define' || hasNestedFunction(factory))) {
+      if (path[0] === 'define' || hasNestedFunction(factory)) {
+        const key = path.join('.');
+        eligibleFactories.set(factory, key);
+        remainingPaths.set(key, path);
+      }
+    }
+    for (const target of this.writeTargets) {
+      if (remainingPaths.size === 0) {
+        break;
+      }
+      this.invalidateWithWrite(target, remainingPaths);
+    }
+    for (const [factory, key] of eligibleFactories) {
+      if (remainingPaths.has(key)) {
         excluded.add(factory);
       }
     }
