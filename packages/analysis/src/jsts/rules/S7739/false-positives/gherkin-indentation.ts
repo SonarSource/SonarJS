@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { Rule } from 'eslint';
+import type { Rule, SourceCode } from 'eslint';
 import type { Node } from 'estree';
 import { ASTUtils, type TSESTree } from '@typescript-eslint/utils';
 import { findFirstMatchingAncestor, getNodeParent } from '../../helpers/ancestor.js';
@@ -26,6 +26,7 @@ import {
 import { getImportDeclarations } from '../../helpers/module.js';
 
 const GHERKIN_KEYWORDS = ['Feature', 'given', 'when', 'then'];
+const GHERKIN_IMPORT_CACHE = new WeakMap<SourceCode, boolean>();
 
 /**
  * Recognizes the `then` property in a Gherkin indentation map.
@@ -89,10 +90,16 @@ function getDirectConstObjectInitializer(
 }
 
 function hasGherkinImport(context: Rule.RuleContext): boolean {
+  const sourceCode = context.sourceCode;
+  const cached = GHERKIN_IMPORT_CACHE.get(sourceCode);
+  if (cached !== undefined) {
+    return cached;
+  }
   const hasGherkinImport = getImportDeclarations(context).some(
     declaration =>
       declaration.source.value === '@cucumber/gherkin' && !isTypeOnlyImportDeclaration(declaration),
   );
+  GHERKIN_IMPORT_CACHE.set(sourceCode, hasGherkinImport);
   return hasGherkinImport;
 }
 
@@ -103,26 +110,34 @@ function hasRequiredKeywordsWithoutLaterOverride(
   const propertyIndex = object.properties.indexOf(property);
   const keys = new Set<string>();
   for (const [index, member] of object.properties.entries()) {
-    if (member.type !== 'Property') {
-      if (index > propertyIndex) {
-        return false;
-      }
-      continue;
-    }
-    const name = ASTUtils.getPropertyName(member as TSESTree.Property);
-    if (name == null) {
-      if (index > propertyIndex) {
-        return false;
-      }
-      continue;
-    }
-    if (index > propertyIndex && name === 'then') {
+    const name = getNumericPropertyName(member, index, propertyIndex);
+    if (name === null) {
       return false;
     }
-    if (!isNumberLiteral(unwrapTypeScriptExpression(member.value))) {
-      return false;
+    if (name !== undefined) {
+      keys.add(name);
     }
-    keys.add(name);
   }
   return GHERKIN_KEYWORDS.every(keyword => keys.has(keyword));
+}
+
+function getNumericPropertyName(
+  member: Extract<Node, { type: 'Property' }> | Extract<Node, { type: 'SpreadElement' }>,
+  index: number,
+  thenIndex: number,
+): string | undefined | null {
+  if (member.type !== 'Property') {
+    return index <= thenIndex ? undefined : null;
+  }
+  const name = ASTUtils.getPropertyName(member as TSESTree.Property);
+  if (name == null) {
+    return index <= thenIndex ? undefined : null;
+  }
+  if (
+    (index > thenIndex && name === 'then') ||
+    !isNumberLiteral(unwrapTypeScriptExpression(member.value))
+  ) {
+    return null;
+  }
+  return name;
 }
