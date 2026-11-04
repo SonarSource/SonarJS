@@ -64,7 +64,9 @@ export function prepareIncrementalContext(
 /** This marker confirms successful persistence, not filesystem completeness. */
 export function writeSnapshotManifest(request: AnalyzeProjectProtoRequest): void {
   const file = request.filesystemCache?.snapshotManifestPath;
-  if (!file || request.filesystemCache?.mode !== RECORD) return;
+  if (!file || request.filesystemCache?.mode !== RECORD) {
+    return;
+  }
   nativeFs.mkdirSync(path.dirname(file), { recursive: true });
   writeFileWithNativePrimitives(
     file,

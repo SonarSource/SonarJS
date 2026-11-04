@@ -78,7 +78,9 @@ export function hasArchivedFileContent(fileName: string): boolean {
 /** Retain prior observations for publication without consulting the project filesystem. */
 export function seedFilesystemBaseline(archivePath: string): FsCacheArchive {
   const current = requireActiveArchive();
-  if (current.mode !== 'record') throw new Error('Only recording can reuse a filesystem baseline');
+  if (current.mode !== 'record') {
+    throw new Error('Only recording can reuse a filesystem baseline');
+  }
   const baseline = new FsCacheArchive({
     archivePath,
     rootDir: current.rootDir,
@@ -374,7 +376,9 @@ function createExecutor(archive: ArchiveFacade) {
     operation: string,
     decode: (value: TStored) => TResult = value => value as unknown as TResult,
   ): TResult | typeof MISSING {
-    if (archive.mode !== 'replay') return MISSING;
+    if (archive.mode !== 'replay') {
+      return MISSING;
+    }
     const key =
       typeof input === 'number' || (typeof input === 'object' && 'fd' in input)
         ? undefined
@@ -1613,7 +1617,9 @@ function createOpenPatches(archive: ArchiveFacade, fileDescriptors: FileDescript
   }
 
   function replayOpen(input: fs.PathLike, operation: string): ReplayOpenResult {
-    if (archive.mode !== 'replay') return { found: false };
+    if (archive.mode !== 'replay') {
+      return { found: false };
+    }
     const key = archive.keyFor(input);
     if (key === undefined) {
       if (archive.blocksNativeRead(input)) {

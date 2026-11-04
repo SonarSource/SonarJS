@@ -159,7 +159,9 @@ function endAnalysisSessions(
     warn(`Could not persist SonarJS analysis metadata: ${error}`);
   } finally {
     try {
-      if (filesystemCacheSession?.end() === false) persisted = false;
+      if (filesystemCacheSession?.end() === false) {
+        persisted = false;
+      }
     } catch (error) {
       persisted = false;
       warn(`Could not persist SonarJS filesystem context: ${error}`);
@@ -358,6 +360,61 @@ async function analyzeNormalizedProject(
   return { output, pathMap: input.pathMap };
 }
 
+function recordFilteredFiles(
+  request: AnalyzeProjectProtoRequest,
+  input: Awaited<ReturnType<typeof normalizeAnalyzeProjectRequest>>,
+  programSelection: ProgramSelectionArchive,
+): void {
+  const suffixes = getJsTsConfigFields(input.configuration).shouldIgnoreParams;
+  for (const file of Object.keys(request.files ?? {})) {
+    const normalized = normalizeToAbsolutePath(file, input.configuration.baseDir);
+    // Filtering is an explicit no-program outcome too. It must not suppress the
+    // complete project context or silently drop supplied source contents.
+    if (!input.pathMap.has(normalized) && isJsTsFile(normalized, suffixes)) {
+      programSelection.recordNoProgram(normalized);
+    }
+  }
+}
+
+function removeSnapshotManifest(request: AnalyzeProjectProtoRequest): void {
+  const marker = request.filesystemCache?.snapshotManifestPath;
+  if (!marker) {
+    return;
+  }
+  try {
+    nativeFs.unlinkSync(marker);
+  } catch {
+    // Preserve the original publication error reported by the caller.
+  }
+}
+
+function completeContextRecording(
+  request: AnalyzeProjectProtoRequest,
+  sessions: AnalysisSessions,
+  baselineAvailable: boolean,
+  completed: boolean,
+): void {
+  const persisted = endAnalysisSessions(sessions.programSelection, sessions.filesystemCacheSession);
+  if (
+    !completed ||
+    !persisted ||
+    !sessions.programSelection ||
+    !sessions.filesystemCacheSession ||
+    !baselineAvailable
+  ) {
+    return;
+  }
+  try {
+    writeSnapshotManifest(request);
+  } catch (error) {
+    // A completion marker must never survive a failed publication attempt.
+    removeSnapshotManifest(request);
+    warn(
+      `Could not complete SonarJS context recording; analysis succeeded without context: ${error}`,
+    );
+  }
+}
+
 async function handleProjectAnalysis(
   request: AnalyzeProjectProtoRequest,
   workerData: WorkerData,
@@ -380,7 +437,9 @@ async function handleProjectAnalysis(
     try {
       beginAnalysisSessions(request, cacheMode, sessions);
     } catch (error) {
-      if (cacheMode !== 'record' || error instanceof InvalidAnalyzeProjectRequestError) throw error;
+      if (cacheMode !== 'record' || error instanceof InvalidAnalyzeProjectRequestError) {
+        throw error;
+      }
       warn(`Could not initialize SonarJS context recording; continuing without context: ${error}`);
       endAnalysisSessions(sessions.programSelection, sessions.filesystemCacheSession);
       sessions.programSelection = undefined;
@@ -417,15 +476,7 @@ async function handleProjectAnalysis(
         : undefined;
       const input = await normalizeProjectInput(request, cacheMode, sessions);
       if (cacheMode === 'record' && sessions.programSelection) {
-        const suffixes = getJsTsConfigFields(input.configuration).shouldIgnoreParams;
-        for (const file of Object.keys(request.files ?? {})) {
-          const normalized = normalizeToAbsolutePath(file, input.configuration.baseDir);
-          // Filtering is an explicit no-program outcome too. It must not suppress the
-          // complete project context or silently drop supplied source contents.
-          if (!input.pathMap.has(normalized) && isJsTsFile(normalized, suffixes)) {
-            sessions.programSelection.recordNoProgram(normalized);
-          }
-        }
+        recordFilteredFiles(request, input, sessions.programSelection);
       }
       const onContextFailure =
         sessions.filesystemCacheSession?.mode === 'replay'
@@ -459,36 +510,12 @@ async function handleProjectAnalysis(
       };
     });
   } finally {
-    const persisted = endAnalysisSessions(
-      sessions.programSelection,
-      sessions.filesystemCacheSession,
+    completeContextRecording(
+      request,
+      sessions,
+      incrementalContext?.baselineAvailable ?? false,
+      completed,
     );
-    if (
-      completed &&
-      persisted &&
-      sessions.programSelection &&
-      sessions.filesystemCacheSession &&
-      incrementalContext
-    ) {
-      try {
-        if (incrementalContext.baselineAvailable) {
-          writeSnapshotManifest(request);
-        }
-      } catch (error) {
-        // A completion marker must never survive a failed publication attempt.
-        const marker = request.filesystemCache?.snapshotManifestPath;
-        if (marker) {
-          try {
-            nativeFs.unlinkSync(marker);
-          } catch {
-            // Preserve the original publication error reported below.
-          }
-        }
-        warn(
-          `Could not complete SonarJS context recording; analysis succeeded without context: ${error}`,
-        );
-      }
-    }
   }
 }
 
