@@ -342,6 +342,42 @@ describe('IncrementalCompilerHost', () => {
       }
     });
 
+    it('shares ASTs between real programs only when module-detection settings match', () => {
+      const directory = normalizeToAbsolutePath(
+        mkdtempSync(path.join(os.tmpdir(), 'host-modules-')),
+      );
+      const file = path.join(directory, 'script.ts');
+      writeFileSync(file, 'const value = 1;');
+      setSourceFilesContext({});
+      try {
+        const cases: [ts.CompilerOptions, boolean][] = [
+          [{ moduleDetection: ts.ModuleDetectionKind.Legacy }, false],
+          [{ moduleDetection: ts.ModuleDetectionKind.Auto }, false],
+          [{ moduleDetection: ts.ModuleDetectionKind.Force }, true],
+          [{ module: ts.ModuleKind.ESNext }, false],
+          [{ module: ts.ModuleKind.NodeNext }, true],
+        ];
+        const sources = cases.map(([settings, isModule]) => {
+          const options = { ...settings, noLib: true, types: [] };
+          const create = () =>
+            ts
+              .createProgram({
+                rootNames: [file],
+                options,
+                host: new IncrementalCompilerHost(options, directory),
+              })
+              .getSourceFile(file)!;
+          const first = create();
+          expect(ts.isExternalModule(first)).toBe(isModule);
+          expect(create()).toBe(first);
+          return first;
+        });
+        expect(new Set(sources).size).toBe(cases.length);
+      } finally {
+        rmSync(directory, { recursive: true, force: true });
+      }
+    });
+
     it('preserves source-file module format and conditional exports under NodeNext', () => {
       const directory = normalizeToAbsolutePath(
         mkdtempSync(path.join(os.tmpdir(), 'host-nodenext-')),
