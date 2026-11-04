@@ -42,7 +42,7 @@ export function isGherkinIndentationMap(context: Rule.RuleContext, node: Node): 
     property?.type !== 'Property' ||
     property.key !== node ||
     property.kind !== 'init' ||
-    !isNumberLiteral(property.value)
+    !isNumberLiteral(unwrapTypeScriptExpression(property.value))
   ) {
     return false;
   }
@@ -78,17 +78,23 @@ export function isGherkinIndentationMap(context: Rule.RuleContext, node: Node): 
   const propertyIndex = object.properties.indexOf(property);
   const keys = new Set<string>();
   for (const [index, member] of object.properties.entries()) {
-    if (member.type !== 'Property' || member.computed) {
+    if (member.type !== 'Property') {
       if (index > propertyIndex) {
         return false;
       }
       continue;
     }
     const name = ASTUtils.getPropertyName(member as TSESTree.Property);
-    if (name == null || (index > propertyIndex && name === 'then')) {
+    if (name == null) {
+      if (index > propertyIndex) {
+        return false;
+      }
+      continue;
+    }
+    if (index > propertyIndex && name === 'then') {
       return false;
     }
-    if (!isNumberLiteral(member.value)) {
+    if (!isNumberLiteral(unwrapTypeScriptExpression(member.value))) {
       return false;
     }
     keys.add(name);

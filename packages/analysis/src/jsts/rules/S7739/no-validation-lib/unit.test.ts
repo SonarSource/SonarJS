@@ -1341,10 +1341,19 @@ describe('S7739', () => {
           `const indentation = ({ Feature: 0, given: 2, when: 2, then: 2 }) satisfies Record<string, number>;`,
           `const indentation = <Record<string, number>>{ Feature: 0, given: 2, when: 2, then: 2 };`,
           `const indentation = (({ Feature: 0, given: 2, when: 2, then: 2 }) as const) satisfies Record<string, number>;`,
+          `const indentation = { Feature: 0, given: 2, when: 2, then: 2 as const };`,
+          `const indentation = { Feature: 0, given: 2, when: 2, then: 2 satisfies number };`,
+          `const indentation = { Feature: 0 as const, given: 2, when: 2, then: 2 };`,
+          `const indentation = { ['Feature']: 0, given: 2, when: 2, then: 2 };`,
+          `const indentation = { Feature: 0, given: 2, when: 2, ['then']: 2 };`,
         ].map(code => ({
           code: `import { dialects } from '@cucumber/gherkin'; ${code}`,
           filename: tsTestFilePath,
         })),
+        {
+          code: `import '@cucumber/gherkin'; const indentation = { Feature: 0, given: 2, when: 2, then: 2 };`,
+          filename: tsTestFilePath,
+        },
         {
           code: `
           class CustomPromiseLike implements PromiseLike<string> {
@@ -1413,6 +1422,14 @@ describe('S7739', () => {
         })),
         {
           code: `import { dialects } from '@cucumber/gherkin'; const indentation = { Feature: 0, given: 2, when: 2, then: 2, then: callback };`,
+          filename: tsTestFilePath,
+          errors: [
+            { messageId: NO_THENABLE_OBJECT_ERROR },
+            { messageId: NO_THENABLE_OBJECT_ERROR },
+          ],
+        },
+        {
+          code: `import { dialects } from '@cucumber/gherkin'; const indentation = { Feature: 0, given: 2, when: 2, then: 2, ['then']: callback };`,
           filename: tsTestFilePath,
           errors: [
             { messageId: NO_THENABLE_OBJECT_ERROR },
