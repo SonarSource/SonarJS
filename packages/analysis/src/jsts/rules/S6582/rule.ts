@@ -21,6 +21,7 @@ import ts from 'typescript';
 import { rules as tsEslintRules } from '../external/typescript-eslint/index.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
+import { isStrictNullChecksEnabled } from '../helpers/compiler-options.js';
 import * as meta from './generated-meta.js';
 
 /**
@@ -59,8 +60,7 @@ function findReportNode(
   const startIndex = ctx.sourceCode.getIndexFromLoc(loc.start);
   const endIndex = ctx.sourceCode.getIndexFromLoc(loc.end);
   let node = ctx.sourceCode.getNodeByRangeIndex(startIndex) as
-    | (Rule.Node & { range: [number, number] })
-    | null;
+    (Rule.Node & { range: [number, number] }) | null;
   if (!node) {
     ctx.report(descriptor);
     return null;
@@ -135,9 +135,13 @@ export const rule: Rule.RuleModule = {
 
     // Without strictNullChecks, null and undefined are implicitly assignable to every type.
     // Any reasoning about whether undefined is safe to introduce is meaningless in that mode.
-    // `strict: true` implies strictNullChecks but does not materialize it as an explicit property.
     const compilerOptions = services.program.getCompilerOptions();
-    if (!compilerOptions.strictNullChecks && !compilerOptions.strict) {
+    const hasConfiguredStrictness =
+      compilerOptions.strictNullChecks != null || compilerOptions.strict != null;
+    const useContextualChecks = isStrictNullChecksEnabled(compilerOptions);
+    const isJavaScript = /\.[cm]?jsx?$/.test(context.filename);
+    // Keep upstream behavior for JavaScript without an explicit strict setting.
+    if (!useContextualChecks || (isJavaScript && !hasConfiguredStrictness)) {
       return preferOptionalChainRule.create(context);
     }
 
@@ -171,6 +175,18 @@ export const rule: Rule.RuleModule = {
       return checker.getTypeAtLocation(tsNode);
     }
 
+    function guardCanReturnNull(node: Rule.Node): boolean {
+      if (node.type !== 'LogicalExpression') {
+        return false;
+      }
+      const guardType = getTypeOfNode(node.left as Rule.Node);
+      if (guardType == null) {
+        return false;
+      }
+      const types = guardType.isUnion() ? guardType.types : [guardType];
+      return types.some(type => (type.flags & ts.TypeFlags.Null) !== 0);
+    }
+
     // Resolves the type as declared at the symbol's declaration site, bypassing
     // narrowing that the surrounding null-guard chain applies at the use site.
     function getDeclaredTypeOfObject(node: Rule.Node): ts.Type | null {
@@ -195,6 +211,29 @@ export const rule: Rule.RuleModule = {
         current = current.parent;
       }
       return current;
+    }
+
+    function isGuardAbsorbedByCallArgumentFallback(node: Rule.Node): boolean {
+      const subject = getContextualTypeSubject(node);
+      const call = subject.parent;
+      if (call?.type !== 'CallExpression' || !call.arguments.includes(subject as never)) {
+        return false;
+      }
+
+      let current: Rule.Node = node;
+      while (current !== subject && current.parent?.type === 'LogicalExpression') {
+        const parent: Rule.Node = current.parent;
+        // The fallback consumes undefined from the proposed optional chain.
+        if (
+          parent.type === 'LogicalExpression' &&
+          parent.left === current &&
+          (parent.operator === '||' || parent.operator === '??')
+        ) {
+          return true;
+        }
+        current = parent;
+      }
+      return false;
     }
 
     function hasTypeUnsafeContextualType(node: Rule.Node) {
@@ -247,6 +286,10 @@ export const rule: Rule.RuleModule = {
         return false;
       }
 
+      if (isGuardAbsorbedByCallArgumentFallback(node)) {
+        return false;
+      }
+
       const contextualType = getContextualTypeOfNode(subject);
       return contextualType != null && !allowsUndefined(contextualType);
     }
@@ -274,16 +317,22 @@ export const rule: Rule.RuleModule = {
       return targetType != null && !allowsUndefined(targetType);
     }
 
-    // Records source text of null-guarded subjects: `!x` in || chains, bare `x` in && chains.
-    // Source text covers identifier, `this.prop`, and `ref.current`-style member subjects.
+    // Record subjects that are still nullable where their guard is evaluated.
     function collectGuardedSubjects(node: Rule.Node, subjects: Set<string>): void {
+      let guardedNode: Rule.Node;
       if (node.type === 'UnaryExpression' && node.operator === '!') {
-        subjects.add(context.sourceCode.getText(node.argument as Rule.Node));
+        guardedNode = node.argument as Rule.Node;
       } else if (node.type === 'LogicalExpression') {
         collectGuardedSubjects(node.left as Rule.Node, subjects);
         collectGuardedSubjects(node.right as Rule.Node, subjects);
+        return;
       } else {
-        subjects.add(context.sourceCode.getText(node));
+        guardedNode = node;
+      }
+
+      const type = getTypeOfNode(guardedNode);
+      if (type != null && allowsNullOrUndefined(type)) {
+        subjects.add(context.sourceCode.getText(guardedNode));
       }
     }
 
@@ -337,6 +386,13 @@ export const rule: Rule.RuleModule = {
      * into the surrounding context. All other cases are reported by default.
      */
     function isKnownFalsePositive(node: Rule.Node): boolean {
+      if (matchesMultipleNullableSubjectsFalsePositive(node)) {
+        return true;
+      }
+      // In implicit strict mode, require a null guard before contextual-type suppressions.
+      if (!hasConfiguredStrictness && !guardCanReturnNull(node)) {
+        return false;
+      }
       if (matchesFunctionReturnFalsePositive(node)) {
         return true;
       }
@@ -357,10 +413,6 @@ export const rule: Rule.RuleModule = {
         return true;
       }
 
-      if (matchesMultipleNullableSubjectsFalsePositive(node)) {
-        return true;
-      }
-
       return false;
     }
 
@@ -376,6 +428,8 @@ export const rule: Rule.RuleModule = {
 
       const parent = node.parent;
       if (
+        hasConfiguredStrictness &&
+        !isGuardAbsorbedByCallArgumentFallback(node) &&
         parent?.type === 'LogicalExpression' &&
         (parent.operator === '||' || parent.operator === '??') &&
         parent.left === node

@@ -1,3 +1,6 @@
 {
-  "compilerOptions": {}
+  "compilerOptions": {
+    "strict": true,
+    "strictNullChecks": false
+  }
 }

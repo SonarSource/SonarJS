@@ -184,13 +184,28 @@ describe('S6582 with strict: true (no explicit strictNullChecks)', () => {
           filename: path.join(import.meta.dirname, 'fixtures/strict-mode/index.ts'),
           errors: 1,
         },
+        {
+          code: `function use(x: number) {} function f(arr: string[] | null) { use((arr && arr.length) || 0); }`,
+          filename: path.join(import.meta.dirname, 'fixtures/strict-mode/index.ts'),
+          errors: [
+            {
+              messageId: 'preferOptionalChain',
+              suggestions: [
+                {
+                  desc: 'Change to an optional chain.',
+                  output: `function use(x: number) {} function f(arr: string[] | null) { use((arr?.length) || 0); }`,
+                },
+              ],
+            },
+          ],
+        },
       ],
     });
   });
 });
 
 describe('S6582 without strictNullChecks', () => {
-  it('reports when strictNullChecks is disabled — null/undefined type reasoning is not meaningful', () => {
+  it('delegates when strictNullChecks is false despite strict: true', () => {
     const ruleTester = new RuleTester({
       parserOptions: {
         project: './tsconfig.json',
@@ -201,13 +216,136 @@ describe('S6582 without strictNullChecks', () => {
       valid: [],
       invalid: [
         {
-          // Without strictNullChecks, undefined is implicitly assignable to all types,
-          // so suppressing based on contextual type is not meaningful
+          // The explicit strictNullChecks override disables contextual checks.
           code: `function getLen(arr: string[] | null): number | null { return arr && arr.length; }`,
           filename: path.join(import.meta.dirname, 'fixtures/no-strict-null-checks/index.ts'),
           errors: 1,
         },
       ],
+    });
+  });
+});
+
+describe('S6582 with implicit TypeScript 6 strictNullChecks', () => {
+  it('suppresses null guards and keeps valid reports without unsafe fixes', () => {
+    const fixtureDir = path.join(import.meta.dirname, 'fixtures/implicit-strict');
+    const filename = path.join(fixtureDir, 'index.ts');
+    const ruleTester = new RuleTester({
+      parserOptions: { project: './tsconfig.json', tsconfigRootDir: fixtureDir },
+    });
+    ruleTester.run('S6582 implicit strict null checks', rule, {
+      valid: [
+        {
+          code: `function getLen(arr: string[] | null): number | null { return arr && arr.length; }`,
+          filename,
+        },
+        {
+          code: `function f(a: string[] | null, b: string[] | null) { if (!a || !b || a.length !== b.length) {} }`,
+          filename,
+        },
+        {
+          code: `function use(x: number | null) {} function f(arr: string[] | null, flag: number | null) { use(flag || (arr && arr.length)); }`,
+          filename,
+        },
+      ],
+      invalid: [
+        {
+          code: `function f(arr: string[] | null) { if (arr && arr.length) {} }`,
+          filename,
+          errors: 1,
+        },
+        {
+          code: `function f(a: string[] | null, b: string[] | null) { if (!a || !b) return; if (!a || !b || a.length !== b.length) {} }`,
+          filename,
+          output: null,
+          errors: 1,
+        },
+        {
+          code: `function use(x: number) {} function f(arr: string[] | null) { use((arr && arr.length) ?? 0); }`,
+          filename,
+          errors: [
+            {
+              messageId: 'preferOptionalChain',
+              suggestions: [
+                {
+                  desc: 'Change to an optional chain.',
+                  output: `function use(x: number) {} function f(arr: string[] | null) { use((arr?.length) ?? 0); }`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `function use(x: number | null) {} function f(arr: string[] | null, flag: number | null) { use(flag || ((arr && arr.length) ?? 0)); }`,
+          filename,
+          errors: [
+            {
+              messageId: 'preferOptionalChain',
+              suggestions: [
+                {
+                  desc: 'Change to an optional chain.',
+                  output: `function use(x: number | null) {} function f(arr: string[] | null, flag: number | null) { use(flag || ((arr?.length) ?? 0)); }`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `interface Node { parent?: Node } function parent(node: Node): Node { return node && node.parent; }`,
+          filename,
+          output: `interface Node { parent?: Node } function parent(node: Node): Node { return node?.parent; }`,
+          errors: 1,
+        },
+        {
+          code: `function f(x: number | null, y: object): string { return (y && (x && x.toString())) || 'none'; }`,
+          filename,
+          output: null,
+          errors: 1,
+        },
+        {
+          code: `function f(x: { name: string }, y: object | null): string { return (y && (x && x.name)) || 'none'; }`,
+          filename,
+          errors: 1,
+        },
+      ],
+    });
+  });
+});
+
+describe('S6582 JavaScript with implicit TypeScript 6 strictNullChecks', () => {
+  it('keeps upstream behavior when strict options are absent', () => {
+    const fixtureDir = path.join(import.meta.dirname, 'fixtures/implicit-strict-js');
+    const ruleTester = new RuleTester({
+      parserOptions: { project: './tsconfig.json', tsconfigRootDir: fixtureDir },
+    });
+    ruleTester.run('S6582 JavaScript implicit strict null checks', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: `var counts; function getCount(name) { return (counts && counts.get(name)) || 0; }`,
+          filename: path.join(fixtureDir, 'index.js'),
+          output: `var counts; function getCount(name) { return (counts?.get(name)) || 0; }`,
+          errors: 1,
+        },
+      ],
+    });
+  });
+});
+
+describe('S6582 JavaScript with explicit strictNullChecks', () => {
+  it('keeps the existing contextual check', () => {
+    const fixtureDir = path.join(import.meta.dirname, 'fixtures/explicit-strict-js');
+    const ruleTester = new RuleTester({
+      parserOptions: { project: './tsconfig.json', tsconfigRootDir: fixtureDir },
+    });
+    ruleTester.run('S6582 JavaScript explicit strict null checks', rule, {
+      valid: [
+        {
+          code: `/** @param {string[] | null} arr @returns {number | null} */ function getLen(arr) { return arr && arr.length; }`,
+          filename: path.join(fixtureDir, 'index.js'),
+        },
+      ],
+      invalid: [],
     });
   });
 });
@@ -239,6 +377,12 @@ describe('S6582 with multiple nullable subjects in comparison', () => {
         },
       ],
       invalid: [
+        {
+          code: `function f(a: string[] | null, b: string[] | null) { if (!a || !b) return; if (!a || !b || a.length !== b.length) {} }`,
+          filename: fixtureFile,
+          output: null,
+          errors: 1,
+        },
         {
           // Only one nullable subject (a): upstream still reports, but binary-operator rewrites are
           // suggestion-only starting with typescript-eslint 8.62.1.
