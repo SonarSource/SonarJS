@@ -427,6 +427,30 @@ describe('S7739', () => {
         `,
           filename: testFilePath,
         },
+        {
+          code: `const schema = { if: {}, ...extra, then: {} };`,
+          filename: testFilePath,
+        },
+        {
+          code: `const schema = { if: {}, then: {}, ...extra, then: 2 };`,
+          filename: testFilePath,
+        },
+        {
+          code: `const schema = { if: {}, then: {}, [key]: callback, ['then']: {} };`,
+          filename: testFilePath,
+        },
+        {
+          code: `const KEY = 'then'; const schema = { if: {}, then: {}, ...extra, [KEY]: {} };`,
+          filename: testFilePath,
+        },
+        {
+          code: `const KEY = 'other'; const schema = { if: {}, then: {}, [KEY]: callback };`,
+          filename: testFilePath,
+        },
+        {
+          code: `const schema = { if: {}, then: {}, then() {}, catch() {} };`,
+          filename: testFilePath,
+        },
         // JSON Schema {if, then, else} conditional construct
         {
           code: `
@@ -618,6 +642,42 @@ describe('S7739', () => {
         },
       ],
       invalid: [
+        ...[
+          `const schema = { if: {}, then: {}, ...extra };`,
+          `const schema = { if: {}, then: {}, [key]: callback };`,
+          `const schema = { if: {}, ['then']: {}, ...extra };`,
+          `const schema = { if: {}, then: {}, ...extra, other: 1 };`,
+          `const schema = { if: {}, then: {}, ...extra, inner: { if: {}, then: {} } };`,
+          `const schema = { if: {}, then: {}, nested: { then: callback } };`,
+        ].map(code => ({
+          code,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        })),
+        {
+          code: `const KEY = 'then'; const schema = { if: {}, then: {}, [KEY]: callback };`,
+          filename: testFilePath,
+          errors: [
+            { messageId: NO_THENABLE_OBJECT_ERROR },
+            { messageId: NO_THENABLE_OBJECT_ERROR },
+          ],
+        },
+        {
+          code: `const schema = { if: {}, then: {}, then: callback };`,
+          filename: testFilePath,
+          errors: [
+            { messageId: NO_THENABLE_OBJECT_ERROR },
+            { messageId: NO_THENABLE_OBJECT_ERROR },
+          ],
+        },
+        {
+          code: `const KEY = 'then'; const schema = { if: {}, [KEY]: {}, then: callback };`,
+          filename: testFilePath,
+          errors: [
+            { messageId: NO_THENABLE_OBJECT_ERROR },
+            { messageId: NO_THENABLE_OBJECT_ERROR },
+          ],
+        },
         {
           code: `const schema = { then: function() { return this; } };`,
           filename: testFilePath,

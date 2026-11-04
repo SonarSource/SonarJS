@@ -26,6 +26,7 @@ import {
 import { getNodeParent } from '../../helpers/ancestor.js';
 import { isGlobalShadowed } from '../../helpers/module.js';
 import { collectPropertyNames, getAncestorsWithParent } from '../helpers.js';
+import { hasPossiblyReplacedDataThen } from './overridden-data-then.js';
 
 // Matches the contract names used by JSDoc `@implements` annotations and TypeScript
 // `implements` heritage clauses to declare an intentional thenable implementation.
@@ -597,14 +598,18 @@ function hasSiblingThenableMethods(node: Node): boolean {
  * Checks if 'then' is inside an object that also has an 'if' sibling property,
  * indicating a JSON Schema conditional validation construct ({if, then, else}).
  */
-function isJsonSchemaConditional(node: Node): boolean {
+function isJsonSchemaConditional(context: Rule.RuleContext, node: Node): boolean {
   const ancestors = getAncestorsWithParent(node);
   const objectExpr = ancestors.find(a => a.type === 'ObjectExpression');
   if (objectExpr?.type !== 'ObjectExpression') {
     return false;
   }
   const propertyNames = collectPropertyNames(objectExpr);
-  return propertyNames.has('then') && propertyNames.has('if');
+  return (
+    propertyNames.has('then') &&
+    propertyNames.has('if') &&
+    !hasPossiblyReplacedDataThen(context, node)
+  );
 }
 
 /**
@@ -764,7 +769,7 @@ export function isIntentionalThenableImplementation(
     isConstFactoryResult(context, node) ||
     isPrototypeThenAssignment(node) ||
     hasSiblingThenableMethods(node) ||
-    isJsonSchemaConditional(node) ||
+    isJsonSchemaConditional(context, node) ||
     isInterfaceShapeDescriptor(node) ||
     isClassThenMethodWithThenableContract(context, node)
   );
