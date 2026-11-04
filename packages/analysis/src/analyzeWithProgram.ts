@@ -265,7 +265,9 @@ async function analyzeFilesFromEntryPoint(
       if (isAnalysisCancelled()) {
         return;
       }
-      if (!pendingFiles.has(fileName)) continue;
+      if (!pendingFiles.has(fileName)) {
+        continue;
+      }
 
       await analyzeFile(
         fileName,

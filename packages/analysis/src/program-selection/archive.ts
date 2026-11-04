@@ -166,7 +166,9 @@ export class ProgramSelectionArchive {
   }
 
   seedFrom(archivePath: string, contextMetadata: string): void {
-    if (!this.isRecord()) throw new Error('Only recording can reuse a sensor-cache baseline');
+    if (!this.isRecord()) {
+      throw new Error('Only recording can reuse a sensor-cache baseline');
+    }
     const baseline = new ProgramSelectionArchive(
       archivePath,
       this.baseDir,
@@ -182,7 +184,9 @@ export class ProgramSelectionArchive {
     for (const [id, stored] of baseline.programs) {
       this.nextProgramId = Math.max(this.nextProgramId, id + 1);
       this.programs.set(id, stored);
-      if (isConfigured(stored.program)) this.configuredProgramIds.set(stored.program.tsconfig, id);
+      if (isConfigured(stored.program)) {
+        this.configuredProgramIds.set(stored.program.tsconfig, id);
+      }
     }
     for (const [file, id] of baseline.selections) {
       this.storeSelection(file, id);
@@ -199,12 +203,18 @@ export class ProgramSelectionArchive {
     const pending = new Set(pendingFiles.map(file => canonicalFileName(file)));
     const roots = new Map(pendingFiles.map(file => [canonicalFileName(file), file]));
     for (const group of this.baselineOrphanGroups) {
-      if (!group.some(file => pending.has(canonicalFileName(file)))) continue;
+      if (!group.some(file => pending.has(canonicalFileName(file)))) {
+        continue;
+      }
       for (const file of group) {
-        if (this.hasNoProgram(file)) continue;
+        if (this.hasNoProgram(file)) {
+          continue;
+        }
         const selectedId = this.selections.get(this.canonicalRequestedFile(file));
         const selected = selectedId === undefined ? undefined : this.programs.get(selectedId);
-        if (selected && isConfigured(selected.program)) continue;
+        if (selected && isConfigured(selected.program)) {
+          continue;
+        }
         roots.set(canonicalFileName(file), file);
       }
     }
@@ -389,7 +399,9 @@ export class ProgramSelectionArchive {
 
   /** Actual analysis outcomes replace inherited metadata without validating cached files. */
   private replaceInheritedOutcome(file: NormalizedAbsolutePath): void {
-    if (!this.inheritedOutcomes.delete(canonicalFileName(file))) return;
+    if (!this.inheritedOutcomes.delete(canonicalFileName(file))) {
+      return;
+    }
     const original = this.canonicalRequestedFile(file);
     const previousId = this.selections.get(original);
     if (previousId !== undefined) {

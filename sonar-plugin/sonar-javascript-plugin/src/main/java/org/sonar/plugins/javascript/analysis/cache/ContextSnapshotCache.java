@@ -70,20 +70,30 @@ public final class ContextSnapshotCache {
   }
 
   public static Optional<Snapshot> restore(SensorContext context, Path directory) {
-    if (!enabled(context)) return Optional.empty();
+    if (!enabled(context)) {
+      return Optional.empty();
+    }
     try {
       var cache = context.previousCache();
-      if (!cache.contains(key())) return Optional.empty();
+      if (!cache.contains(key())) {
+        return Optional.empty();
+      }
       try (var stream = cache.read(key())) {
-        if (stream == null) throw new IOException("Missing context snapshot stream");
+        if (stream == null) {
+          throw new IOException("Missing context snapshot stream");
+        }
         var input = new DataInputStream(stream);
-        if (input.readInt() != MAGIC) throw new IOException("Unsupported context snapshot format");
+        if (input.readInt() != MAGIC) {
+          throw new IOException("Unsupported context snapshot format");
+        }
         int metadataSize = input.readInt();
-        if (metadataSize < 0 || metadataSize > 16 * 1024 * 1024) throw new IOException(
-          "Invalid context metadata size"
-        );
+        if (metadataSize < 0 || metadataSize > 16 * 1024 * 1024) {
+          throw new IOException("Invalid context metadata size");
+        }
         var bytes = input.readNBytes(metadataSize);
-        if (bytes.length != metadataSize) throw new EOFException("Truncated context metadata");
+        if (bytes.length != metadataSize) {
+          throw new EOFException("Truncated context metadata");
+        }
         String metadata = new String(bytes, StandardCharsets.UTF_8);
         Files.createDirectories(directory);
         Path archive = directory.resolve("archive.pb.gz");
@@ -104,7 +114,9 @@ public final class ContextSnapshotCache {
         } finally {
           Files.deleteIfExists(compressedManifest);
         }
-        if (input.read() != -1) throw new IOException("Unexpected context snapshot data");
+        if (input.read() != -1) {
+          throw new IOException("Unexpected context snapshot data");
+        }
         return Optional.of(new Snapshot(archive, analysisMetadata, manifest, metadata));
       }
     } catch (IOException | RuntimeException e) {
@@ -118,12 +130,16 @@ public final class ContextSnapshotCache {
 
   private static void restoreItem(DataInputStream input, Path file) throws IOException {
     long length = input.readLong();
-    if (length <= 0) throw new IOException("Invalid context snapshot item size");
+    if (length <= 0) {
+      throw new IOException("Invalid context snapshot item size");
+    }
     try (var output = Files.newOutputStream(file)) {
       byte[] buffer = new byte[8192];
       while (length > 0) {
         int count = input.read(buffer, 0, (int) Math.min(length, buffer.length));
-        if (count < 0) throw new EOFException("Truncated context snapshot");
+        if (count < 0) {
+          throw new EOFException("Truncated context snapshot");
+        }
         output.write(buffer, 0, count);
         length -= count;
       }
@@ -131,7 +147,9 @@ public final class ContextSnapshotCache {
   }
 
   public static void write(SensorContext context, Snapshot snapshot) {
-    if (!enabled(context)) return;
+    if (!enabled(context)) {
+      return;
+    }
     try {
       Path compressedManifest = Files.createTempFile(
         snapshot.manifest().toAbsolutePath().getParent(),

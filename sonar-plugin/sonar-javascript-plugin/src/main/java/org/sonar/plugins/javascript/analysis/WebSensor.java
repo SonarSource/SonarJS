@@ -544,6 +544,11 @@ public class WebSensor implements ProjectSensor {
         .addAllCssRules(
           cssRules.getStylelintRules().stream().map(AnalyzeProjectMessages::toProtoRule).toList()
         );
+      addFilesystemCacheToRequest(request);
+      return request.build();
+    }
+
+    private void addFilesystemCacheToRequest(AnalyzeProjectRequest.Builder request) {
       if (filesystemCacheArchivePath != null) {
         var filesystemCache = FilesystemCache.newBuilder()
           .setArchivePath(filesystemCacheArchivePath.toString())
@@ -571,7 +576,6 @@ public class WebSensor implements ProjectSensor {
         }
         request.setFilesystemCache(filesystemCache);
       }
-      return request.build();
     }
 
     private void addInputFilesToRequest(Map<String, ProjectFileInput> files) throws IOException {
