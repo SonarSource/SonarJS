@@ -109,6 +109,7 @@ public class WebSensor implements ProjectSensor {
   private ContextSnapshotCache.Snapshot snapshotBaseline;
 
   private boolean recordFilesystemCache;
+  private boolean reusedCachedAnalysis;
   private ReplayProjectPaths replayProjectPaths;
   FSListener fsListener;
 
@@ -240,6 +241,7 @@ public class WebSensor implements ProjectSensor {
     analysisMetadataPath = null;
     contextMetadata = null;
     recordFilesystemCache = false;
+    reusedCachedAnalysis = false;
     snapshotManifestPath = null;
     snapshotBaseline = null;
     replayProjectPaths = null;
@@ -251,6 +253,8 @@ public class WebSensor implements ProjectSensor {
       analysisMetadataPath = null;
       contextMetadata = null;
       recordFilesystemCache = false;
+      snapshotManifestPath = null;
+      snapshotBaseline = null;
       replayProjectPaths = null;
       if (hasRestoredContextProperties(sensorContext)) {
         throw new IllegalStateException("Invalid restored JavaScript context", e);
@@ -361,14 +365,18 @@ public class WebSensor implements ProjectSensor {
     }
     try {
       if (
+        (reusedCachedAnalysis && snapshotBaseline == null) ||
         !Files.isRegularFile(filesystemCacheArchivePath) ||
         Files.size(filesystemCacheArchivePath) == 0 ||
         !Files.isRegularFile(analysisMetadataPath) ||
         Files.size(analysisMetadataPath) == 0 ||
+        snapshotManifestPath == null ||
+        !Files.isRegularFile(snapshotManifestPath) ||
+        Files.size(snapshotManifestPath) == 0 ||
         contextMetadata == null
       ) {
         LOG.warn(
-          "The JavaScript filesystem cache archive was not created; no SQAA context will be published"
+          "The JavaScript filesystem cache context was not created; no SQAA context will be published"
         );
         return;
       }
@@ -377,17 +385,15 @@ public class WebSensor implements ProjectSensor {
         analysisMetadataPath,
         contextMetadata
       );
-      if (snapshotManifestPath != null && Files.isRegularFile(snapshotManifestPath)) {
-        ContextSnapshotCache.write(
-          context.getSensorContext(),
-          new ContextSnapshotCache.Snapshot(
-            filesystemCacheArchivePath,
-            analysisMetadataPath,
-            snapshotManifestPath,
-            contextMetadata
-          )
-        );
-      }
+      ContextSnapshotCache.write(
+        context.getSensorContext(),
+        new ContextSnapshotCache.Snapshot(
+          filesystemCacheArchivePath,
+          analysisMetadataPath,
+          snapshotManifestPath,
+          contextMetadata
+        )
+      );
     } catch (Exception e) {
       LOG.warn("Could not publish the JavaScript filesystem cache context", e);
     }
@@ -404,13 +410,6 @@ public class WebSensor implements ProjectSensor {
     var baseContext = new JsTsContext<>(sensorContext);
     Set<String> collectedTsConfigPaths = moduleConfiguration.tsConfigPaths(baseContext);
     return new JsTsContext<>(sensorContext) {
-      @Override
-      public AnalysisMode getAnalysisMode() {
-        // Cached files never reach Node and cannot contribute program selections or filesystem
-        // observations. Collection-enabled analyses must produce a complete context instead.
-        return recordFilesystemCache ? AnalysisMode.DEFAULT : super.getAnalysisMode();
-      }
-
       @Override
       public Set<String> getTsConfigPaths() {
         return collectedTsConfigPaths;
@@ -494,7 +493,6 @@ public class WebSensor implements ProjectSensor {
     private final List<InputFile> projectMetadataFiles;
     private final Map<String, InputFile> fileToInputFile = new HashMap<>();
     private final HashMap<String, CacheStrategy> fileToCacheStrategy = new HashMap<>();
-    private final Map<String, CacheStrategy> snapshotCacheCandidates = new HashMap<>();
     private final CompletableFuture<Void> handle;
 
     @Nullable
@@ -530,7 +528,12 @@ public class WebSensor implements ProjectSensor {
       }
       configurationBuilder.setSkipAst(handlerContext.skipAst(consumers));
       if (recordFilesystemCache) {
-        contextMetadata = AnalyzeProjectMessages.contextMetadata(configurationBuilder.build());
+        try {
+          contextMetadata = AnalyzeProjectMessages.contextMetadata(configurationBuilder.build());
+        } catch (RuntimeException e) {
+          contextMetadata = null;
+          LOG.warn("Could not serialize the JavaScript filesystem cache configuration", e);
+        }
       }
       var request = AnalyzeProjectRequest.newBuilder()
         .setConfiguration(configurationBuilder.build())
@@ -598,31 +601,14 @@ public class WebSensor implements ProjectSensor {
 
     private void handleCachedInputFile(Map<String, ProjectFileInput> files, InputFile inputFile)
       throws IOException {
-      boolean incrementalRecording = recordFilesystemCache && snapshotBaseline != null;
-      CacheStrategy cacheStrategy = incrementalRecording
-        ? CacheStrategies.getStrategyFor(
-            new JsTsContext<>(handlerContext.getSensorContext()),
-            inputFile,
-            true
-          )
-        : CacheStrategies.getStrategyFor(handlerContext, inputFile);
+      CacheStrategy cacheStrategy = CacheStrategies.getStrategyFor(handlerContext, inputFile);
       if (cacheStrategy.isAnalysisRequired()) {
         addFileToAnalyze(files, inputFile);
         fileToCacheStrategy.put(inputFile.absolutePath(), cacheStrategy);
         return;
       }
 
-      if (incrementalRecording) {
-        // Node validates the baseline before accepting a hit. Keep all inputs for a cold fallback.
-        addFileToAnalyze(files, inputFile);
-        files.computeIfPresent(inputFile.absolutePath(), (path, file) ->
-          file.toBuilder().setReuseCachedAnalysis(true).build()
-        );
-        snapshotCacheCandidates.put(inputFile.absolutePath(), cacheStrategy);
-        fileToCacheStrategy.put(inputFile.absolutePath(), cacheStrategy);
-        return;
-      }
-
+      reusedCachedAnalysis = true;
       if (isJsTsFile(inputFile)) {
         LOG.debug("Processing cache analysis of file: {}", inputFile.uri());
         var cacheAnalysis = cacheStrategy.readAnalysisFromCache();
@@ -691,20 +677,6 @@ public class WebSensor implements ProjectSensor {
           LOG.warn("Skipping analysis result for unknown file path: {}", filePath);
           return;
         }
-        var candidate = snapshotCacheCandidates.remove(filePath);
-        if (response.getCacheHit()) {
-          if (candidate == null) throw new IllegalStateException(
-            "Unexpected snapshot cache hit for " + filePath
-          );
-          CacheStrategies.reportSnapshotResult(candidate, file, true);
-          if (isJsTsFile(file)) {
-            var cached = candidate.readAnalysisFromCache();
-            analysisProcessor.processCacheAnalysis(handlerContext, file, cached);
-            acceptAstResponse(cached.getAst(), file);
-          }
-          return;
-        }
-        if (candidate != null) CacheStrategies.reportSnapshotResult(candidate, file, false);
         if (response.hasError() && !response.getError().isBlank()) {
           // The HTTP transport used to drop per-file runtime errors after logging them in Node.js.
           // Keep the project analysis running, but surface the failure explicitly on the file.

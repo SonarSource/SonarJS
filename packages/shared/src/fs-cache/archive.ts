@@ -182,6 +182,8 @@ export class FsCacheArchive {
   dirty: boolean;
   cacheHits: number;
   cacheMisses: number;
+  private retainedEntries = new Map<string, CacheNode>();
+  private retainedMissingPaths = new Set<string>();
 
   constructor({
     archivePath,
@@ -419,18 +421,17 @@ export class FsCacheArchive {
 
   set<T>(key: string, operation: string, outcome: FsCacheOutcome<T>): void {
     key = this.canonicalKey(key);
-    let node = this.entries.get(key);
-    if (!node) {
-      node = this.missingPaths.delete(key) ? createNode({ exists: false }) : createNode();
-      this.entries.set(key, node);
-    }
-
+    const previous =
+      this.entries.get(key) ??
+      (this.missingPaths.delete(key) ? createNode({ exists: false }) : createNode());
+    const node = createNode();
     const missing = isMissingOutcome(operation, outcome);
     updateExistence(node, operation, outcome, missing);
 
     if (operation !== 'exists' && !missing) {
       writeSlot(node, operationSlot(operation), outcome);
     }
+    this.entries.set(key, mergeNodes(previous, node));
     this.dirty = true;
   }
 
@@ -441,6 +442,18 @@ export class FsCacheArchive {
       return false;
     }
     return observesLink(operation) ? node?.linkExists : node?.exists;
+  }
+
+  /** Baseline facts are only merged when publishing; live analysis must observe the checkout. */
+  retainBaseline(baseline: FsCacheArchive): void {
+    if (this.mode !== 'record' || baseline.caseSensitivePaths !== this.caseSensitivePaths) {
+      throw new FsCacheArchiveError('Incompatible filesystem context baseline');
+    }
+    this.retainedEntries = new Map(
+      [...baseline.entries].map(([key, node]) => [key, createNode(node)]),
+    );
+    this.retainedMissingPaths = new Set(baseline.missingPaths);
+    this.dirty = true;
   }
 
   recordCacheHit(): void {
@@ -477,8 +490,16 @@ export class FsCacheArchive {
       let mergedMissingPaths: Set<string>;
       try {
         this.load();
-        mergedEntries = this.entries;
-        mergedMissingPaths = this.missingPaths;
+        mergedEntries = new Map(this.retainedEntries);
+        mergedMissingPaths = new Set(this.retainedMissingPaths);
+        for (const missingPath of this.missingPaths) {
+          mergedEntries.delete(missingPath);
+          mergedMissingPaths.add(missingPath);
+        }
+        for (const [entryPath, node] of this.entries) {
+          mergedMissingPaths.delete(entryPath);
+          mergedEntries.set(entryPath, mergeNodes(mergedEntries.get(entryPath), node));
+        }
       } finally {
         this.entries = ownEntries;
         this.missingPaths = ownMissingPaths;

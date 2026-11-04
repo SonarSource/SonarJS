@@ -15,9 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import path from 'node:path';
-import ts from 'typescript';
-import { createHash } from 'node:crypto';
-import { refreshFilesystemBaseline } from '../../shared/src/fs-cache/hook.js';
+import { seedFilesystemBaseline } from '../../shared/src/fs-cache/hook.js';
 import {
   nativeFs,
   writeFileWithNativePrimitives,
@@ -25,172 +23,52 @@ import {
 } from '../../shared/src/fs-cache/archive-types.js';
 import type { ProgramSelectionArchive } from '../../analysis/src/program-selection/archive.js';
 import type { AnalyzeProjectProtoRequest } from './analyze-project-request.js';
-import {
-  normalizeToAbsolutePath,
-  type NormalizedAbsolutePath,
-} from '../../shared/src/helpers/files.js';
 import { debug } from '../../shared/src/helpers/logging.js';
 import { sonarjs } from './proto/analyze-project.js';
 
 const RECORD = sonarjs.analyzeproject.v1.FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD;
+const SNAPSHOT_VERSION = 1;
 
-// Source lists and settings are part of the bundle, not individual per-file cache generations.
-export function snapshotManifest(request: AnalyzeProjectProtoRequest): string {
-  const baseDir = request.configuration!.baseDir!;
-  const configuration = { ...request.configuration, analysisMode: undefined, fsEvents: undefined };
-  const files = Object.entries(request.files ?? {})
-    .map(([file, input]) => [path.relative(baseDir, file).replaceAll('\\', '/'), input.fileType])
-    .sort(([a], [b]) => String(a).localeCompare(String(b)));
-  const canonical = (value: unknown): unknown => {
-    if (Array.isArray(value)) return value.map(canonical);
-    if (value && typeof value === 'object')
-      return Object.fromEntries(
-        Object.entries(value)
-          .filter(([, value]) => value !== undefined)
-          .sort(([a], [b]) => a.localeCompare(b))
-          .map(([key, value]) => [key, canonical(value)]),
-      );
-    if (typeof value === 'string') {
-      const normalized = value.replaceAll('\\', '/');
-      const root = baseDir.replaceAll('\\', '/').replace(/\/$/, '');
-      for (const prefix of ['', 'directory:', 'file:']) {
-        if (normalized === prefix + root || normalized.startsWith(prefix + root + '/')) {
-          return prefix + '$PROJECT' + normalized.slice(prefix.length + root.length);
-        }
-      }
-    }
-    return value;
-  };
-  return JSON.stringify({
-    version: 1,
-    fingerprint: createHash('sha256')
-      .update(
-        JSON.stringify(
-          canonical({
-            configuration,
-            files,
-            rules: request.rules,
-            cssRules: request.cssRules,
-            bundles: request.bundles,
-            rulesWorkdir: request.rulesWorkdir,
-          }),
-        ),
-      )
-      .digest('hex'),
-  });
-}
-
-export function reuseContextBaseline(
+/** Retain previous observations for publication; RECORD analysis still uses the native filesystem. */
+export function prepareIncrementalContext(
   request: AnalyzeProjectProtoRequest,
   programSelection: ProgramSelectionArchive | undefined,
-  manifest: string,
-): ReadonlySet<NormalizedAbsolutePath> | undefined {
+): { baselineAvailable: boolean } {
   const cache = request.filesystemCache;
-  if (
-    cache?.mode !== RECORD ||
-    !cache.baselineArchivePath ||
-    !cache.baselineAnalysisMetadataPath ||
-    !cache.baselineManifestPath ||
-    !cache.baselineContextMetadata ||
-    !programSelection
-  )
-    return;
+  if (cache?.mode !== RECORD || !cache.baselineArchivePath) {
+    return { baselineAvailable: true };
+  }
   try {
     if (
-      request.configuration?.canAccessFileSystem === false ||
-      Object.values(request.files ?? {}).some(file => file.fileContent != null)
+      !cache.baselineAnalysisMetadataPath ||
+      !cache.baselineManifestPath ||
+      !cache.baselineContextMetadata ||
+      !programSelection
     ) {
-      throw new Error('baseline refresh requires native source inputs');
+      throw new Error('Incomplete sensor-cache context baseline');
     }
-    if (nativeFs.readFileSync(cache.baselineManifestPath, 'utf8') !== manifest)
-      throw new Error('settings or input files changed');
-    const files = new Map(
-      Object.entries(request.files ?? {}).map(([file, input]) => [path.resolve(file), input]),
-    );
-    const refreshed = refreshFilesystemBaseline(
-      cache.baselineArchivePath,
-      (file, before, after) => {
-        // Dependencies/configuration must match byte-for-byte. Initially only ordinary source edits
-        // preserving dependency directives and module/script classification reuse program selections.
-        if (!files.has(path.resolve(file)) || !/\.[cm]?[jt]sx?$/i.test(file)) return false;
-        return (
-          sourceDependencies(file, before.toString('utf8')) ===
-          sourceDependencies(file, after.toString('utf8'))
-        );
-      },
-    );
-    if (!refreshed) throw new Error('filesystem dependencies or source imports changed');
-    // Load into a separate recorder first, so invalid metadata cannot partially seed this run.
-    programSelection.seedFrom(
-      cache.baselineAnalysisMetadataPath,
-      cache.baselineContextMetadata,
-      [...files]
-        .filter(
-          ([file, input]) => input.reuseCachedAnalysis && /(?:\.[cm]?[jt]sx?|\.vue)$/i.test(file),
-        )
-        .map(([file]) => normalizeToAbsolutePath(file)),
-    );
-    const cachedFiles = new Set<NormalizedAbsolutePath>();
-    for (const [file, input] of files) {
-      if (input.reuseCachedAnalysis) cachedFiles.add(normalizeToAbsolutePath(file));
+    const manifest = JSON.parse(nativeFs.readFileSync(cache.baselineManifestPath, 'utf8'));
+    if (manifest?.version !== SNAPSHOT_VERSION) {
+      throw new Error('Unsupported sensor-cache context baseline');
     }
-    debug('Reusing the sensor-cache context baseline for ' + cachedFiles.size + ' file(s)');
-    return cachedFiles;
+    seedFilesystemBaseline(cache.baselineArchivePath);
+    programSelection.seedFrom(cache.baselineAnalysisMetadataPath, cache.baselineContextMetadata);
+    debug('Retaining the sensor-cache context baseline; recording live filesystem observations');
+    return { baselineAvailable: true };
   } catch (error) {
-    debug(
-      'Cannot reuse the sensor-cache context baseline; recording a full context: ' + String(error),
-    );
-    return;
+    debug('Cannot retain the sensor-cache context baseline: ' + String(error));
+    return { baselineAvailable: false };
   }
 }
 
-export function sourceDependencies(file: string, content: string): string {
-  const source = ts.createSourceFile(file, content, ts.ScriptTarget.Latest, false);
-  const imports: string[] = [];
-  const ambientExternalModules: string[] = [];
-  // Use the compiler facade's supported AST operations rather than preProcessFile.
-  const visit = (node: ts.Node): void => {
-    const specifier = dependencySpecifier(node);
-    if (specifier && ts.isStringLiteralLike(specifier)) imports.push(specifier.text);
-    if (ts.isModuleDeclaration(node) && ts.isStringLiteral(node.name)) {
-      ambientExternalModules.push(node.name.text);
-    }
-    ts.forEachChild(node, visit);
-  };
-  visit(source);
-  return JSON.stringify({
-    module: ts.isExternalModule(source),
-    isLibFile: source.hasNoDefaultLib,
-    ambientExternalModules,
-    imports,
-    references: [
-      source.referencedFiles,
-      source.typeReferenceDirectives,
-      source.libReferenceDirectives,
-    ].map(refs => refs.map(ref => ref.fileName)),
-  });
-}
-
-function dependencySpecifier(node: ts.Node): ts.Node | undefined {
-  if (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) return node.moduleSpecifier;
-  if (ts.isImportEqualsDeclaration(node) && ts.isExternalModuleReference(node.moduleReference))
-    return node.moduleReference.expression;
-  if (
-    ts.isCallExpression(node) &&
-    (node.expression.kind === ts.SyntaxKind.ImportKeyword ||
-      (ts.isIdentifier(node.expression) && node.expression.text === 'require'))
-  )
-    return node.arguments[0];
-  if (node.kind === ts.SyntaxKind.ImportType) {
-    const argument = (node as ts.ImportTypeNode).argument;
-    if (ts.isLiteralTypeNode(argument)) return argument.literal;
-  }
-  return;
-}
-
-export function writeSnapshotManifest(request: AnalyzeProjectProtoRequest, manifest: string): void {
+/** This marker confirms successful persistence, not filesystem completeness. */
+export function writeSnapshotManifest(request: AnalyzeProjectProtoRequest): void {
   const file = request.filesystemCache?.snapshotManifestPath;
   if (!file || request.filesystemCache?.mode !== RECORD) return;
   nativeFs.mkdirSync(path.dirname(file), { recursive: true });
-  writeFileWithNativePrimitives(file, Buffer.from(manifest), ARCHIVE_FILE_MODE);
+  writeFileWithNativePrimitives(
+    file,
+    Buffer.from(JSON.stringify({ version: SNAPSHOT_VERSION })),
+    ARCHIVE_FILE_MODE,
+  );
 }

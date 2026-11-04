@@ -53,7 +53,10 @@ export async function normalizeAnalyzeProjectRequest(
   request: AnalyzeProjectRequest,
 ): Promise<SanitizedProjectAnalysisInput> {
   const configuration = createConfigurationFromProto(request.configuration);
-  const filesPresent = hasExplicitFiles(request.files, configuration.canAccessFileSystem);
+  const filesPresent =
+    request.filesystemCache?.mode ===
+      sonarjs.analyzeproject.v1.FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD ||
+    hasExplicitFiles(request.files, configuration.canAccessFileSystem);
   const sanitizedFiles = filesPresent
     ? await sanitizeInputFiles(normalizeProtoInputFiles(request.files), configuration)
     : undefined;
@@ -62,7 +65,13 @@ export async function normalizeAnalyzeProjectRequest(
   const bundles = normalizePathList(request.bundles, configuration.baseDir);
   const rulesWorkdir = normalizeOptionalPath(request.rulesWorkdir, configuration.baseDir);
 
-  await initFileStoresForAnalysis(configuration, sanitizedFiles?.files);
+  // With no pending source, discovery/config preloading would only serve collection.
+  // Reset the stores normally, but do not walk/read unchanged generated-source configs.
+  const storeConfiguration =
+    sanitizedFiles && Object.keys(sanitizedFiles.files).length === 0
+      ? { ...configuration, canAccessFileSystem: false }
+      : configuration;
+  await initFileStoresForAnalysis(storeConfiguration, sanitizedFiles?.files);
 
   return {
     rules,

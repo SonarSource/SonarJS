@@ -29,12 +29,15 @@ It does not describe:
 
 These in-memory caches are separate from both the scanner's persistent sensor cache and the
 SQAA filesystem/program snapshots described in [the A3S context contract](./a3s-context.md).
-A sensor-cache hit without recording can avoid sending a file to Node. During context recording,
-all files remain available to Node: `incremental-context.ts` validates and refreshes a persisted
-baseline before `analyzeProject` removes accepted cached files from its pending analysis set.
-The file stores still contain those files, and program-selection metadata is carried forward
-for later replay. This persists filesystem observations and program selections, not compiler
-program objects or ESLint state. Clearing Node caches does not invalidate the platform cache.
+Java handles sensor-cache hits before building the Node request, with or without recording.
+Only files requiring analysis are sent to Node. During RECORD, the filesystem layer passively
+retains baseline observations for publication and updates them through normal native filesystem
+calls. Untouched entries may remain stale; there is no validation sweep. Program selections are
+also carried forward and updated by actual analysis. Cached orphan peers can remain roots of a
+program required by a changed file without being analyzed themselves. An empty RECORD request
+does not discover or preload project files. SQAA REPLAY instead treats the snapshot as authoritative.
+These archives contain observations and program selections, not compiler objects or ESLint state.
+Clearing Node caches does not invalidate the platform cache.
 
 ## Why This Exists
 
@@ -302,12 +305,15 @@ This cache is mainly valuable for SonarLint / IDE usage, where multiple requests
 The parsed AST cache is indexed by a filesystem-aware path map and a compound key containing:
 
 - normalized file path
-- script target
+- script target, implied module format and JSDoc parsing mode
 - `jsx`
 - `importHelpers`
 
-The content hash/version is stored alongside the AST and checked on lookup; it is not another
-key dimension. A new content version replaces the entry for that path and compiler-option key.
+The content hash/version and external-module-indicator callback identity are stored alongside
+the AST and checked on lookup; they are not additional key dimensions. A changed version or
+callback replaces the same scalar-options entry, keeping repeated program rebuilds bounded.
+The compiler host forwards TypeScript's complete source-creation options so NodeNext import and
+require branches retain the correct module format.
 
 That is why the same source file may exist in the cache more than once under different compiler options.
 

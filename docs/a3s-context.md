@@ -8,25 +8,44 @@ publication lifecycles. The sensor cache also transports a baseline for incremen
 `A3SContextCollector.isEnabled()`. On a supported host, when collection is enabled and this is
 not a restored-context request, `WebSensor` records a new context.
 
-Recording keeps `AnalysisMode.DEFAULT` so cold fallback runs all rules. Since SonarJS 14.1,
-this override prevented per-file cache reuse during collection, including PRs. The snapshot
-reuse implementation allows confirmed cache hits while retaining all request files.
+Recording preserves the scanner's analysis mode. The override introduced in SonarJS 14.1
+forced `AnalysisMode.DEFAULT` and prevented per-file cache reuse during collection, including
+PRs. Cache eligibility is now independent of context availability: missing context must not
+force analysis of otherwise reusable files.
 
-A completed recording writes a versioned sensor-cache entry containing both archives, the
-collector JSON metadata and a compatibility manifest. During PR recording, `previousCache()`
-provides the platform-selected reference baseline. Node validates settings/rules and input
-paths/types, refreshes every baseline filesystem observation from the current checkout and
-seeds compatible program selections before skipping accepted files. Java waits for Node's
-`cacheHit` acknowledgment before copying cached results and re-emitting CPD/AST.
+A successful recording writes a versioned sensor-cache entry containing both archives, the
+collector JSON metadata and a small completion marker. The marker is transported as gzip binary;
+Java restores plain JSON before passing its path to Node. The filesystem and program-selection
+archives are already compressed and are transported unchanged.
 
-The resulting PR context includes unchanged inputs and current changed-file contents. Missing
-or incompatible baselines fall back to full recording, including changes to dependencies,
-configuration, file lists or source dependency directives. Request-provided contents and
-unsupported filesystem observations also fall back. Validation still reads filesystem inputs.
+During PR recording, Java handles per-file cache hits exactly as it does without recording:
+it copies cached results, re-emits CPD/AST where applicable, and omits those files from the
+Java-to-Node request. Node receives only files requiring analysis. An all-cached request has
+an empty files map and does not trigger discovery, source reads, or TypeScript program creation.
+
+The filesystem layer passively retains the platform-selected `previousCache()` baseline.
+In RECORD mode every intercepted filesystem call uses the native filesystem; its result updates
+the snapshot. Supplied source contents are recorded too. Program-selection outcomes are carried
+forward and replaced when actual analysis learns a new outcome. Baseline entries are not served
+as filesystem answers during CI analysis. In SQAA REPLAY, by contrast, the archive is authoritative.
+
+There is no separate snapshot-entry validation or deletion sweep. Untouched entries remain as
+they were, even if their files have since changed or been deleted. A missing path is updated only
+if normal analysis observes it. A fresh directory listing replaces the corresponding listing,
+but does not independently validate every child. This is an intentional approximation to preserve
+fast PR analysis; PR snapshots do not promise the consistency of a fresh full-analysis snapshot.
+
+Dependency-aware reanalysis after imported files or TypeScript configuration changes is a separate
+improvement tracked by JS-2815. This regression fix preserves the previous cache trust boundary.
+
+Without a usable baseline, cache hits still work. If Java reused any hits, it omits context
+publication instead of reanalyzing those files to reconstruct context. A completion marker only
+confirms successful analysis and archive persistence; it is not a filesystem-completeness check.
+Context initialization, serialization and publication errors do not fail successful analysis.
 
 The scanner owns cache enablement, reference selection and persistence. PR `nextCache()`
 writes are no-op; they do not overwrite the branch baseline. There are still two collector
-attachments: the compatibility manifest exists only inside the sensor-cache bundle.
+attachments: the completion marker exists only inside the sensor-cache bundle.
 See `ContextSnapshotCache`, `WebSensor` and `packages/grpc/src/incremental-context.ts`.
 
 ### Platform collection policy

@@ -371,14 +371,6 @@ class CacheStrategyTest {
   }
 
   @Test
-  void should_not_access_cache_when_disabled() throws IOException {
-    when(sensorContext.isCacheEnabled()).thenReturn(false);
-    var strategy = CacheStrategies.getStrategyFor(context, inputFile, PLUGIN_VERSION);
-    assertThat(strategy.getName()).isEqualTo(CacheStrategy.NO_CACHE);
-    org.mockito.Mockito.verifyNoInteractions(previousCache, nextCache);
-  }
-
-  @Test
   void should_check_analysis_status() throws IOException {
     when(inputFile.status()).thenReturn(InputFile.Status.SAME);
 

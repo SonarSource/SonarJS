@@ -15,7 +15,6 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import fs from 'node:fs';
-import { refreshArchive } from './refresh.js';
 import {
   setArchivedFileSystemCaseSensitivity,
   setOsCaseSensitivity,
@@ -76,12 +75,10 @@ export function hasArchivedFileContent(fileName: string): boolean {
   return key !== undefined && activeArchive.get(key, 'readFile')?.ok === true;
 }
 
-export function refreshFilesystemBaseline(
-  archivePath: string,
-  canChangeContent: (file: string, before: Buffer, after: Buffer) => boolean,
-): boolean {
+/** Retain prior observations for publication without consulting the project filesystem. */
+export function seedFilesystemBaseline(archivePath: string): FsCacheArchive {
   const current = requireActiveArchive();
-  if (current.mode !== 'record') return false;
+  if (current.mode !== 'record') throw new Error('Only recording can reuse a filesystem baseline');
   const baseline = new FsCacheArchive({
     archivePath,
     rootDir: current.rootDir,
@@ -89,7 +86,8 @@ export function refreshFilesystemBaseline(
     caseSensitivePaths: current.caseSensitivePaths,
   });
   baseline.load();
-  return refreshArchive(baseline, current, canChangeContent);
+  current.retainBaseline(baseline);
+  return baseline;
 }
 
 type FsError = Error & {
@@ -162,7 +160,7 @@ type ArchiveFacade = Pick<
   | 'recordCacheMiss'
   | 'set'
 > & { readonly mode: FsCacheArchive['mode'] | undefined };
-export type FsCacheSession = { end(): void; mode?: FsCacheArchive['mode'] };
+export type FsCacheSession = { end(): boolean; mode?: FsCacheArchive['mode'] };
 export type FsCacheInstallation = {
   beginAnalysis(options: ArchiveOptions): FsCacheSession;
   getStatistics(): { hits: number; misses: number; paths: number };
@@ -376,6 +374,7 @@ function createExecutor(archive: ArchiveFacade) {
     operation: string,
     decode: (value: TStored) => TResult = value => value as unknown as TResult,
   ): TResult | typeof MISSING {
+    if (archive.mode !== 'replay') return MISSING;
     const key =
       typeof input === 'number' || (typeof input === 'object' && 'fd' in input)
         ? undefined
@@ -1594,32 +1593,27 @@ function createOpenPatches(archive: ArchiveFacade, fileDescriptors: FileDescript
     if (key === undefined || archive.mode !== 'record') {
       return;
     }
-    if (archive.get(key, 'readFile') === undefined) {
-      try {
-        archive.set(key, 'readFile', success(readDescriptorContent(fd)));
-      } catch (error) {
-        archive.set(key, 'readFile', failure(error));
-      }
+    try {
+      archive.set(key, 'readFile', success(readDescriptorContent(fd)));
+    } catch (error) {
+      archive.set(key, 'readFile', failure(error));
     }
     try {
       const numberOperation = statOperation('fstat');
-      if (archive.get(key, numberOperation) === undefined) {
-        archive.set(key, numberOperation, success(snapshotStat(originalFs.fstatSync(fd))));
-      }
+      archive.set(key, numberOperation, success(snapshotStat(originalFs.fstatSync(fd))));
       const bigintOperation = statOperation('fstat', { bigint: true });
-      if (archive.get(key, bigintOperation) === undefined) {
-        archive.set(
-          key,
-          bigintOperation,
-          success(snapshotStat(originalFs.fstatSync(fd, { bigint: true }))),
-        );
-      }
+      archive.set(
+        key,
+        bigintOperation,
+        success(snapshotStat(originalFs.fstatSync(fd, { bigint: true }))),
+      );
     } catch {
       // The original open already succeeded; auxiliary capture must not alter its result.
     }
   }
 
   function replayOpen(input: fs.PathLike, operation: string): ReplayOpenResult {
+    if (archive.mode !== 'replay') return { found: false };
     const key = archive.keyFor(input);
     if (key === undefined) {
       if (archive.blocksNativeRead(input)) {
@@ -2205,11 +2199,12 @@ export function installFsCache(): FsCacheInstallation {
         setOsCaseSensitivity();
       }
       let ended = false;
+      let succeeded = true;
       return {
         mode: archive.mode,
         end() {
           if (ended) {
-            return;
+            return succeeded;
           }
           if (activeArchive !== archive) {
             throw new Error('The active filesystem cache analysis changed unexpectedly');
@@ -2218,14 +2213,22 @@ export function installFsCache(): FsCacheInstallation {
             try {
               archive.flush();
             } catch (error: unknown) {
+              succeeded = false;
               reportFlushFailure(archive, error);
             }
           } finally {
-            patches.reset();
-            activeArchive = undefined;
-            setOsCaseSensitivity();
-            ended = true;
+            try {
+              patches.reset();
+            } catch (error: unknown) {
+              succeeded = false;
+              reportFlushFailure(archive, error);
+            } finally {
+              activeArchive = undefined;
+              setOsCaseSensitivity();
+              ended = true;
+            }
           }
+          return succeeded;
         },
       };
     },

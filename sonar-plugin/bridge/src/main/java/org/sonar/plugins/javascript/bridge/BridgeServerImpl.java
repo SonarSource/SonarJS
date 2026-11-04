@@ -55,6 +55,7 @@ import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectRequest;
 import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectServiceGrpc;
 import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectStreamResponse;
 import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectUnaryResponse;
+import org.sonar.plugins.javascript.analyzeproject.grpc.FilesystemCacheMode;
 import org.sonar.plugins.javascript.analyzeproject.grpc.LeaseRequest;
 import org.sonar.plugins.javascript.analyzeproject.grpc.LeaseResponse;
 import org.sonar.plugins.javascript.nodejs.NodeCommand;
@@ -466,7 +467,11 @@ public class BridgeServerImpl implements BridgeServer {
   @Override
   public void analyzeProject(ProjectAnalysisHandler handler) {
     var grpcRequest = enrichAnalyzeProjectRequest(handler.getRequest());
-    if (grpcRequest.getFilesCount() == 0) {
+    var retainsContextBaseline =
+      grpcRequest.getFilesystemCache().getMode() ==
+        FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD &&
+      grpcRequest.getFilesystemCache().hasBaselineArchivePath();
+    if (grpcRequest.getFilesCount() == 0 && !retainsContextBaseline) {
       LOG.debug("Skipping project analysis because there are no files to analyze");
       handler.getFuture().complete(null);
       ensureProjectAnalysisCompleted(handler);

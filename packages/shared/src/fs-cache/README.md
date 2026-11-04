@@ -78,13 +78,19 @@ dedicated loader thread, adding startup and module-loading overhead unrelated to
 
 On supported SonarQube versions, CI records context only when the A3S context collector is enabled.
 Collection-enabled PR scans can reuse a compatible baseline transported through the sensor cache.
-The handler keeps all input files, refreshes recorded filesystem observations from the current
-checkout and seeds compatible program-selection outcomes before accepting per-file cache hits.
-`refresh.ts` re-observes facts through the active recording hook; it never copies stale source
-bytes or checkout-specific stats into the new archive. Changes to configuration, dependencies,
-input paths or source dependency directives, unsupported observations and missing/corrupt
-baselines fall back to full recording. Scans without collection retain ordinary incremental
-analysis. The sensor-cache API and PR no-op persistence remain owned by the scanner.
+The baseline is retained passively for publication, without walking or validating project paths.
+RECORD always uses the native filesystem and records its actual observations; it never serves
+baseline observations to live analysis. New observations replace earlier values, while untouched
+observations may remain stale, including entries for deleted files. The baseline itself is never
+mutated. Known existence or file-type changes discard contradictory prior observations.
+Snapshot maintenance does not invalidate per-file analysis-cache hits. It follows their existing
+trust assumptions; independent dependency validity is a separate concern.
+
+Missing/corrupt baselines do not prevent independent analysis-cache hits. Such a scan may finish
+without context. Only a successfully persisted recording receives the completion marker that
+permits Java to publish it. The marker confirms persistence, not filesystem completeness or
+freshness. Recording failures do not fail otherwise successful analysis. The sensor-cache API
+and PR no-op persistence remain owned by the scanner.
 
 The scanner sends Node explicit RECORD mode with two output paths and publishes the resulting
 gzip-compressed Protocol Buffers attachments under context kind `javascript`:
