@@ -91,7 +91,7 @@ You can enable some rules manually:
 
 ### Test files
 
-ESLint does not distinguish test files from production files. Rules meant for test code, such as `no-fixed-wait-in-tests`, `no-debug-commands-in-ui-tests` and `prefer-cypress-should`, run on every file they are enabled for. The exception is `no-empty-test-file`, which only checks `.test`, `.spec` and `.cy` files. Scope them to your test files with the `files` field:
+ESLint does not distinguish test files from production files. Rules meant for test code, such as `no-fixed-wait-in-tests`, `no-debug-commands-in-ui-tests` and `prefer-cypress-should`, run on every file they are enabled for. The exception is `no-empty-test-file`, which only checks `.test`, `.spec` and `.cy` files. Turn them off outside your test files with the `ignores` field:
 
 ```javascript
 import sonarjs from 'eslint-plugin-sonarjs';

@@ -28,8 +28,8 @@ From highest to lowest:
    its file type. The test configuration explicitly scoped it out of tests.
 3. A file under `sonar.sources` matching a non-empty `sonar.inclusions` keeps its file type. It was
    explicitly opted into MAIN.
-4. An Angular `environments/environment.<marker>.ts` file keeps its file type when `@angular/core`
-   is visible to it.
+4. An Angular `environment/environment.<marker>.<ext>` or `environments/environment.<marker>.<ext>`
+   file keeps its file type when `@angular/core` is visible to it.
 5. A test-related filename is promoted to TEST: `.test`, `.spec`, `.cy`, `.e2e` or `.mock` before a
    configured JS/TS suffix, or a path containing `__tests__/` or `__mocks__/`.
 6. Any other file keeps its file type.
