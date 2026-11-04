@@ -91,7 +91,7 @@ You can enable some rules manually:
 
 ### Test files
 
-ESLint does not distinguish test files from production files. Rules meant for test code, such as `no-fixed-wait-in-tests`, `no-debug-commands-in-ui-tests` and `prefer-cypress-should`, run on every file they are enabled for. The exception is `no-empty-test-file`, which only checks `.test`, `.spec` and `.cy` files. Turn them off outside your test files with the `ignores` field:
+ESLint does not distinguish test files from production files, and the plugin's rules do not inspect filenames to do so. Rules meant for test code, such as `no-fixed-wait-in-tests`, `no-debug-commands-in-ui-tests` and `prefer-cypress-should`, run on every file they are enabled for. Turn them off outside your test files with the `ignores` field:
 
 ```javascript
 import sonarjs from 'eslint-plugin-sonarjs';
@@ -101,6 +101,21 @@ export default [
     ignores: ['**/*.{test,spec,cy}.{js,jsx,ts,tsx}'],
     rules: {
       'sonarjs/no-fixed-wait-in-tests': 'off',
+    },
+  },
+];
+```
+
+`no-empty-test-file` reports files without test cases, so it would flag every production file. It is therefore off in the `recommended` configuration. Enable it for the files that declare test cases with the `files` field:
+
+```javascript
+import sonarjs from 'eslint-plugin-sonarjs';
+export default [
+  sonarjs.configs.recommended,
+  {
+    files: ['**/*.{test,spec,cy}.{js,jsx,ts,tsx}'],
+    rules: {
+      'sonarjs/no-empty-test-file': 'error',
     },
   },
 ];
@@ -264,7 +279,7 @@ If you have any questions, encounter any bugs, or have feature requests, please 
 | [no-empty-collection](https://sonarsource.github.io/rspec/#/rspec/S4158/javascript)                                | Empty collections should not be accessed or iterated                                                                           | ✅  |     |     |     |     |
 | [no-empty-group](https://sonarsource.github.io/rspec/#/rspec/S6331/javascript)                                     | Regular expressions should not contain empty groups                                                                            | ✅  |     |     | 💭  |     |
 | [no-empty-parameterized-test-dataset](https://sonarsource.github.io/rspec/#/rspec/S8998/javascript)                | Parameterized tests should not have empty datasets                                                                             | ✅  |     |     |     |     |
-| [no-empty-test-file](https://sonarsource.github.io/rspec/#/rspec/S2187/javascript)                                 | Test files should contain at least one test case                                                                               | ✅  |     |     |     |     |
+| [no-empty-test-file](https://sonarsource.github.io/rspec/#/rspec/S2187/javascript)                                 | Test files should contain at least one test case                                                                               |     |     |     |     |     |
 | [no-empty-test-title](https://sonarsource.github.io/rspec/#/rspec/S8781/javascript)                                | Test and suite titles should not be empty or whitespace-only                                                                   | ✅  |     |     |     |     |
 | [no-equals-in-for-termination](https://sonarsource.github.io/rspec/#/rspec/S888/javascript)                        | Equality operators should not be used in "for" loop termination conditions                                                     | ✅  |     |     |     |     |
 | [no-exclusive-tests](https://sonarsource.github.io/rspec/#/rspec/S6426/javascript)                                 | Exclusive tests should not be committed to version control                                                                     | ✅  |     | 💡  |     |     |

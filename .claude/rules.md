@@ -54,10 +54,10 @@ export const rule: Rule.RuleModule = {
 ```
 
 Do not check `context.filename` to decide whether a rule applies to test code, and do not
-reimplement the test-related filename heuristic, which is private to `common/rule-file-type.ts`.
+import or reimplement the test-file classification in `common/rule-file-type.ts`.
 MAIN/TEST applicability is decided centrally before rules run: declare it through the RSPEC
-`scope` instead. See [`docs/test-file-classification.md`](../docs/test-file-classification.md),
-which also covers the S2187 test-case filename exception.
+`scope` instead, plus `requiredTestCaseFile` in `meta.ts` for rules that only apply to files
+declaring test cases. See [`docs/test-file-classification.md`](../docs/test-file-classification.md).
 
 ## Testing
 

@@ -16,3 +16,4 @@
  */
 export const implementation = 'original';
 export const eslintId = 'no-empty-test-file';
+export const requiredTestCaseFile = true;

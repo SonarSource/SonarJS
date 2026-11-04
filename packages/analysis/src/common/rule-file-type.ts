@@ -17,9 +17,12 @@
 import type { NormalizedAbsolutePath } from '../../../shared/src/helpers/files.js';
 import { debug } from '../../../shared/src/helpers/logging.js';
 import type { FileType } from '../contracts/file.js';
-import type { FilterPathParams } from './configuration.js';
+import {
+  DEFAULT_JS_EXTENSIONS,
+  DEFAULT_TS_EXTENSIONS,
+  type FilterPathParams,
+} from './configuration.js';
 import { pathIsUnder } from './filesystem.js';
-import { testFileSuffixAlternation } from '../jsts/rules/helpers/test-file-pattern.js';
 import { isAngularProject } from '../jsts/rules/helpers/dependency-manifests/dependencies.js';
 
 type RuleFileTypeParams = Pick<
@@ -28,12 +31,30 @@ type RuleFileTypeParams = Pick<
 >;
 
 /**
- * Canonical filename markers denoting a test-related file. Every pattern recognising these markers
- * derives its alternation from this list, so the set cannot drift between patterns.
+ * Canonical filename markers denoting a file that declares test cases, e.g. `foo.test.ts`.
  */
-const TEST_RELATED_MARKERS = ['test', 'spec', 'cy', 'e2e', 'mock'] as const;
+const TEST_CASE_MARKERS = ['test', 'spec', 'cy'] as const;
 
+/**
+ * Canonical filename markers denoting a test-related file: test-case files plus end-to-end and mock
+ * files. Every pattern recognising these markers derives its alternation from these lists, so the
+ * sets cannot drift between patterns.
+ */
+const TEST_RELATED_MARKERS = [...TEST_CASE_MARKERS, 'e2e', 'mock'] as const;
+
+const TEST_CASE_MARKER_ALTERNATION = TEST_CASE_MARKERS.join('|');
 const TEST_RELATED_MARKER_ALTERNATION = TEST_RELATED_MARKERS.join('|');
+
+/**
+ * Builds the regex alternation of the configured JS/TS suffixes, without leading dots, falling back
+ * to the default JS/TS suffixes.
+ */
+function suffixAlternation(extensions?: string[]): string {
+  const effective = extensions?.length
+    ? extensions
+    : [...DEFAULT_JS_EXTENSIONS, ...DEFAULT_TS_EXTENSIONS];
+  return effective.map(ext => (ext.startsWith('.') ? ext.slice(1) : ext)).join('|');
+}
 
 /**
  * Angular per-environment config files follow the `environments/environment.<env>.ts` convention.
@@ -44,10 +65,30 @@ const ANGULAR_ENVIRONMENT_CONFIG_PATTERN = new RegExp(
   String.raw`(?:^|/)environments?/environment\.(?:${TEST_RELATED_MARKER_ALTERNATION})\.[^/]+$`,
 );
 
+function testCaseFilePattern(extensions?: string[]): RegExp {
+  return new RegExp(
+    String.raw`\.(?:${TEST_CASE_MARKER_ALTERNATION})\.(?:${suffixAlternation(extensions)})$`,
+  );
+}
+
 function testRelatedFilePattern(extensions?: string[]): RegExp {
   return new RegExp(
-    String.raw`\.(?:${TEST_RELATED_MARKER_ALTERNATION})\.(?:${testFileSuffixAlternation(extensions)})$|(?:^|[\\/])(?:__tests__|__mocks__)[\\/]`,
+    String.raw`\.(?:${TEST_RELATED_MARKER_ALTERNATION})\.(?:${suffixAlternation(extensions)})$|(?:^|[\\/])(?:__tests__|__mocks__)[\\/]`,
   );
+}
+
+/**
+ * Checks whether a file path declares test cases by name (`.test`, `.spec` or `.cy` before a
+ * configured JS/TS suffix). This is narrower than the test-related heuristic: helpers under
+ * `__tests__/`, mocks and `.e2e` files are test-related but do not have to declare test cases.
+ * Rule selection uses it for rules whose metadata sets `requiredTestCaseFile`.
+ *
+ * @param filePath the file path to test.
+ * @param extensions the configured JS/TS suffixes.
+ * @returns true when the path declares test cases by name.
+ */
+export function isTestCaseFile(filePath: string, extensions?: string[]): boolean {
+  return testCaseFilePattern(extensions).test(filePath);
 }
 
 /**

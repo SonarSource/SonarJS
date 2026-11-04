@@ -68,6 +68,7 @@ import {
   getCurrentFileModuleReferences,
 } from '../rules/helpers/module.js';
 import { parseInlineNPMImport } from '../rules/helpers/dependency-manifests/resolvers/npm-import.js';
+import { isTestCaseFile } from '../../common/rule-file-type.js';
 
 interface InitializeParams {
   rules?: RuleConfig[];
@@ -78,7 +79,7 @@ interface InitializeParams {
   isGeneratedSourceFile?: (filePath: NormalizedAbsolutePath) => boolean;
   bundles?: NormalizedAbsolutePath[];
   rulesWorkdir?: NormalizedAbsolutePath;
-  /** Union of jsSuffixes and tsSuffixes; exposed to rules via context.settings.testFileExtensions */
+  /** Union of jsSuffixes and tsSuffixes; used to classify test-case files during rule selection */
   testFileExtensions?: string[];
 }
 
@@ -135,7 +136,7 @@ export class Linter {
   private static baseDir: NormalizedAbsolutePath;
   private static detectGeneratedCode = true;
   private static isGeneratedSourceFile = (_filePath: NormalizedAbsolutePath) => false;
-  /** Union of jsSuffixes and tsSuffixes, surfaced to rules through ESLint settings. */
+  /** Union of jsSuffixes and tsSuffixes, used to classify test-case files during rule selection. */
   private static testFileExtensions: string[] = [];
 
   /** Linter is a static class and cannot be instantiated */
@@ -294,7 +295,6 @@ export class Linter {
         predefinedGlobals: getPredefinedGlobals(detectedEsYear),
         sonarRuntime: true,
         workDir: Linter.rulesWorkdir,
-        testFileExtensions: Linter.testFileExtensions,
         ...lintOptions.additionalSettings,
       },
       files: [`**/*${path.posix.extname(normalizePath(filePath))}`],
@@ -366,6 +366,7 @@ export class Linter {
     const baseContext = {
       extensionName: extname(normalizePath(filePath)),
       fileType,
+      isTestCaseFile: isTestCaseFile(normalizedFilePath, Linter.testFileExtensions),
       fileLanguage,
       analysisMode,
       detectedEsYear,
@@ -512,6 +513,7 @@ function createLinterConfigKey(
   context: Pick<
     RuleFilterContext,
     | 'fileType'
+    | 'isTestCaseFile'
     | 'fileLanguage'
     | 'analysisMode'
     | 'detectedEsYear'
@@ -527,6 +529,6 @@ function createLinterConfigKey(
     dirnamePath(normalizedPath),
     baseDir,
   );
-  const linterConfigKey = `${context.fileType}-${context.fileLanguage}-${context.analysisMode}-${extname(normalizedPath)}-${dependencyManifestDirName}`;
+  const linterConfigKey = `${context.fileType}-${context.isTestCaseFile ? 'test-case' : 'no-test-case'}-${context.fileLanguage}-${context.analysisMode}-${extname(normalizedPath)}-${dependencyManifestDirName}`;
   return `${linterConfigKey}:${context.detectedEsYear ?? 'esnext'}:${context.targetEsYear ?? 'target-unknown'}:${context.detectedModuleType ?? 'unknown'}:${context.detectGeneratedCode === false ? 'generated-off' : 'generated-on'}:${context.isGeneratedSource === true ? 'generated' : 'regular'}`;
 }

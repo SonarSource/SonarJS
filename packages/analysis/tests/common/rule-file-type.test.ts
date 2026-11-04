@@ -16,7 +16,7 @@
  */
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import { getFileTypeForRules } from '../../src/common/rule-file-type.js';
+import { getFileTypeForRules, isTestCaseFile } from '../../src/common/rule-file-type.js';
 import { filterPathAndGetFileType } from '../../src/common/filter/filter-path.js';
 import { createConfiguration, getFilterPathParams } from '../../src/common/configuration.js';
 import { normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
@@ -340,5 +340,48 @@ describe('rule file type', () => {
       const result = getFileTypeForRules(filePath, 'TEST', getFilterPathParams(config));
       expect(result).toBe('TEST');
     });
+  });
+});
+
+describe('isTestCaseFile', () => {
+  it('matches test-case markers before the default JS/TS suffixes', () => {
+    for (const filename of [
+      'foo.test.js',
+      'foo.test.mjs',
+      'foo.test.cjs',
+      'foo.test.jsx',
+      'foo.test.vue',
+      'foo.spec.ts',
+      'foo.test.mts',
+      'foo.spec.cts',
+      'foo.cy.tsx',
+    ]) {
+      expect(isTestCaseFile(filename)).toBe(true);
+    }
+  });
+
+  it('only matches the configured suffixes when provided', () => {
+    expect(isTestCaseFile('foo.test.dummy')).toBe(false);
+    expect(isTestCaseFile('foo.test.dummy', ['.dummy', '.bar'])).toBe(true);
+    expect(isTestCaseFile('foo.spec.bar', ['bar'])).toBe(true);
+    expect(isTestCaseFile('foo.test.js', ['.dummy'])).toBe(false);
+  });
+
+  it('does not match test-related files that need not declare test cases', () => {
+    for (const filename of [
+      '/project/src/__tests__/helpers.js',
+      '/project/src/__mocks__/api.js',
+      '/project/src/api.mock.js',
+      '/project/src/login.e2e.js',
+      '/project/tests/login.js',
+      '/project/src/testimony.ts',
+    ]) {
+      expect(isTestCaseFile(filename)).toBe(false);
+    }
+  });
+
+  it('distinguishes files sharing a directory and extension', () => {
+    expect(isTestCaseFile('/project/src/__tests__/login.test.js')).toBe(true);
+    expect(isTestCaseFile('/project/src/__tests__/helpers.js')).toBe(false);
   });
 });
