@@ -43,36 +43,65 @@ export class ModuleInitializerTracker {
     const value = unwrapTypeScriptValue(target);
     const path = getModuleLoaderPath(value, true);
     if (path) {
-      if (!this.hasRuntimeBinding(value, path[0])) {
-        for (const [key, candidate] of remainingPaths) {
-          if (isPathPrefix(path, candidate)) {
-            remainingPaths.delete(key);
-          }
-        }
+      this.invalidateLoaderPath(value, path, remainingPaths);
+      return;
+    }
+
+    switch (value.type) {
+      case 'ArrayPattern':
+        this.invalidateArrayPattern(value, remainingPaths);
+        break;
+      case 'ObjectPattern':
+        this.invalidateObjectPattern(value, remainingPaths);
+        break;
+      case 'AssignmentPattern':
+        this.invalidateWithWrite(value.left, remainingPaths);
+        break;
+      case 'RestElement':
+        this.invalidateWithWrite(value.argument, remainingPaths);
+        break;
+    }
+  }
+
+  private invalidateLoaderPath(
+    value: estree.Node,
+    path: string[],
+    remainingPaths: Map<string, string[]>,
+  ): void {
+    if (this.hasRuntimeBinding(value, path[0])) {
+      return;
+    }
+    for (const [key, candidate] of remainingPaths) {
+      if (isPathPrefix(path, candidate)) {
+        remainingPaths.delete(key);
       }
-    } else if (value.type === 'ArrayPattern') {
-      for (const element of value.elements) {
-        if (remainingPaths.size === 0) {
-          break;
-        }
-        if (element) {
-          this.invalidateWithWrite(element, remainingPaths);
-        }
+    }
+  }
+
+  private invalidateArrayPattern(
+    pattern: estree.ArrayPattern,
+    remainingPaths: Map<string, string[]>,
+  ): void {
+    for (const element of pattern.elements) {
+      if (remainingPaths.size === 0) {
+        break;
       }
-    } else if (value.type === 'ObjectPattern') {
-      for (const property of value.properties) {
-        if (remainingPaths.size === 0) {
-          break;
-        }
-        this.invalidateWithWrite(
-          property.type === 'RestElement' ? property.argument : property.value,
-          remainingPaths,
-        );
+      if (element) {
+        this.invalidateWithWrite(element, remainingPaths);
       }
-    } else if (value.type === 'AssignmentPattern') {
-      this.invalidateWithWrite(value.left, remainingPaths);
-    } else if (value.type === 'RestElement') {
-      this.invalidateWithWrite(value.argument, remainingPaths);
+    }
+  }
+
+  private invalidateObjectPattern(
+    pattern: estree.ObjectPattern,
+    remainingPaths: Map<string, string[]>,
+  ): void {
+    for (const property of pattern.properties) {
+      if (remainingPaths.size === 0) {
+        break;
+      }
+      const target = property.type === 'RestElement' ? property.argument : property.value;
+      this.invalidateWithWrite(target, remainingPaths);
     }
   }
 
