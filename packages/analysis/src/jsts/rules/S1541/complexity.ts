@@ -33,19 +33,22 @@ interface ComplexityTraversal {
   hasNestedFunction(node: estree.Node): boolean;
 }
 
+/** Supply AST data without tying complexity counting to ESLint. */
+interface ComplexityAstAccess {
+  getBranchToken(node: estree.Node): ComplexityToken | null | undefined;
+  getFunctionParent(node: FunctionNodeType): estree.Node | undefined;
+}
+
 /** Store branch tokens for the current function, separate from its nested functions. */
 export class ComplexityAccumulator implements ComplexityTraversal {
   private readonly functions: FunctionInfo[] = [];
   private readonly functionStack: FunctionInfo[] = [];
   private readonly functionsWithNested = new Set<estree.Node>();
 
-  constructor(
-    private readonly getBranchToken: (node: estree.Node) => ComplexityToken | null | undefined,
-    private readonly getFunctionParent: (node: FunctionNodeType) => estree.Node | undefined,
-  ) {}
+  constructor(private readonly ast: ComplexityAstAccess) {}
 
   enterFunction(node: FunctionNodeType) {
-    const info: FunctionInfo = { node, parent: this.getFunctionParent(node), tokens: [] };
+    const info: FunctionInfo = { node, parent: this.ast.getFunctionParent(node), tokens: [] };
     this.functions.push(info);
     const enclosing = this.functionStack.at(-1);
     if (enclosing) {
@@ -61,7 +64,7 @@ export class ComplexityAccumulator implements ComplexityTraversal {
   addBranch(node: estree.Node) {
     const enclosing = this.functionStack.at(-1);
     if (enclosing) {
-      const token = this.getBranchToken(node);
+      const token = this.ast.getBranchToken(node);
       if (token) {
         enclosing.tokens.push(token);
       }
@@ -82,10 +85,11 @@ export class ComplexityTracker implements ComplexityTraversal {
   private readonly accumulator: ComplexityAccumulator;
 
   constructor(private readonly context: Rule.RuleContext) {
-    this.accumulator = new ComplexityAccumulator(
-      node => getComplexityToken(node, context),
-      node => getParent(context, node),
-    );
+    const ast: ComplexityAstAccess = {
+      getBranchToken: node => getComplexityToken(node, context),
+      getFunctionParent: node => getParent(context, node),
+    };
+    this.accumulator = new ComplexityAccumulator(ast);
   }
 
   enterFunction(node: FunctionNodeType) {
