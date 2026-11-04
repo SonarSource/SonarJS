@@ -53,9 +53,14 @@ Missing or old `{}` collector metadata and unrecorded program selections use sou
 If replay fails with a missing filesystem observation or an unsupported filesystem operation,
 SonarJS ends both replay sessions and retries once using the original request settings and submitted
 contents in the runtime project directory. Logs and response metadata warn that type information
-and dependency context may be incomplete. Replay events are buffered until the attempt succeeds,
-so a retry cannot mix partially replayed results with source-only results. This delays streamed
-replay results and retains them in memory until success. Cancellation applies across both attempts.
+and dependency context may be incomplete for the remaining files. Results are streamed immediately.
+If replay fails after some file results have been delivered, those results are retained and the
+source-only attempt analyzes only unfinished files, including the file that failed. Completed files
+remain available as submitted dependency inputs without being analyzed or emitted again. Only
+completed file paths are tracked; file results are not buffered. The final stream can therefore
+contain context-backed results followed by source-only results and one final metadata event with
+the fallback warning. Cancellation applies across both attempts. Unary requests have not delivered
+partial results and retry the complete analysis.
 
 Malformed metadata, incomplete attachment pairs, corrupt snapshots, invalid paths and unrelated
 analyzer errors remain failures. A source-only retry failure also propagates. Fallback is explicitly

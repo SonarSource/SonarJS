@@ -37,6 +37,7 @@ import {
   toAnalyzeProjectUnaryResponse,
 } from '../src/analyze-project-convert.js';
 import { ProgressReport } from '../../analysis/src/common/progress-report.js';
+import { Linter } from '../../analysis/src/jsts/linter/linter.js';
 import { gunzipSync, gzipSync } from 'node:zlib';
 import {
   deserializeProtobufDocument,
@@ -874,6 +875,8 @@ describe('analyze-project request handler', () => {
   for (const failure of [
     'cache miss',
     'unsupported operation',
+    'in-file cache miss',
+    'delivery error',
     'analyzer error',
     'fallback error',
     'cancelled',
@@ -885,18 +888,32 @@ describe('analyze-project request handler', () => {
       const work = path.join(temporary, 'runtime');
       for (const directory of [recordRoot, replayRoot, work]) fs.mkdirSync(directory);
       const content = '[80, 3, 9].sort();;';
-      for (const filename of ['first.ts', 'second.ts']) {
-        fs.writeFileSync(path.join(recordRoot, filename), content);
+      const filenames = ['first.ts', 'second.ts', 'third.ts'];
+      const source = (filename: string, record: boolean) => {
+        if (failure !== 'in-file cache miss') return content;
+        if (filename === 'first.ts')
+          return record
+            ? 'export const values: string[] = ["a", "b"];;'
+            : 'export const values: number[] = [80, 3, 9];;';
+        if (filename === 'second.ts') return 'import { values } from "./first"; values.sort();;';
+        return content;
+      };
+      for (const filename of filenames) {
+        fs.writeFileSync(path.join(recordRoot, filename), source(filename, true));
       }
       (globalThis as Record<symbol, unknown>)[FS_CACHE_INSTALLATION] = installFsCache();
       const createRequest = (record: boolean): AnalyzeProjectRequest => {
         const baseDir = record ? recordRoot : replayRoot;
         return {
-          configuration: { baseDir, canAccessFileSystem: true, disableTypeChecking: !record },
+          configuration: {
+            baseDir,
+            canAccessFileSystem: true,
+            disableTypeChecking: !record && failure !== 'in-file cache miss',
+          },
           files: Object.fromEntries(
-            ['first.ts', 'second.ts'].map(filename => [
+            filenames.map(filename => [
               path.join(baseDir, filename),
-              { fileContent: content, fileType: FileType.FILE_TYPE_MAIN },
+              { fileContent: source(filename, record), fileType: FileType.FILE_TYPE_MAIN },
             ]),
           ),
           rules: ['S2871', 'S1116'].map(key => ({
@@ -917,6 +934,7 @@ describe('analyze-project request handler', () => {
         };
       };
       let progress;
+      let lint;
       try {
         expect(
           await handleAnalyzeProjectRequest(
@@ -927,19 +945,21 @@ describe('analyze-project request handler', () => {
         fs.rmSync(recordRoot, { recursive: true });
         const events: AnalyzeProjectIncrementalEvent[] = [];
         let filesVisited = 0;
+        const visited: string[] = [];
         const nextFile = ProgressReport.prototype.nextFile;
         progress = mock.method(
           ProgressReport.prototype,
           'nextFile',
           function (this: ProgressReport, filename: string) {
             nextFile.call(this, filename);
+            visited.push(path.basename(filename));
             // Model a new analyzer operation after one result was produced by the older context.
             filesVisited++;
             if (failure === 'fallback error' && filesVisited === 3) {
               throw new Error('Source-only analysis failed');
             }
             if (filesVisited !== 2) return;
-            expect(events).toEqual([]);
+            expect(events.map(({ event }) => event.messageType)).toEqual(['fileResult']);
             switch (failure) {
               case 'cache miss':
               case 'fallback error':
@@ -947,6 +967,9 @@ describe('analyze-project request handler', () => {
                 break;
               case 'unsupported operation':
                 fs.statfsSync(recordRoot);
+                break;
+              case 'in-file cache miss':
+              case 'delivery error':
                 break;
               case 'analyzer error':
                 throw new Error('Unrelated analyzer failure');
@@ -956,18 +979,40 @@ describe('analyze-project request handler', () => {
             }
           },
         );
+        if (failure === 'in-file cache miss') {
+          const originalLint = Linter.lint;
+          let failed = false;
+          lint = mock.method(Linter, 'lint', (...args: Parameters<typeof Linter.lint>) => {
+            if (!failed && path.basename(args[1]) === 'second.ts') {
+              failed = true;
+              fs.statSync(path.join(recordRoot, 'not-observed-in-ci'));
+            }
+            return originalLint.call(Linter, ...args);
+          });
+        }
         const request = createRequest(false);
         const response = await handleAnalyzeProjectRequest(
           { type: 'on-analyze-project', data: request },
           workerData,
-          event => events.push(event),
+          event => {
+            events.push(event);
+            if (failure === 'delivery error')
+              fs.statSync(path.join(recordRoot, 'not-observed-in-ci'));
+          },
         );
         if (failure === 'analyzer error') {
           expect(response).toMatchObject({
             type: 'failure',
             error: { message: 'Unrelated analyzer failure' },
           });
-          expect(events).toEqual([]);
+          expect(events.map(({ event }) => event.messageType)).toEqual(['fileResult']);
+          expect(request.filesystemCache).toBeDefined();
+        } else if (failure === 'delivery error') {
+          expect(response).toMatchObject({
+            type: 'failure',
+            error: { message: expect.stringContaining('Filesystem cache has no') },
+          });
+          expect(filesVisited).toBe(1);
           expect(request.filesystemCache).toBeDefined();
         } else if (failure === 'fallback error') {
           expect(response).toMatchObject({
@@ -975,26 +1020,37 @@ describe('analyze-project request handler', () => {
             error: { message: 'Source-only analysis failed' },
           });
           expect(filesVisited).toBe(3);
-          expect(events).toEqual([]);
+          expect(events.map(({ event }) => event.messageType)).toEqual(['fileResult']);
           expect(request.filesystemCache).toBeUndefined();
         } else if (failure === 'cancelled') {
           expect(response).toMatchObject({ type: 'success' });
-          expect(events.map(({ event }) => event.messageType)).toEqual(['cancelled']);
+          expect(events.map(({ event }) => event.messageType)).toEqual(['fileResult', 'cancelled']);
         } else {
           expect(response).toMatchObject({ type: 'success' });
-          expect(filesVisited).toBe(4);
+          expect(visited).toEqual(['first.ts', 'second.ts', 'second.ts', 'third.ts']);
           expect(events.map(({ event }) => event.messageType)).toEqual([
+            'fileResult',
             'fileResult',
             'fileResult',
             'meta',
           ]);
-          for (const event of events.slice(0, 2)) {
-            const converted = toAnalyzeProjectStreamResponse(event.event, event.pathMap);
-            expect(converted.fileResult!.filePath).toMatch(/sqaa[/\\](first|second)\.ts$/);
-            // The discarded attempt had type information and reported S2871 as well.
-            expect(converted.fileResult!.result!.issues).toEqual([
-              expect.objectContaining({ ruleId: 'S1116' }),
-            ]);
+          const converted = events
+            .slice(0, 3)
+            .map(event => toAnalyzeProjectStreamResponse(event.event, event.pathMap).fileResult!);
+          expect(converted.map(file => file.filePath)).toEqual([
+            path.join(replayRoot, 'first.ts'),
+            path.join(replayRoot, 'second.ts'),
+            path.join(replayRoot, 'third.ts'),
+          ]);
+          // Retain the result streamed with context; only the failed file uses source-only analysis.
+          expect(converted[0].result!.issues!.map(issue => issue.ruleId).sort()).toEqual(
+            failure === 'in-file cache miss' ? ['S1116'] : ['S1116', 'S2871'],
+          );
+          for (const file of converted.slice(1)) {
+            // The resumed program must still read the submitted edit of completed first.ts.
+            expect(file.result!.issues!.map(issue => issue.ruleId).sort()).toEqual(
+              failure === 'in-file cache miss' ? ['S1116', 'S2871'] : ['S1116'],
+            );
           }
           expect(events.at(-1)!.event).toMatchObject({
             warnings: [expect.stringContaining('falling back to source-only analysis')],
@@ -1010,6 +1066,7 @@ describe('analyze-project request handler', () => {
         ).toMatchObject({ type: 'success' });
       } finally {
         progress?.mock.restore();
+        lint?.mock.restore();
         fs.rmSync(temporary, { recursive: true, force: true });
       }
     });

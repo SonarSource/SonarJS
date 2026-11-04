@@ -259,6 +259,7 @@ async function analyzeNormalizedProject(
   input: Awaited<ReturnType<typeof normalizeAnalyzeProjectRequest>>,
   programSelection: ProgramSelectionArchive | undefined,
   incrementalResultsChannel?: (result: AnalyzeProjectIncrementalEvent) => void,
+  completedFiles?: ReadonlySet<NormalizedAbsolutePath>,
 ) {
   const wrappedIncrementalResultsChannel = incrementalResultsChannel
     ? (event: AnalyzeProjectIncrementalEvent['event']) =>
@@ -274,6 +275,7 @@ async function analyzeNormalizedProject(
       bundles: input.bundles,
       rulesWorkdir: input.rulesWorkdir,
       programSelection,
+      completedFiles,
     },
     input.configuration,
     wrappedIncrementalResultsChannel,
@@ -301,40 +303,47 @@ async function handleProjectAnalysis(
     beginAnalysisSessions(request, cacheMode, sessions);
     return await withAnalysisCancellation(async () => {
       logHeapStatistics(workerData?.debugMemory);
+      const completedFiles = new Set<NormalizedAbsolutePath>();
+      let deliveryFailed = false;
       const publishEvent = incrementalResultsChannel
         ? (event: AnalyzeProjectIncrementalEvent) => {
+            const completedFile =
+              event.event.messageType === 'fileResult' &&
+              sessions.filesystemCacheSession?.mode === 'replay'
+                ? sessions.paths!.sourceOnlyPath(event.event.filename)
+                : undefined;
             if (event.event.messageType === 'meta' && sessions.fallbackWarning) {
               event.event.warnings.push(sessions.fallbackWarning);
             }
-            incrementalResultsChannel(event);
+            try {
+              incrementalResultsChannel(event);
+            } catch (error) {
+              deliveryFailed = true;
+              throw error;
+            }
+            // Record completion only after delivery succeeds. Retain names, never file results.
+            if (completedFile !== undefined) completedFiles.add(completedFile);
           }
         : undefined;
-      const analyze = async (channel = publishEvent) => {
+      const analyze = async (completed?: ReadonlySet<NormalizedAbsolutePath>) => {
         const input = await normalizeProjectInput(request, cacheMode, sessions);
-        return analyzeNormalizedProject(input, sessions.programSelection, channel);
+        return analyzeNormalizedProject(input, sessions.programSelection, publishEvent, completed);
       };
       let result;
-      if (sessions.filesystemCacheSession?.mode === 'replay') {
-        // A failed replay may already have analyzed files. Publish its events only after
-        // success so the caller never receives results from both attempts.
-        const events: AnalyzeProjectIncrementalEvent[] = [];
-        try {
-          result = await analyze(publishEvent ? event => events.push(event) : undefined);
-        } catch (error) {
-          if (!sessions.filesystemCacheSession || !isFsCacheReplayError(error)) {
-            throw error;
-          }
-          fallBackToSourceOnly(sessions, `Could not replay SonarJS context: ${error.message}`);
-          events.length = 0;
-          // Retry once, in the same cancellation scope, with fresh stores and the original
-          // request settings and contents. No replay/native filesystem mixing is permitted.
-          result = await analyze();
-        }
-        for (const event of events) {
-          publishEvent?.(event);
-        }
-      } else {
+      try {
         result = await analyze();
+      } catch (error) {
+        if (
+          deliveryFailed ||
+          sessions.filesystemCacheSession?.mode !== 'replay' ||
+          !isFsCacheReplayError(error)
+        ) {
+          throw error;
+        }
+        fallBackToSourceOnly(sessions, `Could not replay SonarJS context: ${error.message}`);
+        // Rebuild context once in the same cancellation scope. Already delivered files stay
+        // available as submitted dependencies, but only unfinished files are analyzed again.
+        result = await analyze(completedFiles);
       }
       if (
         sessions.fallbackWarning &&

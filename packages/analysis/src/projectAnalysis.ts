@@ -122,4 +122,6 @@ export type ProjectAnalysisInput = {
   bundles: NormalizedAbsolutePath[];
   rulesWorkdir?: NormalizedAbsolutePath;
   programSelection?: ProgramSelectionArchive;
+  // Completed files remain program inputs, but must not be analyzed or emitted again.
+  completedFiles?: ReadonlySet<NormalizedAbsolutePath>;
 };

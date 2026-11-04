@@ -82,6 +82,23 @@ export class ReplayProjectPaths {
     this.request.filesystemCache = undefined;
   }
 
+  /** Translate a delivered replay file before ending the session or resetting its path map. */
+  sourceOnlyPath(file: string): NormalizedAbsolutePath {
+    const original = this.originalPaths.get(file);
+    const relative = relativeProjectPath(
+      original ?? file,
+      original === undefined
+        ? normalizeProjectRoot(this.request.configuration!.baseDir!)
+        : this.requestBaseDir,
+    );
+    if (relative === undefined) {
+      throw new InvalidAnalyzeProjectRequestError(
+        'Replay file is outside the project base directory',
+      );
+    }
+    return normalizeToAbsolutePath(relative, this.fallbackBaseDir);
+  }
+
   restoreResponsePaths(pathMap: Map<string, string>): void {
     for (const [logicalPath, originalPath] of this.originalPaths) {
       pathMap.set(logicalPath, originalPath);

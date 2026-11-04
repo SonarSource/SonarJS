@@ -283,127 +283,180 @@ describe('analyze-project worker', () => {
       }
     });
   }
-  it('retries an older scanner-workdir context in the real worker and leaves it reusable', async () => {
-    const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'worker-context-fallback-'));
-    const ci = path.join(temporary, 'ci');
-    const sqaa = path.join(temporary, 'sqaa');
-    const scannerWorkdir = path.join(ci, 'target/sonar');
-    const runtime = path.join(temporary, 'runtime');
-    for (const directory of [scannerWorkdir, sqaa, runtime]) {
-      fs.mkdirSync(directory, { recursive: true });
-    }
-    const content = '[80, 3, 9].sort();';
-    fs.writeFileSync(path.join(ci, 'input.ts'), content);
-    const worker = new Worker(
-      path.resolve(import.meta.dirname, '../../../lib/grpc/src/analyze-project-worker.js'),
-      { workerData },
-    );
-    const { FileType, JsTsLanguage, AnalysisMode, FilesystemCacheMode } =
-      analyzeProjectProto.analyzeproject.v1;
-    const contextMetadata = JSON.stringify({
-      configuration: { baseDir: ci, jsTsExclusions: { values: [] } },
-    });
-    let sequence = 0;
-    const analyze = (record: boolean, stream: boolean, contents = content) =>
-      new Promise<AnalyzeProjectWorkerOutMessage[]>((resolve, reject) => {
-        const requestId = String(++sequence);
-        const messages: AnalyzeProjectWorkerOutMessage[] = [];
-        const onError = (error: Error) => finish(error);
-        const onMessage = (message: AnalyzeProjectWorkerOutMessage) => {
-          if (message.requestId !== requestId) return;
-          messages.push(message);
-          if (message.type === 'unary-complete' || message.type === 'stream-complete') finish();
-        };
-        const timer = setTimeout(
-          () => finish(new Error('Context fallback worker timed out')),
-          30_000,
-        );
-        function finish(error?: Error) {
-          clearTimeout(timer);
-          worker.off('message', onMessage);
-          worker.off('error', onError);
-          if (error) reject(error);
-          else resolve(messages);
-        }
-        worker.on('message', onMessage);
-        worker.once('error', onError);
-        const baseDir = record ? ci : sqaa;
-        const rulesWorkdir = record ? scannerWorkdir : runtime;
-        worker.postMessage({
-          type: stream ? 'analyze-stream' : 'analyze-unary',
-          requestId,
-          request: {
-            configuration: { baseDir, jsTsExclusions: { values: [] } },
-            files: {
-              [path.join(baseDir, 'input.ts')]: {
-                fileContent: contents,
-                fileType: FileType.FILE_TYPE_MAIN,
-              },
-            },
-            rules: [
-              {
-                key: 'S2871',
-                configurations: [],
-                fileTypeTargets: [FileType.FILE_TYPE_MAIN],
-                language: JsTsLanguage.JS_TS_LANGUAGE_TS,
-                analysisModes: [AnalysisMode.ANALYSIS_MODE_DEFAULT],
-              },
-            ],
-            rulesWorkdir,
-            filesystemCache: {
-              archivePath: path.join(rulesWorkdir, 'fs.pb.gz'),
-              analysisMetadataPath: path.join(rulesWorkdir, 'metadata.pb.gz'),
-              mode: record
-                ? FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD
-                : FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY,
-              contextMetadata: record ? undefined : contextMetadata,
-            },
-          },
-        } satisfies AnalyzeProjectWorkerInMessage);
-      });
-    try {
-      expect(await analyze(true, false)).toMatchObject([
-        { type: 'unary-complete', result: { type: 'success' } },
-      ]);
-      const artifacts = ['fs.pb.gz', 'metadata.pb.gz'];
-      for (const artifact of artifacts) {
-        fs.copyFileSync(path.join(scannerWorkdir, artifact), path.join(runtime, artifact));
-      }
-      const bytes = artifacts.map(artifact => fs.readFileSync(path.join(runtime, artifact)));
-      fs.rmSync(ci, { recursive: true });
-      const filename = path.join(sqaa, 'input.ts');
-      const warning = expect.stringContaining('falling back to source-only analysis');
-      expect(await analyze(false, true)).toMatchObject([
-        {
-          type: 'event',
-          response: {
-            fileResult: {
-              filePath: filename,
-              result: { issues: [expect.objectContaining({ ruleId: 'S2871' })] },
-            },
-          },
-        },
-        { type: 'event', response: { meta: { warnings: [warning] } } },
-        { type: 'stream-complete', result: { type: 'success' } },
-      ]);
-      // Replay again with an edit: the failed context is unchanged and each retry uses current contents.
-      expect(await analyze(false, false, '[80, 3, 9].sort((a, b) => a - b);')).toMatchObject([
-        {
-          type: 'unary-complete',
-          result: {
-            type: 'success',
-            result: { files: { [filename]: { issues: [] } }, meta: { warnings: [warning] } },
-          },
-        },
-      ]);
-      artifacts.forEach((artifact, index) =>
-        expect(fs.readFileSync(path.join(runtime, artifact))).toEqual(bytes[index]),
+  for (const phase of ['normalization', 'file analysis'] as const) {
+    it(`recovers from a replay failure during ${phase} in the real worker and leaves it reusable`, async () => {
+      const temporary = fs.realpathSync(
+        fs.mkdtempSync(path.join(os.tmpdir(), 'worker-context-fallback-')),
       );
-    } finally {
-      await worker.terminate();
-      fs.rmSync(temporary, { recursive: true, force: true });
-    }
-  });
+      const ci = path.join(temporary, 'ci');
+      const sqaa = path.join(temporary, 'sqaa');
+      const scannerWorkdir = path.join(ci, 'target/sonar');
+      const runtime = path.join(temporary, 'runtime');
+      for (const directory of [scannerWorkdir, sqaa, runtime]) {
+        fs.mkdirSync(directory, { recursive: true });
+      }
+      const content = '[80, 3, 9].sort();';
+      const filenames =
+        phase === 'normalization' ? ['input.ts'] : ['first.ts', 'second.ts', 'third.ts'];
+      for (const filename of filenames) fs.writeFileSync(path.join(ci, filename), content);
+      const exclusions =
+        phase === 'normalization' ? [] : [`directory:${normalizeToAbsolutePath(scannerWorkdir)}`];
+      const visits = path.join(runtime, 'visits.log');
+      const bundle = path.join(runtime, 'new-rule.mjs');
+      fs.writeFileSync(path.join(sqaa, 'new-observation'), 'available during source-only analysis');
+      // A newer analyzer rule needs an operation that the producer never recorded.
+      fs.writeFileSync(
+        bundle,
+        `
+      import fs from 'node:fs';
+      import path from 'node:path';
+      export const rules = [{ ruleId: 'replay-fs-probe', ruleModule: {
+        create(context) { return { Program() {
+          const name = path.basename(context.filename);
+          fs.appendFileSync(${JSON.stringify(visits)}, name + '\\n');
+          if (name === 'second.ts') fs.statSync(path.join(path.dirname(context.filename), 'new-observation'));
+        } }; }
+      } }];
+    `,
+      );
+      const worker = new Worker(
+        path.resolve(import.meta.dirname, '../../../lib/grpc/src/analyze-project-worker.js'),
+        { workerData },
+      );
+      const { FileType, JsTsLanguage, AnalysisMode, FilesystemCacheMode } =
+        analyzeProjectProto.analyzeproject.v1;
+      const contextMetadata = JSON.stringify({
+        configuration: { baseDir: ci, jsTsExclusions: { values: exclusions } },
+      });
+      let sequence = 0;
+      const analyze = (record: boolean, stream: boolean, contents = content) =>
+        new Promise<AnalyzeProjectWorkerOutMessage[]>((resolve, reject) => {
+          const requestId = String(++sequence);
+          const messages: AnalyzeProjectWorkerOutMessage[] = [];
+          const onError = (error: Error) => finish(error);
+          const onMessage = (message: AnalyzeProjectWorkerOutMessage) => {
+            if (message.requestId !== requestId) return;
+            messages.push(message);
+            if (message.type === 'unary-complete' || message.type === 'stream-complete') finish();
+          };
+          const timer = setTimeout(
+            () => finish(new Error('Context fallback worker timed out')),
+            30_000,
+          );
+          function finish(error?: Error) {
+            clearTimeout(timer);
+            worker.off('message', onMessage);
+            worker.off('error', onError);
+            if (error) reject(error);
+            else resolve(messages);
+          }
+          worker.on('message', onMessage);
+          worker.once('error', onError);
+          const baseDir = record ? ci : sqaa;
+          const rulesWorkdir = record ? scannerWorkdir : runtime;
+          worker.postMessage({
+            type: stream ? 'analyze-stream' : 'analyze-unary',
+            requestId,
+            request: {
+              configuration: { baseDir, jsTsExclusions: { values: exclusions } },
+              files: Object.fromEntries(
+                filenames.map(filename => [
+                  path.join(baseDir, filename),
+                  {
+                    fileContent: contents,
+                    fileType: FileType.FILE_TYPE_MAIN,
+                  },
+                ]),
+              ),
+              bundles: !record && phase === 'file analysis' ? [bundle] : [],
+              rules: [
+                ...(!record && phase === 'file analysis'
+                  ? [
+                      {
+                        key: 'replay-fs-probe',
+                        configurations: [],
+                        fileTypeTargets: [FileType.FILE_TYPE_MAIN],
+                        language: JsTsLanguage.JS_TS_LANGUAGE_TS,
+                        analysisModes: [AnalysisMode.ANALYSIS_MODE_DEFAULT],
+                      },
+                    ]
+                  : []),
+                {
+                  key: 'S2871',
+                  configurations: [],
+                  fileTypeTargets: [FileType.FILE_TYPE_MAIN],
+                  language: JsTsLanguage.JS_TS_LANGUAGE_TS,
+                  analysisModes: [AnalysisMode.ANALYSIS_MODE_DEFAULT],
+                },
+              ],
+              rulesWorkdir,
+              filesystemCache: {
+                archivePath: path.join(rulesWorkdir, 'fs.pb.gz'),
+                analysisMetadataPath: path.join(rulesWorkdir, 'metadata.pb.gz'),
+                mode: record
+                  ? FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD
+                  : FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY,
+                contextMetadata: record ? undefined : contextMetadata,
+              },
+            },
+          } satisfies AnalyzeProjectWorkerInMessage);
+        });
+      try {
+        expect(await analyze(true, false)).toMatchObject([
+          { type: 'unary-complete', result: { type: 'success' } },
+        ]);
+        const artifacts = ['fs.pb.gz', 'metadata.pb.gz'];
+        for (const artifact of artifacts) {
+          fs.copyFileSync(path.join(scannerWorkdir, artifact), path.join(runtime, artifact));
+        }
+        const bytes = artifacts.map(artifact => fs.readFileSync(path.join(runtime, artifact)));
+        fs.rmSync(ci, { recursive: true });
+        const warning = expect.stringContaining('falling back to source-only analysis');
+        expect(await analyze(false, true)).toMatchObject([
+          ...filenames.map(filename => ({
+            type: 'event',
+            response: {
+              fileResult: {
+                filePath: path.join(sqaa, filename),
+                result: { issues: [expect.objectContaining({ ruleId: 'S2871' })] },
+              },
+            },
+          })),
+          { type: 'event', response: { meta: { warnings: [warning] } } },
+          { type: 'stream-complete', result: { type: 'success' } },
+        ]);
+        if (phase === 'file analysis') {
+          expect(fs.readFileSync(visits, 'utf8').trim().split('\n')).toEqual([
+            'first.ts',
+            'second.ts',
+            'second.ts',
+            'third.ts',
+          ]);
+        }
+        // Replay again with an edit: the failed context is unchanged and each retry uses current contents.
+        expect(await analyze(false, false, '[80, 3, 9].sort((a, b) => a - b);')).toMatchObject([
+          {
+            type: 'unary-complete',
+            result: {
+              type: 'success',
+              result: {
+                files: Object.fromEntries(
+                  filenames.map(filename => [path.join(sqaa, filename), { issues: [] }]),
+                ),
+                meta: { warnings: [warning] },
+              },
+            },
+          },
+        ]);
+        artifacts.forEach((artifact, index) =>
+          expect(fs.readFileSync(path.join(runtime, artifact))).toEqual(bytes[index]),
+        );
+      } finally {
+        await worker.terminate();
+        fs.rmSync(temporary, { recursive: true, force: true });
+      }
+    });
+  }
 
   it('records project Stylelint lookups independently of process cwd and replays edited HTML', async () => {
     const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'worker-css-root-'));
