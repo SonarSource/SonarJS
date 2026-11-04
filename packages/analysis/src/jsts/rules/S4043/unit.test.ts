@@ -224,6 +224,12 @@ describe('S4043', () => {
           errors: 1,
         },
         {
+          code: `function optionalAccessAfterNonNullAssertion(box?: { inner: { items: number[] } }) {
+            const sorted = box?.inner!.items.sort();
+          }`,
+          errors: 1,
+        },
+        {
           code: `function assertedReceiver(items: number[]) {
             const sorted = (items as number[]).sort();
           }`,

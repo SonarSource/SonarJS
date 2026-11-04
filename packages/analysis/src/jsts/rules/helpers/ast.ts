@@ -197,15 +197,15 @@ export function unwrapTypeScriptExpression<T extends Node>(node: T): T {
  * a chain boundary created by parentheses.
  */
 export function isInOptionalChain(node: TSESTree.Node): boolean {
-  let current = node;
+  let current = unwrapTypeScriptExpression(node);
   while (current.type === 'MemberExpression' || current.type === 'CallExpression') {
     if (current.optional) {
       return true;
     }
     if (current.type === 'MemberExpression') {
-      current = current.object;
+      current = unwrapTypeScriptExpression(current.object);
     } else if (current.callee.type !== 'Super') {
-      current = current.callee;
+      current = unwrapTypeScriptExpression(current.callee);
     } else {
       return false;
     }
