@@ -1,7 +1,4 @@
 {
-"vitest:packages/ui/client/components/artifacts/visual-regression/SmallTabs.spec.ts": [
-19
-],
 "vitest:packages/vitest/src/integrations/chai/poll.ts": [
 140
 ]

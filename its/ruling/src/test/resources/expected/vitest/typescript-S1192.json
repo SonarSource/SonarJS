@@ -26,17 +26,8 @@
 "vitest:packages/snapshot/src/client.ts": [
 140
 ],
-"vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegression.spec.ts": [
-36,
-37
-],
 "vitest:packages/ui/client/components/explorer/ExplorerItem.vue": [
 105
-],
-"vitest:packages/ui/client/components/views/ViewReport.spec.ts": [
-39,
-41,
-47
 ],
 "vitest:packages/vitest/src/create/browser/examples.ts": [
 6

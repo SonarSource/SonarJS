@@ -138,13 +138,6 @@ describe('S2925', () => {
         },
         {
           code: `
-            cy.wait(1000);
-            page.waitForTimeout(1000);
-          `,
-          filename: 'src/app/page.ts',
-        },
-        {
-          code: `
             it('keeps Cypress debug helpers out of scope', () => {
               cy.pause();
               cy.get('button.save').debug();

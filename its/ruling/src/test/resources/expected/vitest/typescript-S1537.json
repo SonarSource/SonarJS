@@ -8,9 +8,6 @@
 7,
 8
 ],
-"vitest:examples/basic/test/basic.test.ts": [
-20
-],
 "vitest:examples/basic/vite.config.ts": [
 11
 ],
@@ -22,9 +19,6 @@
 ],
 "vitest:examples/fastify/src/app.ts": [
 6
-],
-"vitest:examples/fastify/test/app.test.ts": [
-10
 ],
 "vitest:examples/in-source-test/vitest.config.ts": [
 5,
@@ -51,9 +45,6 @@
 "vitest:examples/projects/packages/client/components/Link.tsx": [
 5
 ],
-"vitest:examples/projects/packages/client/test/basic.test.tsx": [
-9
-],
 "vitest:examples/projects/packages/client/vitest.config.ts": [
 6,
 7
@@ -66,9 +57,6 @@
 ],
 "vitest:examples/projects/packages/server/src/app.ts": [
 6
-],
-"vitest:examples/projects/packages/server/test/app.test.ts": [
-10
 ],
 "vitest:examples/projects/vitest.config.ts": [
 5,
@@ -2088,85 +2076,21 @@
 "vitest:packages/ui/client/components/artifacts/Artifacts.vue": [
 26
 ],
-"vitest:packages/ui/client/components/artifacts/visual-regression/SmallTabs.spec.ts": [
-19,
-20,
-21,
-22,
-61,
-65,
-70,
-74,
-92,
-95
-],
 "vitest:packages/ui/client/components/artifacts/visual-regression/SmallTabs.vue": [
 33
-],
-"vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegression.spec.ts": [
-12,
-19,
-26,
-39,
-40,
-41,
-68,
-69,
-70,
-97,
-98,
-99,
-115,
-116,
-117,
-133,
-134,
-135,
-185,
-186,
-187
 ],
 "vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegression.vue": [
 19
 ],
-"vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegressionSlider.spec.ts": [
-10,
-16,
-22,
-33,
-34,
-49,
-53,
-73,
-74,
-81,
-99,
-107,
-108,
-122,
-123,
-150,
-151,
-152
-],
 "vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegressionSlider.vue": [
 18,
 21
-],
-"vitest:packages/ui/client/components/dashboard/DashboardEntry.spec.ts": [
-19,
-20
 ],
 "vitest:packages/ui/client/components/explorer/Explorer.vue": [
 64
 ],
 "vitest:packages/ui/client/components/explorer/ExplorerItem.vue": [
 32
-],
-"vitest:packages/ui/client/components/views/ViewConsoleOutputEntry.spec.ts": [
-15,
-16,
-26
 ],
 "vitest:packages/ui/client/components/views/ViewEditor.vue": [
 60,
@@ -2199,41 +2123,6 @@
 338,
 339,
 347
-],
-"vitest:packages/ui/client/components/views/ViewReport.spec.ts": [
-20,
-42,
-55,
-59,
-68,
-71,
-72,
-112,
-113,
-114,
-118,
-122,
-129,
-133,
-139,
-144,
-147,
-151,
-172,
-173,
-174,
-178,
-182,
-189,
-193,
-199,
-203,
-207,
-212,
-215,
-219,
-226,
-227
 ],
 "vitest:packages/ui/client/components/views/ViewReport.vue": [
 29,

@@ -2,9 +2,6 @@
 "vitest:examples/fastify/src/app.ts": [
 9
 ],
-"vitest:examples/opentelemetry/src/other.test.ts": [
-17
-],
 "vitest:examples/projects/packages/server/src/app.ts": [
 9
 ],

@@ -68,15 +68,6 @@ describe('S8959', () => {
         },
         {
           code: `
-            cy.pause();
-            cy.debug();
-            page.pause();
-            screen.debug();
-          `,
-          filename: 'src/app/page.ts',
-        },
-        {
-          code: `
             test('ignores debugger statements', async ({ page }) => {
               debugger;
               await page.locator('button').click();

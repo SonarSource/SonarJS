@@ -217,7 +217,7 @@ export function getDependenciesSanitizePaths(context: Rule.RuleContext): Depende
  * `environments/environment.<env>.ts` shape, so the practical over-reach is negligible.
  *
  * This is a path-based predicate (no `Rule.RuleContext`), so it can be used both by the
- * scope-classification heuristic in `common/filter/filter-path.ts` — which decides MAIN/TEST
+ * rule-classification heuristic in `common/rule-file-type.ts` — which decides MAIN/TEST
  * before any rule runs — and, if needed, by rules. Keeping the Angular signal in one shared
  * helper avoids duplicating the dependency list, and the underlying lookup is cached.
  *
