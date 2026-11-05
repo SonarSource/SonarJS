@@ -872,6 +872,138 @@ describe('analyze-project request handler', () => {
     });
   }
 
+  for (const streaming of [false, true]) {
+    it(`retains completed ambient declarations as recovery program roots (streaming: ${streaming})`, async ({
+      mock,
+    }) => {
+      const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'ambient-replay-recovery-'));
+      const recordRoot = path.join(temporary, 'ci');
+      const replayRoot = path.join(temporary, 'sqaa');
+      const work = path.join(temporary, 'work');
+      for (const directory of [recordRoot, replayRoot, work]) fs.mkdirSync(directory);
+      const sources = {
+        'ambient.ts': 'declare const values: number[];',
+        'main.ts': 'values.sort();',
+      };
+      for (const [name, content] of Object.entries(sources)) {
+        fs.writeFileSync(path.join(recordRoot, name), content);
+      }
+      (globalThis as Record<symbol, unknown>)[FS_CACHE_INSTALLATION] = installFsCache();
+      const request = (record: boolean): AnalyzeProjectRequest => {
+        const baseDir = record ? recordRoot : replayRoot;
+        return {
+          configuration: { baseDir, canAccessFileSystem: true },
+          files: Object.fromEntries(
+            Object.entries(sources).map(([name, fileContent]) => [
+              path.join(baseDir, name),
+              { fileContent, fileType: FileType.FILE_TYPE_MAIN },
+            ]),
+          ),
+          rules: [
+            {
+              key: 'S2871',
+              configurations: [],
+              fileTypeTargets: [FileType.FILE_TYPE_MAIN],
+              language: JsTsLanguage.JS_TS_LANGUAGE_TS,
+              analysisModes: [AnalysisMode.ANALYSIS_MODE_DEFAULT],
+            },
+          ],
+          rulesWorkdir: work,
+          filesystemCache: {
+            archivePath: path.join(work, 'fs.pb.gz'),
+            analysisMetadataPath: path.join(work, 'metadata.pb.gz'),
+            mode: record
+              ? FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD
+              : FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY,
+          },
+        };
+      };
+      const analyze = (input: AnalyzeProjectRequest, events?: AnalyzeProjectIncrementalEvent[]) =>
+        handleAnalyzeProjectRequest(
+          { type: 'on-analyze-project', data: input },
+          workerData,
+          events ? event => events.push(event) : undefined,
+        );
+      try {
+        const recorded = await analyze(request(true));
+        expect(recorded).toMatchObject({
+          type: 'success',
+          result: {
+            output: {
+              files: {
+                [normalizeToAbsolutePath(path.join(recordRoot, 'main.ts'))]: {
+                  issues: [expect.objectContaining({ ruleId: 'S2871' })],
+                },
+              },
+            },
+          },
+        });
+        fs.rmSync(recordRoot, { recursive: true });
+        const fresh = request(false);
+        delete fresh.filesystemCache;
+        expect(await analyze(fresh)).toMatchObject({
+          type: 'success',
+          result: {
+            output: {
+              files: {
+                [normalizeToAbsolutePath(path.join(replayRoot, 'main.ts'))]: {
+                  issues: [expect.objectContaining({ ruleId: 'S2871' })],
+                },
+              },
+            },
+          },
+        });
+        const nextFile = ProgressReport.prototype.nextFile;
+        const visited: string[] = [];
+        const progress = mock.method(
+          ProgressReport.prototype,
+          'nextFile',
+          function (this: ProgressReport, filename: string) {
+            nextFile.call(this, filename);
+            visited.push(path.basename(filename));
+            if (visited.length === 2) fs.statSync(path.join(recordRoot, 'unrecorded-observation'));
+          },
+        );
+        const events: AnalyzeProjectIncrementalEvent[] = [];
+        const replay = request(false);
+        const response = await analyze(replay, streaming ? events : undefined);
+        expect(response.type).toBe('success');
+        if (response.type !== 'success' || !response.result) throw new Error('Analysis failed');
+        expect(visited).toEqual(['ambient.ts', 'main.ts', 'main.ts']);
+        const output = toAnalyzeProjectUnaryResponse(
+          response.result.output,
+          response.result.pathMap,
+        );
+        const results = streaming
+          ? events
+              .filter(({ event }) => event.messageType === 'fileResult')
+              .map(
+                ({ event, pathMap }) => toAnalyzeProjectStreamResponse(event, pathMap).fileResult!,
+              )
+          : Object.entries(output.files!).map(([filePath, result]) => ({ filePath, result }));
+        expect(results).toEqual([
+          expect.objectContaining({
+            filePath: path.join(replayRoot, 'ambient.ts'),
+            result: expect.objectContaining({ issues: [] }),
+          }),
+          expect.objectContaining({
+            filePath: path.join(replayRoot, 'main.ts'),
+            result: expect.objectContaining({
+              issues: [expect.objectContaining({ ruleId: 'S2871' })],
+            }),
+          }),
+        ]);
+        expect(output.meta!.warnings).toEqual([
+          expect.stringContaining('falling back to source-only analysis'),
+        ]);
+        expect(replay.filesystemCache).toBeUndefined();
+        progress.mock.restore();
+      } finally {
+        fs.rmSync(temporary, { recursive: true, force: true });
+      }
+    });
+  }
+
   for (const failure of [
     'cache miss',
     'no-program cache miss',

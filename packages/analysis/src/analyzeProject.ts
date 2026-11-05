@@ -158,6 +158,7 @@ async function analyzeProjectWithCancellation(
       pendingFiles,
       results,
       incrementalResultsChannel,
+      Object.keys(sourceFileStore.getFiles()) as NormalizedAbsolutePath[],
     );
   }
   if (isAnalysisCancelled()) {
@@ -195,6 +196,7 @@ async function analyzePendingProjectFiles(
   pendingFiles: Set<NormalizedAbsolutePath>,
   results: ProjectAnalysisOutput,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
+  orphanProgramRoots?: NormalizedAbsolutePath[],
 ): Promise<void> {
   const { rules, bundles, rulesWorkdir, programSelection } = input;
   // All submitted files remain available as dependencies, including already analyzed files.
@@ -252,6 +254,7 @@ async function analyzePendingProjectFiles(
           jsTsConfigFields,
           programSelection,
           incrementalResultsChannel,
+          orphanProgramRoots,
         );
       }
     }
