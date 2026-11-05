@@ -103,6 +103,162 @@ describe('Sass syntax', () => {
     });
   }
 
+  for (const { name, params, selector, prop, value } of [
+    {
+      name: 'for',
+      params: '$i from 1 through\n  3',
+      selector: '.item-#{$i}',
+      prop: 'width',
+      value: '$i * 1px',
+    },
+    {
+      name: 'each',
+      params: '$name, $value in\n  (small: 1px, large: 2px)',
+      selector: '.#{$name}',
+      prop: 'width',
+      value: '$value',
+    },
+    {
+      name: 'if',
+      params: '$enabled and\n  not $disabled',
+      selector: 'a',
+      prop: 'color',
+      value: 'red',
+    },
+    { name: 'while', params: '$i <\n  3', selector: '.item', prop: 'width', value: '$i * 1px' },
+  ]) {
+    it(`preserves the hierarchy and locations of multiline @${name}`, () => {
+      const code = `@${name} ${params}\n  ${selector}\n    ${prop}: ${value}\n`;
+      const root = parse(code);
+      expect(root.nodes).toHaveLength(1);
+      expect(root.first).toMatchObject({
+        type: 'atrule',
+        name,
+        params,
+        source: {
+          start: { line: 1, column: 1 },
+          end: { line: 4, column: 6 + prop.length + value.length },
+        },
+        nodes: [
+          {
+            type: 'rule',
+            selector,
+            source: { start: { line: 3, column: 3 } },
+            nodes: [{ type: 'decl', prop, value, source: { start: { line: 4, column: 5 } } }],
+          },
+        ],
+      });
+      expect(root.toString(postcssSass.stringify)).toBe(code);
+    });
+  }
+
+  it('keeps a multiline module directive at the root', () => {
+    const code = '@use "theme" as\n  theme\na\n  color: theme.$color\n';
+    const root = parse(code);
+    expect(root.nodes).toHaveLength(2);
+    expect(root.first).toMatchObject({
+      type: 'atrule',
+      name: 'use',
+      params: '"theme" as\n  theme',
+      source: { start: { line: 1, column: 1 }, end: { line: 2, column: 7 } },
+    });
+    expect(root.last).toMatchObject({
+      type: 'rule',
+      selector: 'a',
+      source: { start: { line: 3, column: 1 } },
+      nodes: [
+        {
+          type: 'decl',
+          prop: 'color',
+          value: 'theme.$color',
+          source: { start: { line: 4, column: 3 } },
+        },
+      ],
+    });
+    expect(root.toString(postcssSass.stringify)).toBe(code);
+  });
+
+  it('retains interpolated multiline at-root parameters without inventing a selector node', () => {
+    const code =
+      "@mixin rtl()\n  @at-root #{selector.append('.rtl', &)},\n  .rtl &\n    @content\n";
+    const root = parse(code);
+    expect(root.first).toMatchObject({
+      type: 'atrule',
+      name: 'mixin',
+      params: 'rtl()',
+      nodes: [
+        {
+          type: 'atrule',
+          name: 'at-root',
+          params: "#{selector.append('.rtl', &)},\n  .rtl &",
+          source: { start: { line: 2, column: 3 } },
+          nodes: [
+            {
+              type: 'atrule',
+              name: 'content',
+              params: '',
+              source: { start: { line: 4, column: 5 } },
+            },
+          ],
+        },
+      ],
+    });
+    expect(root.toString(postcssSass.stringify)).toBe(code);
+  });
+
+  it('accepts percentage keyframe lists with original selector and declaration locations', () => {
+    const code = '@keyframes spin\n  0%, 50%\n    opacity: 0\n  100%\n    opacity: 1\n';
+    const root = parse(code);
+    expect(root.first).toMatchObject({
+      type: 'atrule',
+      name: 'keyframes',
+      params: 'spin',
+      nodes: [
+        {
+          type: 'rule',
+          selector: '0%, 50%',
+          source: { start: { line: 2, column: 3 } },
+          nodes: [
+            {
+              type: 'decl',
+              prop: 'opacity',
+              value: '0',
+              source: { start: { line: 3, column: 5 } },
+            },
+          ],
+        },
+        {
+          type: 'rule',
+          selector: '100%',
+          source: { start: { line: 4, column: 3 } },
+          nodes: [
+            {
+              type: 'decl',
+              prop: 'opacity',
+              value: '1',
+              source: { start: { line: 5, column: 5 } },
+            },
+          ],
+        },
+      ],
+    });
+    expect(root.toString(postcssSass.stringify)).toBe(code);
+  });
+
+  it('locates parser diagnostics with CRLF and a source path containing spaces', () => {
+    const code = 'a\r\n  color: (\r\n';
+    expect(() => postcssSass.parse!(code, { from: '/tmp/Sass project/input file.sass' })).toThrow(
+      expect.objectContaining({
+        name: 'CssSyntaxError',
+        reason: 'expected ")".',
+        line: 2,
+        column: 11,
+        source: code,
+        file: '/tmp/Sass project/input file.sass',
+      }),
+    );
+  });
+
   it('preserves declaration spelling and exposes standard PostCSS APIs', () => {
     const code = 'a\n  color: red\n  width: 1.00px\n  border: 1px solid #e2e2e2 !important\n';
     const root = parse(code);
@@ -186,18 +342,47 @@ describe('Sass syntax', () => {
     });
   });
 
-  it('represents nested properties with empty values as declarations', () => {
-    const root = parse('a\n  font:\n    size: 12px\n');
+  it('matches the SCSS rule convention for empty nested properties', () => {
+    const code = 'a\n  font:\n    size: 12px\n';
+    const root = parse(code);
     expect(root.first).toMatchObject({
+      nodes: [
+        {
+          type: 'rule',
+          selector: 'font:',
+          source: { start: { line: 2, column: 3 }, end: { line: 3, column: 14 } },
+          nodes: [
+            {
+              type: 'decl',
+              prop: 'size',
+              value: '12px',
+              source: { start: { line: 3, column: 5 } },
+            },
+          ],
+        },
+      ],
+    });
+    expect(root.toString(postcssSass.stringify)).toBe(code);
+  });
+
+  it('retains value-bearing nested properties as SCSS nested declarations', () => {
+    const code = 'a\n  font: 12px\n    family: Arial\n';
+    const root = parse(code);
+    expect(root.first).toMatchObject({
+      type: 'rule',
+      selector: 'a',
       nodes: [
         {
           type: 'decl',
           prop: 'font',
-          value: '',
-          nodes: [{ type: 'decl', prop: 'size', value: '12px' }],
+          value: '12px',
+          isNested: true,
+          source: { start: { line: 2, column: 3 }, end: { line: 3, column: 17 } },
+          nodes: [{ type: 'decl', prop: 'family', value: 'Arial' }],
         },
       ],
     });
+    expect(root.toString(postcssSass.stringify)).toBe(code);
   });
 
   it('locates each conditional branch separately, including nested conditions', () => {
@@ -263,6 +448,44 @@ describe('Sass syntax', () => {
 });
 
 describe('Stylelint with Sass syntax', () => {
+  for (const [sassCode, scssCode] of [
+    ['a\n  font:\n    family: Arial\n', 'a { font: { family: Arial; } }'],
+    ['a\n  border:\n    style: solid\n', 'a { border: { style: solid; } }'],
+    [
+      'a\n  font:\n    variant:\n      caps: small-caps\n',
+      'a { font: { variant: { caps: small-caps; } } }',
+    ],
+  ]) {
+    it(`matches SCSS unknown-property handling for ${JSON.stringify(sassCode)}`, async () => {
+      const linter = new LinterWrapper();
+      linter.initialize([{ key: 'property-no-unknown', configurations: [] }]);
+      expect(
+        (await linter.lint(normalizeToAbsolutePath(from.replace('.sass', '.scss')), scssCode))
+          .issues,
+      ).toEqual([]);
+      expect((await linter.lint(from, sassCode)).issues).toEqual([]);
+    });
+  }
+
+  it('still reports duplicate properties and invalid values inside mixin bodies', async () => {
+    const linter = new LinterWrapper();
+    linter.initialize(
+      ['declaration-block-no-duplicate-properties', 'color-no-invalid-hex'].map(key => ({
+        key,
+        configurations: [],
+      })),
+    );
+    const code = '@mixin theme\n  margin: 0\n  margin: 0\n  color: #ggg\n';
+    expect((await linter.lint(from, code)).issues).toEqual([
+      expect.objectContaining({ ruleId: 'color-no-invalid-hex', line: 4, column: 9 }),
+      expect.objectContaining({
+        ruleId: 'declaration-block-no-duplicate-properties',
+        line: 2,
+        column: 2,
+      }),
+    ]);
+  });
+
   it('reports empty Sass rules within their original selector range', async () => {
     const linter = new LinterWrapper();
     linter.initialize([{ key: 'block-no-empty', configurations: [] }]);

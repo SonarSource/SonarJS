@@ -162,14 +162,10 @@ export class PostcssAstBuilder {
     // SCSS shares Sass declaration/at-rule tokens, including comments and !important.
     const normalized = this.normalizeHeader(node, header);
     const insertedPrefix = normalized.length - header.length;
-    // Without a value, SCSS interprets `font: {}` as a selector rather than a nested property.
-    const emptyNestedValue = node.type === 'decl' && nested && normalized.endsWith(':');
+    // Match postcss-scss's convention: an empty nested property is a rule (`font:`).
+    // Stylelint recognizes that representation when deciding which declarations to check.
     const suffix = node.type === 'rule' || nested ? '{}' : '';
-    const parsed = this.tokenizeHeader(
-      normalized + (emptyNestedValue ? ' __sonar_sass_empty__' : '') + suffix,
-      range,
-      insertedPrefix,
-    );
+    const parsed = this.tokenizeHeader(normalized + suffix, range, insertedPrefix);
     const converted = parsed.first;
     assert.ok(converted, 'A Sass statement header must produce a PostCSS node.');
     for (const field of ['selector', 'value', 'params']) {
@@ -177,11 +173,6 @@ export class PostcssAstBuilder {
       if (raw?.scss !== undefined) {
         raw.raw = raw.scss;
       }
-    }
-    if (emptyNestedValue) {
-      assert.ok(converted.type === 'decl', 'A nested property must produce a declaration.');
-      converted.value = '';
-      converted.raws.between = converted.raws.between?.trimEnd();
     }
     if (insertedPrefix !== 0) {
       converted.raws.sassShorthand = header[0];

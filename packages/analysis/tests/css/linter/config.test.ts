@@ -18,6 +18,8 @@ import { sonarRules } from '../../../src/css/rules/index.js';
 import { describe, it, beforeEach, afterEach } from 'node:test';
 import { expect } from 'expect';
 import { createStylelintConfig, RuleConfig } from '../../../src/css/linter/config.js';
+import { LinterWrapper } from '../../../src/css/linter/wrapper.js';
+import { normalizeToAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import { cssOnlyRuleKeys } from '../../../src/css/linter/css-only-rules.js';
 
 describe('createStylelintConfig', () => {
@@ -89,5 +91,42 @@ describe('createStylelintConfig', () => {
         expect(override.rules ?? {}).not.toHaveProperty('css-only-rule');
       }
     });
+  });
+});
+
+describe('preprocessor rule applicability', () => {
+  for (const extension of ['css', 'scss', 'less']) {
+    it(`keeps root nesting checks and applies import placement appropriately in ${extension}`, async () => {
+      const linter = new LinterWrapper();
+      linter.initialize(
+        ['nesting-selector-no-missing-scoping-root', 'no-invalid-position-at-import-rule'].map(
+          key => ({ key, configurations: [] }),
+        ),
+      );
+      const { issues } = await linter.lint(
+        normalizeToAbsolutePath(`/tmp/applicability.${extension}`),
+        '&:hover { color: red; }\n@import "other";',
+      );
+      const expected = ['nesting-selector-no-missing-scoping-root'];
+      if (extension === 'css') {
+        expected.push('no-invalid-position-at-import-rule');
+      }
+      expect(issues.map(issue => issue.ruleId).sort()).toEqual(expected.sort());
+    });
+  }
+
+  it('allows deferred SCSS mixin/include scope while checking the body', async () => {
+    const linter = new LinterWrapper();
+    linter.initialize(
+      ['nesting-selector-no-missing-scoping-root', 'color-no-invalid-hex'].map(key => ({
+        key,
+        configurations: [],
+      })),
+    );
+    const { issues } = await linter.lint(
+      normalizeToAbsolutePath('/tmp/applicability.scss'),
+      '@mixin theme { &:hover { color: #ggg; } }\na { @include theme { &:focus { color: red; } } }',
+    );
+    expect(issues).toEqual([expect.objectContaining({ ruleId: 'color-no-invalid-hex', line: 1 })]);
   });
 });
