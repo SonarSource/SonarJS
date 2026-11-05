@@ -582,6 +582,43 @@ describe('analyze-project worker', () => {
           },
         },
       });
+      // Simulate an older context that did not observe Stylelint's ignore-file lookup.
+      const archivePath = path.join(workdir, 'filesystem.pb.gz');
+      const document = deserializeProtobufDocument(gunzipSync(fs.readFileSync(archivePath)));
+      const countBefore = document.entries.length + document.missingPaths.length;
+      document.entries = document.entries.filter(entry => entry.path !== ignorePath);
+      document.missingPaths = document.missingPaths.filter(entry => entry !== ignorePath);
+      expect(document.entries.length + document.missingPaths.length).toBeLessThan(countBefore);
+      fs.writeFileSync(archivePath, gzipSync(serializeProtobufDocument(document)));
+      const recovered = await analyze(
+        replayRoot,
+        FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY,
+        original.replace('else baz()', 'else bar()').replace('red;', 'red;;'),
+      );
+      expect(recovered).toMatchObject({
+        type: 'unary-complete',
+        result: {
+          type: 'success',
+          result: {
+            files: {
+              [path.join(replayRoot, 'input.html')]: {
+                issues: expect.arrayContaining([
+                  expect.objectContaining({ ruleId: 'S3923' }),
+                  expect.objectContaining({ ruleId: '@stylistic/no-extra-semicolons' }),
+                ]),
+              },
+            },
+            meta: { warnings: [expect.stringContaining('.stylelintignore')] },
+          },
+        },
+      });
+      expect(recovered).toMatchObject({
+        result: {
+          result: {
+            meta: { warnings: [expect.stringContaining('falling back to source-only analysis')] },
+          },
+        },
+      });
     } finally {
       await worker.terminate();
       fs.rmSync(temporary, { recursive: true, force: true });
