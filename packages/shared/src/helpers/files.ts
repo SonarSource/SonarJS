@@ -16,6 +16,10 @@
  */
 import fs from 'node:fs';
 import {
+  FileSystemMap,
+  FileSystemSet,
+} from '../../../analysis/src/jsts/rules/helpers/filesystem.js';
+import {
   basenamePath,
   dirnamePath,
   stripBOM,
@@ -30,6 +34,7 @@ export {
   isAbsolutePath,
   isWindowsProjectPath,
   isRoot,
+  getPathRoot,
   joinPaths,
   normalizePath,
   normalizeToAbsolutePath,
@@ -58,7 +63,7 @@ export async function readFile(filePath: NormalizedAbsolutePath) {
  * Supports both incremental building (via addFile) and batch building (via buildFromFiles).
  */
 export class DirectoryIndex {
-  private index = new Map<NormalizedAbsolutePath, Set<string>>();
+  private index = new FileSystemMap<NormalizedAbsolutePath, Set<string>>();
 
   /**
    * Adds a single file to the directory index.
@@ -68,7 +73,7 @@ export class DirectoryIndex {
     const dir = dirnamePath(filePath);
     let files = this.index.get(dir);
     if (!files) {
-      files = new Set();
+      files = new FileSystemSet();
       this.index.set(dir, files);
     }
     files.add(basenamePath(filePath));
@@ -97,6 +102,6 @@ export class DirectoryIndex {
    * Clears the directory index.
    */
   clear() {
-    this.index = new Map<NormalizedAbsolutePath, Set<string>>();
+    this.index = new FileSystemMap<NormalizedAbsolutePath, Set<string>>();
   }
 }

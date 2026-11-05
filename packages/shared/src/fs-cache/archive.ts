@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import fs from 'node:fs';
+import { canonicalPath } from '../../../analysis/src/jsts/rules/helpers/filesystem-case.js';
 import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -172,6 +173,7 @@ export class FsCacheArchive {
   passthroughRoots: ComparisonRoot[];
   private readonly restrictNativeReads: boolean;
   caseSensitivePaths: boolean;
+  private readonly nativeCaseSensitivePaths: boolean;
   mode: ArchiveMode;
   createdAt: string;
   entries: Map<string, CacheNode>;
@@ -187,8 +189,13 @@ export class FsCacheArchive {
     passthroughDirs = [],
     rootDir,
     restrictNativeReads = false,
-    caseSensitivePaths = process.platform !== 'win32',
+    caseSensitivePaths,
   }: ArchiveOptions) {
+    if (typeof caseSensitivePaths !== 'boolean') {
+      throw new FsCacheArchiveError(
+        'The native filesystem case-sensitivity capability is required',
+      );
+    }
     if (!archivePath) {
       throw new FsCacheArchiveError('The filesystem cache archive path is required');
     }
@@ -200,6 +207,7 @@ export class FsCacheArchive {
     this.mode = mode ?? (nativeFs.existsSync(this.archivePath) ? 'replay' : 'record');
     this.restrictNativeReads = restrictNativeReads;
     this.caseSensitivePaths = caseSensitivePaths;
+    this.nativeCaseSensitivePaths = caseSensitivePaths;
     const { physicalRootDirs, rootAliases } =
       this.mode === 'record'
         ? resolvePhysicalRoots(this.rootDir)
@@ -338,11 +346,17 @@ export class FsCacheArchive {
     if (filePath === undefined) {
       return false;
     }
-    const absoluteComparisonFilePath = normalizeForComparison(path.resolve(filePath));
+    const absoluteComparisonFilePath = canonicalPath(
+      normalizeForComparison(path.resolve(filePath)),
+      this.nativeCaseSensitivePaths,
+    );
     return this.passthroughRoots.some(
       candidate =>
-        absoluteComparisonFilePath === candidate.directory ||
-        absoluteComparisonFilePath.startsWith(candidate.prefix),
+        absoluteComparisonFilePath ===
+          canonicalPath(candidate.directory, this.nativeCaseSensitivePaths) ||
+        absoluteComparisonFilePath.startsWith(
+          canonicalPath(candidate.prefix, this.nativeCaseSensitivePaths),
+        ),
     );
   }
 
@@ -351,7 +365,7 @@ export class FsCacheArchive {
   }
 
   private canonicalKey(value: string): string {
-    return this.caseSensitivePaths ? value : value.toLowerCase();
+    return canonicalPath(value, this.caseSensitivePaths);
   }
 
   absolutePathFor(key: string, rootDir = this.rootDir): string {

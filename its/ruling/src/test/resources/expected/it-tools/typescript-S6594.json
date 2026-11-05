@@ -5,8 +5,14 @@
 "it-tools:src/tools/mac-address-generator/mac-adress-generator.models.ts": [
 6
 ],
+"it-tools:src/tools/otp-code-generator-and-validator/otp-code-generator-and-validator.vue": [
+45
+],
 "it-tools:src/tools/safelink-decoder/safelink-decoder.service.ts": [
 2
+],
+"it-tools:src/tools/uuid-generator/uuid-generator.vue": [
+21
 ],
 "it-tools:src/utils/macAddress.ts": [
 7,

@@ -14,15 +14,17 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { pathIsUnder, pathsEqual } from './filesystem.js';
 import {
   basename as basenamePosix,
   dirname as dirnamePosix,
   join as joinPosix,
   parse as parsePosix,
 } from 'node:path/posix';
-import { parse as parseWin32, join as joinWin32 } from 'node:path/win32';
+import { dirname as dirnameWin32, parse as parseWin32, join as joinWin32 } from 'node:path/win32';
 import {
   ROOT_PATH,
+  isWindowsProjectPath,
   toUnixPath,
   type NormalizedAbsolutePath,
   type NormalizedPath,
@@ -73,9 +75,7 @@ export function isRoot(file: string) {
 }
 
 export function assertNestedPath(from: NormalizedAbsolutePath, topDir: NormalizedAbsolutePath) {
-  const fromSanitized = from.endsWith('/') ? from : from + '/';
-  const topDirSanitized = topDir.endsWith('/') ? topDir : topDir + '/';
-  if (!fromSanitized.startsWith(topDirSanitized)) {
+  if (!pathIsUnder(from, topDir)) {
     throw new Error(`"${from}" is not nested under topDir "${topDir}"`);
   }
 }
@@ -100,7 +100,9 @@ export function getPathRoot(filePath: NormalizedAbsolutePath): NormalizedAbsolut
  * @returns the parent directory as a branded NormalizedAbsolutePath
  */
 export function dirnamePath(filePath: NormalizedAbsolutePath): NormalizedAbsolutePath {
-  return dirnamePosix(filePath) as NormalizedAbsolutePath;
+  // POSIX dirname turns C:/project into C: and walks above UNC shares.
+  const parent = isWindowsProjectPath(filePath) ? dirnameWin32(filePath) : dirnamePosix(filePath);
+  return toUnixPath(parent) as NormalizedAbsolutePath;
 }
 
 export function relativeToAncestorPath(
@@ -108,11 +110,11 @@ export function relativeToAncestorPath(
   topDir: NormalizedAbsolutePath,
 ) {
   const topDirPrefix = topDir.endsWith('/') ? topDir : `${topDir}/`;
-  if (filePath === topDir) {
+  if (pathsEqual(filePath, topDir)) {
     return '';
   }
 
-  return filePath.startsWith(topDirPrefix) ? filePath.slice(topDirPrefix.length) : undefined;
+  return pathIsUnder(filePath, topDir) ? filePath.slice(topDirPrefix.length) : undefined;
 }
 
 /**

@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { FileSystemMap, FileSystemSet, pathsEqual } from '../common/filesystem.js';
 import {
   type AnalyzableFiles,
   createAnalyzableFiles,
@@ -34,7 +35,8 @@ import {
   type NormalizedAbsolutePath,
   type File,
 } from '../../../shared/src/helpers/files.js';
-import { filterPathAndGetFileType, getFileTypeForRules } from '../common/filter/filter-path.js';
+import { filterPathAndGetFileType, isDirectoryExcluded } from '../common/filter/filter-path.js';
+import { getFileTypeForRules } from '../common/rule-file-type.js';
 import { dirname } from 'node:path/posix';
 import type { FileType } from '../contracts/file.js';
 
@@ -67,9 +69,13 @@ export class SourceFileStore implements FileStore {
   private baseDir: NormalizedAbsolutePath | undefined = undefined;
   private canAccessFileSystem: boolean | undefined = undefined;
   private analyzableFilesConfigKey: string | undefined = undefined;
-  private readonly ignoredPaths = new Set<string>();
+  private readonly ignoredPaths = new FileSystemSet<string>();
   private pendingFileTypes: ResolvedFileTypes | undefined = undefined;
   private files: AnalyzableFiles | undefined = undefined;
+  private filesByPath = new FileSystemMap<
+    NormalizedAbsolutePath,
+    AnalyzableFiles[NormalizedAbsolutePath]
+  >();
   private readonly directoryIndex = new DirectoryIndex();
 
   /**
@@ -81,10 +87,20 @@ export class SourceFileStore implements FileStore {
       this.clearCache();
       this.setup(configuration);
       this.files = inputFiles;
+      this.filesByPath = new FileSystemMap(
+        Object.entries(inputFiles) as [
+          NormalizedAbsolutePath,
+          AnalyzableFiles[NormalizedAbsolutePath],
+        ][],
+      );
       this.directoryIndex.buildFromFiles(Object.keys(inputFiles) as NormalizedAbsolutePath[]);
       return true;
     }
     return this.files !== undefined;
+  }
+
+  getFile(filePath: NormalizedAbsolutePath) {
+    return this.filesByPath.get(filePath);
   }
 
   getFiles() {
@@ -105,7 +121,7 @@ export class SourceFileStore implements FileStore {
 
   dirtyCachesIfNeeded(configuration: Configuration) {
     const { baseDir, canAccessFileSystem } = configuration;
-    if (baseDir !== this.baseDir || canAccessFileSystem !== this.canAccessFileSystem) {
+    if (!pathsEqual(baseDir, this.baseDir) || canAccessFileSystem !== this.canAccessFileSystem) {
       this.clearCache();
       return;
     }
@@ -120,6 +136,7 @@ export class SourceFileStore implements FileStore {
     this.canAccessFileSystem = undefined;
     this.analyzableFilesConfigKey = undefined;
     this.files = undefined;
+    this.filesByPath.clear();
     this.ignoredPaths.clear();
     this.pendingFileTypes = undefined;
     this.directoryIndex.clear();
@@ -130,6 +147,7 @@ export class SourceFileStore implements FileStore {
     this.canAccessFileSystem = configuration.canAccessFileSystem;
     this.analyzableFilesConfigKey = getAnalyzableFilesConfigKey(configuration);
     this.files = createAnalyzableFiles();
+    this.filesByPath.clear();
   }
 
   wantsFile(filename: NormalizedAbsolutePath, configuration: Configuration) {
@@ -151,7 +169,7 @@ export class SourceFileStore implements FileStore {
     const pendingFileTypes = this.pendingFileTypes;
     this.pendingFileTypes = undefined;
     const fileTypes =
-      pendingFileTypes?.filePath === filename
+      pendingFileTypes && pathsEqual(pendingFileTypes.filePath, filename)
         ? pendingFileTypes
         : resolveFileTypes(filename, configuration);
     // we don't call shouldIgnoreFile because the isJsTsExcluded method has already been
@@ -162,18 +180,20 @@ export class SourceFileStore implements FileStore {
       accept(filename, file.fileContent, getShouldIgnoreParams(configuration))
     ) {
       // Promote the shared walk entry in place so helper stores can reuse the same object.
-      this.files![filename] = promoteToAnalyzableFile(
+      const analyzableFile = promoteToAnalyzableFile(
         file,
         fileTypes.fileType,
         fileTypes.ruleFileType,
         JSTS_ANALYSIS_DEFAULTS.fileStatus,
       );
+      this.getFiles()[filename] = analyzableFile;
+      this.filesByPath.set(filename, analyzableFile);
       this.directoryIndex.addFile(filename);
     }
   }
 
   processDirectory(dir: NormalizedAbsolutePath, configuration: Configuration) {
-    const isExcludedPath = !filterPathAndGetFileType(dir, getFilterPathParams(configuration));
+    const isExcludedPath = isDirectoryExcluded(dir, getFilterPathParams(configuration));
     if (this.anyParentIsIgnored(dir) || isExcludedPath) {
       this.ignoredPaths.add(dir);
     }

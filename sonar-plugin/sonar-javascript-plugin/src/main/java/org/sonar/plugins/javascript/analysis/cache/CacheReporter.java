@@ -89,7 +89,7 @@ class CacheReporter {
       .map(entry -> getMissMessage(total, entry.getKey().get(), entry.getValue().intValue()))
       .sorted()
       .collect(joining(", "));
-    return !message.isEmpty() ? (": " + message) : "";
+    return message.isEmpty() ? "" : ": " + message;
   }
 
   private int getTotal() {

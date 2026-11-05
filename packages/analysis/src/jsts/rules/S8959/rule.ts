@@ -23,7 +23,6 @@ import { chainStartsWithCy } from '../helpers/testing/cypress.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
 import { removeNodeWithLeadingWhitespaces } from '../helpers/quickfix.js';
-import { isTestRelatedFile } from '../helpers/test-file-pattern.js';
 import * as meta from './generated-meta.js';
 
 const TESTING_LIBRARY_MODULES = [
@@ -51,10 +50,6 @@ export const rule: Rule.RuleModule = {
     fixable: 'code',
   }),
   create(context: Rule.RuleContext) {
-    if (!isTestRelatedFile(context.filename, context.settings?.testFileExtensions as string[])) {
-      return {};
-    }
-
     return {
       CallExpression(node: estree.Node) {
         const call = node as estree.CallExpression;

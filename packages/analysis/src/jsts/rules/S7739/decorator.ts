@@ -22,16 +22,14 @@ import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import * as meta from './generated-meta.js';
 import {
+  isGherkinIndentationMap,
   isInsideExceptionLibraryCall,
   isIntentionalThenableImplementation,
 } from './false-positives/index.js';
 
 /**
- * Decorates the upstream unicorn 'no-thenable' rule so that reports are suppressed for the
- * false-positive patterns tracked in ./false-positives: validation-library conditional
- * configs (Yup/Joi), Promise/Deferred delegation and definitions, prototype extension,
- * sibling then/catch/finally implementations, JSON Schema conditionals, interface shape
- * descriptors, and classes with an explicit thenable contract.
+ * Unicorn reports definitions named `then`. Filter those reports here for SonarJS exceptions
+ * without changing Unicorn's detection logic.
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
@@ -43,6 +41,10 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       const node = (descriptor as { node?: Node }).node;
       if (!node) {
         context.report(descriptor);
+        return;
+      }
+
+      if (isGherkinIndentationMap(context, node)) {
         return;
       }
 

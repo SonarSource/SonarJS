@@ -30,6 +30,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarProduct;
@@ -157,7 +158,7 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
   }
 
   public boolean skipAst(AnalysisConsumers consumers) {
-    return (!consumers.isEnabled());
+    return !consumers.isEnabled();
   }
 
   @Override
@@ -287,12 +288,20 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
       return null;
     }
     var normalized = trimmed.toLowerCase(Locale.ROOT);
-    return normalized.startsWith(".") ? normalized : ("." + normalized);
+    return normalized.startsWith(".") ? normalized : "." + normalized;
   }
 
   @Override
   public List<String> getJsTsExcludedPaths() {
-    return Arrays.asList(getJsTsExcludedPaths(context.config()));
+    // SonarLint has no scanner work directory: its workDir() returns the project baseDir.
+    if (isSonarLint()) {
+      return Arrays.asList(getJsTsExcludedPaths(context.config()));
+    }
+    var workDir = context.fileSystem().workDir().getAbsolutePath().replace('\\', '/');
+    return concat(
+      stream(getJsTsExcludedPaths(context.config())),
+      Stream.of("directory:" + workDir)
+    ).toList();
   }
 
   public static String[] getJsTsExcludedPaths(Configuration configuration) {

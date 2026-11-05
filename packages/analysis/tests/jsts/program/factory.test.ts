@@ -213,6 +213,61 @@ describe('factory', () => {
       // Cache should still have 1 entry (updated, not added)
       expect(getProgramCacheManager().getCacheStats().size).toBe(1);
     });
+
+    it('synchronizes a cached host once for a multi-file request', () => {
+      const rootNames = Array.from({ length: 12 }, (_, index) =>
+        normalizeToAbsolutePath(`/request-project/file${index}.ts`),
+      );
+      let scans = 0;
+      const context = new Proxy(
+        Object.fromEntries(rootNames.map(file => [file, { fileContent: 'export const n = 1;' }])),
+        {
+          ownKeys(target) {
+            scans++;
+            return Reflect.ownKeys(target);
+          },
+        },
+      );
+      const baseDir = normalizeToAbsolutePath('/request-project');
+      const options = createProgramOptionsFromJson({ noLib: true }, rootNames, baseDir);
+      const getProgram = (file: (typeof rootNames)[number]) =>
+        createOrGetCachedProgramForFile(baseDir, file, () => options);
+      setSourceFilesContext(context);
+      const initial = getProgram(rootNames[0]);
+
+      setSourceFilesContext(context);
+      scans = 0;
+      for (const file of rootNames) {
+        expect(getProgram(file)).toBe(initial);
+      }
+      expect(scans).toBe(1);
+    });
+
+    it('synchronizes dependency edits when a later request reuses the files object', () => {
+      const baseDir = normalizeToAbsolutePath('/request-project');
+      const sourceFile = normalizeToAbsolutePath('/request-project/index.ts');
+      const dependency = normalizeToAbsolutePath('/request-project/dependency.ts');
+      const context = {
+        [sourceFile]: { fileContent: 'import { n } from "./dependency"; export const result = n;' },
+        [dependency]: { fileContent: 'export const n: number = 1;' },
+      };
+      const options = createProgramOptionsFromJson({ noLib: true }, [sourceFile], baseDir);
+      const getProgram = () => createOrGetCachedProgramForFile(baseDir, sourceFile, () => options)!;
+      setSourceFilesContext(context);
+      const initial = getProgram();
+      expect(getProgram()).toBe(initial);
+
+      context[dependency].fileContent = 'export const n: string = "updated";';
+      setSourceFilesContext(context);
+      const updated = getProgram();
+      expect(updated).not.toBe(initial);
+      expect(updated.getSourceFile(dependency)?.text).toBe(context[dependency].fileContent);
+      const declaration = (updated.getSourceFile(sourceFile)!.statements[1] as ts.VariableStatement)
+        .declarationList.declarations[0];
+      const checker = updated.getTypeChecker();
+      expect(checker.typeToString(checker.getTypeAtLocation(declaration.name))).toBe('string');
+      expect(getProgram()).toBe(updated);
+    });
   });
 
   describe('createProgramOptionsFromJson', () => {

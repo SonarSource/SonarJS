@@ -174,6 +174,47 @@ describe('Linter', () => {
     );
   });
 
+  it('should restrict S2187 to test-case files among TEST files', async () => {
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(import.meta.dirname),
+      rules: ['S2187', 'S2925'].map(key => ({
+        key,
+        configurations: [],
+        fileTypeTargets: ['TEST'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      })),
+      testFileExtensions: ['.js', '.dummy'],
+    });
+    const activeRules = (relativePath: string) =>
+      Object.keys(
+        Linter.getRulesForFile(
+          normalizeToAbsolutePath(path.join(import.meta.dirname, relativePath)),
+          'TEST',
+          'DEFAULT',
+          'js',
+        ),
+      );
+
+    // Same directory and extension, alternating to make sure the cached configuration is not reused
+    expect(activeRules('__tests__/login.test.js')).toEqual(['sonarjs/S2187', 'sonarjs/S2925']);
+    expect(activeRules('__tests__/helpers.js')).toEqual(['sonarjs/S2925']);
+    expect(activeRules('__tests__/logout.spec.js')).toEqual(['sonarjs/S2187', 'sonarjs/S2925']);
+
+    for (const testCaseFile of ['foo.cy.js', 'foo.test.dummy']) {
+      expect(activeRules(testCaseFile)).toEqual(['sonarjs/S2187', 'sonarjs/S2925']);
+    }
+    for (const testRelatedFile of [
+      '__mocks__/api.js',
+      'api.mock.js',
+      'login.e2e.js',
+      'tests/login.js',
+      'foo.test.ts',
+    ]) {
+      expect(activeRules(testRelatedFile)).toEqual(['sonarjs/S2925']);
+    }
+  });
+
   it('should not invoke generated-source detector when generated-code detection is disabled', async ({
     mock,
   }) => {

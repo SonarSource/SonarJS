@@ -1,0 +1,15 @@
+{
+"ant-design:components/button/__tests__/index.test.tsx": [
+299
+],
+"ant-design:components/button/__tests__/wave.test.tsx": [
+104
+],
+"ant-design:components/input/__tests__/index.test.tsx": [
+33
+],
+"ant-design:components/message/__tests__/type.test.tsx": [
+4,
+27
+]
+}

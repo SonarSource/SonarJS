@@ -21,7 +21,6 @@ import {
 } from '../../../../shared/src/helpers/files.js';
 import { debug, info } from '../../../../shared/src/helpers/logging.js';
 import type { Configuration } from '../../common/configuration.js';
-import { matchesJsTsExclusion } from '../../common/filter/filter-path.js';
 import {
   type GeneratedSourceFamilyTelemetry,
   type GeneratedSourcesTelemetry,
@@ -220,7 +219,7 @@ function shouldIgnoreDefaultDtsFamily(
       return false;
     }
 
-    return matchesJsTsExclusion(filePath, configuration.jsTsExclusions);
+    return configuration.jsTsExclusions.some(exclusion => exclusion.match(filePath));
   });
 }
 

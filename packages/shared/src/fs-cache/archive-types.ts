@@ -67,7 +67,8 @@ export type ArchiveOptions = {
   passthroughDirs?: string[];
   // Replay may access native runtime files only through explicitly allowed directories.
   restrictNativeReads?: boolean;
-  caseSensitivePaths?: boolean;
+  // Native capability for recording and runtime passthrough; replay loads project semantics from the archive.
+  caseSensitivePaths: boolean;
   rootDir: string;
 };
 export type ArchiveEntry = { path: string; node: CacheNode };

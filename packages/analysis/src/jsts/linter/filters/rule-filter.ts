@@ -27,6 +27,7 @@ import type { SonarMeta } from '../../rules/helpers/generate-meta.js';
 export interface RuleFilterContext {
   extensionName: string;
   fileType: FileType;
+  isTestCaseFile: boolean;
   fileLanguage: JsTsLanguage;
   analysisMode: AnalysisMode;
   detectedEsYear: number | undefined;

@@ -204,11 +204,6 @@
 256,
 301
 ],
-"vitest:packages/ui/client/components/views/ViewReport.spec.ts": [
-59,
-118,
-178
-],
 "vitest:packages/ui/client/components/views/ViewReport.vue": [
 43,
 44,

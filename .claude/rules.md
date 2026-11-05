@@ -53,6 +53,12 @@ export const rule: Rule.RuleModule = {
 };
 ```
 
+Do not check `context.filename` to decide whether a rule applies to test code, and do not
+import or reimplement the test-file classification in `common/rule-file-type.ts`.
+MAIN/TEST applicability is decided centrally before rules run: declare it through the RSPEC
+`scope` instead, plus `requiredTestCaseFile` in `meta.ts` for rules that only apply to files
+declaring test cases. See [`docs/test-file-classification.md`](../docs/test-file-classification.md).
+
 ## Testing
 
 ### RuleTesters

@@ -24,10 +24,6 @@ describe('S2187', () => {
     ruleTester.run('Test files should contain at least one test case', rule, {
       valid: [
         {
-          code: `/* empty main file */`,
-          filename: 'foo.js',
-        },
-        {
           code: `
         /* a test file using 'it' */
         it('1 + 2 should give 3', () => {
@@ -231,6 +227,12 @@ describe('S2187', () => {
         },
       ],
       invalid: [
+        {
+          // Applicability is decided before the rule runs, so the rule itself ignores the filename.
+          code: `/* empty file */`,
+          filename: 'foo.js',
+          errors: 1,
+        },
         {
           code: `/* empty test file */`,
           filename: 'foo.test.js',

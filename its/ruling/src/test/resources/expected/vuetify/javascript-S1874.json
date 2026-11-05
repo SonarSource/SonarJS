@@ -1,0 +1,77 @@
+{
+"vuetify:packages/docs/src/examples/v-date-picker-month/misc-dialog-and-menu.vue": [
+102
+],
+"vuetify:packages/docs/src/examples/v-date-picker-month/misc-internationalization.vue": [
+20
+],
+"vuetify:packages/docs/src/examples/v-date-picker-month/misc-orientation.vue": [
+19
+],
+"vuetify:packages/docs/src/examples/v-date-picker-month/prop-colors.vue": [
+21,
+22
+],
+"vuetify:packages/docs/src/examples/v-date-picker-month/prop-icons.vue": [
+17
+],
+"vuetify:packages/docs/src/examples/v-date-picker-month/prop-readonly.vue": [
+15
+],
+"vuetify:packages/docs/src/examples/v-date-picker-month/prop-show-current.vue": [
+20
+],
+"vuetify:packages/docs/src/examples/v-date-picker-month/prop-width.vue": [
+21
+],
+"vuetify:packages/docs/src/examples/v-date-picker-month/usage.vue": [
+14
+],
+"vuetify:packages/docs/src/examples/v-date-picker/event-button-events.vue": [
+53
+],
+"vuetify:packages/docs/src/examples/v-date-picker/event-events.vue": [
+30,
+31,
+39
+],
+"vuetify:packages/docs/src/examples/v-date-picker/misc-dialog-and-menu.vue": [
+131
+],
+"vuetify:packages/docs/src/examples/v-date-picker/misc-formatting.vue": [
+77,
+78
+],
+"vuetify:packages/docs/src/examples/v-date-picker/misc-internationalization.vue": [
+20
+],
+"vuetify:packages/docs/src/examples/v-date-picker/misc-orientation.vue": [
+18
+],
+"vuetify:packages/docs/src/examples/v-date-picker/prop-colors.vue": [
+19,
+20
+],
+"vuetify:packages/docs/src/examples/v-date-picker/prop-icons.vue": [
+16
+],
+"vuetify:packages/docs/src/examples/v-date-picker/prop-picker-date.vue": [
+41
+],
+"vuetify:packages/docs/src/examples/v-date-picker/prop-readonly.vue": [
+14
+],
+"vuetify:packages/docs/src/examples/v-date-picker/prop-show-current.vue": [
+18
+],
+"vuetify:packages/docs/src/examples/v-date-picker/prop-width.vue": [
+19
+],
+"vuetify:packages/docs/src/examples/v-date-picker/usage.vue": [
+11
+],
+"vuetify:packages/docs/src/examples/v-rating/misc-advanced.vue": [
+152,
+154
+]
+}

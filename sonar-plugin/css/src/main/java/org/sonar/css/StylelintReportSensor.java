@@ -62,7 +62,7 @@ public class StylelintReportSensor implements Sensor {
   };
 
   private final CssRules cssRules;
-  private ExternalRuleLoader stylelintRuleLoader = getStylelintRuleLoader();
+  private final ExternalRuleLoader stylelintRuleLoader = getStylelintRuleLoader();
 
   public StylelintReportSensor(CheckFactory checkFactory) {
     this.cssRules = new CssRules(checkFactory);

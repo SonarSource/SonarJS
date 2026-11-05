@@ -16,11 +16,12 @@
  */
 import { describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
-import {
-  filterPathAndGetFileType,
-  getFileTypeForRules,
-  isJsTsExcluded,
-} from '../../src/common/filter/filter-path.js';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { installFsCache } from '../../../shared/src/fs-cache/hook.js';
+import { setArchivedFileSystemCaseSensitivity } from '../../src/jsts/rules/helpers/filesystem-case.js';
+import { filterPathAndGetFileType, isJsTsExcluded } from '../../src/common/filter/filter-path.js';
 import { createConfiguration, getFilterPathParams } from '../../src/common/configuration.js';
 import { normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
 
@@ -196,201 +197,87 @@ describe('filter path', () => {
     expect(result).toBe('MAIN');
   });
 
-  describe('test-file rule heuristic fallback (no sonar.tests configured)', () => {
-    const testLikeFilenames = [
-      '/project/src/foo.test.ts',
-      '/project/src/bar.spec.js',
-      '/project/src/baz.cy.ts',
-      '/project/src/qux.e2e.tsx',
-      '/project/src/data.mock.js',
-      '/project/src/foo.test.mjs',
-      '/project/src/foo.spec.cjs',
-      '/project/src/__tests__/anything.ts',
-      '/project/src/__mocks__/api.js',
-    ];
-
-    for (const path of testLikeFilenames) {
-      it(`should classify ${path} as TEST via heuristic when no test config is set`, () => {
-        const filePath = normalizeToAbsolutePath(path);
-        const config = createConfiguration({ baseDir: '/project', sources: ['src'] });
-        const result = getFileTypeForRules(filePath, 'MAIN', getFilterPathParams(config));
-        expect(result).toBe('TEST');
-      });
-    }
-
-    it('should classify a non-test filename as MAIN when no test config is set', () => {
-      const filePath = normalizeToAbsolutePath('/project/src/regular.ts');
-      const config = createConfiguration({ baseDir: '/project', sources: ['src'] });
-      const result = getFileTypeForRules(filePath, 'MAIN', getFilterPathParams(config));
-      expect(result).toBe('MAIN');
-    });
-
-    it('should not be fooled by filenames that merely contain "test"', () => {
-      const filePath = normalizeToAbsolutePath('/project/src/testimony.ts');
-      const config = createConfiguration({ baseDir: '/project', sources: ['src'] });
-      const result = getFileTypeForRules(filePath, 'MAIN', getFilterPathParams(config));
-      expect(result).toBe('MAIN');
-    });
-
-    it('should NOT apply heuristic when testPaths is configured', ({ mock }) => {
-      console.log = mock.fn(console.log);
-      const filePath = normalizeToAbsolutePath('/project/src/foo.test.ts');
-      const config = createConfiguration({
-        baseDir: '/project',
-        sources: ['src'],
-        tests: ['test'],
-      });
-      const result = getFileTypeForRules(filePath, 'MAIN', getFilterPathParams(config));
-      expect(result).toBe('MAIN');
-    });
-
-    it('should still apply heuristic when only testInclusions is set (inert without testPaths)', ({
+  for (const excludedParent of [false, true]) {
+    it(`reuses ${excludedParent ? 'excluded' : 'accepted'} parent results across sibling files`, ({
       mock,
     }) => {
-      console.log = mock.fn(console.log);
-      const filePath = normalizeToAbsolutePath('/project/src/foo.test.ts');
       const config = createConfiguration({
         baseDir: '/project',
-        sources: ['src'],
-        testInclusions: ['**/*IntegrationTest.ts'],
+        exclusions: ['**/blocked', '**/skip.ts'],
       });
-      const result = getFileTypeForRules(filePath, 'MAIN', getFilterPathParams(config));
-      expect(result).toBe('TEST');
-    });
+      const matcher = mock.method(config.exclusions[0], 'match');
+      const directory = normalizeToAbsolutePath(
+        `/project/src/${excludedParent ? 'blocked/' : ''}nested`,
+      );
+      for (const filename of ['first.ts', 'skip.ts', 'last.ts']) {
+        const filePath = normalizeToAbsolutePath(`${directory}/${filename}`);
+        expect(filterPathAndGetFileType(filePath, getFilterPathParams(config))).toBe(
+          excludedParent || filename === 'skip.ts' ? undefined : 'MAIN',
+        );
+      }
 
-    it('should still apply heuristic when only testExclusions is set (inert without testPaths)', ({
-      mock,
-    }) => {
-      console.log = mock.fn(console.log);
-      const filePath = normalizeToAbsolutePath('/project/src/foo.test.ts');
-      const config = createConfiguration({
-        baseDir: '/project',
-        sources: ['src'],
-        testExclusions: ['**/fixtures/**'],
-      });
-      const result = getFileTypeForRules(filePath, 'MAIN', getFilterPathParams(config));
-      expect(result).toBe('TEST');
+      expect(matcher.mock.calls.filter(call => call.arguments[0] === directory)).toHaveLength(1);
     });
+  }
 
-    it('should NOT apply heuristic when inclusions is configured', ({ mock }) => {
-      console.log = mock.fn(console.log);
-      const filePath = normalizeToAbsolutePath('/project/src/foo.test.ts');
-      const config = createConfiguration({
-        baseDir: '/project',
-        sources: ['src'],
-        inclusions: ['**/*.test.ts'],
-      });
-      const result = getFileTypeForRules(filePath, 'MAIN', getFilterPathParams(config));
-      expect(result).toBe('MAIN');
-    });
+  it('isolates parent exclusion results by analysis root and exclusion configuration', () => {
+    const config = createConfiguration({ baseDir: '/project', exclusions: ['**/blocked'] });
+    const params = getFilterPathParams(config);
+    const filePath = normalizeToAbsolutePath('/project/blocked/nested/file.ts');
+    expect(filterPathAndGetFileType(filePath, params)).toBeUndefined();
 
-    it('should classify .test.<customSuffix> as TEST when jsSuffixes is extended', () => {
-      const filePath = normalizeToAbsolutePath('/project/src/foo.test.dummy');
-      const config = createConfiguration({
-        baseDir: '/project',
-        sources: ['src'],
-        jsSuffixes: ['.js', '.dummy'],
-      });
-      const result = getFileTypeForRules(filePath, 'MAIN', getFilterPathParams(config));
-      expect(result).toBe('TEST');
-    });
+    // Reusing the patterns with a deeper root must not reuse exclusions above that root.
+    expect(
+      filterPathAndGetFileType(filePath, {
+        ...params,
+        baseDir: normalizeToAbsolutePath('/project/blocked'),
+      }),
+    ).toBe('MAIN');
+    expect(filterPathAndGetFileType(filePath, params)).toBeUndefined();
 
-    it('should not classify .test.<unconfiguredSuffix> as TEST', () => {
-      const filePath = normalizeToAbsolutePath('/project/src/foo.test.dummy');
-      const config = createConfiguration({ baseDir: '/project', sources: ['src'] });
-      const result = getFileTypeForRules(filePath, 'MAIN', getFilterPathParams(config));
-      expect(result).toBe('MAIN');
-    });
-
-    it('should fall back to default TS extensions when TS suffixes are empty', () => {
-      const filePath = normalizeToAbsolutePath('/project/src/foo.test.ts');
-      const config = createConfiguration({
-        baseDir: '/project',
-        sources: ['src'],
-        jsSuffixes: ['.js'],
-        tsSuffixes: [],
-      });
-      const result = getFileTypeForRules(filePath, 'MAIN', getFilterPathParams(config));
-      expect(result).toBe('TEST');
-    });
-
-    it('should fall back to default JS extensions when JS suffixes are empty', () => {
-      const filePath = normalizeToAbsolutePath('/project/src/foo.test.js');
-      const config = createConfiguration({
-        baseDir: '/project',
-        sources: ['src'],
-        jsSuffixes: [],
-        tsSuffixes: ['.ts'],
-      });
-      const result = getFileTypeForRules(filePath, 'MAIN', getFilterPathParams(config));
-      expect(result).toBe('TEST');
-    });
+    const newConfig = createConfiguration({ baseDir: '/project', exclusions: ['**/other'] });
+    expect(filterPathAndGetFileType(filePath, getFilterPathParams(newConfig))).toBe('MAIN');
   });
 
-  // JS-2311: When sonar.tests is not configured, Angular environment-config filenames can match
-  // the test-file heuristic by coincidence. If `@angular/core` is visible to the file, keep these
-  // candidates MAIN for rule selection. The scanner/path-derived file type used for metrics is
-  // unchanged; non-Angular candidates continue through the normal test-file heuristic.
-  describe('Angular environment-config carve-out (rule-selection heuristic)', () => {
-    const commonDir = normalizeToAbsolutePath(import.meta.dirname);
-    const angularBaseDir = `${commonDir}/fixtures/angular-project`;
-    const nonAngularBaseDir = `${commonDir}/fixtures/non-angular-project`;
-
-    it('keeps an Angular environments/environment.test.ts as MAIN for rule selection', () => {
-      const filePath = normalizeToAbsolutePath(
-        `${angularBaseDir}/src/environments/environment.test.ts`,
-      );
-      const config = createConfiguration({ baseDir: angularBaseDir });
-      const result = getFileTypeForRules(filePath, 'MAIN', getFilterPathParams(config));
-      expect(result).toBe('MAIN');
+  it('stops ancestor exclusions at the analysis root using filesystem case semantics', () => {
+    const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'exclusion-root-case-'));
+    const root = normalizeToAbsolutePath(temporary);
+    const analysisRoot = normalizeToAbsolutePath('project/blocked', root);
+    const config = createConfiguration({
+      baseDir: analysisRoot,
+      exclusions: ['file:**/blocked'],
     });
-
-    it('carves out the spec / cy / e2e / mock environment markers too', () => {
-      const config = createConfiguration({ baseDir: angularBaseDir });
-      for (const marker of ['spec', 'cy', 'e2e', 'mock']) {
-        const filePath = normalizeToAbsolutePath(
-          `${angularBaseDir}/src/environments/environment.${marker}.ts`,
-        );
-        const result = getFileTypeForRules(filePath, 'MAIN', getFilterPathParams(config));
-        expect(result).toBe('MAIN');
+    // Reuse the same patterns across modes to exercise cache invalidation as well.
+    const params = getFilterPathParams(config);
+    try {
+      for (const caseSensitivePaths of [true, false, true]) {
+        const session = installFsCache().beginAnalysis({
+          archivePath: path.join(temporary, 'fs.pb.gz'),
+          rootDir: root,
+          mode: 'record',
+          caseSensitivePaths,
+        });
+        try {
+          // Simulate the producer filesystem independently of the test host.
+          setArchivedFileSystemCaseSensitivity(caseSensitivePaths);
+          expect(
+            filterPathAndGetFileType(
+              normalizeToAbsolutePath('PROJECT/blocked/nested/main.ts', root),
+              params,
+            ),
+          ).toBe(caseSensitivePaths ? undefined : 'MAIN');
+          expect(
+            filterPathAndGetFileType(
+              normalizeToAbsolutePath('nested/main.ts', analysisRoot),
+              params,
+            ),
+          ).toBe('MAIN');
+        } finally {
+          session.end();
+        }
       }
-    });
-
-    it('promotes environments/environment.test.ts to TEST in a non-Angular project', () => {
-      const filePath = normalizeToAbsolutePath(
-        `${nonAngularBaseDir}/src/environments/environment.test.ts`,
-      );
-      const config = createConfiguration({ baseDir: nonAngularBaseDir });
-      const result = getFileTypeForRules(filePath, 'MAIN', getFilterPathParams(config));
-      expect(result).toBe('TEST');
-    });
-
-    it('still promotes a real colocated test in an Angular project to TEST', () => {
-      // The carve-out is scoped to the environments/ folder; ordinary test files stay TEST.
-      const filePath = normalizeToAbsolutePath(`${angularBaseDir}/src/app/app.component.spec.ts`);
-      const config = createConfiguration({ baseDir: angularBaseDir });
-      const result = getFileTypeForRules(filePath, 'MAIN', getFilterPathParams(config));
-      expect(result).toBe('TEST');
-    });
-
-    it('leaves the base/metrics file type of the Angular env config as MAIN', () => {
-      // The carve-out lives in the rule-selection heuristic only; base classification is unchanged.
-      const filePath = normalizeToAbsolutePath(
-        `${angularBaseDir}/src/environments/environment.test.ts`,
-      );
-      const config = createConfiguration({ baseDir: angularBaseDir });
-      const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
-      expect(result).toBe('MAIN');
-    });
-
-    it('preserves an existing TEST classification over the Angular carve-out', () => {
-      // An upstream TEST classification takes precedence over the filename heuristic.
-      const filePath = normalizeToAbsolutePath(
-        `${angularBaseDir}/src/environments/environment.test.ts`,
-      );
-      const config = createConfiguration({ baseDir: angularBaseDir });
-      const result = getFileTypeForRules(filePath, 'TEST', getFilterPathParams(config));
-      expect(result).toBe('TEST');
-    });
+    } finally {
+      fs.rmSync(temporary, { recursive: true, force: true });
+    }
   });
 });

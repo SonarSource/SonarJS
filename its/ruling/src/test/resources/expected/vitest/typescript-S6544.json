@@ -1,4 +1,7 @@
 {
+"vitest:packages/ui/client/components/views/ViewEditor.vue": [
+179
+],
 "vitest:packages/ui/node/reporter.ts": [
 53
 ],

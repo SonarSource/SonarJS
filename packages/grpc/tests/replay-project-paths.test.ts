@@ -14,13 +14,18 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { describe, it } from 'node:test';
+import { describe, it, afterEach } from 'node:test';
+import {
+  setArchivedFileSystemCaseSensitivity,
+  setOsCaseSensitivity,
+} from '../../analysis/src/jsts/rules/helpers/filesystem-case.js';
 import { expect } from 'expect';
 import { ReplayProjectPaths } from '../src/replay-project-paths.js';
 import type { AnalyzeProjectProtoRequest } from '../src/analyze-project-request.js';
 import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
 
 describe('ReplayProjectPaths', () => {
+  afterEach(() => setOsCaseSensitivity());
   const logicalRoot = normalizeToAbsolutePath('/original/ci');
   const physicalRoot = normalizeToAbsolutePath('/physical/workspace');
 
@@ -55,7 +60,8 @@ describe('ReplayProjectPaths', () => {
     });
   }
 
-  it('canonicalizes Windows file casing without changing the submitted response key', () => {
+  it('canonicalizes case-insensitive Windows file casing without changing the submitted response key', () => {
+    setArchivedFileSystemCaseSensitivity(false);
     const input = request();
     input.configuration!.baseDir = 'C:/CI/Project';
     input.filesystemCache!.fallbackBaseDir = physicalRoot;

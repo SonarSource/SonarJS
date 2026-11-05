@@ -2,12 +2,6 @@
 "vitest:examples/fastify/src/app.ts": [
 9
 ],
-"vitest:examples/lit/test/basic.test.ts": [
-6
-],
-"vitest:examples/opentelemetry/src/basic.test.ts": [
-9
-],
 "vitest:examples/projects/packages/server/src/app.ts": [
 9
 ],
@@ -37,6 +31,12 @@
 ],
 "vitest:packages/mocker/src/node/mockerPlugin.ts": [
 52
+],
+"vitest:packages/ui/client/components/BrowserIframe.vue": [
+29
+],
+"vitest:packages/ui/client/components/CodeMirrorContainer.vue": [
+38
 ],
 "vitest:packages/ui/client/composables/codemirror.ts": [
 67

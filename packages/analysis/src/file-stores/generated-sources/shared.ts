@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { FileSystemMap } from '../../common/filesystem.js';
 import { isJsTsFile } from '../../common/configuration.js';
 import {
   normalizeToAbsolutePath,
@@ -45,9 +46,11 @@ export function mergeDerivedGeneratedSources(
   target: DerivedGeneratedSources,
   source: DerivedGeneratedSources,
 ) {
+  const familiesByPath = new FileSystemMap(target.familyByFile);
   for (const [filePath, family] of sortPathEntries(source.familyByFile.entries())) {
-    if (!target.familyByFile.has(filePath)) {
+    if (!familiesByPath.has(filePath)) {
       target.familyByFile.set(filePath, family);
+      familiesByPath.set(filePath, family);
     }
   }
 

@@ -14,11 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { FileSystemSet } from './common/filesystem.js';
 import type { AnalyzableFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
 import { analyzeFile } from './analyzeFile.js';
 import { error, info } from '../../shared/src/helpers/logging.js';
 import { reportMissingExtendedTsConfig } from './common/analysis-warnings.js';
-import { tsConfigStore } from './file-stores/index.js';
+import { sourceFileStore, tsConfigStore } from './file-stores/index.js';
 import ts from 'typescript';
 import type { ProgressReport } from './common/progress-report.js';
 import type { WsIncrementalResult } from './incremental-result.js';
@@ -106,7 +107,7 @@ export async function analyzeWithProgram(
 ) {
   const telemetry = getProjectAnalysisTelemetryCollector();
   const foundProgramOptions: ProgramOptions[] = [];
-  const processedTSConfigs: Set<NormalizedAbsolutePath> = new Set();
+  const processedTSConfigs: Set<NormalizedAbsolutePath> = new FileSystemSet();
   const tsconfigs = tsConfigStore.getTsConfigs();
   const analysisContext: ProgramAnalysisContext = {
     files,
@@ -379,8 +380,11 @@ async function analyzeFilesFromTsConfig(
   // TypeScript normalizes file paths internally, so we can safely cast them
   const filesToAnalyze = tsProgram
     .getSourceFiles()
-    .map(sf => sf.fileName as NormalizedAbsolutePath)
-    .filter(fileName => files[fileName] && pendingFiles.has(fileName));
+    .map(sf => sourceFileStore.getFile(sf.fileName as NormalizedAbsolutePath)?.filePath)
+    .filter(
+      (fileName): fileName is NormalizedAbsolutePath =>
+        fileName !== undefined && pendingFiles.has(fileName),
+    );
 
   for (const reference of sanitizeProgramReferences(tsProgram)) {
     if (!processedTSConfigs.has(reference)) {

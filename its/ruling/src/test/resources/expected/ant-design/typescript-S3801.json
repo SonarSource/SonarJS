@@ -30,10 +30,6 @@
 "ant-design:components/upload/UploadList/index.tsx": [
 87
 ],
-"ant-design:components/upload/__tests__/type.test.tsx": [
-86,
-120
-],
 "ant-design:site/theme/template/Layout/Header/SearchBar.tsx": [
 82
 ]

@@ -114,6 +114,39 @@ doThing().then(function (result) {
 `,
         },
         {
+          // a nested .catch() scopes recovery to the inner operation: hoisting it onto
+          // the outer chain would broaden what it handles.
+          code: `
+doThing().catch(function (err) {
+  return logError(err).catch(function () {
+    return null;
+  });
+});
+`,
+        },
+        {
+          // local fallback for a failed parse, distinct from the outer operation-level catch
+          code: `
+fetch(url)
+  .then(async response => {
+    if (response.ok) {
+      return response.json();
+    }
+    throw await response.json().catch(() => ({}));
+  })
+  .catch(error => notify(error));
+`,
+        },
+        {
+          // best-effort side work guarded by its own .catch(), detached from the outer chain
+          code: `
+request().catch(error => {
+  showError(error);
+  trackEvent('request_error').catch(console.error);
+});
+`,
+        },
+        {
           code: `
 doThing().then(() => {
   return step().finally(() => {
@@ -138,15 +171,16 @@ doThing().then(function (result) {
           errors: [{ messageId: 'avoidNesting' }],
         },
         {
-          // a .catch() nested inside another .catch()
+          // a nested .then().catch() chain: only the .then() link is reported
           code: `
-doThing().catch(function (err) {
-  return logError(err).catch(function () {
-    return null;
-  });
+first().then(result => {
+  save(result);
+  second()
+    .then(other => render(other))
+    .catch(e => notify(e));
 });
 `,
-          errors: [{ messageId: 'avoidNesting' }],
+          errors: [{ messageId: 'avoidNesting', line: 5 }],
         },
         {
           // genuine nesting still reported *inside* an intervening function: relative

@@ -40,6 +40,12 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
     { ...rule, meta: generateMeta(meta, rule.meta) },
     (context, descriptor) => {
       const node = (descriptor as unknown as { node: TSESTree.Node }).node;
+      if (node.type === 'Identifier' && node.name === 'catch') {
+        // A nested `.catch()` scopes error handling to the inner operation (local
+        // recovery, best-effort side work): hoisting it onto the outer chain would
+        // broaden what it handles, so it is not avoidable nesting.
+        return;
+      }
       const enclosingFunction = findFirstMatchingAncestor(node, n =>
         isFunctionNode(n as unknown as estree.Node),
       );

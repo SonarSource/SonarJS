@@ -1,4 +1,11 @@
 {
+"vitest:examples/basic/test/suite.test.ts": [
+4
+],
+"vitest:examples/opentelemetry/src/other.test.ts": [
+4,
+8
+],
 "vitest:test/browser/fixtures/assertion-helper/basic.test.ts": [
 21,
 25,

@@ -19,7 +19,7 @@ import { expect } from 'expect';
 import stylelint from 'stylelint';
 import { StylelintRuleTester } from '../../../../tests/css/tools/tester/tester.js';
 import { createStylelintConfig } from '../../linter/config.js';
-import { withSonarDisables } from '../helpers/decorated-result.js';
+import { meta } from './meta.js';
 import { messages, rule } from './rule.js';
 
 const RULE = rule.ruleName;
@@ -156,48 +156,22 @@ a { grid-template-areas: "head head" ""; }`,
       errors: [{ text: `${messages.emptyString} (${RULE})`, line: 2 }],
     }));
 
-  it('isolates upstream disable ranges from the shared result', async (): Promise<void> => {
-    const config = createStylelintConfig([{ key: RULE, configurations: [] }]);
-    const sonarDisabled = await stylelint.lint({
-      code: `/* stylelint-disable-next-line ${RULE} */
+  it('keeps disable tracking independent when both rules are enabled', async (): Promise<void> => {
+    const upstreamRule = meta.bindings[0].upstreamRule;
+    const config = createStylelintConfig([
+      { key: RULE, configurations: [] },
+      { key: upstreamRule, configurations: [] },
+    ]);
+    config.reportNeedlessDisables = true;
+    for (const disabled of [RULE, upstreamRule]) {
+      const result = await stylelint.lint({
+        code: `/* stylelint-disable-next-line ${disabled} */
 a { grid-template-areas: "head head" ""; }`,
-      codeFilename: 'test.css',
-      config,
-    });
-    const sharedResult = sonarDisabled.results[0]._postcssResult;
-    if (!sharedResult) {
-      throw new Error('Expected a PostCSS result');
+        codeFilename: 'test.css',
+        config,
+      });
+      const expectedRule = disabled === RULE ? upstreamRule : RULE;
+      expect(result.results[0].warnings.map(({ rule }) => rule)).toEqual([expectedRule]);
     }
-    const originalRanges = sharedResult.stylelint.disabledRanges;
-    originalRanges[RULE][0].rules = [RULE];
-    const scopedResult = withSonarDisables(sharedResult, RULE, 'named-grid-areas-no-invalid');
-    expect(scopedResult.stylelint.disabledRanges).not.toBe(originalRanges);
-    for (const [rule, ranges] of Object.entries(originalRanges)) {
-      expect(scopedResult.stylelint.disabledRanges[rule]).not.toBe(ranges);
-      expect(scopedResult.stylelint.disabledRanges[rule]).toEqual(ranges);
-    }
-    const scopedRanges = scopedResult.stylelint.disabledRanges['named-grid-areas-no-invalid'];
-    expect(scopedRanges).toEqual(originalRanges[RULE]);
-    expect(scopedRanges).not.toBe(originalRanges[RULE]);
-    expect(scopedRanges[0]).not.toBe(originalRanges[RULE][0]);
-    expect(scopedRanges[0].rules).not.toBe(originalRanges[RULE][0].rules);
-    scopedRanges[0].start = 99;
-    scopedRanges[0].rules?.push('another-rule');
-    expect(originalRanges[RULE][0].start).toBe(2);
-    expect(originalRanges[RULE][0].rules).toEqual([RULE]);
-    expect(sharedResult.stylelint.disabledRanges).toBe(originalRanges);
-    expect(sharedResult.stylelint.disabledRanges['named-grid-areas-no-invalid']).toBeUndefined();
-
-    const upstreamDisabled = await stylelint.lint({
-      code: `/* stylelint-disable-next-line named-grid-areas-no-invalid */
-a { grid-template-areas: "head head" ""; }`,
-      codeFilename: 'test.css',
-      config,
-    });
-    expect(
-      upstreamDisabled.results[0]._postcssResult?.stylelint.disabledRanges[
-        'named-grid-areas-no-invalid'
-      ]?.map(({ start, end }) => ({ start, end })),
-    ).toEqual([{ start: 2, end: 2 }]);
   });
 });

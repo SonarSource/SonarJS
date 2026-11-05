@@ -41,13 +41,13 @@ public final class EscapeUtils {
       }
 
       char escaped = value.charAt(i + 1);
-      if (escaped == 'u') {
-        i = consumeEscapeSequence(i, 4, value, result);
-      } else if (escaped == 'x') {
-        i = consumeEscapeSequence(i, 2, value, result);
-      } else {
-        result.append(unescape(escaped));
-        i += 2;
+      switch (escaped) {
+        case 'u' -> i = consumeEscapeSequence(i, 4, value, result);
+        case 'x' -> i = consumeEscapeSequence(i, 2, value, result);
+        default -> {
+          result.append(unescape(escaped));
+          i += 2;
+        }
       }
     }
     return result.toString();

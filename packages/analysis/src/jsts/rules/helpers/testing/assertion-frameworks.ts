@@ -40,6 +40,7 @@ type AssertionDetector = (context: Rule.RuleContext, node: estree.Node) => boole
 type TypeScriptAssertionDetector = (
   services: ParserServicesWithTypeInformation,
   node: ts.Node,
+  context: Rule.RuleContext,
 ) => boolean;
 
 type AssertionFrameworkDefinition = {
@@ -254,7 +255,7 @@ export function isTypeScriptAssertionEvidence(
 ): boolean {
   return getFrameworkEntries(profile).some(
     ({ framework, extension }) =>
-      framework.isTSAssertion?.(services, node) ||
+      framework.isTSAssertion?.(services, node, context) ||
       extension.isTSAssertionFallback?.(context, services, node),
   );
 }
@@ -325,6 +326,6 @@ function getFrameworkEntries<T>(profile: AssertionFrameworkProfile<T>) {
 }
 
 type FrameworkEntry<T> = {
-  framework: (typeof assertionFrameworks)[AssertionFrameworkKey];
+  framework: AssertionFrameworkDefinition;
   extension: T;
 };

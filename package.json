@@ -53,18 +53,18 @@
   },
   "homepage": "https://github.com/SonarSource/SonarJS#readme",
   "engines": {
-    "node": "^22.12.0 || ^24.0.0"
+    "node": "^22.12.0 || ^24.0.0 || ^26.0.0"
   },
   "type": "module",
   "devDependencies": {
     "@cyclonedx/cyclonedx-npm": "6.0.1",
     "@eslint/core": "1.2.1",
-    "@inquirer/prompts": "8.7.4",
+    "@inquirer/prompts": "8.7.5",
     "@istanbuljs/esm-loader-hook": "0.3.0",
     "@types/aria-query": "5.0.4",
     "@types/bytes": "3.1.6",
     "@types/css-tree": "3.2.0",
-    "@types/estree": "1.0.9",
+    "@types/estree": "1.0.10",
     "@types/estree-jsx": "1.0.5",
     "@types/functional-red-black-tree": "1.0.6",
     "@types/lodash.merge": "4.6.9",
@@ -80,10 +80,10 @@
     "eslint-doc-generator": "3.7.1",
     "esprima": "4.0.1",
     "expect": "30.5.2",
-    "glob": "13.0.6",
+    "glob": "14.0.3",
     "husky": "9.1.7",
     "json-schema-to-ts": "3.1.1",
-    "knip": "6.42.1",
+    "knip": "6.44.0",
     "license-checker": "25.0.1",
     "memfs": "4.80.0",
     "node-reporter-sonarqube": "1.0.3",
@@ -101,21 +101,21 @@
   "dependencies": {
     "@angular-eslint/eslint-plugin": "22.6.0",
     "@angular-eslint/utils": "22.6.0",
-    "@babel/core": "8.0.7",
+    "@babel/core": "8.0.10",
     "@babel/eslint-parser": "8.0.7",
     "@csstools/css-calc": "3.4.3",
     "@csstools/css-parser-algorithms": "4.0.2",
     "@csstools/css-tokenizer": "4.0.2",
     "@eslint-community/regexpp": "4.12.2",
-    "@grpc/grpc-js": "1.14.6",
+    "@grpc/grpc-js": "1.14.7",
     "@protobufjs/base64": "1.1.2",
     "@sonarsource/analyzer-commons-configurations": "2.31.0-5284",
     "@stylistic/eslint-plugin": "5.10.0",
     "@stylistic/stylelint-plugin": "5.3.1",
-    "@typescript-eslint/eslint-plugin": "8.72.0",
-    "@typescript-eslint/parser": "8.72.0",
-    "@typescript-eslint/type-utils": "8.72.0",
-    "@typescript-eslint/utils": "8.72.0",
+    "@typescript-eslint/eslint-plugin": "8.72.1",
+    "@typescript-eslint/parser": "8.72.1",
+    "@typescript-eslint/type-utils": "8.72.1",
+    "@typescript-eslint/utils": "8.72.1",
     "aria-query": "5.3.2",
     "builtin-modules": "5.4.0",
     "bytes": "3.1.2",
@@ -131,16 +131,16 @@
     "eslint-plugin-react-hooks": "7.1.1",
     "eslint-plugin-testing-library": "7.16.2",
     "eslint-plugin-unicorn": "65.0.1",
-    "eslint-plugin-vue": "10.11.1",
+    "eslint-plugin-vue": "10.12.0",
     "functional-red-black-tree": "1.0.1",
     "globals": "17.13.0",
     "htmlparser2": "12.0.0",
     "jsx-ast-utils-x": "0.1.0",
     "lodash.merge": "4.6.2",
-    "minimatch": "10.2.6",
-    "postcss": "8.5.31",
+    "minimatch": "11.0.3",
+    "postcss": "8.5.32",
     "postcss-html": "2.0.0",
-    "postcss-less": "6.0.0",
+    "postcss-less": "7.0.1",
     "postcss-scss": "4.0.9",
     "postcss-selector-parser": "7.1.7",
     "postcss-value-parser": "4.2.0",
@@ -168,5 +168,10 @@
   "files": [
     "bin/",
     "licenses/"
-  ]
+  ],
+  "overrides": {
+    "sass-parser": {
+      "sass": "1.106.1"
+    }
+  }
 }

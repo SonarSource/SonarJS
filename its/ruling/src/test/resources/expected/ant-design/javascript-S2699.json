@@ -1,0 +1,52 @@
+{
+"ant-design:components/config-provider/__tests__/locale.test.js": [
+18
+],
+"ant-design:components/form/__tests__/index.test.js": [
+242,
+251
+],
+"ant-design:components/list/__tests__/pagination.test.js": [
+201
+],
+"ant-design:components/menu/__tests__/index.test.js": [
+350
+],
+"ant-design:components/message/__tests__/hooks.test.js": [
+90,
+119
+],
+"ant-design:components/message/__tests__/index.test.js": [
+93,
+252
+],
+"ant-design:components/notification/__tests__/index.test.js": [
+134
+],
+"ant-design:components/slider/__tests__/index.test.js": [
+106,
+111
+],
+"ant-design:components/table/__tests__/Table.filter.test.js": [
+1340
+],
+"ant-design:components/table/__tests__/Table.rowSelection.test.js": [
+158,
+936
+],
+"ant-design:components/table/__tests__/Table.test.js": [
+150,
+164
+],
+"ant-design:components/upload/__tests__/upload.test.js": [
+882
+],
+"ant-design:components/upload/__tests__/uploadlist.test.js": [
+386,
+412,
+562,
+986,
+987,
+1367
+]
+}
