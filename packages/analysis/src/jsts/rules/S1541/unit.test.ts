@@ -747,10 +747,19 @@ describe('S1541 loader scope initializers', () => {
               `unrelated.value = other; ${code}`,
               `${root}.unrelated = other; ${code}`,
               ...(root === 'sap' || root === 'System'
-                ? [`${root}[\`unrelated\`] = other; ${code}`, `${root}[42] = other; ${code}`]
+                ? [
+                    `${root}[\`unrelated\`] = other; ${code}`,
+                    `${root}[42] = other; ${code}`,
+                    `${root}['*'] = other; ${code}`,
+                  ]
                 : []),
               ...(root === 'sap'
-                ? [`sap.ui[\`unrelated\`] = other; ${code}`, `sap.ui[42] = other; ${code}`]
+                ? [
+                    `sap.ui[\`unrelated\`] = other; ${code}`,
+                    `sap.ui[42] = other; ${code}`,
+                    `sap.ui['*'] = other; ${code}`,
+                    `sap.ui[\`*\`] = other; ${code}`,
+                  ]
                 : []),
               `function local(${root}) { ${root} = other; } ${code}`,
             ].map(value => ({

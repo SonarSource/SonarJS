@@ -65,10 +65,10 @@ export class ModuleInitializerTracker {
 
   private invalidateLoaderPath(
     value: estree.Node,
-    path: string[],
+    path: (string | undefined)[],
     remainingPaths: Map<string, string[]>,
   ): void {
-    if (this.hasRuntimeBinding(value, path[0])) {
+    if (this.hasRuntimeBinding(value, path[0] ?? '')) {
       return;
     }
     for (const [key, candidate] of remainingPaths) {
@@ -238,10 +238,10 @@ function isSynchronousFunction(node: estree.Node | undefined): node is estree.Fu
   return node?.type === 'FunctionExpression' && !node.async && !node.generator;
 }
 
-/** `['sap', 'ui', '*']` matches `['sap', 'ui', 'define']`. */
-function isPathPrefix(prefix: string[], path: string[]): boolean {
+/** `['sap', 'ui', undefined]` matches `['sap', 'ui', 'define']`. */
+function isPathPrefix(prefix: (string | undefined)[], path: string[]): boolean {
   return (
     prefix.length <= path.length &&
-    prefix.every((part, index) => part === '*' || part === path[index])
+    prefix.every((part, index) => part === undefined || part === path[index])
   );
 }

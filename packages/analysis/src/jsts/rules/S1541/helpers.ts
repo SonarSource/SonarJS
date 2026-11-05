@@ -42,15 +42,23 @@ export function unwrapTypeScriptValue(expression: estree.Node): estree.Node {
  * `sap.ui['define']` -> ['sap', 'ui', 'define'] when `allowComputed` is true
  * `sap.ui[42]` -> ['sap', 'ui', '42'] when `allowComputed` is true
  * sap.ui[`unrelated`] -> ['sap', 'ui', 'unrelated'] when `allowComputed` is true
- * `sap.ui[key]` -> ['sap', 'ui', '*'] when `allowComputed` is true
+ * `sap.ui[key]` -> ['sap', 'ui', undefined] when `allowComputed` is true
  * `sap.ui[key]` -> undefined when `allowComputed` is false
  *
- * A `'*'` segment can match any property when the rule checks writes.
+ * An `undefined` segment can match any property when the rule checks writes.
  */
 export function getModuleLoaderPath(
   expression: estree.Node,
+  allowComputed: false,
+): string[] | undefined;
+export function getModuleLoaderPath(
+  expression: estree.Node,
   allowComputed: boolean,
-): string[] | undefined {
+): (string | undefined)[] | undefined;
+export function getModuleLoaderPath(
+  expression: estree.Node,
+  allowComputed: boolean,
+): (string | undefined)[] | undefined {
   const node = allowComputed ? unwrapTypeScriptValue(expression) : expression;
   if (allowComputed && node.type === 'ChainExpression') {
     return getModuleLoaderPath(node.expression, allowComputed);
@@ -68,7 +76,7 @@ export function getModuleLoaderPath(
   if (!node.computed && node.property.type === 'Identifier') {
     return [...object, node.property.name];
   }
-  return [...object, getStaticPropertyName(node.property) ?? '*'];
+  return [...object, getStaticPropertyName(node.property)];
 }
 
 /**
