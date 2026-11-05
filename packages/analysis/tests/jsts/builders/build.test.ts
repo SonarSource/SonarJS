@@ -17,15 +17,82 @@
 import path from 'node:path';
 import { AST } from 'vue-eslint-parser';
 import { jsTsInput } from '../tools/helpers/input.js';
-import { describe, it, type Mock } from 'node:test';
+import { describe, it, type Mock, type TestContext } from 'node:test';
+import assert from 'node:assert/strict';
 import { expect } from 'expect';
 import { build } from '../../../src/jsts/builders/build.js';
 import { APIError } from '../../../src/contracts/error.js';
 import { normalizeToAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import { createStandardProgram } from '../../../src/jsts/program/factory.js';
 import { createProgramOptions } from '../../../src/jsts/program/tsconfig/options.js';
+import { parsersMap } from '../../../src/jsts/parsers/eslint.js';
+
+function failParser(context: TestContext, key: keyof typeof parsersMap, failures: Error[]) {
+  const original = parsersMap[key];
+  let attempt = 0;
+  const parseForESLint = context.mock.fn(() => {
+    throw failures[Math.min(attempt++, failures.length - 1)];
+  });
+  Object.assign(parsersMap, { [key]: { ...original, parseForESLint } });
+  context.after(() => Object.assign(parsersMap, { [key]: original }));
+  return parseForESLint;
+}
 
 describe('buildSourceCode', () => {
+  for (const code of ['ERR_SONARJS_FS_CACHE_MISS', 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION']) {
+    for (const scenario of [
+      {
+        name: 'JS through TypeScript',
+        parser: 'typescript',
+        language: 'js',
+        extension: 'js',
+        retry: false,
+      },
+      {
+        name: 'initial Vue TypeScript parsing',
+        parser: 'vuejs',
+        language: 'ts',
+        extension: 'vue',
+        retry: false,
+      },
+      { name: 'Vue JSX retry', parser: 'vuejs', language: 'ts', extension: 'vue', retry: true },
+      {
+        name: 'Babel module parsing',
+        parser: 'javascript',
+        language: 'js',
+        extension: 'js',
+        retry: false,
+      },
+      {
+        name: 'Babel script retry',
+        parser: 'javascript',
+        language: 'js',
+        extension: 'js',
+        retry: true,
+      },
+    ] as const) {
+      it(`propagates ${code} from ${scenario.name}`, async context => {
+        const failure = Object.assign(new Error('Context replay failed'), { code });
+        const parser = failParser(
+          context,
+          scenario.parser,
+          scenario.retry ? [new Error('Ordinary parsing failure'), failure] : [failure],
+        );
+        const input = await jsTsInput({
+          filePath: `input.${scenario.extension}`,
+          fileContent: 'const value = 1;',
+          language: scenario.language,
+          allowTsParserJsFiles: scenario.parser !== 'javascript',
+        });
+        assert.throws(
+          () => build(input),
+          error => error === failure,
+        );
+        expect(parser.mock.callCount()).toBe(scenario.retry ? 2 : 1);
+      });
+    }
+  }
+
   it('should build JavaScript source code', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'build', 'file.js');
     const {
