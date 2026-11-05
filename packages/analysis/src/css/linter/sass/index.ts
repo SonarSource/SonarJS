@@ -29,7 +29,7 @@ import { SassSource } from './sass-source.js';
 /**
  * Parse Sass grammar and indentation, then build the PostCSS representation for Stylelint.
  *
- * patches/sass+1.106.1.patch disables eager CSS selector parsing in the parser export. Otherwise
+ * patches/sass+1.107.1.patch disables eager CSS selector parsing in the parser export. Otherwise
  * Sass rejects valid percentage keyframe selectors. We only need statement spans, not selector ASTs.
  */
 function parse(code: string | { toString(): string }, options?: ProcessOptions): Root {

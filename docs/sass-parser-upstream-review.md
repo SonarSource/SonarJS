@@ -44,14 +44,21 @@ invalid-color and duplicate-property findings inside mixins.
 
 SonarJS maintainers changing the CSS/Sass adapter or its dependencies are responsible
 for these patches, compatibility tests and their removal when upstream fixes ship.
-Treat `sass-parser@0.5.1` and `sass@1.106.1` as a tested pair. The direct parser dependency
+Treat `sass-parser@0.5.3` and `sass@1.107.1` as a tested pair. The direct parser dependency
 is exact; a scoped npm override pins its transitive compiler. The lockfile records the
 pair, and `npm ls sass-parser sass` verifies what is installed.
 
+The 0.5.3 upgrade changes the parser's dependencies to Sass `^1.107.1` and PostCSS
+`8.5.31`; its published runtime and declaration files are identical to 0.5.1. Both
+0.5.2 and 0.5.3 [report no user-visible changes](https://github.com/sass/dart-sass/blob/main/pkg/sass-parser/CHANGELOG.md). Sass 1.107 adds deprecation-selection
+options, and 1.107.1 corrects the embedded protocol version. These do not add analysis
+capabilities to this adapter. Both integration defects below remain in the published
+packages, so both patches are retained and rebased for the new exact pair.
+
 | Patch                     | Reason and tracking                                                                                                                                                                                                                                                                                                                                                               | Removal criterion                                                                                                                |
 | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `sass-parser+0.5.1.patch` | Published declaration paths point at absent `dist/types` instead of `dist/lib`. Upstream: [dart-sass#2907](https://github.com/sass/dart-sass/issues/2907).                                                                                                                                                                                                                        | The published package resolves its types without the patch and both TypeScript checks pass.                                      |
-| `sass+1.106.1.patch`      | The internal parser entry enables eager CSS-selector parsing, rejecting valid percentage keyframe selectors. The adapter needs statement spans rather than selector ASTs. Local tracking: [review item 3](https://github.com/SonarSource/SonarJS/pull/8264#pullrequestreview-5710704011). No matching upstream issue was found; an upstream reproduction still needs to be filed. | The unpatched parser accepts percentage lists such as `0%, 50%`, preserves spans, and the adapter/Stylelint contract tests pass. |
+| `sass-parser+0.5.3.patch` | Published declaration paths point at absent `dist/types` instead of `dist/lib`. Upstream: [dart-sass#2907](https://github.com/sass/dart-sass/issues/2907).                                                                                                                                                                                                                        | The published package resolves its types without the patch and both TypeScript checks pass.                                      |
+| `sass+1.107.1.patch`      | The internal parser entry enables eager CSS-selector parsing, rejecting valid percentage keyframe selectors. The adapter needs statement spans rather than selector ASTs. Local tracking: [review item 3](https://github.com/SonarSource/SonarJS/pull/8264#pullrequestreview-5710704011). No matching upstream issue was found; an upstream reproduction still needs to be filed. | The unpatched parser accepts percentage lists such as `0%, 50%`, preserves spans, and the adapter/Stylelint contract tests pass. |
 
 The compiler patch edits generated JavaScript and is the larger maintenance risk: a
 successful textual application alone does not establish compatibility. For any update:

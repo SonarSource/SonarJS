@@ -1,7 +1,7 @@
 diff --git a/node_modules/sass/sass.dart.js b/node_modules/sass/sass.dart.js
 --- a/node_modules/sass/sass.dart.js
 +++ b/node_modules/sass/sass.dart.js
-@@ -31392,7 +31392,7 @@
+@@ -31518,7 +31518,7 @@
          }
          t1 = A.throwExpression(A.UnsupportedError$('Unknown syntax "' + syntax + '"'));
        }
