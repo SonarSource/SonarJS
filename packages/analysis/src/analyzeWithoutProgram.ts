@@ -45,11 +45,11 @@ export async function analyzeWithoutProgram(
   jsTsConfigFields: JsTsConfigFields,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
+  if (isAnalysisCancelled()) {
+    return;
+  }
   const { jsSuffixes, tsSuffixes } = jsTsConfigFields.shouldIgnoreParams;
   for (const filename of filenames) {
-    if (isAnalysisCancelled()) {
-      return;
-    }
     const relativePath = relative(baseDir, filename);
     if (
       isJsTsFile(filename, {
@@ -67,9 +67,13 @@ export async function analyzeWithoutProgram(
       jsTsConfigFields,
       undefined,
       results,
-      undefined,
+      filenames,
       progressReport,
       incrementalResultsChannel,
     );
+    // Results can trigger cancellation; finish each file before deciding whether to continue.
+    if (isAnalysisCancelled()) {
+      return;
+    }
   }
 }

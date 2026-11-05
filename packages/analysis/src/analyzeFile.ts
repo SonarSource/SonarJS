@@ -58,7 +58,7 @@ import { finalizeFileResultForScanner } from './scanner-locations.js';
  * @param configFields - Configuration fields for analysis behavior (from caller's config source)
  * @param program - Optional TypeScript program for type-checking
  * @param results - Output object to accumulate analysis results
- * @param pendingFiles - Set of files not yet analyzed (for progress tracking)
+ * @param pendingFiles - Files awaiting a stored or successfully delivered result
  * @param progressReport - Progress reporter for logging
  * @param incrementalResultsChannel - Optional callback for incremental result streaming
  * @param detectedEsYear - ES year inferred from lib/runtime signals
@@ -141,10 +141,8 @@ export async function analyzeFile(
     result = await mergeAdditionalCssAnalysis(fileName, input, result);
   }
 
-  if (pendingFiles) {
-    pendingFiles.delete(fileName);
-  }
   handleFileResult(result, fileName, results, incrementalResultsChannel);
+  pendingFiles?.delete(fileName);
 }
 
 /**

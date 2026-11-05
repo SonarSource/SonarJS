@@ -578,7 +578,7 @@ function readContextConfiguration(
   if (!context || typeof context !== 'object' || Array.isArray(context)) {
     throw new Error('Invalid SonarJS collector context metadata');
   }
-  // Empty legacy metadata is unsupported. SQAA owns analyzer-version compatibility.
+  // Empty legacy metadata has no usable recorded configuration.
   if (Object.keys(context).length === 0) {
     return undefined;
   }

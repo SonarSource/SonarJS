@@ -75,6 +75,13 @@ describe('toProjectFailureResult', () => {
     );
   });
 
+  for (const code of ['ERR_SONARJS_FS_CACHE_MISS', 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION']) {
+    it(`propagates ${code} so the project handler can resume the failed file`, () => {
+      const failure = Object.assign(new Error('Context replay failed'), { code });
+      expect(() => toProjectFailureResult(failure, 'ts')).toThrow(failure);
+    });
+  }
+
   it('should preserve previous fallback for non-error values', () => {
     expect(toProjectFailureResult(42, 'js')).toEqual({ error: '42' });
   });

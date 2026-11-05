@@ -75,6 +75,33 @@ describe('ReplayProjectPaths', () => {
     expect(map.get(`${physicalRoot}/src/Main.ts`)).toBe('c:/ci/project/SRC/main.ts');
   });
 
+  it('maps completed files to their submitted spelling in the fallback namespace', () => {
+    setArchivedFileSystemCaseSensitivity(false);
+    const input = request();
+    input.configuration!.baseDir = 'C:/CI/Project';
+    input.filesystemCache!.fallbackBaseDir = physicalRoot;
+    input.files = { 'c:/ci/project/SRC/main.ts': { fileContent: 'submitted edit' } };
+    const paths = new ReplayProjectPaths(input);
+    paths.useRecordedBaseDir(logicalRoot, () =>
+      normalizeToAbsolutePath('src/Main.ts', logicalRoot),
+    );
+    const completed = paths.sourceOnlyPath(`${logicalRoot}/src/Main.ts`);
+    expect(completed).toBe(`${physicalRoot}/SRC/main.ts`);
+    paths.restoreSourceOnlyRequest();
+    expect(input.files![completed]).toEqual({ fileContent: 'submitted edit' });
+  });
+
+  it('maps completed discovered files even without an explicit request file list', () => {
+    const input = request();
+    input.files = undefined;
+    const paths = new ReplayProjectPaths(input);
+    paths.useRecordedBaseDir(logicalRoot);
+    expect(paths.sourceOnlyPath(`${logicalRoot}/discovered.ts`)).toBe(
+      `${physicalRoot}/discovered.ts`,
+    );
+    expect(() => paths.sourceOnlyPath('/outside.ts')).toThrow('outside');
+  });
+
   it('rejects aliases that would discard one submitted file', () => {
     const input = request();
     input.files = {

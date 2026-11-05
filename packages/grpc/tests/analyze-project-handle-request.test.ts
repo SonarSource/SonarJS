@@ -32,7 +32,12 @@ import os from 'node:os';
 import path from 'node:path';
 import ts from 'typescript';
 import { ProgramSelectionArchive } from '../../analysis/src/program-selection/archive.js';
-import { toAnalyzeProjectUnaryResponse } from '../src/analyze-project-convert.js';
+import {
+  toAnalyzeProjectStreamResponse,
+  toAnalyzeProjectUnaryResponse,
+} from '../src/analyze-project-convert.js';
+import { ProgressReport } from '../../analysis/src/common/progress-report.js';
+import { Linter } from '../../analysis/src/jsts/linter/linter.js';
 import { gunzipSync, gzipSync } from 'node:zlib';
 import {
   deserializeProtobufDocument,
@@ -761,6 +766,452 @@ describe('analyze-project request handler', () => {
       ),
     ).toBe(true);
   });
+
+  for (const streaming of [false, true]) {
+    it(`falls back when an older context omits scanner-workdir observations (streaming: ${streaming})`, async () => {
+      const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'incomplete-replay-context-'));
+      const recordRoot = path.join(temporary, 'ci');
+      const replayRoot = path.join(temporary, 'sqaa');
+      const scannerWorkdir = path.join(recordRoot, 'target/sonar');
+      const runtimeWorkdir = path.join(temporary, 'runtime');
+      for (const directory of [scannerWorkdir, replayRoot, runtimeWorkdir]) {
+        fs.mkdirSync(directory, { recursive: true });
+      }
+      fs.writeFileSync(path.join(recordRoot, 'input.ts'), '[80, 3, 9].sort();');
+      (globalThis as Record<symbol, unknown>)[FS_CACHE_INSTALLATION] = installFsCache();
+      const createRequest = (record: boolean): AnalyzeProjectRequest => ({
+        configuration: {
+          baseDir: record ? recordRoot : replayRoot,
+          canAccessFileSystem: true,
+          // Simulate a context recorded before scanner workdirs were excluded from traversal.
+          jsTsExclusions: { values: [] },
+        },
+        files: {
+          [path.join(record ? recordRoot : replayRoot, 'input.ts')]: {
+            fileContent: '[80, 3, 9].sort();',
+            fileType: FileType.FILE_TYPE_MAIN,
+          },
+        },
+        rules: [
+          {
+            key: 'S2871',
+            configurations: [],
+            fileTypeTargets: [FileType.FILE_TYPE_MAIN],
+            language: JsTsLanguage.JS_TS_LANGUAGE_TS,
+            analysisModes: [AnalysisMode.ANALYSIS_MODE_DEFAULT],
+          },
+        ],
+        rulesWorkdir: record ? scannerWorkdir : runtimeWorkdir,
+        filesystemCache: {
+          archivePath: path.join(record ? scannerWorkdir : runtimeWorkdir, 'fs.pb.gz'),
+          analysisMetadataPath: path.join(
+            record ? scannerWorkdir : runtimeWorkdir,
+            'metadata.pb.gz',
+          ),
+          mode: record
+            ? FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD
+            : FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY,
+        },
+      });
+      try {
+        const recording = createRequest(true);
+        expect(
+          await handleAnalyzeProjectRequest(
+            { type: 'on-analyze-project', data: recording },
+            workerData,
+          ),
+        ).toMatchObject({ type: 'success' });
+        for (const artifact of ['fs.pb.gz', 'metadata.pb.gz']) {
+          fs.copyFileSync(path.join(scannerWorkdir, artifact), path.join(runtimeWorkdir, artifact));
+        }
+        collectedMetadata.set(
+          path.join(runtimeWorkdir, 'metadata.pb.gz'),
+          collectedMetadata.get(recording.filesystemCache!.analysisMetadataPath!)!,
+        );
+        // Nothing in the original CI workspace is available to the retry.
+        fs.rmSync(recordRoot, { recursive: true });
+        const request = createRequest(false);
+        request.configuration!.jsTsExclusions = { values: ['**/contrib/**'] };
+        const events: AnalyzeProjectIncrementalEvent[] = [];
+        const response = await handleAnalyzeProjectRequest(
+          { type: 'on-analyze-project', data: request },
+          workerData,
+          streaming ? event => events.push(event) : undefined,
+        );
+        expect(response).toMatchObject({ type: 'success' });
+        if (response.type !== 'success' || !response.result) throw new Error('Analysis failed');
+        const output = toAnalyzeProjectUnaryResponse(
+          response.result.output,
+          response.result.pathMap,
+        );
+        const filename = path.join(replayRoot, 'input.ts');
+        const file = streaming
+          ? toAnalyzeProjectStreamResponse(events[0].event, events[0].pathMap).fileResult
+          : { filePath: filename, result: output.files![filename] };
+        expect(file).toMatchObject({
+          filePath: filename,
+          result: { issues: [expect.objectContaining({ ruleId: 'S2871' })] },
+        });
+        expect(output.meta!.warnings).toEqual([
+          expect.stringContaining('falling back to source-only analysis'),
+        ]);
+        expect(output.meta!.warnings![0]).toContain('opendir:utf8:false');
+        expect(output.meta!.warnings![0]).toContain('target/sonar');
+        expect(request.filesystemCache).toBeUndefined();
+        expect(request.configuration!.jsTsExclusions?.values).toEqual(['**/contrib/**']);
+        if (streaming) {
+          expect(events.map(({ event }) => event.messageType)).toEqual(['fileResult', 'meta']);
+          expect(events.at(-1)!.event).toMatchObject({ warnings: output.meta!.warnings });
+        }
+        // Ending replay and rebuilding stores must also leave the worker ready for another request.
+        expect(
+          await handleAnalyzeProjectRequest(
+            { type: 'on-analyze-project', data: request },
+            workerData,
+          ),
+        ).toMatchObject({ type: 'success' });
+      } finally {
+        fs.rmSync(temporary, { recursive: true, force: true });
+      }
+    });
+  }
+
+  for (const streaming of [false, true]) {
+    it(`retains completed ambient declarations as recovery program roots (streaming: ${streaming})`, async ({
+      mock,
+    }) => {
+      const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'ambient-replay-recovery-'));
+      const recordRoot = path.join(temporary, 'ci');
+      const replayRoot = path.join(temporary, 'sqaa');
+      const work = path.join(temporary, 'work');
+      for (const directory of [recordRoot, replayRoot, work]) fs.mkdirSync(directory);
+      const sources = {
+        'ambient.ts': 'declare const values: number[];',
+        'main.ts': 'values.sort();',
+      };
+      for (const [name, content] of Object.entries(sources)) {
+        fs.writeFileSync(path.join(recordRoot, name), content);
+      }
+      (globalThis as Record<symbol, unknown>)[FS_CACHE_INSTALLATION] = installFsCache();
+      const request = (record: boolean): AnalyzeProjectRequest => {
+        const baseDir = record ? recordRoot : replayRoot;
+        return {
+          configuration: { baseDir, canAccessFileSystem: true },
+          files: Object.fromEntries(
+            Object.entries(sources).map(([name, fileContent]) => [
+              path.join(baseDir, name),
+              { fileContent, fileType: FileType.FILE_TYPE_MAIN },
+            ]),
+          ),
+          rules: [
+            {
+              key: 'S2871',
+              configurations: [],
+              fileTypeTargets: [FileType.FILE_TYPE_MAIN],
+              language: JsTsLanguage.JS_TS_LANGUAGE_TS,
+              analysisModes: [AnalysisMode.ANALYSIS_MODE_DEFAULT],
+            },
+          ],
+          rulesWorkdir: work,
+          filesystemCache: {
+            archivePath: path.join(work, 'fs.pb.gz'),
+            analysisMetadataPath: path.join(work, 'metadata.pb.gz'),
+            mode: record
+              ? FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD
+              : FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY,
+          },
+        };
+      };
+      const analyze = (input: AnalyzeProjectRequest, events?: AnalyzeProjectIncrementalEvent[]) =>
+        handleAnalyzeProjectRequest(
+          { type: 'on-analyze-project', data: input },
+          workerData,
+          events ? event => events.push(event) : undefined,
+        );
+      try {
+        const recorded = await analyze(request(true));
+        expect(recorded).toMatchObject({
+          type: 'success',
+          result: {
+            output: {
+              files: {
+                [normalizeToAbsolutePath(path.join(recordRoot, 'main.ts'))]: {
+                  issues: [expect.objectContaining({ ruleId: 'S2871' })],
+                },
+              },
+            },
+          },
+        });
+        fs.rmSync(recordRoot, { recursive: true });
+        const fresh = request(false);
+        delete fresh.filesystemCache;
+        expect(await analyze(fresh)).toMatchObject({
+          type: 'success',
+          result: {
+            output: {
+              files: {
+                [normalizeToAbsolutePath(path.join(replayRoot, 'main.ts'))]: {
+                  issues: [expect.objectContaining({ ruleId: 'S2871' })],
+                },
+              },
+            },
+          },
+        });
+        const nextFile = ProgressReport.prototype.nextFile;
+        const visited: string[] = [];
+        const progress = mock.method(
+          ProgressReport.prototype,
+          'nextFile',
+          function (this: ProgressReport, filename: string) {
+            nextFile.call(this, filename);
+            visited.push(path.basename(filename));
+            if (visited.length === 2) fs.statSync(path.join(recordRoot, 'unrecorded-observation'));
+          },
+        );
+        const events: AnalyzeProjectIncrementalEvent[] = [];
+        const replay = request(false);
+        const response = await analyze(replay, streaming ? events : undefined);
+        expect(response.type).toBe('success');
+        if (response.type !== 'success' || !response.result) throw new Error('Analysis failed');
+        expect(visited).toEqual(['ambient.ts', 'main.ts', 'main.ts']);
+        const output = toAnalyzeProjectUnaryResponse(
+          response.result.output,
+          response.result.pathMap,
+        );
+        const results = streaming
+          ? events
+              .filter(({ event }) => event.messageType === 'fileResult')
+              .map(
+                ({ event, pathMap }) => toAnalyzeProjectStreamResponse(event, pathMap).fileResult!,
+              )
+          : Object.entries(output.files!).map(([filePath, result]) => ({ filePath, result }));
+        expect(results).toEqual([
+          expect.objectContaining({
+            filePath: path.join(replayRoot, 'ambient.ts'),
+            result: expect.objectContaining({ issues: [] }),
+          }),
+          expect.objectContaining({
+            filePath: path.join(replayRoot, 'main.ts'),
+            result: expect.objectContaining({
+              issues: [expect.objectContaining({ ruleId: 'S2871' })],
+            }),
+          }),
+        ]);
+        expect(output.meta!.warnings).toEqual([
+          expect.stringContaining('falling back to source-only analysis'),
+        ]);
+        expect(replay.filesystemCache).toBeUndefined();
+        progress.mock.restore();
+      } finally {
+        fs.rmSync(temporary, { recursive: true, force: true });
+      }
+    });
+  }
+
+  for (const failure of [
+    'cache miss',
+    'no-program cache miss',
+    'unsupported operation',
+    'in-file cache miss',
+    'delivery error',
+    'analyzer error',
+    'fallback error',
+    'cancelled',
+  ] as const) {
+    it(`handles ${failure} after a replay has produced a file result`, async () => {
+      const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'partial-context-replay-'));
+      const recordRoot = path.join(temporary, 'ci');
+      const replayRoot = path.join(temporary, 'sqaa');
+      const work = path.join(temporary, 'runtime');
+      for (const directory of [recordRoot, replayRoot, work]) fs.mkdirSync(directory);
+      const content = '[80, 3, 9].sort();;';
+      const filenames = ['first.ts', 'second.ts', 'third.ts'];
+      const source = (filename: string, record: boolean) => {
+        if (failure !== 'in-file cache miss') return content;
+        if (filename === 'first.ts')
+          return record
+            ? 'export const values: string[] = ["a", "b"];;'
+            : 'export const values: number[] = [80, 3, 9];;';
+        if (filename === 'second.ts') return 'import { values } from "./first"; values.sort();;';
+        return content;
+      };
+      for (const filename of filenames) {
+        fs.writeFileSync(path.join(recordRoot, filename), source(filename, true));
+      }
+      (globalThis as Record<symbol, unknown>)[FS_CACHE_INSTALLATION] = installFsCache();
+      const createRequest = (record: boolean): AnalyzeProjectRequest => {
+        const baseDir = record ? recordRoot : replayRoot;
+        return {
+          configuration: {
+            baseDir,
+            canAccessFileSystem: true,
+            disableTypeChecking: !record && failure !== 'in-file cache miss',
+            createTsProgramForOrphanFiles: failure !== 'no-program cache miss',
+          },
+          files: Object.fromEntries(
+            filenames.map(filename => [
+              path.join(baseDir, filename),
+              { fileContent: source(filename, record), fileType: FileType.FILE_TYPE_MAIN },
+            ]),
+          ),
+          rules: ['S2871', 'S1116'].map(key => ({
+            key,
+            configurations: [],
+            fileTypeTargets: [FileType.FILE_TYPE_MAIN],
+            language: JsTsLanguage.JS_TS_LANGUAGE_TS,
+            analysisModes: [AnalysisMode.ANALYSIS_MODE_DEFAULT],
+          })),
+          rulesWorkdir: work,
+          filesystemCache: {
+            archivePath: path.join(work, 'fs.pb.gz'),
+            analysisMetadataPath: path.join(work, 'metadata.pb.gz'),
+            mode: record
+              ? FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD
+              : FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY,
+          },
+        };
+      };
+      let progress;
+      let lint;
+      try {
+        expect(
+          await handleAnalyzeProjectRequest(
+            { type: 'on-analyze-project', data: createRequest(true) },
+            workerData,
+          ),
+        ).toMatchObject({ type: 'success' });
+        fs.rmSync(recordRoot, { recursive: true });
+        const events: AnalyzeProjectIncrementalEvent[] = [];
+        let filesVisited = 0;
+        const visited: string[] = [];
+        const nextFile = ProgressReport.prototype.nextFile;
+        progress = mock.method(
+          ProgressReport.prototype,
+          'nextFile',
+          function (this: ProgressReport, filename: string) {
+            nextFile.call(this, filename);
+            visited.push(path.basename(filename));
+            // Model a new analyzer operation after one result was produced by the older context.
+            filesVisited++;
+            if (failure === 'fallback error' && filesVisited === 3) {
+              throw new Error('Source-only analysis failed');
+            }
+            if (filesVisited !== 2) return;
+            expect(events.map(({ event }) => event.messageType)).toEqual(['fileResult']);
+            switch (failure) {
+              case 'cache miss':
+              case 'no-program cache miss':
+              case 'fallback error':
+                fs.statSync(path.join(recordRoot, 'not-observed-in-ci'));
+                break;
+              case 'unsupported operation':
+                fs.statfsSync(recordRoot);
+                break;
+              case 'in-file cache miss':
+              case 'delivery error':
+                break;
+              case 'analyzer error':
+                throw new Error('Unrelated analyzer failure');
+              case 'cancelled':
+                void handleAnalyzeProjectRequest({ type: 'on-cancel-analysis' }, workerData);
+                fs.statSync(path.join(recordRoot, 'not-observed-in-ci'));
+            }
+          },
+        );
+        if (failure === 'in-file cache miss') {
+          const originalLint = Linter.lint;
+          let failed = false;
+          lint = mock.method(Linter, 'lint', (...args: Parameters<typeof Linter.lint>) => {
+            if (!failed && path.basename(args[1]) === 'second.ts') {
+              failed = true;
+              fs.statSync(path.join(recordRoot, 'not-observed-in-ci'));
+            }
+            return originalLint.call(Linter, ...args);
+          });
+        }
+        const request = createRequest(false);
+        const response = await handleAnalyzeProjectRequest(
+          { type: 'on-analyze-project', data: request },
+          workerData,
+          event => {
+            events.push(event);
+            if (failure === 'delivery error')
+              fs.statSync(path.join(recordRoot, 'not-observed-in-ci'));
+          },
+        );
+        if (failure === 'analyzer error') {
+          expect(response).toMatchObject({
+            type: 'failure',
+            error: { message: 'Unrelated analyzer failure' },
+          });
+          expect(events.map(({ event }) => event.messageType)).toEqual(['fileResult']);
+          expect(request.filesystemCache).toBeDefined();
+        } else if (failure === 'delivery error') {
+          expect(response).toMatchObject({
+            type: 'failure',
+            error: { message: expect.stringContaining('Filesystem cache has no') },
+          });
+          expect(filesVisited).toBe(1);
+          expect(request.filesystemCache).toBeDefined();
+        } else if (failure === 'fallback error') {
+          expect(response).toMatchObject({
+            type: 'failure',
+            error: { message: 'Source-only analysis failed' },
+          });
+          expect(filesVisited).toBe(3);
+          expect(events.map(({ event }) => event.messageType)).toEqual(['fileResult']);
+          expect(request.filesystemCache).toBeUndefined();
+        } else if (failure === 'cancelled') {
+          expect(response).toMatchObject({ type: 'success' });
+          expect(events.map(({ event }) => event.messageType)).toEqual(['fileResult', 'cancelled']);
+        } else {
+          expect(response).toMatchObject({ type: 'success' });
+          expect(visited).toEqual(['first.ts', 'second.ts', 'second.ts', 'third.ts']);
+          expect(events.map(({ event }) => event.messageType)).toEqual([
+            'fileResult',
+            'fileResult',
+            'fileResult',
+            'meta',
+          ]);
+          const converted = events
+            .slice(0, 3)
+            .map(event => toAnalyzeProjectStreamResponse(event.event, event.pathMap).fileResult!);
+          expect(converted.map(file => file.filePath)).toEqual([
+            path.join(replayRoot, 'first.ts'),
+            path.join(replayRoot, 'second.ts'),
+            path.join(replayRoot, 'third.ts'),
+          ]);
+          // Retain the result streamed with context; only the failed file uses source-only analysis.
+          expect(converted[0].result!.issues!.map(issue => issue.ruleId).sort()).toEqual(
+            failure === 'in-file cache miss' || failure === 'no-program cache miss'
+              ? ['S1116']
+              : ['S1116', 'S2871'],
+          );
+          for (const file of converted.slice(1)) {
+            // The resumed program must still read the submitted edit of completed first.ts.
+            expect(file.result!.issues!.map(issue => issue.ruleId).sort()).toEqual(
+              failure === 'in-file cache miss' ? ['S1116', 'S2871'] : ['S1116'],
+            );
+          }
+          expect(events.at(-1)!.event).toMatchObject({
+            warnings: [expect.stringContaining('falling back to source-only analysis')],
+          });
+          expect(request.filesystemCache).toBeUndefined();
+        }
+        progress.mock.restore();
+        expect(
+          await handleAnalyzeProjectRequest(
+            { type: 'on-analyze-project', data: createAnalyzeProjectRequest() },
+            workerData,
+          ),
+        ).toMatchObject({ type: 'success' });
+      } finally {
+        progress?.mock.restore();
+        lint?.mock.restore();
+        fs.rmSync(temporary, { recursive: true, force: true });
+      }
+    });
+  }
 
   it('replays a file reached through an implicit tsconfig root and transitive imports', async () => {
     const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'program-selection-import-'));

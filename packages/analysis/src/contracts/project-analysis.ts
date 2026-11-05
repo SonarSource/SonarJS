@@ -16,6 +16,7 @@
  */
 import { APIError, ErrorCode } from './error.js';
 import { handleError } from '../../../shared/src/helpers/error.js';
+import { isFsCacheReplayError } from '../../../shared/src/fs-cache/hook.js';
 
 type ParsingErrorCode =
   ErrorCode.Parsing | ErrorCode.FailingTypeScript | ErrorCode.LinterInitialization;
@@ -41,6 +42,11 @@ export function toProjectFailureResult(
   failure: unknown,
   language: ParsingErrorLanguage,
 ): ProjectFailureResult {
+  // Context replay failures belong to the project handler, which can resume without context.
+  // Do not convert them into a terminal file error that would already be sent to the caller.
+  if (isFsCacheReplayError(failure)) {
+    throw failure;
+  }
   if (failure instanceof APIError) {
     const { code } = failure;
     let message: string;

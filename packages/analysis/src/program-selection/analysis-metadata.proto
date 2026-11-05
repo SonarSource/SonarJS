@@ -12,7 +12,7 @@ message AnalysisMetadata {
 }
 
 message ProgramSelection {
-  // Identifies this archive; artifact compatibility is checked by SQAA Hub.
+  // Identifies this program-selection archive.
   string magic = 1;
   reserved 2;
   repeated Program programs = 3;

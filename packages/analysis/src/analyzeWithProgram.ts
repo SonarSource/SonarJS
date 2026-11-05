@@ -63,6 +63,7 @@ type ProgramAnalysisContext = {
   telemetry: ProjectAnalysisTelemetryCollector;
   programSelection?: ProgramSelectionArchive;
   incrementalResultsChannel?: (result: WsIncrementalResult) => void;
+  orphanProgramRoots?: NormalizedAbsolutePath[];
 };
 
 /** Files that cannot use the recorded program-selection outcome during replay. */
@@ -93,6 +94,7 @@ export function filesWithoutRecordedProgramOutcome(
  * @param canAccessFileSystem whether the analyzer can access the file system
  * @param jsTsConfigFields configuration fields for JS/TS analysis
  * @param incrementalResultsChannel if provided, a function to send results incrementally after each analyzed file
+ * @param orphanProgramRoots submitted roots to retain when resuming a partial analysis
  */
 export async function analyzeWithProgram(
   files: AnalyzableFiles,
@@ -104,6 +106,7 @@ export async function analyzeWithProgram(
   jsTsConfigFields: JsTsConfigFields,
   programSelection?: ProgramSelectionArchive,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
+  orphanProgramRoots?: NormalizedAbsolutePath[],
 ) {
   const telemetry = getProjectAnalysisTelemetryCollector();
   const foundProgramOptions: ProgramOptions[] = [];
@@ -120,6 +123,7 @@ export async function analyzeWithProgram(
     telemetry,
     programSelection,
     incrementalResultsChannel,
+    orphanProgramRoots,
   };
 
   if (programSelection?.isReplay()) {
@@ -163,6 +167,7 @@ async function analyzeFilesFromDiscoveredPrograms(
     telemetry,
     programSelection,
     incrementalResultsChannel,
+    orphanProgramRoots,
   } = context;
 
   // Process tsconfigs, discovering project references as we go. When a tsconfig has project
@@ -207,6 +212,7 @@ async function analyzeFilesFromDiscoveredPrograms(
       telemetry,
       programSelection,
       incrementalResultsChannel,
+      orphanProgramRoots,
     );
   } else if (pendingFiles.size) {
     info(
@@ -241,11 +247,16 @@ async function analyzeFilesFromEntryPoint(
     groupRootNames: NormalizedAbsolutePath[],
     label: string,
   ): Promise<void> => {
+    // Completed roots can supply globals without an import from a pending file.
+    const filesToAnalyze = groupRootNames.filter(file => pendingFiles.has(file));
+    if (filesToAnalyze.length === 0) {
+      return;
+    }
     programOptions.rootNames = groupRootNames;
     telemetry.recordCompilerOptions(programOptions.options);
 
     info(
-      `Analyzing ${groupRootNames.length} file(s) using ${label} [lib: ${programOptions.options.lib?.join(', ')}]`,
+      `Analyzing ${filesToAnalyze.length} file(s) using ${label} [lib: ${programOptions.options.lib?.join(', ')}]`,
     );
     programOptions.host = new IncrementalCompilerHost(
       programOptions.options,
@@ -260,7 +271,7 @@ async function analyzeFilesFromEntryPoint(
     telemetry.recordEcmaScriptVersion(detectedEsYear ?? undefined);
     programSelection?.recordOrphanGroup(groupRootNames, programOptions.options);
 
-    for (const fileName of groupRootNames) {
+    for (const fileName of filesToAnalyze) {
       if (isAnalysisCancelled()) {
         return;
       }

@@ -38,6 +38,8 @@ import {
 } from './archive.js';
 
 const MISSING = Symbol('missing filesystem cache observation');
+const CACHE_MISS_CODE = 'ERR_SONARJS_FS_CACHE_MISS';
+const UNSUPPORTED_OPERATION_CODE = 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION';
 export const FS_CACHE_INSTALLATION = Symbol.for('sonarjs.filesystemCache.installation');
 const CACHED_FILE_HANDLE = Symbol('cached filesystem file handle');
 const FS_PROMISES_MODULE = 'fs/promises';
@@ -294,12 +296,21 @@ function restoreError(snapshot: FsCacheErrorSnapshot, input: fs.PathLike | numbe
   return error;
 }
 
+/** Failures specific to replay, rather than recorded filesystem errors or analyzer bugs. */
+export function isFsCacheReplayError(error: unknown): error is Error {
+  return (
+    error instanceof Error &&
+    'code' in error &&
+    (error.code === CACHE_MISS_CODE || error.code === UNSUPPORTED_OPERATION_CODE)
+  );
+}
+
 function cacheMiss(operation: string, input: fs.PathLike | number): FsError {
   const error = new Error(
     `Filesystem cache has no ${operation} observation for '${pathDisplay(input)}'`,
   ) as FsError;
   error.name = 'FsCacheMissError';
-  error.code = 'ERR_SONARJS_FS_CACHE_MISS';
+  error.code = CACHE_MISS_CODE;
   error.path = pathDisplay(input);
   error.syscall = operation.split(':', 1)[0];
   return error;
@@ -801,7 +812,7 @@ function unsupportedFilesystemOperation(moduleName: string, name: PropertyKey): 
     `Filesystem cache does not support ${moduleName}.${String(name)} from Node ${process.version}`,
   ) as FsError;
   error.name = 'UnsupportedFsOperationError';
-  error.code = 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION';
+  error.code = UNSUPPORTED_OPERATION_CODE;
   return error;
 }
 

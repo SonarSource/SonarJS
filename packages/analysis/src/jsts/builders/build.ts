@@ -27,6 +27,7 @@ import {
 import { parse } from '../parsers/parse.js';
 import { type Parser, parsersMap } from '../parsers/eslint.js';
 import { createVueScriptParser, isVueFile } from '../parsers/vue.js';
+import { isFsCacheReplayError } from '../../../../shared/src/fs-cache/hook.js';
 
 /**
  * Builds an ESLint SourceCode for JavaScript / TypeScript
@@ -56,7 +57,7 @@ export function build(input: JsTsAnalysisInput, parserContext: ParserContext = {
 
 /**
  * Returns the parse result, or undefined to signal the caller should fall back to JS parsing.
- * Throws when the input is TS or a Vue+TS retry fails.
+ * Throws when the input is TS, a Vue+TS retry fails, or filesystem replay fails.
  */
 function parseAsTypescript(input: JsTsAnalysisInput, vueFile: boolean, context: ParserContext) {
   const parser: Parser = vueFile ? parsersMap.vuejs : parsersMap.typescript;
@@ -81,6 +82,9 @@ function parseAsTypescript(input: JsTsAnalysisInput, vueFile: boolean, context: 
     debug(`Parsing ${input.filePath} with ${parser.meta.name}`);
     return parse(input.fileContent, parser, parserOptions);
   } catch (error) {
+    if (isFsCacheReplayError(error)) {
+      throw error;
+    }
     debug(`Failed to parse ${input.filePath} with ${parser.meta.name}: ${error.message}`);
     if (vueFile && input.language === 'ts') {
       return retryVueTsWithFlippedJsx(input, parser, context, error);
@@ -115,6 +119,9 @@ function retryVueTsWithFlippedJsx(
       ),
     );
   } catch (retryError) {
+    if (isFsCacheReplayError(retryError)) {
+      throw retryError;
+    }
     debug(
       `JSX-${retryJsx ? 'enabled' : 'disabled'} retry failed for ${input.filePath}: ${retryError.message}`,
     );
@@ -134,6 +141,9 @@ function parseAsJavascript(input: JsTsAnalysisInput, vueFile: boolean, context: 
       vueFile ? buildVueParserOptions('js', {}, context) : buildBabelParserOptions({}, context),
     );
   } catch (error) {
+    if (isFsCacheReplayError(error)) {
+      throw error;
+    }
     debug(`Failed to parse ${input.filePath} with ${parser.meta?.name}: ${error.message}`);
     if (vueFile) {
       throw error;
@@ -149,6 +159,9 @@ function parseAsJavascript(input: JsTsAnalysisInput, vueFile: boolean, context: 
       buildBabelParserOptions({ sourceType: 'script' }, context),
     );
   } catch (error) {
+    if (isFsCacheReplayError(error)) {
+      throw error;
+    }
     debug(
       `Failed to parse ${input.filePath} with ${parsersMap.javascript.meta?.name} in 'script' mode: ${error.message}`,
     );
