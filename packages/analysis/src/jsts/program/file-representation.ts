@@ -52,9 +52,7 @@ const plain: FileRepresentationStrategy = {
       text: raw,
       reusable: true,
       createSourceFile(file, languageVersion, cached) {
-        const target =
-          typeof languageVersion === 'number' ? languageVersion : languageVersion.languageVersion;
-        return cached ?? ts.createSourceFile(file, raw, target, true);
+        return cached ?? ts.createSourceFile(file, raw, languageVersion, true);
       },
     };
   },

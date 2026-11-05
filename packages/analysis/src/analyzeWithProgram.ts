@@ -207,6 +207,7 @@ async function analyzeFilesFromDiscoveredPrograms(
       telemetry,
       programSelection,
       incrementalResultsChannel,
+      programSelection?.orphanEntryPoints([...pendingFiles]),
     );
   } else if (pendingFiles.size) {
     info(
@@ -263,6 +264,9 @@ async function analyzeFilesFromEntryPoint(
     for (const fileName of groupRootNames) {
       if (isAnalysisCancelled()) {
         return;
+      }
+      if (!pendingFiles.has(fileName)) {
+        continue;
       }
 
       await analyzeFile(

@@ -15,6 +15,11 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import fs from 'node:fs';
+import {
+  nativeFs,
+  writeFileWithNativePrimitives,
+  ARCHIVE_FILE_MODE,
+} from '../../../shared/src/fs-cache/archive-types.js';
 import path from 'node:path';
 import { gzipSync, gunzipSync } from 'node:zlib';
 import type ts from 'typescript';
@@ -134,6 +139,8 @@ export class ProgramSelectionArchive {
   private readonly pathsByCanonicalName = new Map<string, NormalizedAbsolutePath>();
   private canonicalPathsCaseSensitive?: boolean;
   private nextProgramId = 1;
+  private readonly inheritedOutcomes = new Set<string>();
+  private baselineOrphanGroups: NormalizedAbsolutePath[][] = [];
 
   constructor(
     archivePath: string,
@@ -156,6 +163,62 @@ export class ProgramSelectionArchive {
 
   isRecord(): boolean {
     return this.mode === 'record';
+  }
+
+  seedFrom(archivePath: string, contextMetadata: string): void {
+    if (!this.isRecord()) {
+      throw new Error('Only recording can reuse a sensor-cache baseline');
+    }
+    const baseline = new ProgramSelectionArchive(
+      archivePath,
+      this.baseDir,
+      'replay',
+      false,
+      contextMetadata,
+    );
+    // Validate metadata identities under this filesystem policy before mutating the recorder.
+    baseline.canonicalRequestedFile(this.baseDir);
+    this.baselineOrphanGroups = [...baseline.programs]
+      .filter(([, stored]) => !isConfigured(stored.program))
+      .map(([id]) => baseline.filesByProgram.get(id) ?? []);
+    for (const [id, stored] of baseline.programs) {
+      this.nextProgramId = Math.max(this.nextProgramId, id + 1);
+      this.programs.set(id, stored);
+      if (isConfigured(stored.program)) {
+        this.configuredProgramIds.set(stored.program.tsconfig, id);
+      }
+    }
+    for (const [file, id] of baseline.selections) {
+      this.storeSelection(file, id);
+      this.inheritedOutcomes.add(canonicalFileName(file));
+    }
+    for (const file of baseline.noProgramFiles) {
+      this.noProgramFiles.add(file);
+      this.inheritedOutcomes.add(canonicalFileName(file));
+    }
+  }
+
+  /** Preserve ambient declarations from cached peers when a changed orphan still needs analysis. */
+  orphanEntryPoints(pendingFiles: readonly NormalizedAbsolutePath[]): NormalizedAbsolutePath[] {
+    const pending = new Set(pendingFiles.map(file => canonicalFileName(file)));
+    const roots = new Map(pendingFiles.map(file => [canonicalFileName(file), file]));
+    for (const group of this.baselineOrphanGroups) {
+      if (!group.some(file => pending.has(canonicalFileName(file)))) {
+        continue;
+      }
+      for (const file of group) {
+        if (this.hasNoProgram(file)) {
+          continue;
+        }
+        const selectedId = this.selections.get(this.canonicalRequestedFile(file));
+        const selected = selectedId === undefined ? undefined : this.programs.get(selectedId);
+        if (selected && isConfigured(selected.program)) {
+          continue;
+        }
+        roots.set(canonicalFileName(file), file);
+      }
+    }
+    return [...roots.values()];
   }
 
   restoredConfiguration(): ReplayableConfiguration | undefined {
@@ -217,7 +280,11 @@ export class ProgramSelectionArchive {
     if (id === undefined) {
       id = this.addProgram({ kind: 'configured', tsconfig, compilerOptions });
       this.configuredProgramIds.set(tsconfig, id);
+    } else {
+      // Normal analysis has learned the current options for this shared configured program.
+      this.programs.set(id, { id, program: { kind: 'configured', tsconfig, compilerOptions } });
     }
+    this.replaceInheritedOutcome(file);
     this.addSelection(file, id);
   }
 
@@ -231,6 +298,7 @@ export class ProgramSelectionArchive {
     }
     const id = this.addProgram({ kind: 'orphan', compilerOptions });
     for (const file of projectFiles) {
+      this.replaceInheritedOutcome(file);
       this.addSelection(file, id);
     }
   }
@@ -274,6 +342,7 @@ export class ProgramSelectionArchive {
     if (!this.isRecord() || !this.isProjectRelative(file)) {
       return;
     }
+    this.replaceInheritedOutcome(file);
     if (this.hasSelection(file)) {
       throw new Error(`File has both a program and no-program outcome: ${file}`);
     }
@@ -317,8 +386,8 @@ export class ProgramSelectionArchive {
       },
     });
     const bytes = gzipSync(sonarjs.programselection.AnalysisMetadata.encode(metadata).finish());
-    fs.mkdirSync(path.dirname(this.archivePath), { recursive: true });
-    fs.writeFileSync(this.archivePath, bytes);
+    nativeFs.mkdirSync(path.dirname(this.archivePath), { recursive: true });
+    writeFileWithNativePrimitives(this.archivePath, bytes, ARCHIVE_FILE_MODE);
   }
 
   private addProgram(program: RecordedProgram): number {
@@ -326,6 +395,23 @@ export class ProgramSelectionArchive {
     this.nextProgramId += 1;
     this.programs.set(id, { id, program });
     return id;
+  }
+
+  /** Actual analysis outcomes replace inherited metadata without validating cached files. */
+  private replaceInheritedOutcome(file: NormalizedAbsolutePath): void {
+    if (!this.inheritedOutcomes.delete(canonicalFileName(file))) {
+      return;
+    }
+    const original = this.canonicalRequestedFile(file);
+    const previousId = this.selections.get(original);
+    if (previousId !== undefined) {
+      this.selections.delete(original);
+      this.filesByProgram.set(
+        previousId,
+        (this.filesByProgram.get(previousId) ?? []).filter(member => member !== original),
+      );
+    }
+    this.noProgramFiles.delete(original);
   }
 
   private addSelection(file: NormalizedAbsolutePath, programId: number): void {
@@ -354,7 +440,7 @@ export class ProgramSelectionArchive {
 
   private load(restoreOriginalPaths: boolean, contextMetadata?: string): void {
     const metadata = sonarjs.programselection.AnalysisMetadata.decode(
-      gunzipSync(fs.readFileSync(this.archivePath)),
+      gunzipSync(nativeFs.readFileSync(this.archivePath)),
     );
     if (metadata.programSelection?.magic !== MAGIC) {
       throw new Error(`Not a SonarJS analysis metadata archive: ${this.archivePath}`);

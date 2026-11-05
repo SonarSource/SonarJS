@@ -20,6 +20,7 @@ import { equivalentRepresentations, prepareFileRepresentation } from './file-rep
 import path from 'node:path/posix';
 import {
   getSourceFileContentCache,
+  hasProvidedDirectory,
   getProvidedSourceFile,
   getCachedSourceFile,
   setCachedSourceFile,
@@ -289,23 +290,19 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     shouldCreateNewSourceFile?: boolean,
   ): ts.SourceFile {
     const normalized = path.normalize(fileName);
-    const scriptTarget =
-      typeof languageVersionOrOptions === 'number'
-        ? languageVersionOrOptions
-        : languageVersionOrOptions.languageVersion;
-
     const { jsx, importHelpers } = this.compilerOptions;
     const representation = prepareFileRepresentation(normalized, content, this.compilerOptions);
+    const cacheOptions = { ...this.compilerOptions, scriptKind: representation.scriptKind };
 
     // Check global cache (unless forced to create new)
     if (!shouldCreateNewSourceFile) {
       const cached = getCachedSourceFile(
         normalized,
-        scriptTarget,
+        languageVersionOrOptions,
         contentHash,
         jsx,
         importHelpers,
-        representation.scriptKind,
+        cacheOptions,
       );
       if (cached?.text === representation.text) {
         return representation.createSourceFile(fileName, languageVersionOrOptions, cached);
@@ -316,12 +313,12 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
 
     setCachedSourceFile(
       normalized,
-      scriptTarget,
+      languageVersionOrOptions,
       contentHash,
       sourceFile,
       jsx,
       importHelpers,
-      representation.scriptKind,
+      cacheOptions,
     );
     return sourceFile;
   }
@@ -362,6 +359,26 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     return this.baseDir;
   }
 
+  directoryExists(directoryName: string): boolean {
+    const normalized = normalizeToAbsolutePath(directoryName, this.baseDir);
+    if (this.shouldSkipNodeModulesOutsideBaseDir(normalized)) {
+      return false;
+    }
+    this.trackFsCall('directoryExists-disk', directoryName);
+    // Supplied sources also establish their parent directories, just as fileExists
+    // recognizes those sources without requiring a native file.
+    return this.baseHost.directoryExists?.(normalized) || hasProvidedDirectory(normalized);
+  }
+
+  getDirectories(directoryName: string): string[] {
+    const normalized = normalizeToAbsolutePath(directoryName, this.baseDir);
+    if (this.shouldSkipNodeModulesOutsideBaseDir(normalized)) {
+      return [];
+    }
+    this.trackFsCall('getDirectories-disk', directoryName);
+    return this.baseHost.getDirectories?.(normalized) ?? [];
+  }
+
   readDirectory(
     rootDir: string,
     extensions: readonly string[],
@@ -398,8 +415,10 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     if (pathIsUnder(fileName, this.getDefaultLibLocation())) {
       return false;
     }
+    const canonical = canonicalFileName(fileName);
     return (
-      canonicalFileName(fileName).includes('/node_modules/') && !pathIsUnder(fileName, this.baseDir)
+      (canonical.includes('/node_modules/') || canonical.endsWith('/node_modules')) &&
+      !pathIsUnder(fileName, this.baseDir)
     );
   }
 }

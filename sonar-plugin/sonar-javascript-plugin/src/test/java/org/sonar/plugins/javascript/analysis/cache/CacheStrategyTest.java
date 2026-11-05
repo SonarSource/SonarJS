@@ -32,6 +32,8 @@ import static org.sonar.plugins.javascript.analysis.cache.CacheStrategy.writeOnl
 import static org.sonar.plugins.javascript.analysis.cache.CacheTestUtils.inputStream;
 
 import com.google.gson.Gson;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -48,11 +50,9 @@ import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.cache.ReadCache;
 import org.sonar.api.batch.sensor.cache.WriteCache;
-import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.Version;
 import org.sonar.plugins.javascript.analysis.JsTsContext;
@@ -132,6 +132,7 @@ class CacheStrategyTest {
       )
     );
     when(sensorContext.previousCache()).thenReturn(previousCache);
+    when(sensorContext.isCacheEnabled()).thenReturn(true);
     when(sensorContext.nextCache()).thenReturn(nextCache);
     when(sensorContext.fileSystem()).thenReturn(fileSystem);
 
@@ -147,6 +148,15 @@ class CacheStrategyTest {
   void should_generate_cache_keys() {
     assertThat(cpdDataCacheKey).isEqualTo("js:cpd:DATA:1.0.0:src/test.js");
     assertThat(cpdStringTableCacheKey).isEqualTo("js:cpd:STRING_TABLE:1.0.0:src/test.js");
+  }
+
+  @Test
+  void should_not_access_caches_when_disabled() throws Exception {
+    when(sensorContext.isCacheEnabled()).thenReturn(false);
+    var strategy = CacheStrategies.getStrategyFor(context, inputFile, PLUGIN_VERSION);
+    assertThat(strategy.getName()).isEqualTo(CacheStrategy.NO_CACHE);
+    verify(sensorContext, never()).previousCache();
+    verify(sensorContext, never()).nextCache();
   }
 
   @Test

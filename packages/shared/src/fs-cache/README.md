@@ -77,9 +77,20 @@ dedicated loader thread, adding startup and module-loading overhead unrelated to
 ## SQAA context contract
 
 On supported SonarQube versions, CI records context only when the A3S context collector is enabled.
-Collection-enabled scans analyze unchanged files too: a scanner analysis-cache hit cannot provide
-the filesystem observations or program-selection outcomes needed for replay. Scans without
-collection retain the ordinary incremental-analysis behavior.
+Collection-enabled PR scans can reuse a compatible baseline transported through the sensor cache.
+The baseline is retained passively for publication, without walking or validating project paths.
+RECORD always uses the native filesystem and records its actual observations; it never serves
+baseline observations to live analysis. New observations replace earlier values, while untouched
+observations may remain stale, including entries for deleted files. The baseline itself is never
+mutated. Known existence or file-type changes discard contradictory prior observations.
+Snapshot maintenance does not invalidate per-file analysis-cache hits. It follows their existing
+trust assumptions; independent dependency validity is a separate concern.
+
+Missing/corrupt baselines do not prevent independent analysis-cache hits. Such a scan may finish
+without context. Only a successfully persisted recording receives the completion marker that
+permits Java to publish it. The marker confirms persistence, not filesystem completeness or
+freshness. Recording failures do not fail otherwise successful analysis. The sensor-cache API
+and PR no-op persistence remain owned by the scanner.
 
 The scanner sends Node explicit RECORD mode with two output paths and publishes the resulting
 gzip-compressed Protocol Buffers attachments under context kind `javascript`:

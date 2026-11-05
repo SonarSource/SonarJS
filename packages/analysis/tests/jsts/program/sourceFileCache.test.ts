@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { describe, it, beforeEach } from 'node:test';
+import { describe, it, beforeEach, afterEach } from 'node:test';
 import { expect } from 'expect';
 import ts from 'typescript';
 import {
@@ -25,11 +25,20 @@ import {
   setCachedSourceFile,
   invalidateParsedSourceFile,
   clearSourceFileContentCache,
+  hasProvidedDirectory,
 } from '../../../src/jsts/program/cache/sourceFileCache.js';
+import {
+  setArchivedFileSystemCaseSensitivity,
+  setOsCaseSensitivity,
+} from '../../../src/jsts/rules/helpers/filesystem-case.js';
 
 describe('sourceFileCache', () => {
   beforeEach(() => {
     clearSourceFileContentCache();
+  });
+  afterEach(() => {
+    clearSourceFileContentCache();
+    setOsCaseSensitivity();
   });
 
   describe('sourceFileContentCache', () => {
@@ -58,6 +67,40 @@ describe('sourceFileCache', () => {
   });
 
   describe('setSourceFilesContext / getCurrentFilesContext', () => {
+    it('indexes supplied ancestors up to POSIX, drive and UNC roots without sibling prefixes', () => {
+      for (const root of ['/', 'C:/', '//server/share/']) {
+        setSourceFilesContext({ [root + 'project/src/deep/input.ts']: {} });
+        for (const suffix of ['', 'project', 'project/src', 'project/src/deep']) {
+          expect(hasProvidedDirectory(root + suffix)).toBe(true);
+        }
+        expect(hasProvidedDirectory(root + 'project/sr')).toBe(false);
+        expect(hasProvidedDirectory(root + 'project/src/deep/input.ts')).toBe(false);
+      }
+      expect(hasProvidedDirectory('//server/')).toBe(false);
+    });
+
+    it('rebuilds directory membership when the same request object is reused or cleared', () => {
+      const files: Record<string, { fileContent?: string }> = { '/project/old/input.ts': {} };
+      setSourceFilesContext(files);
+      expect(hasProvidedDirectory('/project/old')).toBe(true);
+      delete files['/project/old/input.ts'];
+      files['/project/new/input.vue'] = { fileContent: '<script setup></script>' };
+      setSourceFilesContext(files);
+      expect(hasProvidedDirectory('/project/old')).toBe(false);
+      expect(hasProvidedDirectory('/project/new')).toBe(true);
+      clearSourceFileContentCache();
+      expect(hasProvidedDirectory('/project/new')).toBe(false);
+    });
+
+    for (const caseSensitive of [true, false]) {
+      it(`uses the active filesystem case policy for supplied directories (${caseSensitive})`, () => {
+        setArchivedFileSystemCaseSensitivity(caseSensitive);
+        setSourceFilesContext({ 'C:/Project/Src/input.ts': {} });
+        expect(hasProvidedDirectory('C:/Project/Src')).toBe(true);
+        expect(hasProvidedDirectory('c:/project/src')).toBe(!caseSensitive);
+      });
+    }
+
     it('should set and retrieve files context', () => {
       const context = {
         '/project/src/index.ts': { fileContent: 'const x = 1;' },
@@ -101,6 +144,36 @@ describe('sourceFileCache', () => {
     }
 
     describe('getCachedSourceFile', () => {
+      it('isolates semantic parse options without comparing callback identity', () => {
+        const options: ts.CreateSourceFileOptions = {
+          languageVersion: ts.ScriptTarget.ESNext,
+          impliedNodeFormat: ts.ModuleKind.ESNext,
+          jsDocParsingMode: ts.JSDocParsingMode.ParseAll,
+          setExternalModuleIndicator: () => {},
+        };
+        const source = ts.createSourceFile(testFileName, testContent, options, true);
+        setCachedSourceFile(testFileName, options, '1', source);
+        expect(
+          getCachedSourceFile(
+            testFileName,
+            {
+              ...options,
+              setExternalModuleIndicator: () => {},
+            },
+            '1',
+          ),
+        ).toBe(source);
+        const overrides: Partial<ts.CreateSourceFileOptions>[] = [
+          { impliedNodeFormat: ts.ModuleKind.CommonJS },
+          { jsDocParsingMode: ts.JSDocParsingMode.ParseNone },
+        ];
+        for (const override of overrides) {
+          expect(
+            getCachedSourceFile(testFileName, { ...options, ...override }, '1'),
+          ).toBeUndefined();
+        }
+      });
+
       it('should return undefined for uncached file', () => {
         const result = getCachedSourceFile(testFileName, ts.ScriptTarget.ESNext, '0');
         expect(result).toBeUndefined();
