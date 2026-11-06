@@ -16,19 +16,18 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1541/javascript
 
-import type { AST, Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import type estree from 'estree';
-import {
-  type EncodedMessage,
-  type IssueLocation,
-  getMainFunctionTokenLocation,
-} from '../helpers/location.js';
-import { type FunctionNodeType, isFunctionNode } from '../helpers/ast.js';
-import type { RuleContext } from '../helpers/type.js';
-import { childrenOf, getParent } from '../helpers/ancestor.js';
-import { generateMeta } from '../helpers/generate-meta.js';
-import type { TSESTree } from '@typescript-eslint/utils';
 import type { FromSchema } from 'json-schema-to-ts';
+import { type FunctionNodeType } from '../helpers/ast.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { ComplexityTracker } from './complexity.js';
+import {
+  getImmediatelyConstructedFunction,
+  getImmediatelyInvokedFunction,
+} from './immediate-invocation.js';
+import { ModuleInitializerTracker } from './module-initializers.js';
+import { hasRuntimeBinding } from './helpers.js';
 import * as meta from './generated-meta.js';
 
 const DEFAULT_THRESHOLD = 10;
@@ -38,165 +37,63 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const threshold =
       (context.options as FromSchema<typeof meta.schema>)[0]?.threshold ?? DEFAULT_THRESHOLD;
-    let functionsWithParent: Map<estree.Node, estree.Node | undefined>;
-    let functionsDefiningModule: estree.Node[];
-    let functionsImmediatelyInvoked: estree.Node[];
+    const complexity = new ComplexityTracker(context);
+    const moduleInitializers = new ModuleInitializerTracker((node, name) =>
+      hasRuntimeBinding(context, node, name),
+    );
+    const immediatelyExecuted = new Set<estree.Node>();
+
+    function excludeIfExecuted(functionNode: estree.Node | undefined) {
+      if (functionNode) {
+        immediatelyExecuted.add(functionNode);
+      }
+    }
+
     return {
-      Program: () => {
-        functionsWithParent = new Map<estree.Node, estree.Node>();
-        functionsDefiningModule = [];
-        functionsImmediatelyInvoked = [];
-      },
-      'Program:exit': () => {
-        for (const [func, parent] of functionsWithParent.entries()) {
-          if (
-            !functionsDefiningModule.includes(func) &&
-            !functionsImmediatelyInvoked.includes(func)
-          ) {
-            raiseOnUnauthorizedComplexity(func as FunctionNodeType, parent, threshold, context);
-          }
+      'FunctionDeclaration, FunctionExpression, ArrowFunctionExpression': (node: estree.Node) =>
+        complexity.enterFunction(node as FunctionNodeType),
+      ':matches(FunctionDeclaration, FunctionExpression, ArrowFunctionExpression):exit': () =>
+        complexity.leaveFunction(),
+      'ConditionalExpression, LogicalExpression, SwitchCase, IfStatement, ForStatement, ForInStatement, ForOfStatement, WhileStatement, DoWhileStatement':
+        (node: estree.Node) => complexity.addBranch(node),
+
+      // File-wide writes can invalidate a loader exception after its call.
+      AssignmentExpression: (node: estree.Node) =>
+        moduleInitializers.recordWrite((node as estree.AssignmentExpression).left),
+      UpdateExpression: (node: estree.Node) =>
+        moduleInitializers.recordWrite((node as estree.UpdateExpression).argument),
+      UnaryExpression: (node: estree.Node) => {
+        const unary = node as estree.UnaryExpression;
+        if (unary.operator === 'delete') {
+          moduleInitializers.recordWrite(unary.argument);
         }
       },
-      'FunctionDeclaration, FunctionExpression, ArrowFunctionExpression': (node: estree.Node) =>
-        functionsWithParent.set(node, getParent(context, node)),
-      "CallExpression[callee.type='Identifier'][callee.name='define'] FunctionExpression": (
-        node: estree.Node,
-      ) => functionsDefiningModule.push(node),
-      "NewExpression[callee.type='FunctionExpression'], CallExpression[callee.type='FunctionExpression']":
-        (node: estree.Node) =>
-          functionsImmediatelyInvoked.push((node as estree.NewExpression).callee),
+      'ForInStatement, ForOfStatement': (node: estree.Node) =>
+        moduleInitializers.recordWrite(
+          (node as estree.ForInStatement | estree.ForOfStatement).left,
+        ),
+
+      CallExpression: (node: estree.Node) => {
+        const call = node as estree.CallExpression;
+        moduleInitializers.recordCall(call);
+        excludeIfExecuted(getImmediatelyInvokedFunction(call.callee));
+      },
+      NewExpression: (node: estree.Node) =>
+        excludeIfExecuted(getImmediatelyConstructedFunction((node as estree.NewExpression).callee)),
+      TaggedTemplateExpression: (node: estree.Node) =>
+        excludeIfExecuted(
+          getImmediatelyInvokedFunction((node as estree.TaggedTemplateExpression).tag),
+        ),
+
+      'Program:exit': () => {
+        const moduleFactories = moduleInitializers.getExcludedFactories(node =>
+          complexity.hasNestedFunction(node),
+        );
+        complexity.reportOverThreshold(
+          threshold,
+          node => immediatelyExecuted.has(node) || moduleFactories.has(node),
+        );
+      },
     };
   },
 };
-
-function raiseOnUnauthorizedComplexity(
-  node: FunctionNodeType,
-  parent: estree.Node | undefined,
-  threshold: number,
-  context: Rule.RuleContext,
-): void {
-  const tokens = computeCyclomaticComplexity(node, parent, context);
-  const complexity = tokens.length;
-  if (complexity > threshold) {
-    context.report({
-      message: toEncodedMessage(complexity, threshold, tokens),
-      loc: getMainFunctionTokenLocation(
-        node as TSESTree.FunctionLike,
-        parent as TSESTree.Node,
-        context as unknown as RuleContext,
-      ),
-    });
-  }
-}
-
-function toEncodedMessage(
-  complexity: number,
-  threshold: number,
-  tokens: ComplexityToken[],
-): string {
-  const encodedMessage: EncodedMessage = {
-    message: `Function has a complexity of ${complexity} which is greater than ${threshold} authorized.`,
-    cost: complexity - threshold,
-    secondaryLocations: tokens.map(node => toSecondaryLocation(node)),
-  };
-  return JSON.stringify(encodedMessage);
-}
-
-function toSecondaryLocation(token: ComplexityToken): IssueLocation {
-  return {
-    line: token.loc.start.line,
-    column: token.loc.start.column,
-    endLine: token.loc.end.line,
-    endColumn: token.loc.end.column,
-    message: '+1',
-  };
-}
-
-function computeCyclomaticComplexity(
-  node: estree.Node,
-  parent: estree.Node | undefined,
-  context: Rule.RuleContext,
-): ComplexityToken[] {
-  const visitor = new FunctionComplexityVisitor(node, parent, context);
-  visitor.visit();
-  return visitor.getComplexityTokens();
-}
-
-interface ComplexityToken {
-  loc: AST.SourceLocation;
-}
-
-class FunctionComplexityVisitor {
-  private readonly tokens: ComplexityToken[] = [];
-
-  constructor(
-    private readonly root: estree.Node,
-    private readonly parent: estree.Node | undefined,
-    private readonly context: Rule.RuleContext,
-  ) {}
-
-  visit() {
-    const visitNode = (node: estree.Node) => {
-      const { sourceCode } = this.context;
-      let token: ComplexityToken | undefined | null;
-
-      if (isFunctionNode(node)) {
-        if (node === this.root) {
-          token = {
-            loc: getMainFunctionTokenLocation(
-              node as TSESTree.FunctionLike,
-              this.parent as TSESTree.Node,
-              this.context as unknown as RuleContext,
-            ),
-          };
-        } else {
-          return;
-        }
-      } else {
-        switch (node.type) {
-          case 'ConditionalExpression':
-            token = sourceCode.getFirstTokenBetween(
-              node.test,
-              node.consequent,
-              token => token.value === '?',
-            );
-            break;
-          case 'SwitchCase':
-            // ignore default case
-            if (!node.test) {
-              break;
-            }
-          case 'IfStatement':
-          case 'ForStatement':
-          case 'ForInStatement':
-          case 'ForOfStatement':
-          case 'WhileStatement':
-          case 'DoWhileStatement':
-            token = sourceCode.getFirstToken(node);
-            break;
-          case 'LogicalExpression':
-            token = sourceCode.getFirstTokenBetween(
-              node.left,
-              node.right,
-              token => token.value === node.operator,
-            );
-            break;
-        }
-      }
-
-      if (token) {
-        this.tokens.push(token);
-      }
-
-      for (const childNode of childrenOf(node, sourceCode.visitorKeys)) {
-        visitNode(childNode);
-      }
-    };
-
-    visitNode(this.root);
-  }
-
-  getComplexityTokens() {
-    return this.tokens;
-  }
-}

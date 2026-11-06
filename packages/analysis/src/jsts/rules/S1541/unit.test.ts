@@ -14,7 +14,10 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { DefaultParserRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
+import {
+  NoTypeCheckingRuleTester,
+  DefaultParserRuleTester,
+} from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { rule } from './rule.js';
 import type { EncodedMessage, IssueLocation } from '../helpers/location.js';
 import { describe, it } from 'node:test';
@@ -152,7 +155,7 @@ describe('S1541', () => {
         },
         {
           code: `
-      define([], "module name", function(){  // AMD PATTERN - OK
+      define("module name", [], function(){  // AMD PATTERN - OK
         var a = true && false && true;
       });
       `,
@@ -464,3 +467,360 @@ function location(
 ): IssueLocation {
   return { line, column, endLine, endColumn, message };
 }
+
+describe('S1541 function exclusions', () => {
+  const body = 'if (a) {} if (b) {}';
+  const functions = [`function () { ${body} }`, `() => { ${body} }`];
+  const options = [{ threshold: 2 }];
+  const report = (code: string) => ({
+    code,
+    options,
+    errors: [{ message: /Function has a complexity of 3 which is greater than 2 authorized/ }],
+  });
+
+  for (const [name, tester] of [
+    ['JavaScript', new DefaultParserRuleTester()],
+    ['TypeScript', new NoTypeCheckingRuleTester()],
+  ] as const) {
+    it(`function exclusions in ${name}`, () => {
+      tester.run(`function exclusions in ${name}`, rule, {
+        valid: [
+          ...functions.flatMap(fn => [
+            `(${fn})()`,
+            `(${fn})?.()`,
+            `(async ${fn})()`,
+            `(${fn})\`template\``,
+            `(async ${fn})\`template\``,
+            `(0, (1, ${fn}))()`,
+          ]),
+          `new (function () { ${body} })()`,
+          `define(function () { ${body} })`,
+          `define('module', function () { ${body} })`,
+          `define([], function () { ${body} })`,
+          `define('module', ['dependency'], function () { ${body} })`,
+          `function local(define) { define = other; } define([], function () { ${body} })`,
+        ].map(code => ({ code, options })),
+        invalid: [
+          ...functions.flatMap(fn => [
+            `const value = ${fn}`,
+            `consume(${fn})`,
+            `(${fn}, other)()`,
+            `(condition ? ${fn} : other)()`,
+            `(${fn}).call(null)`,
+            `(${fn}).apply(null, [])`,
+            `(${fn}).bind(null)`,
+            `(${fn}).bind(null)()`,
+            `(${fn})[method]()`,
+          ]),
+          `(function* () { ${body} })()`,
+          `(async function* () { ${body} })()`,
+          `(function* () { ${body} })\`template\``,
+          `new (async function () { ${body} })()`,
+          `new (() => { ${body} })()`,
+          `define([], wrap(function () { ${body} }))`,
+          `define([], function () { const helper = function () { ${body} }; })`,
+          `function define() {} define([], function () { ${body} })`,
+          `const define = other; define([], function () { ${body} })`,
+          `define = customCallbackHandler; define([], function () { ${body} })`,
+          `define([], function () { ${body} }); define = customCallbackHandler`,
+          `define ||= other; define([], function () { ${body} })`,
+          `define++; define([], function () { ${body} })`,
+          `for (define of items) {} define([], function () { ${body} })`,
+          `({ value: define } = source); define([], function () { ${body} })`,
+          `function change() { define = other; } define([], function () { ${body} })`,
+          `function outer(define) { define([], function () { ${body} }) }`,
+          `import define from 'other'; define([], function () { ${body} })`,
+          `object.define([], function () { ${body} })`,
+          `define?.([], function () { ${body} })`,
+          `define?.('module', [], function () { ${body} })`,
+          `define([], 'module', function () { ${body} })`,
+          `define(dependencies, function () { ${body} })`,
+          `define([dependency], function () { ${body} })`,
+          `define([...dependencies], function () { ${body} })`,
+          `define([,], function () { ${body} })`,
+          `define([], function () { ${body} }, extra)`,
+          `define([], function* () { ${body} })`,
+          `define(() => { ${body} })`,
+          `define('module', () => { ${body} })`,
+          `define([], () => { ${body} })`,
+          `define('module', ['dependency'], () => { ${body} })`,
+          `define([], async () => { ${body} })`,
+        ].map(report),
+      });
+    });
+  }
+
+  it('TypeScript function wrappers', () => {
+    new NoTypeCheckingRuleTester().run('TypeScript function wrappers', rule, {
+      valid: functions
+        .flatMap(fn => [
+          `((${fn}) as unknown as Function)()`,
+          `((${fn}) satisfies Function)()`,
+          `(${fn})!()`,
+          `(<Function>(${fn}))()`,
+          `((0, ((${fn}) as Function)) satisfies Function)()`,
+          `((${fn}) as Function)\`template\``,
+        ])
+        .concat([
+          `define('module' as string, [] satisfies string[], (function () { ${body} }) as Function)`,
+          `define([], (function<T>() { ${body} })<number>)`,
+          `define(['dep' as string], function () { ${body} })`,
+          `define(['dep' satisfies string, 'other'!, <string>'last'], function () { ${body} })`,
+          `((function<T>() { ${body} })<number>)()`,
+          `((<T,>() => { ${body} })<number>)()`,
+          `((function<T>() { ${body} })<number>)?.()`,
+          `((async function<T>() { ${body} })<number>)()`,
+          `((async <T,>() => { ${body} })<number>)()`,
+          `((function<T>() { ${body} })<number>)\`template\``,
+          `((<T,>() => { ${body} })<number>)\`template\``,
+          `new ((function<T>() { ${body} })<number>)()`,
+          `((0, ((<T,>() => { ${body} })<number>)) as Function)()`,
+          `type define = string; define([], function () { ${body} })`,
+          `interface define { value: string } define([], function () { ${body} })`,
+        ])
+        .map(code => ({ code, options, filename: 'file.ts' })),
+      invalid: [
+        `((function* () { ${body} }) as Function)()`,
+        `((() => { ${body} }) as Function).call(null)`,
+        `define(dependencies as string[], (function () { ${body} }) as Function)`,
+        `declare function define(...args: any[]): void; define([], function () { ${body} })`,
+        `type define = string; define = other; define([], function () { ${body} })`,
+        `type define = string; define([], function () { ${body} }); define = other`,
+        `type define = string; function define() {} define([], function () { ${body} })`,
+        `function outer(define) { function inner() { type define = string; define([], function () { ${body} }) } }`,
+        `define([], (() => { ${body} }) as Function)`,
+        `define([], (<T,>() => { ${body} })<number>)`,
+        `define([dependency as string], function () { ${body} })`,
+        `define([...dependencies as string[]], function () { ${body} })`,
+        `define([, 'dep' as string], function () { ${body} })`,
+        `define([], (function*<T>() { ${body} })<number>)`,
+        `define([], (0, (function<T>() { ${body} })<number>))`,
+        `define([], wrap((function<T>() { ${body} })<number>))`,
+        `const value = (function<T>() { ${body} })<number>`,
+        `consume((<T,>() => { ${body} })<number>)`,
+        `((function*<T>() { ${body} })<number>)()`,
+        `((async function*<T>() { ${body} })<number>)()`,
+        `((function*<T>() { ${body} })<number>)\`template\``,
+        `new ((async function<T>() { ${body} })<number>)()`,
+        `new ((<T,>() => { ${body} })<number>)()`,
+        `((<T,>() => { ${body} })<number>).call(null)`,
+      ].map(report),
+    });
+  });
+});
+
+describe('S1541 loader scope initializers', () => {
+  const body = 'if (a) {} if (b) {}';
+  const factory = `function () { ${body} function nested() { ${body} } }`;
+  const callback = `function () { ${body} }`;
+  const options = [{ threshold: 2 }];
+  const message = /Function has a complexity of 3 which is greater than 2 authorized/;
+  const calls = [
+    `sap.ui.define([], ${factory})`,
+    `sap.ui.define('module', ['dep'], ${factory}, false)`,
+    `require(['dep'], ${factory})`,
+    `sap.ui.require([], ${factory})`,
+    `System.register([], ${factory})`,
+    `System.register(['dep'], ${factory}, [{}])`,
+  ];
+  const retained = (code: string, count = 2) => ({
+    code,
+    options,
+    errors: Array.from({ length: count }, () => ({ message })),
+  });
+  for (const [name, tester] of [
+    ['JavaScript', new DefaultParserRuleTester()],
+    ['TypeScript', new NoTypeCheckingRuleTester()],
+  ] as const) {
+    it(`loader scope initializers in ${name}`, () => {
+      tester.run(`loader scope initializers in ${name}`, rule, {
+        valid: [],
+        invalid: [
+          ...calls.map(code => ({
+            code,
+            options,
+            errors: [{ message, column: code.indexOf('nested') + 1 }],
+          })),
+          retained(`require([], ${factory}, ${callback})`),
+          retained(`sap.ui.require([], ${factory}, ${callback})`),
+          ...['require', 'sap.ui.require'].flatMap(loader =>
+            [
+              `() => { ${body} }`,
+              `async () => { ${body} }`,
+              `async ${callback}`,
+              `function* () { ${body} }`,
+              `async function* () { ${body} }`,
+            ].map(errback => retained(`${loader}([], ${factory}, ${errback})`)),
+          ),
+          retained(
+            `System.register([], function () { ${body} return { setters: [${callback}], execute: ${callback} }; })`,
+          ),
+          ...[
+            `sap.ui.define([], ${callback})`,
+            `require([], ${callback})`,
+            `sap.ui.require([], ${callback})`,
+            `System.register([], ${callback})`,
+          ].map(code => retained(code, 1)),
+          ...[
+            `sap['ui'].define([], ${factory})`,
+            `sap.ui['define']([], ${factory})`,
+            `sap.ui.define?.([], ${factory})`,
+            `sap.ui?.define([], ${factory})`,
+            `require?.([], ${factory})`,
+            `System['register']([], ${factory})`,
+            `System.register?.([], ${factory})`,
+            `sap.ui.define(${factory})`,
+            `sap.ui.define([], ${factory}, flag)`,
+            `sap.ui.define(name, [], ${factory})`,
+            `require('dep', ${factory})`,
+            `require([dep], ${factory})`,
+            `require([,], ${factory})`,
+            `require([...deps], ${factory})`,
+            `require([], ${factory}, extra, extra)`,
+            `require([], (0, ${factory}))`,
+            `const callback = ${factory}; require([], callback)`,
+            `System.register('name', [], ${factory})`,
+            `System.register([], ${factory}, metadata)`,
+            `System.register([], ${factory}, [extra])`,
+            `System.register([], ${factory}, [,])`,
+            `System.register([], ${factory}, [...metadata])`,
+            `function scope(sap) { sap.ui.define([], ${factory}); }`,
+            `const require = other; require([], ${factory})`,
+            `function scope(System) { System.register([], ${factory}); }`,
+            ...['async function', 'function*', 'async function*'].map(
+              kind => `require([], ${factory.replace('function ()', `${kind} ()`)})`,
+            ),
+            `require([], () => { ${body} function nested() { ${body} } })`,
+          ].map(code => retained(code)),
+          ...calls.flatMap(code => {
+            const root = code.startsWith('sap')
+              ? 'sap'
+              : code.startsWith('System')
+                ? 'System'
+                : 'require';
+            const path = code.slice(0, code.indexOf('('));
+            return [
+              `${root} = other; ${code}`,
+              `${code}; ${root} = other`,
+              `function replaceLoader() { ${root} = other; } ${code}`,
+              `function replaceMethod() { ${path} = other; } ${code}`,
+              `${path} = other; ${code}`,
+              `${path} ||= other; ${code}`,
+              `${path}++; ${code}`,
+              ...(root === 'require' ? [] : [`delete ${path}; ${code}`]),
+              `({ x: ${path} } = other); ${code}`,
+              `([${path}] = other); ${code}`,
+              `({ x: ${path} = other } = source); ${code}`,
+              `for ({ x: ${path} } of items) {} ${code}`,
+              `for (${path} of items) {} ${code}`,
+              `for (${path} in items) {} ${code}`,
+              ...(root === 'sap'
+                ? [
+                    `sap.ui = other; ${code}`,
+                    `sap[key] = other; ${code}`,
+                    `sap.ui[key] = other; ${code}`,
+                    `sap.ui[\`un\${key}\`] = other; ${code}`,
+                  ]
+                : []),
+              ...(root === 'System'
+                ? [`System[key] = other; ${code}`, `System['register'] = other; ${code}`]
+                : []),
+            ].map(value => retained(value));
+          }),
+          ...[
+            `delete sap?.ui.define; ${calls[0]}`,
+            `delete (sap?.ui).require; ${calls[3]}`,
+            `delete System?.register; ${calls[4]}`,
+            `sap.ui[\`define\`] = other; ${calls[0]}`,
+            `System[\`register\`] = other; ${calls[4]}`,
+          ].map(code => retained(code)),
+          ...(name === 'TypeScript'
+            ? [retained(`delete (sap?.ui.define as any); ${calls[0]}`)]
+            : []),
+          ...calls.flatMap(code => {
+            const root = code.startsWith('sap')
+              ? 'sap'
+              : code.startsWith('System')
+                ? 'System'
+                : 'require';
+            return [
+              `unrelated.value = other; ${code}`,
+              `${root}.unrelated = other; ${code}`,
+              ...(root === 'sap' || root === 'System'
+                ? [
+                    `${root}[\`unrelated\`] = other; ${code}`,
+                    `${root}[42] = other; ${code}`,
+                    `${root}['*'] = other; ${code}`,
+                  ]
+                : []),
+              ...(root === 'sap'
+                ? [
+                    `sap.ui[\`unrelated\`] = other; ${code}`,
+                    `sap.ui[42] = other; ${code}`,
+                    `sap.ui['*'] = other; ${code}`,
+                    `sap.ui[\`*\`] = other; ${code}`,
+                  ]
+                : []),
+              `function local(${root}) { ${root} = other; } ${code}`,
+            ].map(value => ({
+              code: value,
+              options,
+              errors: [{ message, column: value.indexOf('nested') + 1 }],
+            }));
+          }),
+        ],
+      });
+    });
+  }
+  it('TypeScript loader values', () => {
+    new NoTypeCheckingRuleTester().run('TypeScript loader values', rule, {
+      valid: [],
+      invalid: [
+        ...calls.flatMap(code => {
+          const path = code.slice(0, code.indexOf('('));
+          const root = path.split('.')[0];
+          return [
+            ...[`type ${root} = string`, `interface ${root} {}`].map(declaration => {
+              const source = `${declaration}; ${code}`;
+              return {
+                code: source,
+                options,
+                filename: 'file.ts',
+                errors: [{ message, column: source.indexOf('nested') + 1 }],
+              };
+            }),
+            ...[root, path].map(target => ({
+              ...retained(
+                `function change() { type ${root} = string; ${target} = other; } ${code}`,
+              ),
+              filename: 'file.ts',
+            })),
+            {
+              ...retained(
+                `function outer(${root}) { function inner() { type ${root} = string; ${code} } }`,
+              ),
+              filename: 'file.ts',
+            },
+          ];
+        }),
+        ...[
+          `sap.ui.define('module' as string, ['dep' satisfies string] as string[], (${factory}) as Function, false as boolean)`,
+          `require([] satisfies string[], (${factory})!)`,
+          `sap.ui.require([], (${factory.replace('function ()', 'function<T> ()')})<number>)`,
+          `System.register([] as string[], (${factory}) satisfies Function, [] as object[])`,
+        ].map(code => ({
+          code,
+          options,
+          filename: 'file.ts',
+          errors: [{ message, column: code.indexOf('nested') + 1 }],
+        })),
+        ...[
+          `(sap.ui as any).define = other; sap.ui.define([], ${factory})`,
+          `(sap as any).ui.require = other; sap.ui.require([], ${factory})`,
+          `(System.register as Function) = other; System.register([], ${factory})`,
+          `(require as Function) = other; require([], ${factory})`,
+        ].map(code => ({ ...retained(code), filename: 'file.ts' })),
+      ],
+    });
+  });
+});
