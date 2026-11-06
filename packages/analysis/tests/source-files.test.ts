@@ -153,6 +153,30 @@ describe('files', () => {
       fileStatus: 'SAME',
     });
   });
+  it('should infer rule file types outside a partially configured sonar.tests', async () => {
+    const baseDir = normalizeToAbsolutePath('/project');
+    const configuration = createConfiguration({ baseDir, sources: ['src'], tests: ['tests'] });
+    const files: File[] = [
+      {
+        filePath: normalizeToAbsolutePath('/project/src/component.test.tsx'),
+        fileContent: 'export {};\n',
+      },
+      {
+        filePath: normalizeToAbsolutePath('/project/src/component.tsx'),
+        fileContent: 'export {};\n',
+      },
+    ];
+
+    sourceFileStore.setup(configuration);
+    for (const file of files) {
+      await sourceFileStore.processFile(file.filePath, configuration, file);
+    }
+
+    expect(sourceFileStore.getFiles()).toMatchObject({
+      [files[0].filePath]: { fileType: 'MAIN', ruleFileType: 'TEST' },
+      [files[1].filePath]: { fileType: 'MAIN', ruleFileType: 'MAIN' },
+    });
+  });
 });
 
 describe('filesystem source selection', () => {

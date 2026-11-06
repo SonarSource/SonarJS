@@ -1,0 +1,58 @@
+{
+"ant-design:components/affix/__tests__/Affix.test.tsx": [
+171,
+172
+],
+"ant-design:components/anchor/__tests__/Anchor.test.tsx": [
+63,
+230,
+320,
+536
+],
+"ant-design:components/badge/__tests__/index.test.tsx": [
+30,
+47
+],
+"ant-design:components/badge/__tests__/ribbon.test.tsx": [
+18,
+25,
+36,
+79
+],
+"ant-design:components/button/__tests__/index.test.tsx": [
+158,
+249,
+251,
+253,
+255,
+258
+],
+"ant-design:components/card/__tests__/index.test.tsx": [
+66
+],
+"ant-design:components/layout/__tests__/dynamic-breakpoint.test.tsx": [
+36,
+37,
+38,
+42,
+43,
+44
+],
+"ant-design:components/segmented/__tests__/index.test.tsx": [
+292,
+301,
+357
+],
+"ant-design:components/statistic/__tests__/index.test.tsx": [
+67,
+109,
+163
+],
+"ant-design:components/typography/__tests__/copy.test.tsx": [
+64
+],
+"ant-design:components/typography/__tests__/enter-key-callback.test.tsx": [
+29,
+30
+]
+}

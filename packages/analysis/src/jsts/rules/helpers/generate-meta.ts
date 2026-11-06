@@ -43,6 +43,7 @@ export type SonarMeta = {
   requiredEcmaVersion?: number;
   downlevelableSyntax?: boolean;
   requiredModuleType?: ModuleType;
+  requiredTestCaseFile?: boolean;
 };
 
 export function generateMeta(sonarMeta: SonarMeta, ruleMeta?: RulesMeta): RulesMeta {
@@ -76,6 +77,12 @@ export function generateMeta(sonarMeta: SonarMeta, ruleMeta?: RulesMeta): RulesM
   // and suggestion like ESLint does. That's why we set fixable using ruleMeta
   metadata.fixable = ruleMeta?.fixable;
   metadata.messages ??= {};
+
+  // ESLint has no file classification, so a rule restricted to test-case files would report every
+  // other file. Keep it out of the plugin's `recommended` config; SonarQube profiles come from RSPEC.
+  if (sonarMeta.requiredTestCaseFile) {
+    metadata.docs = { ...metadata.docs, recommended: false };
+  }
 
   if (sonarMeta.hasSecondaries) {
     metadata.messages.sonarRuntime = '{{sonarRuntimeData}}';

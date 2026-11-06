@@ -1,31 +1,7 @@
 {
-"vitest:examples/basic/test/basic.test.ts": [
-8,
-8,
-14,
-14
-],
-"vitest:examples/fastify/test/app.test.ts": [
-13,
-23
-],
 "vitest:examples/in-source-test/src/index.ts": [
 12,
 12
-],
-"vitest:examples/opentelemetry/src/basic.test.ts": [
-10
-],
-"vitest:examples/opentelemetry/src/other.test.ts": [
-5,
-19
-],
-"vitest:examples/profiling/test/prime-number.test.ts": [
-4
-],
-"vitest:examples/projects/packages/server/test/app.test.ts": [
-13,
-23
 ],
 "vitest:packages/browser-playwright/src/playwright.ts": [
 186
@@ -159,15 +135,6 @@
 55,
 58
 ],
-"vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegression.spec.ts": [
-31,
-96,
-114,
-132,
-156,
-184,
-199
-],
 "vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegressionSlider.vue": [
 24
 ],
@@ -185,9 +152,6 @@
 297,
 315,
 385
-],
-"vitest:packages/ui/client/components/views/ViewReport.spec.ts": [
-194
 ],
 "vitest:packages/ui/client/composables/browser.ts": [
 7,

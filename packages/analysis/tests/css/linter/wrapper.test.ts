@@ -24,8 +24,37 @@ import { rule as S5362 } from '../../../src/css/rules/S5362/rule.js';
 import { LinterWrapper } from '../../../src/css/linter/wrapper.js';
 import { readFile, normalizeToAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import { ErrorCode } from '../../../src/contracts/error.js';
+import stylelint from 'stylelint';
+import assert from 'node:assert/strict';
 
 describe('LinterWrapper', () => {
+  for (const code of ['ERR_SONARJS_FS_CACHE_MISS', 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION']) {
+    it(`preserves ${code} for project-level recovery`, async ({ mock }) => {
+      const failure = Object.assign(new Error('Context replay failed'), { code });
+      mock.method(stylelint, 'lint', async () => {
+        throw failure;
+      });
+      const linter = new LinterWrapper();
+      linter.initialize([]);
+      await assert.rejects(
+        linter.lint(normalizeToAbsolutePath('input.css'), 'a {}'),
+        error => error === failure,
+      );
+    });
+  }
+
+  it('still converts ordinary Stylelint failures', async ({ mock }) => {
+    mock.method(stylelint, 'lint', async () => {
+      throw new Error('ordinary linter failure');
+    });
+    const linter = new LinterWrapper();
+    linter.initialize([]);
+    await expect(linter.lint(normalizeToAbsolutePath('input.css'), 'a {}')).rejects.toMatchObject({
+      code: ErrorCode.LinterInitialization,
+      message: expect.stringContaining('ordinary linter failure'),
+    });
+  });
+
   it('resolves ignore files from the analysis root and resets that root between projects', async () => {
     const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'css-analysis-root-'));
     try {

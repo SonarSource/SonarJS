@@ -101,14 +101,8 @@
 "ant-design:components/card/Meta.tsx": [
 2
 ],
-"ant-design:components/card/__tests__/type.test.tsx": [
-1
-],
 "ant-design:components/carousel/index.tsx": [
 4
-],
-"ant-design:components/cascader/__tests__/type.test.tsx": [
-2
 ],
 "ant-design:components/cascader/index.tsx": [
 15
@@ -118,9 +112,6 @@
 ],
 "ant-design:components/checkbox/Group.tsx": [
 3
-],
-"ant-design:components/checkbox/__tests__/type.test.tsx": [
-1
 ],
 "ant-design:components/checkbox/index.tsx": [
 1
@@ -155,9 +146,6 @@
 "ant-design:components/date-picker/PickerTag.tsx": [
 1
 ],
-"ant-design:components/date-picker/__tests__/type.test.tsx": [
-2
-],
 "ant-design:components/date-picker/generatePicker/generateRangePicker.tsx": [
 8
 ],
@@ -178,9 +166,6 @@
 ],
 "ant-design:components/divider/index.tsx": [
 2
-],
-"ant-design:components/drawer/__tests__/type.test.tsx": [
-1
 ],
 "ant-design:components/drawer/index.tsx": [
 4
@@ -217,9 +202,6 @@
 ],
 "ant-design:components/form/FormList.tsx": [
 3
-],
-"ant-design:components/form/__tests__/type.test.tsx": [
-1
 ],
 "ant-design:components/form/context.tsx": [
 6
@@ -299,9 +281,6 @@
 "ant-design:components/menu/SubMenu.tsx": [
 4
 ],
-"ant-design:components/menu/__tests__/type.test.tsx": [
-1
-],
 "ant-design:components/menu/hooks/useItems.tsx": [
 8
 ],
@@ -319,9 +298,6 @@
 ],
 "ant-design:components/modal/Modal.tsx": [
 4
-],
-"ant-design:components/modal/__tests__/type.test.tsx": [
-1
 ],
 "ant-design:components/modal/confirm.tsx": [
 6
@@ -345,9 +321,6 @@
 9
 ],
 "ant-design:components/pagination/Select.tsx": [
-1
-],
-"ant-design:components/popconfirm/__tests__/type.test.tsx": [
 1
 ],
 "ant-design:components/popconfirm/index.tsx": [
@@ -388,9 +361,6 @@
 ],
 "ant-design:components/rate/index.tsx": [
 4
-],
-"ant-design:components/result/__tests__/type.test.tsx": [
-1
 ],
 "ant-design:components/result/index.tsx": [
 6
@@ -440,9 +410,6 @@
 "ant-design:components/slider/SliderTooltip.tsx": [
 3
 ],
-"ant-design:components/slider/__tests__/type.test.tsx": [
-1
-],
 "ant-design:components/slider/index.tsx": [
 4
 ],
@@ -482,9 +449,6 @@
 "ant-design:components/table/Table.tsx": [
 7
 ],
-"ant-design:components/table/__tests__/type.test.tsx": [
-1
-],
 "ant-design:components/table/hooks/useFilter/FilterDropdown.tsx": [
 5
 ],
@@ -521,9 +485,6 @@
 "ant-design:components/tag/index.tsx": [
 4
 ],
-"ant-design:components/time-picker/__tests__/type.test.tsx": [
-1
-],
 "ant-design:components/time-picker/index.tsx": [
 2
 ],
@@ -532,9 +493,6 @@
 ],
 "ant-design:components/timeline/TimelineItem.tsx": [
 2
-],
-"ant-design:components/tooltip/__tests__/type.test.tsx": [
-1
 ],
 "ant-design:components/tooltip/index.tsx": [
 6
@@ -566,9 +524,6 @@
 "ant-design:components/tree/Tree.tsx": [
 6
 ],
-"ant-design:components/tree/__tests__/type.test.tsx": [
-2
-],
 "ant-design:components/tree/utils/iconUtil.tsx": [
 7
 ],
@@ -597,9 +552,6 @@
 1
 ],
 "ant-design:components/typography/Typography.tsx": [
-3
-],
-"ant-design:components/typography/__tests__/copy.test.tsx": [
 3
 ],
 "ant-design:components/typography/hooks/useMergedConfig.ts": [

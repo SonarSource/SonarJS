@@ -5,6 +5,9 @@
 "vitest:packages/pretty-format/src/collections.ts": [
 14
 ],
+"vitest:packages/ui/client/components/FileDetails.vue": [
+176
+],
 "vitest:packages/vitest/src/node/ast-collect.ts": [
 369
 ],

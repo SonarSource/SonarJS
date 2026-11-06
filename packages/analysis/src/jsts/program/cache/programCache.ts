@@ -158,6 +158,12 @@ export class ProgramCacheManager {
     const cached = this.cache.get(entry.keyObj);
     if (cached) {
       this.cache.set(entry.keyObj, { program: newProgram, host: cached.host });
+      entry.metadata.filesInProgram = new FileSystemSet(
+        newProgram
+          .getProgram()
+          .getSourceFiles()
+          .map(file => path.normalize(file.fileName)),
+      );
     }
   }
 

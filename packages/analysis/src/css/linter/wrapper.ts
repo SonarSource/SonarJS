@@ -22,6 +22,7 @@ import type { CssIssue } from './issues/issue.js';
 import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import { APIError } from '../../contracts/error.js';
 import type { FileType } from '../../contracts/file.js';
+import { isFsCacheReplayError } from '../../../../shared/src/fs-cache/hook.js';
 
 interface LintResult {
   issues: CssIssue[];
@@ -103,6 +104,9 @@ export class LinterWrapper {
     return stylelint
       .lint(options)
       .catch(err => {
+        if (isFsCacheReplayError(err)) {
+          throw err;
+        }
         throw APIError.linterError(`Linter failed to parse file ${filePath}: ${err}`);
       })
       .then(result => ({

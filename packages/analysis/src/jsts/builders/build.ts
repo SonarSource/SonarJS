@@ -15,17 +15,19 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { Linter } from 'eslint';
-import ts from 'typescript';
 import { debug } from '../../../../shared/src/helpers/logging.js';
 import type { JsTsAnalysisInput } from '../analysis/analysis.js';
 import {
   buildBabelParserOptions,
   buildTsParserOptions,
   buildVueParserOptions,
+  jsxEnabledFor,
   type ParserContext,
 } from '../parsers/options.js';
 import { parse } from '../parsers/parse.js';
 import { type Parser, parsersMap } from '../parsers/eslint.js';
+import { createVueScriptParser, isVueFile } from '../parsers/vue.js';
+import { isFsCacheReplayError } from '../../../../shared/src/fs-cache/hook.js';
 
 /**
  * Builds an ESLint SourceCode for JavaScript / TypeScript
@@ -40,7 +42,7 @@ export function build(input: JsTsAnalysisInput, parserContext: ParserContext = {
   const vueFile = isVueFile(input.filePath);
   const typescriptContext: ParserContext = {
     ...parserContext,
-    jsx: parserContext.jsx ?? jsxEnabledFor(input.program),
+    jsx: parserContext.jsx ?? jsxEnabledFor(input.program?.getCompilerOptions()),
   };
 
   if (shouldUseTypescriptParser(input)) {
@@ -55,12 +57,19 @@ export function build(input: JsTsAnalysisInput, parserContext: ParserContext = {
 
 /**
  * Returns the parse result, or undefined to signal the caller should fall back to JS parsing.
- * Throws when the input is TS or a Vue+TS retry fails.
+ * Throws when the input is TS, a Vue+TS retry fails, or filesystem replay fails.
  */
 function parseAsTypescript(input: JsTsAnalysisInput, vueFile: boolean, context: ParserContext) {
   const parser: Parser = vueFile ? parsersMap.vuejs : parsersMap.typescript;
   const parserOptions: Linter.ParserOptions = vueFile
-    ? buildVueParserOptions('ts', { filePath: input.filePath }, context)
+    ? buildVueParserOptions(
+        'ts',
+        {
+          filePath: input.filePath,
+          parser: createVueScriptParser(input.fileContent, input.program),
+        },
+        context,
+      )
     : buildTsParserOptions(
         {
           filePath: input.filePath,
@@ -73,6 +82,9 @@ function parseAsTypescript(input: JsTsAnalysisInput, vueFile: boolean, context: 
     debug(`Parsing ${input.filePath} with ${parser.meta.name}`);
     return parse(input.fileContent, parser, parserOptions);
   } catch (error) {
+    if (isFsCacheReplayError(error)) {
+      throw error;
+    }
     debug(`Failed to parse ${input.filePath} with ${parser.meta.name}: ${error.message}`);
     if (vueFile && input.language === 'ts') {
       return retryVueTsWithFlippedJsx(input, parser, context, error);
@@ -97,9 +109,19 @@ function retryVueTsWithFlippedJsx(
     return parse(
       input.fileContent,
       parser,
-      buildVueParserOptions('ts', { filePath: input.filePath }, { ...context, jsx: retryJsx }),
+      buildVueParserOptions(
+        'ts',
+        {
+          filePath: input.filePath,
+          parser: createVueScriptParser(input.fileContent, input.program),
+        },
+        { ...context, jsx: retryJsx },
+      ),
     );
   } catch (retryError) {
+    if (isFsCacheReplayError(retryError)) {
+      throw retryError;
+    }
     debug(
       `JSX-${retryJsx ? 'enabled' : 'disabled'} retry failed for ${input.filePath}: ${retryError.message}`,
     );
@@ -119,6 +141,9 @@ function parseAsJavascript(input: JsTsAnalysisInput, vueFile: boolean, context: 
       vueFile ? buildVueParserOptions('js', {}, context) : buildBabelParserOptions({}, context),
     );
   } catch (error) {
+    if (isFsCacheReplayError(error)) {
+      throw error;
+    }
     debug(`Failed to parse ${input.filePath} with ${parser.meta?.name}: ${error.message}`);
     if (vueFile) {
       throw error;
@@ -134,6 +159,9 @@ function parseAsJavascript(input: JsTsAnalysisInput, vueFile: boolean, context: 
       buildBabelParserOptions({ sourceType: 'script' }, context),
     );
   } catch (error) {
+    if (isFsCacheReplayError(error)) {
+      throw error;
+    }
     debug(
       `Failed to parse ${input.filePath} with ${parsersMap.javascript.meta?.name} in 'script' mode: ${error.message}`,
     );
@@ -147,21 +175,4 @@ function parseAsJavascript(input: JsTsAnalysisInput, vueFile: boolean, context: 
 
 function shouldUseTypescriptParser({ allowTsParserJsFiles, language }: JsTsAnalysisInput): boolean {
   return allowTsParserJsFiles || language === 'ts';
-}
-
-function isVueFile(file: string) {
-  return file.toLowerCase().endsWith('.vue');
-}
-
-/**
- * Whether JSX should be enabled based on the project's tsconfig. Undefined when unknown.
- * @param program the TypeScript Program instance
- * @return true if JSX is enabled, false if disabled, or undefined if unknown
- * */
-function jsxEnabledFor(program?: ts.Program): boolean | undefined {
-  if (!program) {
-    return undefined;
-  }
-  const jsx = program.getCompilerOptions().jsx;
-  return jsx === undefined ? undefined : jsx !== ts.JsxEmit.None;
 }

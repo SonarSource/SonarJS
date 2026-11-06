@@ -35,6 +35,7 @@ import {
 } from './analyze-project-normalize.js';
 import {
   FS_CACHE_INSTALLATION,
+  isFsCacheReplayError,
   type FsCacheInstallation,
   type FsCacheSession,
 } from '../../shared/src/fs-cache/hook.js';
@@ -43,6 +44,10 @@ import { filesWithoutRecordedProgramOutcome } from '../../analysis/src/analyzeWi
 import { getJsTsConfigFields } from '../../analysis/src/common/configuration.js';
 import { isFileSystemCaseSensitive } from '../../analysis/src/common/filesystem.js';
 import { sourceFileStore } from '../../analysis/src/file-stores/index.js';
+import type {
+  ProjectAnalysisInput,
+  ProjectAnalysisRecovery,
+} from '../../analysis/src/projectAnalysis.js';
 import {
   normalizeToAbsolutePath,
   type NormalizedAbsolutePath,
@@ -160,7 +165,31 @@ type AnalysisSessions = {
   filesystemCacheSession?: FsCacheSession;
   programSelection?: ProgramSelectionArchive;
   paths?: ReplayProjectPaths;
+  fallbackWarning?: string;
 };
+
+function requireReplayPaths(sessions: AnalysisSessions): ReplayProjectPaths {
+  if (!sessions.paths) {
+    throw new InvalidAnalyzeProjectRequestError('Replay project paths are not initialized');
+  }
+  return sessions.paths;
+}
+
+function fallBackToSourceOnly(sessions: AnalysisSessions, reason: string): void {
+  endAnalysisSessions(sessions.programSelection, sessions.filesystemCacheSession);
+  sessions.programSelection = undefined;
+  sessions.filesystemCacheSession = undefined;
+  requireReplayPaths(sessions).restoreSourceOnlyRequest();
+  sessions.fallbackWarning = `${reason}; falling back to source-only analysis. Type information and dependency context may be incomplete.`;
+  warn(sessions.fallbackWarning);
+}
+
+function fallBackAfterReplayError(sessions: AnalysisSessions, failure: unknown): void {
+  if (sessions.filesystemCacheSession?.mode !== 'replay' || !isFsCacheReplayError(failure)) {
+    throw failure;
+  }
+  fallBackToSourceOnly(sessions, `Could not replay SonarJS context: ${failure.message}`);
+}
 
 function beginAnalysisSessions(
   request: AnalyzeProjectProtoRequest,
@@ -176,11 +205,10 @@ function beginAnalysisSessions(
       const programSelection = sessions.programSelection;
       const recordedBaseDir = programSelection?.replayBaseDir();
       if (!programSelection || !recordedBaseDir || !path.isAbsolute(recordedBaseDir)) {
-        warn(
-          'Unsupported SonarJS context: no compatible recorded project base directory; falling back to source-only analysis',
+        fallBackToSourceOnly(
+          sessions,
+          'Unsupported SonarJS context: no compatible recorded project base directory',
         );
-        sessions.programSelection = undefined;
-        sessions.paths.restoreSourceOnlyRequest();
         return;
       }
       sessions.filesystemCacheSession = beginFilesystemCacheAnalysis(
@@ -205,6 +233,19 @@ function beginAnalysisSessions(
 }
 
 async function normalizeProjectInput(
+  request: AnalyzeProjectProtoRequest,
+  cacheMode: CacheMode | undefined,
+  sessions: AnalysisSessions,
+) {
+  try {
+    return await normalizeProjectInputOnce(request, cacheMode, sessions);
+  } catch (error) {
+    fallBackAfterReplayError(sessions, error);
+    return normalizeProjectInputOnce(request, cacheMode, sessions);
+  }
+}
+
+async function normalizeProjectInputOnce(
   request: AnalyzeProjectProtoRequest,
   cacheMode: CacheMode | undefined,
   sessions: AnalysisSessions,
@@ -234,13 +275,10 @@ async function normalizeProjectInput(
   if (unsupportedFiles.length === 0) {
     return input;
   }
-  warn(
-    `Unsupported SonarJS context for ${unsupportedFiles.join(', ')}: no portable TypeScript program outcome; falling back to source-only analysis`,
+  fallBackToSourceOnly(
+    sessions,
+    `Unsupported SonarJS context for ${unsupportedFiles.join(', ')}: no portable TypeScript program outcome`,
   );
-  endAnalysisSessions(sessions.programSelection, sessions.filesystemCacheSession);
-  sessions.programSelection = undefined;
-  sessions.filesystemCacheSession = undefined;
-  sessions.paths.restoreSourceOnlyRequest();
   // Reinitialize the stores without the replay archive or recorded CI settings.
   // This follows the same tsconfig/orphan-program path as a request with no context.
   const fallback = await normalizeAnalyzeProjectRequest(request);
@@ -248,10 +286,44 @@ async function normalizeProjectInput(
   return fallback;
 }
 
+async function restoreProjectInput(
+  request: AnalyzeProjectProtoRequest,
+  cacheMode: CacheMode | undefined,
+  sessions: AnalysisSessions,
+  input: Awaited<ReturnType<typeof normalizeAnalyzeProjectRequest>>,
+  failure: Error,
+): Promise<ProjectAnalysisRecovery> {
+  const paths = requireReplayPaths(sessions);
+  // Capture namespace translation before ending replay changes filesystem case semantics.
+  const relocatedFiles = new Map(
+    (Object.keys(sourceFileStore.getFiles()) as NormalizedAbsolutePath[]).map(file => [
+      file,
+      paths.sourceOnlyPath(file),
+    ]),
+  );
+  fallBackAfterReplayError(sessions, failure);
+  const restored = await normalizeProjectInput(request, cacheMode, sessions);
+  // Retain old mappings too: already produced issues can refer to files in the CI namespace.
+  for (const [file, original] of restored.pathMap) {
+    input.pathMap.set(file, original);
+  }
+  return {
+    configuration: restored.configuration,
+    relocateFile(file) {
+      const relocated = relocatedFiles.get(file);
+      if (!relocated) {
+        throw new InvalidAnalyzeProjectRequestError(`No restored path for ${file}`);
+      }
+      return relocated;
+    },
+  };
+}
+
 async function analyzeNormalizedProject(
   input: Awaited<ReturnType<typeof normalizeAnalyzeProjectRequest>>,
   programSelection: ProgramSelectionArchive | undefined,
   incrementalResultsChannel?: (result: AnalyzeProjectIncrementalEvent) => void,
+  onContextFailure?: ProjectAnalysisInput['onContextFailure'],
 ) {
   const wrappedIncrementalResultsChannel = incrementalResultsChannel
     ? (event: AnalyzeProjectIncrementalEvent['event']) =>
@@ -267,6 +339,7 @@ async function analyzeNormalizedProject(
       bundles: input.bundles,
       rulesWorkdir: input.rulesWorkdir,
       programSelection,
+      onContextFailure,
     },
     input.configuration,
     wrappedIncrementalResultsChannel,
@@ -294,12 +367,42 @@ async function handleProjectAnalysis(
     beginAnalysisSessions(request, cacheMode, sessions);
     return await withAnalysisCancellation(async () => {
       logHeapStatistics(workerData?.debugMemory);
+      let deliveryFailed = false;
+      const publishEvent = incrementalResultsChannel
+        ? (event: AnalyzeProjectIncrementalEvent) => {
+            if (event.event.messageType === 'meta' && sessions.fallbackWarning) {
+              event.event.warnings.push(sessions.fallbackWarning);
+            }
+            try {
+              incrementalResultsChannel(event);
+            } catch (error) {
+              deliveryFailed = true;
+              throw error;
+            }
+          }
+        : undefined;
       const input = await normalizeProjectInput(request, cacheMode, sessions);
+      const onContextFailure =
+        sessions.filesystemCacheSession?.mode === 'replay'
+          ? (failure: Error) => {
+              if (deliveryFailed) {
+                throw failure;
+              }
+              return restoreProjectInput(request, cacheMode, sessions, input, failure);
+            }
+          : undefined;
       const result = await analyzeNormalizedProject(
         input,
         sessions.programSelection,
-        incrementalResultsChannel,
+        publishEvent,
+        onContextFailure,
       );
+      if (
+        sessions.fallbackWarning &&
+        !result.output.meta.warnings.includes(sessions.fallbackWarning)
+      ) {
+        result.output.meta.warnings.push(sessions.fallbackWarning);
+      }
       logHeapStatistics(workerData?.debugMemory);
       return {
         type: 'success',

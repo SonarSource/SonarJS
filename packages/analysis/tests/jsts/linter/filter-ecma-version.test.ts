@@ -32,6 +32,7 @@ const ruleConfig = {
 const baseContext: RuleFilterContext = {
   extensionName: '.ts',
   fileType: 'MAIN',
+  isTestCaseFile: false,
   fileLanguage: 'ts',
   analysisMode: 'DEFAULT',
   detectedEsYear: 2019,

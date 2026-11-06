@@ -100,10 +100,24 @@ describe('sanitizeInputFiles fileType resolution', () => {
       expect(result).toEqual({ fileType: 'TEST', ruleFileType: 'TEST' });
     });
 
-    it('preserves explicit MAIN for a test-named file when sonar.tests is configured', async () => {
+    it('uses TEST rules for a test-named file outside a partially configured sonar.tests', async () => {
       const result = await resolveFileTypes(
         '/project/src/login.test.ts',
         { baseDir: '/project', sources: ['src'], tests: ['test'] },
+        'MAIN',
+      );
+      expect(result).toEqual({ fileType: 'MAIN', ruleFileType: 'TEST' });
+    });
+
+    it('preserves MAIN for a test-named file rejected by sonar.test.exclusions', async () => {
+      const result = await resolveFileTypes(
+        '/project/src/fixtures/login.test.ts',
+        {
+          baseDir: '/project',
+          sources: ['src'],
+          tests: ['src'],
+          testExclusions: ['**/fixtures/**'],
+        },
         'MAIN',
       );
       expect(result).toEqual({ fileType: 'MAIN', ruleFileType: 'MAIN' });

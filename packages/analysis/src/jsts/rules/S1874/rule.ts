@@ -18,7 +18,10 @@
 
 import type { Rule } from 'eslint';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { isRequiredParserServices } from '../helpers/parser-services.js';
+import {
+  isRequiredParserServices,
+  getTypeScriptDiagnosticLocation,
+} from '../helpers/parser-services.js';
 import type ts from 'typescript';
 import * as meta from './generated-meta.js';
 
@@ -44,9 +47,10 @@ export const rule: Rule.RuleModule = {
         for (const diagnostic of diagnostics) {
           if (diagnostic.reportsDeprecated === true) {
             const sourceCode = context.sourceCode;
-            const start = sourceCode.getLocFromIndex(diagnostic.start);
-            const end = sourceCode.getLocFromIndex(diagnostic.start + diagnostic.length);
-            const loc = { start, end };
+            const loc = getTypeScriptDiagnosticLocation(sourceCode, services, diagnostic);
+            if (!loc) {
+              continue;
+            }
             context.report({
               loc,
               messageId: 'deprecation',

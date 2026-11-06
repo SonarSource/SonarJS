@@ -26,6 +26,7 @@ import { expect } from 'expect';
 import { readFile, normalizeToAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import { JsTsAnalysisInput } from '../../../src/jsts/analysis/analysis.js';
 import { APIError } from '../../../src/contracts/error.js';
+import assert from 'node:assert/strict';
 
 const parseFunctions = [
   {
@@ -57,6 +58,37 @@ describe('parseForESLint', () => {
   });
 
   for (const { parser, usingBabel, errorMessage } of parseFunctions) {
+    for (const code of [
+      'ERR_SONARJS_FS_CACHE_MISS',
+      'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION',
+    ]) {
+      it(`preserves ${code} from ${parser.meta!.name} for project-level recovery`, () => {
+        const failure = Object.assign(new Error('Context replay failed'), { code });
+        const failingParser = {
+          ...parser,
+          parseForESLint() {
+            throw failure;
+          },
+        };
+        assert.throws(
+          () => parse('', failingParser, {}),
+          error => error === failure,
+        );
+      });
+    }
+
+    it(`still converts TypeScript internal failures from ${parser.meta!.name}`, () => {
+      const failingParser = {
+        ...parser,
+        parseForESLint() {
+          throw new Error('Debug Failure: internal parser failure');
+        },
+      };
+      expect(() => parse('', failingParser, {})).toThrow(
+        APIError.failingTypeScriptError('Debug Failure: internal parser failure'),
+      );
+    });
+
     it(`should parse a valid input with ${parser.meta!.name}`, async () => {
       const filePath = normalizeToAbsolutePath(
         path.join(import.meta.dirname, 'fixtures', 'parse', 'valid.js'),

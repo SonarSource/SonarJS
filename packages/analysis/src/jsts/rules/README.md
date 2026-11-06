@@ -89,6 +89,38 @@ You can enable some rules manually:
 }
 ```
 
+### Test files
+
+ESLint does not distinguish test files from production files, and the plugin's rules do not inspect filenames to do so. Rules meant for test code, such as `no-fixed-wait-in-tests`, `no-debug-commands-in-ui-tests` and `prefer-cypress-should`, run on every file they are enabled for. Turn them off outside your test files with the `ignores` field:
+
+```javascript
+import sonarjs from 'eslint-plugin-sonarjs';
+export default [
+  sonarjs.configs.recommended,
+  {
+    ignores: ['**/*.{test,spec,cy}.{js,jsx,ts,tsx}'],
+    rules: {
+      'sonarjs/no-fixed-wait-in-tests': 'off',
+    },
+  },
+];
+```
+
+`no-empty-test-file` reports files without test cases, so it would flag every production file. It is therefore off in the `recommended` configuration. Enable it for the files that declare test cases with the `files` field:
+
+```javascript
+import sonarjs from 'eslint-plugin-sonarjs';
+export default [
+  sonarjs.configs.recommended,
+  {
+    files: ['**/*.{test,spec,cy}.{js,jsx,ts,tsx}'],
+    rules: {
+      'sonarjs/no-empty-test-file': 'error',
+    },
+  },
+];
+```
+
 ### TypeScript ESLint parser
 
 Several rules are designed for linting both JavaScript and TypeScript code, and some even rely on type checking through TypeScript. Therefore, you will need to install the `@typescript-eslint/parser` dependency and [instruct ESLint to use this parser](https://eslint.org/docs/latest/use/configure/parser) through the `parserOptions` property.
@@ -247,7 +279,7 @@ If you have any questions, encounter any bugs, or have feature requests, please 
 | [no-empty-collection](https://sonarsource.github.io/rspec/#/rspec/S4158/javascript)                                | Empty collections should not be accessed or iterated                                                                           | ✅  |     |     |     |     |
 | [no-empty-group](https://sonarsource.github.io/rspec/#/rspec/S6331/javascript)                                     | Regular expressions should not contain empty groups                                                                            | ✅  |     |     | 💭  |     |
 | [no-empty-parameterized-test-dataset](https://sonarsource.github.io/rspec/#/rspec/S8998/javascript)                | Parameterized tests should not have empty datasets                                                                             | ✅  |     |     |     |     |
-| [no-empty-test-file](https://sonarsource.github.io/rspec/#/rspec/S2187/javascript)                                 | Test files should contain at least one test case                                                                               | ✅  |     |     |     |     |
+| [no-empty-test-file](https://sonarsource.github.io/rspec/#/rspec/S2187/javascript)                                 | Test files should contain at least one test case                                                                               |     |     |     |     |     |
 | [no-empty-test-title](https://sonarsource.github.io/rspec/#/rspec/S8781/javascript)                                | Test and suite titles should not be empty or whitespace-only                                                                   | ✅  |     |     |     |     |
 | [no-equals-in-for-termination](https://sonarsource.github.io/rspec/#/rspec/S888/javascript)                        | Equality operators should not be used in "for" loop termination conditions                                                     | ✅  |     |     |     |     |
 | [no-exclusive-tests](https://sonarsource.github.io/rspec/#/rspec/S6426/javascript)                                 | Exclusive tests should not be committed to version control                                                                     | ✅  |     | 💡  |     |     |
@@ -463,7 +495,6 @@ SonarJS uses some rules are not shipped in this ESLint plugin to avoid duplicati
 | S4136           | [typescript-eslint/adjacent-overload-signatures](https://github.com/typescript-eslint/typescript-eslint/blob/main/packages/eslint-plugin/docs/rules/adjacent-overload-signatures.mdx)       |
 | S4137           | [typescript-eslint/consistent-type-assertions](https://github.com/typescript-eslint/typescript-eslint/blob/main/packages/eslint-plugin/docs/rules/consistent-type-assertions.mdx)           |
 | S4140           | [eslint/no-sparse-arrays](https://eslint.org/docs/latest/rules/no-sparse-arrays)                                                                                                            |
-| S4157           | [typescript-eslint/no-unnecessary-type-arguments](https://github.com/typescript-eslint/typescript-eslint/blob/main/packages/eslint-plugin/docs/rules/no-unnecessary-type-arguments.mdx)     |
 | S4204           | [typescript-eslint/no-explicit-any](https://github.com/typescript-eslint/typescript-eslint/blob/main/packages/eslint-plugin/docs/rules/no-explicit-any.mdx)                                 |
 | S4326           | [eslint/no-return-await](https://eslint.org/docs/latest/rules/no-return-await)                                                                                                              |
 | S6325           | [eslint/prefer-regex-literals](https://eslint.org/docs/latest/rules/prefer-regex-literals)                                                                                                  |
@@ -627,6 +658,7 @@ The following rules are used in SonarJS but not available in this ESLint plugin.
 | S4123           | [typescript-eslint/await-thenable](https://github.com/typescript-eslint/typescript-eslint/blob/main/packages/eslint-plugin/docs/rules/await-thenable.mdx)                                                                                                                                                                                                                                                                                                                             |
 | S4138           | [typescript-eslint/prefer-for-of](https://github.com/typescript-eslint/typescript-eslint/blob/main/packages/eslint-plugin/docs/rules/prefer-for-of.mdx)                                                                                                                                                                                                                                                                                                                               |
 | S4156           | [typescript-eslint/prefer-namespace-keyword](https://github.com/typescript-eslint/typescript-eslint/blob/main/packages/eslint-plugin/docs/rules/prefer-namespace-keyword.mdx)                                                                                                                                                                                                                                                                                                         |
+| S4157           | [typescript-eslint/no-unnecessary-type-arguments](https://github.com/typescript-eslint/typescript-eslint/blob/main/packages/eslint-plugin/docs/rules/no-unnecessary-type-arguments.mdx)                                                                                                                                                                                                                                                                                               |
 | S4275           | [eslint/getter-return](https://eslint.org/docs/latest/rules/getter-return)                                                                                                                                                                                                                                                                                                                                                                                                            |
 | S4325           | [typescript-eslint/no-unnecessary-type-assertion](https://github.com/typescript-eslint/typescript-eslint/blob/main/packages/eslint-plugin/docs/rules/no-unnecessary-type-assertion.mdx)                                                                                                                                                                                                                                                                                               |
 | S4327           | [typescript-eslint/no-this-alias](https://github.com/typescript-eslint/typescript-eslint/blob/main/packages/eslint-plugin/docs/rules/no-this-alias.mdx)                                                                                                                                                                                                                                                                                                                               |

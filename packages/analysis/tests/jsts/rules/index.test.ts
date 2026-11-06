@@ -52,7 +52,10 @@ describe('Plugin public API', () => {
         expect(rule.meta.docs!.url).toBe(
           `https://sonarsource.github.io/rspec/#/rspec/${metadata.sonarKey}/javascript`,
         );
-        if (metadata.meta.docs?.recommended) {
+        if (metadata.requiredTestCaseFile) {
+          expect(rule.meta.docs!.recommended).toBe(false);
+        }
+        if (metadata.meta.docs?.recommended && !metadata.requiredTestCaseFile) {
           expect(configs.recommended.rules).toHaveProperty(`sonarjs/${metadata.eslintId}`);
           expect(configs.recommended.rules![`sonarjs/${metadata.eslintId}`]).toEqual('error');
         } else {
@@ -82,6 +85,11 @@ describe('Plugin public API', () => {
         }
       }
     }
+  });
+
+  it('should keep rules restricted to test-case files off in the recommended config', () => {
+    // A shareable config cannot be scoped by filename, so S2187 would report every non-test file.
+    expect(configs.recommended.rules!['sonarjs/no-empty-test-file']).toEqual('off');
   });
 
   it('should export legacy config', () => {

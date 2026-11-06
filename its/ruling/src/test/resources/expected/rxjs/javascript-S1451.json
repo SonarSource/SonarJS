@@ -20,43 +20,22 @@
 "rxjs:index.js": [
 0
 ],
-"rxjs:perf/macro/bufferCount/buffercount.spec.js": [
-0
-],
 "rxjs:perf/macro/bufferCount/perf.js": [
-0
-],
-"rxjs:perf/macro/combineLatest/combinelatest.spec.js": [
 0
 ],
 "rxjs:perf/macro/combineLatest/perf.js": [
 0
 ],
-"rxjs:perf/macro/groupBy/groupby.spec.js": [
-0
-],
 "rxjs:perf/macro/groupBy/perf.js": [
-0
-],
-"rxjs:perf/macro/merge/merge.spec.js": [
 0
 ],
 "rxjs:perf/macro/merge/perf.js": [
 0
 ],
-"rxjs:perf/macro/mergeAll/mergeall.spec.js": [
-0
-],
 "rxjs:perf/macro/mergeAll/perf.js": [
 0
 ],
-"rxjs:perf/macro/mergeMap-scalar/mergemap-scalar.spec.js": [
-0
-],
 "rxjs:perf/macro/mergeMap-scalar/perf.js": [
-0
-],
-"rxjs:perf/macro/mergeMap/mergemap.spec.js": [
 0
 ],
 "rxjs:perf/macro/mergeMap/perf.js": [
@@ -71,13 +50,7 @@
 "rxjs:perf/macro/windowCount/perf.js": [
 0
 ],
-"rxjs:perf/macro/windowCount/windowcount.spec.js": [
-0
-],
 "rxjs:perf/macro/zip/perf.js": [
-0
-],
-"rxjs:perf/macro/zip/zip.spec.js": [
 0
 ],
 "rxjs:perf/micro/current-thread-scheduler/observable/defer.js": [

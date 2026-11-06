@@ -23,7 +23,8 @@ import {
 } from '../../../shared/src/helpers/files.js';
 import type { FileType } from '../contracts/file.js';
 import { type Configuration, getFilterPathParams, getShouldIgnoreParams } from './configuration.js';
-import { filterPathAndGetFileType, getFileTypeForRules } from './filter/filter-path.js';
+import { filterPathAndGetFileType } from './filter/filter-path.js';
+import { getFileTypeForRules } from './rule-file-type.js';
 import { shouldIgnoreFile } from './filter/filter.js';
 import { type FileStatus, JSTS_ANALYSIS_DEFAULTS } from '../jsts/analysis/analysis.js';
 import type { RuleConfig as CssRuleConfig } from '../css/linter/config.js';

@@ -84,14 +84,6 @@ describe('S9162', () => {
           `,
         },
         {
-          filename: path.join(import.meta.dirname, 'fixtures', 'src', 'status.js'),
-          code: `
-            cy.get('input').then($input => {
-              expect($input.text()).to.equal('Ready');
-            });
-          `,
-        },
-        {
           filename: fixtureFile,
           code: `
             cy.get('input').then($input => {
