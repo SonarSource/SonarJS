@@ -20,6 +20,19 @@ import { describe, it } from 'node:test';
 
 const ruleTester = new StylelintRuleTester(rule.ruleName);
 describe('S5362', () => {
+  it('leaves interpolated Sass expressions to the Sass compiler', () =>
+    ruleTester.valid({
+      code: '.foo\n  width: calc((#{$width} + #{map.get($sizes, "gap")}) * 2)\n',
+      codeFilename: 'test.sass',
+    }));
+
+  it('still checks a plain calc next to an interpolated calc', () =>
+    ruleTester.invalid({
+      code: '.foo\n  width: calc(#{$width} + 2px)\n  height: calc(1px / 0)\n',
+      codeFilename: 'test.sass',
+      errors: [{ text: `${messages.divByZero} (sonar/function-calc-no-invalid)`, line: 3 }],
+    }));
+
   it('single expression', () =>
     ruleTester.valid({
       code: '.foo {width: calc(100%);}',

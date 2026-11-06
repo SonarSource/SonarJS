@@ -5,6 +5,10 @@
 "bulma:css/bulma.css": [
 185
 ],
+"bulma:docs/_sass/index.sass": [
+337,
+363
+],
 "bulma:docs/css/bulma-docs.css": [
 186,
 11735,
