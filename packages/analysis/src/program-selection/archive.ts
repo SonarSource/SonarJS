@@ -26,6 +26,15 @@ import {
 } from '../../../shared/src/helpers/files.js';
 import { sonarjs } from './analysis-metadata-proto.js';
 import {
+  readContextConfiguration,
+  PROJECT_CONFIGURATION_PATHS,
+  PROJECT_RELATIVE_PATH_PREFIX,
+  REPLAYABLE_CONFIGURATION_FIELDS,
+  type ReplayableConfiguration,
+} from './configuration-fields.js';
+import { structFromObject } from './struct-conversion.js';
+import { compilerOptionsForStorage, restoreCompilerOptions } from './compiler-options-paths.js';
+import {
   normalizeProjectRoot,
   relativeProjectPath,
   replayProjectRoot,
@@ -38,53 +47,6 @@ import {
 } from '../common/filesystem.js';
 
 const MAGIC = 'sonarjs-analysis-metadata';
-const PROJECT_CONFIGURATION_PATHS = [
-  'jsTsExclusions',
-  'sources',
-  'tests',
-  'inclusions',
-  'exclusions',
-  'testInclusions',
-  'testExclusions',
-] as const;
-// These are effective analyzer settings, not arbitrary scanner properties. The request remains
-// authoritative for its submitted files and runtime-specific filesystem behavior.
-const REPLAYABLE_CONFIGURATION_FIELDS = [
-  'allowTsParserJsFiles',
-  'ignoreHeaderComments',
-  'maxFileSize',
-  'environments',
-  'globals',
-  'tsSuffixes',
-  'jsSuffixes',
-  'cssSuffixes',
-  'htmlSuffixes',
-  'yamlSuffixes',
-  'cssAdditionalSuffixes',
-  'detectBundles',
-  'detectGeneratedCode',
-  'createTsProgramForOrphanFiles',
-  'disableTypeChecking',
-  'skipNodeModuleLookupOutsideBaseDir',
-  'ecmaScriptVersion',
-  ...PROJECT_CONFIGURATION_PATHS,
-] as const;
-type ReplayableConfiguration = Partial<
-  Record<(typeof REPLAYABLE_CONFIGURATION_FIELDS)[number], unknown>
->;
-const PROJECT_RELATIVE_PATH_PREFIX = '\0project-relative:';
-const COMPILER_OPTION_PATHS = new Set([
-  'baseUrl',
-  'configFilePath',
-  'declarationDir',
-  'mapRoot',
-  'outDir',
-  'pathsBasePath',
-  'rootDir',
-  'sourceRoot',
-  'tsBuildInfoFile',
-]);
-const COMPILER_OPTION_PATH_LISTS = new Set(['rootDirs', 'typeRoots']);
 
 type ConfiguredProgram = {
   kind: 'configured';
@@ -296,7 +258,7 @@ export class ProgramSelectionArchive {
                 configured: {
                   tsconfigPath: this.toRelative(program.tsconfig),
                   compilerOptions: structFromObject(
-                    this.compilerOptionsForStorage(program.compilerOptions),
+                    this.storableCompilerOptions(program.compilerOptions),
                   ),
                 },
               }
@@ -304,7 +266,7 @@ export class ProgramSelectionArchive {
                 id,
                 orphan: {
                   compilerOptions: structFromObject(
-                    this.compilerOptionsForStorage(program.compilerOptions),
+                    this.storableCompilerOptions(program.compilerOptions),
                   ),
                 },
               },
@@ -450,13 +412,13 @@ export class ProgramSelectionArchive {
       return {
         kind: 'configured',
         tsconfig: this.fromRelative(entry.configured.tsconfigPath),
-        compilerOptions: this.restoreCompilerOptions(entry.configured.compilerOptions),
+        compilerOptions: this.restoredCompilerOptions(entry.configured.compilerOptions),
       };
     }
     if (entry.orphan?.compilerOptions) {
       return {
         kind: 'orphan',
-        compilerOptions: this.restoreCompilerOptions(entry.orphan.compilerOptions),
+        compilerOptions: this.restoredCompilerOptions(entry.orphan.compilerOptions),
       };
     }
     throw new Error(`Program ${entry.id} has no descriptor`);
@@ -488,49 +450,14 @@ export class ProgramSelectionArchive {
     return absolutePath;
   }
 
-  private compilerOptionsForStorage(options: ts.CompilerOptions): Record<string, unknown> {
-    return Object.fromEntries(
-      Object.entries(options).map(([key, value]) => {
-        if (COMPILER_OPTION_PATHS.has(key) && typeof value === 'string') {
-          return [key, this.portableCompilerOptionPath(value)];
-        }
-        if (COMPILER_OPTION_PATH_LISTS.has(key) && Array.isArray(value)) {
-          return [
-            key,
-            value.map(item =>
-              typeof item === 'string' ? this.portableCompilerOptionPath(item) : item,
-            ),
-          ];
-        }
-        if (key === 'paths' && value && typeof value === 'object') {
-          return [
-            key,
-            this.mapCompilerOptionPaths(value, item => this.portableCompilerOptionPath(item)),
-          ];
-        }
-        return [key, value];
-      }),
-    );
+  private storableCompilerOptions(options: ts.CompilerOptions): Record<string, unknown> {
+    return compilerOptionsForStorage(options, item => this.portableCompilerOptionPath(item));
   }
 
-  private restoreCompilerOptions(struct: {
+  private restoredCompilerOptions(struct: {
     fields?: Record<string, unknown> | null;
   }): ts.CompilerOptions {
-    const options = objectFromStruct(struct);
-    for (const [key, value] of Object.entries(options)) {
-      if (COMPILER_OPTION_PATHS.has(key) && typeof value === 'string') {
-        options[key] = this.restoreCompilerOptionPath(value);
-      } else if (COMPILER_OPTION_PATH_LISTS.has(key) && Array.isArray(value)) {
-        options[key] = value.map(item =>
-          typeof item === 'string' ? this.restoreCompilerOptionPath(item) : item,
-        );
-      } else if (key === 'paths' && value && typeof value === 'object') {
-        options[key] = this.mapCompilerOptionPaths(value, item =>
-          this.restoreCompilerOptionPath(item),
-        );
-      }
-    }
-    return options as ts.CompilerOptions;
+    return restoreCompilerOptions(struct, item => this.restoreCompilerOptionPath(item));
   }
 
   private portableCompilerOptionPath(value: string): string {
@@ -552,124 +479,4 @@ export class ProgramSelectionArchive {
     const relativePath = value.slice(PROJECT_RELATIVE_PATH_PREFIX.length);
     return relativePath === '' ? this.baseDir : this.fromRelative(relativePath);
   }
-
-  private mapCompilerOptionPaths(
-    value: object,
-    transform: (path: string) => string,
-  ): Record<string, unknown> {
-    return Object.fromEntries(
-      Object.entries(value).map(([key, paths]) => [
-        key,
-        Array.isArray(paths)
-          ? paths.map(item => (typeof item === 'string' ? transform(item) : item))
-          : paths,
-      ]),
-    );
-  }
-}
-
-function readContextConfiguration(
-  contextMetadata?: string,
-): ({ baseDir: string } & Record<string, unknown>) | undefined {
-  if (!contextMetadata) {
-    return undefined;
-  }
-  const context = JSON.parse(contextMetadata);
-  if (!context || typeof context !== 'object' || Array.isArray(context)) {
-    throw new Error('Invalid SonarJS collector context metadata');
-  }
-  // Empty legacy metadata has no usable recorded configuration.
-  if (Object.keys(context).length === 0) {
-    return undefined;
-  }
-  const configuration = context.configuration;
-  if (
-    !configuration ||
-    typeof configuration !== 'object' ||
-    Array.isArray(configuration) ||
-    typeof configuration.baseDir !== 'string' ||
-    !configuration.baseDir
-  ) {
-    throw new Error('Invalid SonarJS collector context metadata');
-  }
-  return configuration;
-}
-
-function structFromObject(value: object): { fields: Record<string, unknown> } {
-  return {
-    fields: Object.fromEntries(
-      Object.entries(value).flatMap(([key, item]) => {
-        const converted = valueFromUnknown(item);
-        return converted === undefined ? [] : [[key, converted]];
-      }),
-    ),
-  };
-}
-
-function valueFromUnknown(value: unknown): Record<string, unknown> | undefined {
-  if (value === undefined || typeof value === 'function' || typeof value === 'symbol') {
-    return undefined;
-  }
-  if (value === null) {
-    return { nullValue: 0 };
-  }
-  if (typeof value === 'boolean') {
-    return { boolValue: value };
-  }
-  if (typeof value === 'number') {
-    if (!Number.isFinite(value)) {
-      throw new TypeError(`Cannot serialize non-finite compiler option value ${value}`);
-    }
-    return { numberValue: value };
-  }
-  if (typeof value === 'string') {
-    return { stringValue: value };
-  }
-  if (Array.isArray(value)) {
-    return {
-      listValue: { values: value.map(valueFromUnknown).filter(item => item !== undefined) },
-    };
-  }
-  if (typeof value === 'object') {
-    return { structValue: structFromObject(value) };
-  }
-  return undefined;
-}
-
-function objectFromStruct(struct: {
-  fields?: Record<string, unknown> | null;
-}): Record<string, unknown> {
-  return Object.fromEntries(
-    Object.entries(struct.fields ?? {}).map(([key, value]) => [key, unknownFromValue(value)]),
-  );
-}
-
-function unknownFromValue(value: unknown): unknown {
-  const typed = value as {
-    nullValue?: number | null;
-    boolValue?: boolean | null;
-    numberValue?: number | null;
-    stringValue?: string | null;
-    listValue?: { values?: unknown[] | null } | null;
-    structValue?: { fields?: Record<string, unknown> | null } | null;
-  };
-  if (typed.nullValue != null) {
-    return null;
-  }
-  if (typed.boolValue != null) {
-    return typed.boolValue;
-  }
-  if (typed.numberValue != null) {
-    return typed.numberValue;
-  }
-  if (typed.stringValue != null) {
-    return typed.stringValue;
-  }
-  if (typed.listValue != null) {
-    return (typed.listValue.values ?? []).map(unknownFromValue);
-  }
-  if (typed.structValue != null) {
-    return objectFromStruct(typed.structValue);
-  }
-  throw new Error('Invalid compiler option value in program selection archive');
 }
