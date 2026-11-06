@@ -31,6 +31,7 @@ import {
 } from '../../../src/jsts/program/tsconfig/options.js';
 import { clearProgramOptionsCache } from '../../../src/jsts/program/cache/programOptionsCache.js';
 import { clearTsConfigContentCache } from '../../../src/jsts/program/cache/tsconfigCache.js';
+import { getTypeScriptVersionSignal } from '../../../src/jsts/rules/helpers/dependency-manifests/dependencies.js';
 
 const fixtures = normalizeToAbsolutePath(path.join(normalizePath(import.meta.dirname), 'fixtures'));
 
@@ -338,6 +339,16 @@ describe('createProgramOptions', () => {
       expect(options.strict).toBeUndefined();
       expect(options.strictNullChecks).toBeUndefined();
       expect(options.noImplicitAny).toBeUndefined();
+    });
+
+    it('should use the TypeScript 6 fallback when the project version is unavailable', () => {
+      const baseDir = normalizeToAbsolutePath(path.join(fixtures, 'reference'));
+      const tsConfig = path.join(baseDir, 'tsconfig.json');
+      const { options } = createProgramOptions(tsConfig, undefined, true, undefined, baseDir);
+
+      expect(getTypeScriptVersionSignal(baseDir)).toBeNull();
+      expect(options.strict).toBeUndefined();
+      expect(options.strictNullChecks).toBeUndefined();
     });
   });
 

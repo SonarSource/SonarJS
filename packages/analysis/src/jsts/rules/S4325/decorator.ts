@@ -20,6 +20,7 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import ts from 'typescript';
+import { isStrictCompilerOptionEnabled } from 'ts-api-utils';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getTypeFromTreeNode } from '../helpers/type.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
@@ -209,7 +210,7 @@ function shouldSuppressNonNullAssertion(
   const tsNode = services.esTreeNodeToTSNodeMap.get(node.expression);
   const compilerOptions = services.program.getCompilerOptions();
 
-  if (compilerOptions.strictNullChecks || compilerOptions.strict) {
+  if (isStrictCompilerOptionEnabled(compilerOptions, 'strictNullChecks')) {
     const resolvedType = checker.getTypeAtLocation(tsNode);
     if (resolvedType.isUnion()) {
       return resolvedType.types.some(

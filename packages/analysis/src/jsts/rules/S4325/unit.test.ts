@@ -257,6 +257,98 @@ describe('S4325', () => {
     );
   });
 
+  it('uses TypeScript 6 implicit strictNullChecks for non-null assertions', () => {
+    const implicitStrictTester = new RuleTester({
+      parser,
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures/implicit-strict'),
+      },
+    });
+    const filename = path.join(import.meta.dirname, 'fixtures/implicit-strict/index.ts');
+    assert.doesNotThrow(() =>
+      implicitStrictTester.run('S4325 implicit strict null checks', rule, {
+        valid: [
+          {
+            code: `function passNullable(x: string | null): string | null { return x!; }`,
+            filename,
+          },
+        ],
+        invalid: [
+          {
+            code: `function redundant(x: string): string { return x!; }`,
+            output: `function redundant(x: string): string { return x; }`,
+            filename,
+            errors: 1,
+          },
+        ],
+      }),
+    );
+  });
+
+  it('keeps non-strict null assertion reports', () => {
+    const nonStrictTester = new RuleTester({
+      parser,
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures/no-strict-null-checks'),
+      },
+    });
+    assert.doesNotThrow(() =>
+      nonStrictTester.run('S4325 explicit non-strict null checks', rule, {
+        valid: [],
+        invalid: [
+          {
+            code: `function redundant(x: string | null): string { return x!; }`,
+            output: `function redundant(x: string | null): string { return x; }`,
+            filename: path.join(import.meta.dirname, 'fixtures/no-strict-null-checks/index.ts'),
+            errors: 1,
+          },
+        ],
+      }),
+    );
+  });
+
+  it('uses effective strictness when intercepting a non-null assertion report', () => {
+    const upstream: Rule.RuleModule = {
+      meta: { type: 'suggestion', fixable: 'code', messages: {} },
+      create(context) {
+        return {
+          TSNonNullExpression(node) {
+            context.report({ node, message: 'upstream non-null report' });
+          },
+        };
+      },
+    };
+    const decorated = decorate(upstream);
+    const code = `function f(x: string | null): string | null { return x!; }`;
+    const implicitRoot = path.join(import.meta.dirname, 'fixtures/implicit-strict');
+    assert.doesNotThrow(() => {
+      new RuleTester({
+        parser,
+        parserOptions: { project: './tsconfig.json', tsconfigRootDir: implicitRoot },
+      }).run('S4325 implicit strict report interception', decorated, {
+        valid: [{ code, filename: path.join(implicitRoot, 'index.ts') }],
+        invalid: [],
+      });
+
+      const nonStrictRoot = path.join(import.meta.dirname, 'fixtures/no-strict-null-checks');
+      new RuleTester({
+        parser,
+        parserOptions: { project: './tsconfig.json', tsconfigRootDir: nonStrictRoot },
+      }).run('S4325 explicit non-strict report interception', decorated, {
+        valid: [],
+        invalid: [
+          {
+            code,
+            filename: path.join(nonStrictRoot, 'index.ts'),
+            errors: [{ message: 'upstream non-null report' }],
+          },
+        ],
+      });
+    });
+  });
+
   it('should flag non-null assertions after null guard with strictNullChecks', () => {
     const strictNullTester = new RuleTester({
       parser,
