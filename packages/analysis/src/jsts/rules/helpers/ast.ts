@@ -173,17 +173,44 @@ export function isArrayExpression(node: estree.Node | undefined): node is estree
   return node?.type === 'ArrayExpression';
 }
 
+export function isTypeScriptExpressionWrapper(
+  node: TSESTree.Node,
+): node is TSESTree.Node & { expression: TSESTree.Expression } {
+  return (
+    node.type === 'TSNonNullExpression' ||
+    node.type === 'TSAsExpression' ||
+    node.type === 'TSSatisfiesExpression' ||
+    node.type === 'TSTypeAssertion'
+  );
+}
+
 export function unwrapTypeScriptExpression<T extends Node>(node: T): T {
   let unwrapped = node as unknown as TSESTree.Node;
-  while (
-    unwrapped.type === 'TSNonNullExpression' ||
-    unwrapped.type === 'TSAsExpression' ||
-    unwrapped.type === 'TSSatisfiesExpression' ||
-    unwrapped.type === 'TSTypeAssertion'
-  ) {
+  while (isTypeScriptExpressionWrapper(unwrapped)) {
     unwrapped = unwrapped.expression;
   }
   return unwrapped as unknown as T;
+}
+
+/**
+ * Returns whether an expression belongs to an optional chain, without crossing
+ * a chain boundary created by parentheses.
+ */
+export function isInOptionalChain(node: TSESTree.Node): boolean {
+  let current = unwrapTypeScriptExpression(node);
+  while (current.type === 'MemberExpression' || current.type === 'CallExpression') {
+    if (current.optional) {
+      return true;
+    }
+    if (current.type === 'MemberExpression') {
+      current = unwrapTypeScriptExpression(current.object);
+    } else if (current.callee.type !== 'Super') {
+      current = unwrapTypeScriptExpression(current.callee);
+    } else {
+      return false;
+    }
+  }
+  return false;
 }
 
 export function isRequireModule(node: estree.CallExpression, ...moduleNames: string[]) {
