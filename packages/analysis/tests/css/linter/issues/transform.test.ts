@@ -20,8 +20,34 @@ import { describe, it, beforeEach, afterEach, type Mock } from 'node:test';
 import { expect } from 'expect';
 import { normalizeToAbsolutePath } from '../../../../../shared/src/helpers/files.js';
 import { cssOnlyRuleKeys } from '../../../../src/css/linter/css-only-rules.js';
+import { meta as semicolonMeta } from '../../../../src/css/rules/S1116/meta.js';
 
 describe('transform', () => {
+  for (const { stylelintKey } of semicolonMeta.bindings) {
+    it(`reports only extra-semicolon findings for ${stylelintKey}`, () => {
+      const filePath = normalizeToAbsolutePath('/tmp/styles.css');
+      const results = [
+        {
+          source: filePath,
+          warnings: [
+            `Unrelated plugin advisory (${stylelintKey})`,
+            `Unexpected extra semicolon (${stylelintKey})`,
+          ].map(text => ({ rule: stylelintKey, text, line: 1, column: 1 })),
+        },
+      ] as unknown as stylelint.LintResult[];
+
+      expect(transform(results, filePath)).toEqual([
+        {
+          ruleId: stylelintKey,
+          message: 'Unexpected extra semicolon',
+          language: 'css',
+          line: 1,
+          column: 0,
+        },
+      ]);
+    });
+  }
+
   it('should transform Stylelint results into issues', () => {
     const filePath = normalizeToAbsolutePath('/tmp/path');
     const results = [

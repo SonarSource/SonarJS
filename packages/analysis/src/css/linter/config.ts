@@ -22,7 +22,7 @@ import postcssLess from 'postcss-less';
 import postcssHtmlConfig from 'stylelint-config-html/html.js';
 import postcssVueConfig from 'stylelint-config-html/vue.js';
 import { sonarRules } from '../rules/index.js';
-import { stylisticPlugins } from './stylistic-plugins.js';
+import stylisticPlugins from '@stylistic/stylelint-plugin';
 import { cssOnlyRuleKeys } from './css-only-rules.js';
 
 /**
