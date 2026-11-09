@@ -207,14 +207,15 @@ export const rule: Rule.RuleModule = {
             ts.TypeFlags.String |
             ts.TypeFlags.BigInt |
             ts.TypeFlags.Boolean |
-            ts.TypeFlags.Any |
-            ts.TypeFlags.Unknown |
             ts.TypeFlags.EnumLike)) !==
         0
       );
     }
 
-    function hasFalsyGuardWithinOrFallback(node: Rule.Node): boolean {
+    function hasGuardTypeWithinOrFallback(
+      node: Rule.Node,
+      predicate: (type: ts.Type) => boolean,
+    ): boolean {
       if (node.type !== 'LogicalExpression') {
         return false;
       }
@@ -240,7 +241,7 @@ export const rule: Rule.RuleModule = {
         return false;
       }
 
-      function containsFalsyGuard(expression: Rule.Node): boolean {
+      function containsMatchingGuard(expression: Rule.Node): boolean {
         if (expression.type !== 'LogicalExpression') {
           return false;
         }
@@ -250,18 +251,29 @@ export const rule: Rule.RuleModule = {
             const guardType: ts.Type =
               checker.getBaseConstraintOfType(rawGuardType) ?? rawGuardType;
             const types: ts.Type[] = guardType.isUnion() ? guardType.types : [guardType];
-            if (types.some(type => typeCanBeFalsy(type))) {
+            if (types.some(predicate)) {
               return true;
             }
           }
         }
         return (
-          containsFalsyGuard(expression.left as Rule.Node) ||
-          containsFalsyGuard(expression.right as Rule.Node)
+          containsMatchingGuard(expression.left as Rule.Node) ||
+          containsMatchingGuard(expression.right as Rule.Node)
         );
       }
 
-      return containsFalsyGuard(node);
+      return containsMatchingGuard(node);
+    }
+
+    function hasFalsyGuardWithinOrFallback(node: Rule.Node): boolean {
+      return hasGuardTypeWithinOrFallback(node, typeCanBeFalsy);
+    }
+
+    function hasUncertainGuardWithinOrFallback(node: Rule.Node): boolean {
+      return hasGuardTypeWithinOrFallback(
+        node,
+        type => (type.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown)) !== 0,
+      );
     }
 
     // Resolves the type as declared at the symbol's declaration site, bypassing
@@ -501,6 +513,11 @@ export const rule: Rule.RuleModule = {
 
       // A `||` fallback exposes the behavior change for falsy values in an `&&` guard.
       if (hasFalsyGuardWithinOrFallback(node)) {
+        return;
+      }
+      if (hasUncertainGuardWithinOrFallback(node)) {
+        const { fix: _fix, suggest: _suggest, ...rest } = descriptor;
+        ctx.report(rest);
         return;
       }
 

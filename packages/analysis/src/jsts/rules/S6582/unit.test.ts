@@ -189,6 +189,12 @@ describe('S6582 with strict: true (no explicit strictNullChecks)', () => {
           errors: 1,
         },
         {
+          code: `function f(item: any): unknown { return (item && item.constructor) || 'fallback'; }`,
+          filename: path.join(import.meta.dirname, 'fixtures/strict-mode/index.ts'),
+          output: null,
+          errors: [{ messageId: 'preferOptionalChain', suggestions: [] }],
+        },
+        {
           code: `function use(x: number) {} function f(arr: string[] | null) { use((arr && arr.length) || 0); }`,
           filename: path.join(import.meta.dirname, 'fixtures/strict-mode/index.ts'),
           errors: [
@@ -351,7 +357,14 @@ describe('S6582 JavaScript with explicit strictNullChecks', () => {
           filename: path.join(fixtureDir, 'index.js'),
         },
       ],
-      invalid: [],
+      invalid: [
+        {
+          code: `/** @param {any} item */ function f(item) { return (item && item.constructor) || 'fallback'; }`,
+          filename: path.join(fixtureDir, 'index.js'),
+          output: null,
+          errors: [{ messageId: 'preferOptionalChain', suggestions: [] }],
+        },
+      ],
     });
   });
 });
