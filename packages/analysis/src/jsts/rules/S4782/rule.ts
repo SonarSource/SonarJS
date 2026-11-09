@@ -19,6 +19,7 @@
 import type { AST, Rule } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
+import { isStrictCompilerOptionEnabled } from 'ts-api-utils';
 import ts from 'typescript';
 import { generateMeta } from '../helpers/generate-meta.js';
 import {
@@ -41,14 +42,13 @@ export const rule: Rule.RuleModule = {
     if (compilerOptions?.exactOptionalPropertyTypes) {
       return {};
     }
-    const canResolveTypes = hasTypeChecking
-      ? (compilerOptions?.strictNullChecks ?? compilerOptions?.strict ?? false)
-      : false;
+    const canResolveTypes =
+      compilerOptions !== undefined &&
+      isStrictCompilerOptionEnabled(compilerOptions, 'strictNullChecks');
 
     function checkProperty(node: estree.Node) {
       const tsNode = node as TSESTree.Node as
-        | TSESTree.PropertyDefinition
-        | TSESTree.TSPropertySignature;
+        TSESTree.PropertyDefinition | TSESTree.TSPropertySignature;
       const optionalToken = context.sourceCode.getFirstToken(node, token => token.value === '?');
       const rootType = tsNode.typeAnnotation?.typeAnnotation;
       if (!tsNode.optional || !optionalToken || !rootType) {

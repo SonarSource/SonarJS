@@ -9,17 +9,185 @@
 87,
 91
 ],
+"vuetify:packages/vuetify/src/components/VAutocomplete/VAutocomplete.sass": [
+62,
+67,
+75,
+85,
+97
+],
+"vuetify:packages/vuetify/src/components/VBanner/VBanner.sass": [
+89,
+95,
+98,
+101,
+104,
+105
+],
+"vuetify:packages/vuetify/src/components/VBtn/VBtn.sass": [
+170,
+171,
+172,
+177,
+182,
+187,
+192,
+196,
+200,
+203,
+209
+],
+"vuetify:packages/vuetify/src/components/VCalendar/VCalendarCategory.sass": [
+88
+],
+"vuetify:packages/vuetify/src/components/VCalendar/VCalendarWeekly.sass": [
+109
+],
+"vuetify:packages/vuetify/src/components/VCard/VCard.sass": [
+147
+],
+"vuetify:packages/vuetify/src/components/VCombobox/VCombobox.sass": [
+62,
+67,
+75,
+81,
+85,
+95
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerHeader.sass": [
+9
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerTable.sass": [
+30
+],
+"vuetify:packages/vuetify/src/components/VDialog/VDialog.sass": [
+36,
+74
+],
+"vuetify:packages/vuetify/src/components/VExpansionPanel/VExpansionPanel.sass": [
+68,
+113,
+132,
+155,
+158,
+162,
+169
+],
+"vuetify:packages/vuetify/src/components/VField/VField.sass": [
+226,
+227,
+235,
+236,
+240,
+297,
+402
+],
 "vuetify:packages/vuetify/src/components/VInput/VInput.sass": [
 74,
 75,
 79,
 82
 ],
+"vuetify:packages/vuetify/src/components/VList/VListItem.sass": [
+53,
+68
+],
+"vuetify:packages/vuetify/src/components/VOverflowBtn/VOverflowBtn.sass": [
+30,
+60,
+102,
+107,
+111,
+118
+],
+"vuetify:packages/vuetify/src/components/VPicker/VPicker.sass": [
+49
+],
+"vuetify:packages/vuetify/src/components/VProgressLinear/VProgressLinear.sass": [
+118,
+138
+],
+"vuetify:packages/vuetify/src/components/VSelect/VSelect.sass": [
+59,
+64
+],
+"vuetify:packages/vuetify/src/components/VSelectionControl/VSelectionControl.sass": [
+41
+],
+"vuetify:packages/vuetify/src/components/VSkeletonLoader/VSkeletonLoader.sass": [
+266,
+267,
+278,
+281,
+284,
+288,
+303,
+334,
+353
+],
 "vuetify:packages/vuetify/src/components/VSlider/VSlider.sass": [
 58
 ],
+"vuetify:packages/vuetify/src/components/VSlider/VSliderThumb.sass": [
+24
+],
+"vuetify:packages/vuetify/src/components/VSlider/VSliderTrack.sass": [
+64,
+149,
+155
+],
 "vuetify:packages/vuetify/src/components/VSpeedDial/VSpeedDial.sass": [
 67
+],
+"vuetify:packages/vuetify/src/components/VStepper/VStepper.sass": [
+33,
+42,
+150,
+200,
+221,
+224
+],
+"vuetify:packages/vuetify/src/components/VSwitch/VSwitch.sass": [
+77
+],
+"vuetify:packages/vuetify/src/components/VTable/VTable.sass": [
+30,
+31,
+56,
+57,
+79,
+80,
+84,
+146,
+156,
+157
+],
+"vuetify:packages/vuetify/src/components/VTabs/VTabs.sass": [
+37,
+42,
+45
+],
+"vuetify:packages/vuetify/src/components/VTextarea/VTextarea.sass": [
+45
+],
+"vuetify:packages/vuetify/src/components/VTimeline/VTimeline.sass": [
+203,
+224
+],
+"vuetify:packages/vuetify/src/components/VToolbar/VToolbar.sass": [
+64,
+88,
+95,
+110
+],
+"vuetify:packages/vuetify/src/components/VTreeview/VTreeview.sass": [
+35,
+67
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTable.sass": [
+60,
+71,
+79
 ],
 "vuetify:packages/vuetify/src/styles/generic/_reset.scss": [
 197,

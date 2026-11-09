@@ -1,0 +1,17 @@
+diff --git a/node_modules/sass-parser/package.json b/node_modules/sass-parser/package.json
+--- a/node_modules/sass-parser/package.json
++++ b/node_modules/sass-parser/package.json
+@@ -6,11 +6,11 @@
+   "author": "Google Inc.",
+   "license": "MIT",
+   "exports": {
+-    "types": "./dist/types/index.d.ts",
++    "types": "./dist/lib/index.d.ts",
+     "default": "./dist/lib/index.js"
+   },
+   "main": "dist/lib/index.js",
+-  "types": "dist/types/index.d.ts",
++  "types": "./dist/lib/index.d.ts",
+   "files": [
+     "dist/**/*.{js,d.ts}"
+   ],

@@ -234,7 +234,7 @@ a { color: pink !important; }
       (await lint('.a\n  margin: 0 !important\n', allRules, 'styles.sass'))
         .filter(byAnnotationOrImportant)
         .map(pick),
-    ).toEqual([[ANNOTATION_RULE, 2]]);
+    ).toEqual([[RULE, 2]]);
     expect(
       (await lint('a { color: pink !important; }\nb { color: red !imprtant; }', allRules))
         .filter(byAnnotationOrImportant)

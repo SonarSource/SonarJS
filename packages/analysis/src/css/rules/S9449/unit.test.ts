@@ -224,6 +224,11 @@ const valid: Sample[] = [
   { name: 'scss interpolation', code: 'a { transition: #{$motion}; }', codeFilename: 'test.scss' },
   { name: 'less interpolation', code: 'a { transition: @{motion}; }', codeFilename: 'test.less' },
   { name: 'sass named property', code: 'a\n  transition: opacity 1s\n', codeFilename: 'test.sass' },
+  {
+    name: 'sass mixin call after transition may override it',
+    code: 'a\n  transition: all 1s\n  +no-transition\n',
+    codeFilename: 'test.sass',
+  },
 ];
 
 const noncompliant: Sample[] = [
@@ -504,15 +509,6 @@ b {
   @include no-transition;
 }`,
     codeFilename: 'test.scss',
-  },
-  {
-    name: 'sass mixin call after transition, dropped by postcss-sass',
-    code: `a
-  transition: all 1s /* Noncompliant */
-/*            ^^^ */
-  +no-transition
-`,
-    codeFilename: 'test.sass',
   },
   {
     name: 'selector list mixing a vue transition class with another selector',

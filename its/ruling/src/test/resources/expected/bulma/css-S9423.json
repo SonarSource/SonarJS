@@ -1017,6 +1017,10 @@
 49,
 53
 ],
+"bulma:docs/_sass/example.sass": [
+142,
+243
+],
 "bulma:docs/_sass/global.sass": [
 44,
 80
@@ -1035,11 +1039,16 @@
 169
 ],
 "bulma:docs/_sass/specific.sass": [
+49,
 232,
 285,
 288,
 291,
 294
+],
+"bulma:docs/_sass/twitter.sass": [
+186,
+187
 ],
 "bulma:docs/css/bulma-docs.css": [
 625,
@@ -1565,10 +1574,18 @@
 14856,
 15256
 ],
+"bulma:sass/components/navbar.sass": [
+302,
+309
+],
 "bulma:sass/components/tabs.sass": [
 109
 ],
 "bulma:sass/elements/button.sass": [
+182,
+196,
+202,
+225,
 269,
 274
 ],
@@ -1578,14 +1595,41 @@
 "bulma:sass/form/tools.sass": [
 206
 ],
+"bulma:sass/grid/columns.sass": [
+456
+],
 "bulma:sass/grid/tiles.sass": [
+22,
 28
+],
+"bulma:sass/helpers/color.sass": [
+6,
+10,
+12,
+18,
+22,
+24,
+27,
+31,
+33,
+37,
+39
+],
+"bulma:sass/helpers/flexbox.sass": [
+4,
+9,
+14,
+19,
+24,
+29,
+35
 ],
 "bulma:sass/helpers/float.sass": [
 7,
 10
 ],
 "bulma:sass/helpers/other.sass": [
+4,
 7,
 10,
 11
@@ -1595,5 +1639,82 @@
 ],
 "bulma:sass/helpers/position.sass": [
 7
+],
+"bulma:sass/helpers/spacing.sass": [
+2,
+5,
+17,
+21,
+25,
+26,
+30,
+31
+],
+"bulma:sass/helpers/typography.sass": [
+7,
+33,
+38,
+41,
+44,
+47,
+50,
+53,
+56,
+59,
+62,
+65,
+68,
+71,
+74,
+77,
+79,
+81,
+83,
+85,
+88,
+91,
+94,
+97,
+100
+],
+"bulma:sass/helpers/visibility.sass": [
+7,
+10,
+13,
+16,
+19,
+22,
+25,
+28,
+31,
+34,
+37,
+40,
+41,
+42,
+43,
+44,
+45,
+46,
+47,
+51,
+55,
+59,
+63,
+67,
+71,
+75,
+79,
+83,
+86,
+90,
+94,
+98,
+102,
+106,
+110,
+114,
+118,
+122
 ]
 }

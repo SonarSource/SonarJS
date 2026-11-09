@@ -1101,23 +1101,14 @@
 11580,
 11682
 ],
-"bulma:docs/_sass/book.sass": [
-142
-],
 "bulma:docs/_sass/example.sass": [
-102,
-108,
-111,
 140,
 190,
-213,
-248,
-253
+213
 ],
 "bulma:docs/_sass/expo.sass": [
 29,
-33,
-50
+33
 ],
 "bulma:docs/_sass/footer.sass": [
 170
@@ -1142,8 +1133,7 @@
 ],
 "bulma:docs/_sass/main.sass": [
 162,
-184,
-214
+184
 ],
 "bulma:docs/_sass/native.sass": [
 63
@@ -1154,8 +1144,6 @@
 "bulma:docs/_sass/specific.sass": [
 21,
 25,
-142,
-150,
 270,
 321,
 326,
@@ -1168,8 +1156,7 @@
 114,
 120,
 123,
-126,
-153
+126
 ],
 "bulma:docs/css/bulma-docs.css": [
 67,
@@ -1932,6 +1919,17 @@
 "bulma:sass/components/message.sass": [
 90
 ],
+"bulma:sass/components/navbar.sass": [
+322,
+352,
+355,
+358,
+380,
+383,
+430,
+432,
+438
+],
 "bulma:sass/components/pagination.sass": [
 65,
 66,
@@ -1940,11 +1938,7 @@
 79,
 80,
 98,
-99,
-122,
-123,
-137,
-139
+99
 ],
 "bulma:sass/components/panel.sass": [
 115
@@ -1969,6 +1963,9 @@
 "bulma:sass/elements/tag.sass": [
 32,
 61
+],
+"bulma:sass/elements/title.sass": [
+56
 ],
 "bulma:sass/form/file.sass": [
 78,

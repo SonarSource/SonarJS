@@ -987,6 +987,40 @@ describe('S4782', () => {
       },
     );
 
+    const implicitStrictRuleTester = new RuleTester({
+      parser,
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures', 'implicit-strict'),
+      },
+    });
+    const implicitStrictFile = path.join(
+      import.meta.dirname,
+      'fixtures',
+      'implicit-strict',
+      'index.ts',
+    );
+    implicitStrictRuleTester.run(
+      'S4782 detects local undefined aliases with TypeScript 6 defaults',
+      rule,
+      {
+        valid: [
+          {
+            code: `interface Example { attribute?: string; }`,
+            filename: implicitStrictFile,
+          },
+        ],
+        invalid: [
+          {
+            code: `type MaybeString = string | undefined;
+            interface Example { attribute?: MaybeString; }`,
+            filename: implicitStrictFile,
+            errors: 1,
+          },
+        ],
+      },
+    );
+
     const noopRuleTester = new RuleTester({
       parser,
       ecmaVersion: 2018,

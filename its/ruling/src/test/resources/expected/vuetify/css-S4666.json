@@ -1,0 +1,81 @@
+{
+"vuetify:packages/vuetify/src/components/VAutocomplete/VAutocomplete.sass": [
+19,
+44
+],
+"vuetify:packages/vuetify/src/components/VBtn/VBtn.sass": [
+152,
+156,
+215,
+220,
+231,
+236,
+247
+],
+"vuetify:packages/vuetify/src/components/VCombobox/VCombobox.sass": [
+19,
+44
+],
+"vuetify:packages/vuetify/src/components/VExpansionPanel/VExpansionPanel.sass": [
+72,
+80,
+90,
+91
+],
+"vuetify:packages/vuetify/src/components/VField/VField.sass": [
+33,
+162,
+177,
+284
+],
+"vuetify:packages/vuetify/src/components/VList/VListItem.sass": [
+149
+],
+"vuetify:packages/vuetify/src/components/VOverflowBtn/VOverflowBtn.sass": [
+60
+],
+"vuetify:packages/vuetify/src/components/VProgressCircular/VProgressCircular.sass": [
+40
+],
+"vuetify:packages/vuetify/src/components/VSelect/VSelect.sass": [
+19
+],
+"vuetify:packages/vuetify/src/components/VSlider/VSliderThumb.sass": [
+24,
+64,
+77
+],
+"vuetify:packages/vuetify/src/components/VSlider/VSliderTrack.sass": [
+24,
+41
+],
+"vuetify:packages/vuetify/src/components/VStepper/VStepper.sass": [
+21
+],
+"vuetify:packages/vuetify/src/components/VSwitch/VSwitch.sass": [
+55
+],
+"vuetify:packages/vuetify/src/components/VTable/VTable.sass": [
+62
+],
+"vuetify:packages/vuetify/src/components/VTextField/VTextField.sass": [
+47,
+74
+],
+"vuetify:packages/vuetify/src/components/VTimePicker/VTimePickerClock.sass": [
+130
+],
+"vuetify:packages/vuetify/src/components/VTimeline/VTimeline.sass": [
+16,
+416,
+417,
+430,
+431
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTable.sass": [
+17
+],
+"vuetify:packages/vuetify/src/styles/tools/_variant.sass": [
+19
+]
+}
