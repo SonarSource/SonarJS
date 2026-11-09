@@ -18,10 +18,10 @@
 
 import type { Rule } from 'eslint';
 import ts from 'typescript';
+import { isStrictCompilerOptionEnabled } from 'ts-api-utils';
 import { rules as tsEslintRules } from '../external/typescript-eslint/index.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
-import { isStrictNullChecksEnabled } from '../helpers/compiler-options.js';
 import * as meta from './generated-meta.js';
 
 /**
@@ -138,7 +138,7 @@ export const rule: Rule.RuleModule = {
     const compilerOptions = services.program.getCompilerOptions();
     const hasConfiguredStrictness =
       compilerOptions.strictNullChecks != null || compilerOptions.strict != null;
-    const useContextualChecks = isStrictNullChecksEnabled(compilerOptions);
+    const useContextualChecks = isStrictCompilerOptionEnabled(compilerOptions, 'strictNullChecks');
     const isJavaScript = /\.[cm]?jsx?$/.test(context.filename);
     // Keep upstream behavior for JavaScript without an explicit strict setting.
     if (!useContextualChecks || (isJavaScript && !hasConfiguredStrictness)) {
@@ -179,12 +179,89 @@ export const rule: Rule.RuleModule = {
       if (node.type !== 'LogicalExpression') {
         return false;
       }
-      const guardType = getTypeOfNode(node.left as Rule.Node);
-      if (guardType == null) {
+      const rawGuardType = getTypeOfNode(node.left as Rule.Node);
+      if (rawGuardType == null) {
         return false;
       }
-      const types = guardType.isUnion() ? guardType.types : [guardType];
+      const guardType: ts.Type = checker.getBaseConstraintOfType(rawGuardType) ?? rawGuardType;
+      const types: ts.Type[] = guardType.isUnion() ? guardType.types : [guardType];
       return types.some(type => (type.flags & ts.TypeFlags.Null) !== 0);
+    }
+
+    function typeCanBeFalsy(type: ts.Type): boolean {
+      if (type.isNumberLiteral()) {
+        return type.value === 0;
+      }
+      if (type.isStringLiteral()) {
+        return type.value === '';
+      }
+      if (type.flags & ts.TypeFlags.BigIntLiteral) {
+        return (type as ts.BigIntLiteralType).value.base10Value === '0';
+      }
+      if (type.flags & ts.TypeFlags.BooleanLiteral) {
+        return checker.typeToString(type) === 'false';
+      }
+      return (
+        (type.flags &
+          (ts.TypeFlags.Number |
+            ts.TypeFlags.String |
+            ts.TypeFlags.BigInt |
+            ts.TypeFlags.Boolean |
+            ts.TypeFlags.Any |
+            ts.TypeFlags.Unknown |
+            ts.TypeFlags.EnumLike)) !==
+        0
+      );
+    }
+
+    function hasFalsyGuardWithinOrFallback(node: Rule.Node): boolean {
+      if (node.type !== 'LogicalExpression') {
+        return false;
+      }
+
+      let current: Rule.Node = node;
+      let hasOrFallback = false;
+      while (
+        current.parent?.type === 'LogicalExpression' &&
+        (current.parent.left === current || current.parent.right === current)
+      ) {
+        const parent: Rule.Node = current.parent;
+        if (
+          parent.type === 'LogicalExpression' &&
+          parent.operator === '||' &&
+          parent.left === current
+        ) {
+          hasOrFallback = true;
+          break;
+        }
+        current = parent;
+      }
+      if (!hasOrFallback) {
+        return false;
+      }
+
+      function containsFalsyGuard(expression: Rule.Node): boolean {
+        if (expression.type !== 'LogicalExpression') {
+          return false;
+        }
+        if (expression.operator === '&&') {
+          const rawGuardType = getTypeOfNode(expression.left as Rule.Node);
+          if (rawGuardType != null) {
+            const guardType: ts.Type =
+              checker.getBaseConstraintOfType(rawGuardType) ?? rawGuardType;
+            const types: ts.Type[] = guardType.isUnion() ? guardType.types : [guardType];
+            if (types.some(type => typeCanBeFalsy(type))) {
+              return true;
+            }
+          }
+        }
+        return (
+          containsFalsyGuard(expression.left as Rule.Node) ||
+          containsFalsyGuard(expression.right as Rule.Node)
+        );
+      }
+
+      return containsFalsyGuard(node);
     }
 
     // Resolves the type as declared at the symbol's declaration site, bypassing
@@ -419,6 +496,11 @@ export const rule: Rule.RuleModule = {
     return interceptReport(preferOptionalChainRule, (ctx, descriptor) => {
       const node = findReportNode(ctx, descriptor);
       if (!node) {
+        return;
+      }
+
+      // A `||` fallback exposes the behavior change for falsy values in an `&&` guard.
+      if (hasFalsyGuardWithinOrFallback(node)) {
         return;
       }
 

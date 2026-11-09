@@ -176,6 +176,10 @@ describe('S6582 with strict: true (no explicit strictNullChecks)', () => {
           code: `function getLen(arr: string[] | null): number | null { return arr && arr.length; }`,
           filename: path.join(import.meta.dirname, 'fixtures/strict-mode/index.ts'),
         },
+        {
+          code: `function f(n: number | null): string { return (n && n.toFixed()) || ''; }`,
+          filename: path.join(import.meta.dirname, 'fixtures/strict-mode/index.ts'),
+        },
       ],
       invalid: [
         {
@@ -240,6 +244,14 @@ describe('S6582 with implicit TypeScript 6 strictNullChecks', () => {
           filename,
         },
         {
+          code: `function f<T extends { a: number } | null>(x: T): number | null { return x && x.a; }`,
+          filename,
+        },
+        {
+          code: `function f(x: number | null, y: object): string { return (y && (x && x.toString())) || 'none'; }`,
+          filename,
+        },
+        {
           code: `function f(a: string[] | null, b: string[] | null) { if (!a || !b || a.length !== b.length) {} }`,
           filename,
         },
@@ -294,12 +306,6 @@ describe('S6582 with implicit TypeScript 6 strictNullChecks', () => {
           code: `interface Node { parent?: Node } function parent(node: Node): Node { return node && node.parent; }`,
           filename,
           output: `interface Node { parent?: Node } function parent(node: Node): Node { return node?.parent; }`,
-          errors: 1,
-        },
-        {
-          code: `function f(x: number | null, y: object): string { return (y && (x && x.toString())) || 'none'; }`,
-          filename,
-          output: null,
           errors: 1,
         },
         {
