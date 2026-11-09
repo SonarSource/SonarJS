@@ -127,9 +127,6 @@
 "vitest:packages/vitest/src/runtime/moduleRunner/nativeModuleMocker.ts": [
 189
 ],
-"vitest:packages/vitest/src/runtime/moduleRunner/startVitestModuleRunner.ts": [
-159
-],
 "vitest:packages/vitest/src/runtime/vm/esm-executor.ts": [
 196
 ],

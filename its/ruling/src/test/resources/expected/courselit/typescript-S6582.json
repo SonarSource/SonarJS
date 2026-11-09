@@ -31,7 +31,6 @@
 ],
 "courselit:apps/web/components/admin/settings.tsx": [
 191,
-449,
 452
 ],
 "courselit:apps/web/components/app-toast.tsx": [
@@ -99,11 +98,9 @@
 "courselit:packages/state-management/src/reducer.ts": [
 91,
 92,
-94,
 95,
 96,
-97,
-99
+97
 ],
 "courselit:packages/utils/src/fetch-builder.ts": [
 58
