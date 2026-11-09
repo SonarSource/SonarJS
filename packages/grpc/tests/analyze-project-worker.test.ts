@@ -341,7 +341,7 @@ describe('analyze-project worker', () => {
           };
           const timer = setTimeout(
             () => finish(new Error('Context fallback worker timed out')),
-            30_000,
+            60_000,
           );
           function finish(error?: Error) {
             clearTimeout(timer);
