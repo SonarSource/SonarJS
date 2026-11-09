@@ -147,7 +147,7 @@
     "protobufjs": "8.8.1",
     "sass-parser": "0.5.3",
     "scslre": "0.3.0",
-    "semver": "7.8.5",
+    "semver": "7.8.6",
     "stylelint": "17.16.0",
     "stylelint-config-html": "2.0.0",
     "ts-api-utils": "2.5.0",
