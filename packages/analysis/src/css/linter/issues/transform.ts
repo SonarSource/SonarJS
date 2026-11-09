@@ -20,19 +20,11 @@ import { debug, warn } from '../../../../../shared/src/helpers/logging.js';
 import type { CssIssue } from './issue.js';
 import type { NormalizedAbsolutePath } from '../../../../../shared/src/helpers/files.js';
 import { cssOnlyRuleKeys } from '../css-only-rules.js';
-import stylisticPlugins from '@stylistic/stylelint-plugin';
-import { meta as semicolonMeta } from '../../rules/S1116/meta.js';
 
-// S1116 has one violation message. Other messages under its bindings are plugin
-// configuration advisories, which must not become Sonar issues.
-const semicolonMessages = new Map(
-  stylisticPlugins.flatMap(plugin =>
-    'ruleName' in plugin &&
-    semicolonMeta.bindings.some(binding => binding.stylelintKey === plugin.ruleName)
-      ? [[plugin.ruleName, plugin.rule.messages.rejected] as const]
-      : [],
-  ),
-);
+// Plugin v6 reports these shared advisories under whichever rule runs first,
+// without a diagnostic code. They are not findings for any Sonar CSS rule.
+const CHARSET_ADVISORY =
+  'The "@stylistic/" rules pass over "@charset"; enable the "at-charset-rule-no-invalid" rule to have its spelling checked';
 
 const NON_CSS_LANGS = new Set(['scss', 'sass', 'less', 'stylus', 'styl']);
 
@@ -155,8 +147,14 @@ export function transform(
       continue;
     }
     for (const warning of result.warnings) {
-      const semicolonMessage = semicolonMessages.get(warning.rule);
-      if (semicolonMessage !== undefined && warning.text !== semicolonMessage) {
+      const message = normalizeMessage(warning.text);
+      if (
+        warning.rule.startsWith('@stylistic/') &&
+        (message === CHARSET_ADVISORY ||
+          message.startsWith(
+            `The "${warning.rule}" rule does not read a stylesheet parsed with this syntax`,
+          ))
+      ) {
         debug(warning.text);
         continue;
       }
@@ -181,7 +179,7 @@ export function transform(
         ruleId: warning.rule,
         line,
         column,
-        message: normalizeMessage(warning.text),
+        message,
         language: 'css',
       };
 
