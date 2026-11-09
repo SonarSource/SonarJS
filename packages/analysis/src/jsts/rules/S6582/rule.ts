@@ -18,6 +18,7 @@
 
 import type { Rule } from 'eslint';
 import ts from 'typescript';
+import { isStrictCompilerOptionEnabled } from 'ts-api-utils';
 import { rules as tsEslintRules } from '../external/typescript-eslint/index.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
@@ -135,7 +136,7 @@ export const rule: Rule.RuleModule = {
     // Without strictNullChecks, null and undefined are implicitly assignable to every type.
     // Any reasoning about whether undefined is safe to introduce is meaningless in that mode.
     const compilerOptions = services.program.getCompilerOptions();
-    if (!compilerOptions.strictNullChecks && !compilerOptions.strict) {
+    if (!isStrictCompilerOptionEnabled(compilerOptions, 'strictNullChecks')) {
       return preferOptionalChainRule.create(context);
     }
 

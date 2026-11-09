@@ -206,7 +206,7 @@ describe('S6582 with strict: true (no explicit strictNullChecks)', () => {
 });
 
 describe('S6582 without strictNullChecks', () => {
-  it('delegates when strict is false', () => {
+  it('delegates when strictNullChecks is false despite strict: true', () => {
     const ruleTester = new RuleTester({
       parserOptions: {
         project: './tsconfig.json',
@@ -217,7 +217,7 @@ describe('S6582 without strictNullChecks', () => {
       valid: [],
       invalid: [
         {
-          // Explicit non-strict mode disables contextual checks.
+          // The explicit strictNullChecks override disables contextual checks.
           code: `function getLen(arr: string[] | null): number | null { return arr && arr.length; }`,
           filename: path.join(import.meta.dirname, 'fixtures/no-strict-null-checks/index.ts'),
           errors: 1,
@@ -227,14 +227,14 @@ describe('S6582 without strictNullChecks', () => {
   });
 });
 
-describe('S6582 contextual and fallback checks', () => {
+describe('S6582 with implicit TypeScript 6 strictNullChecks', () => {
   it('suppresses null guards and keeps valid reports without unsafe fixes', () => {
-    const fixtureDir = path.join(import.meta.dirname, 'fixtures/strict-mode');
+    const fixtureDir = path.join(import.meta.dirname, 'fixtures/implicit-strict');
     const filename = path.join(fixtureDir, 'index.ts');
     const ruleTester = new RuleTester({
       parserOptions: { project: './tsconfig.json', tsconfigRootDir: fixtureDir },
     });
-    ruleTester.run('S6582 contextual and fallback checks', rule, {
+    ruleTester.run('S6582 implicit strict null checks', rule, {
       valid: [
         {
           code: `function getLen(arr: string[] | null): number | null { return arr && arr.length; }`,
@@ -292,6 +292,26 @@ describe('S6582 contextual and fallback checks', () => {
           output: `function f(x: { name: string }, y: object | null): string { return (y && x?.name) || 'none'; }`,
           filename,
           errors: 1,
+        },
+      ],
+    });
+  });
+});
+
+describe('S6582 JavaScript with implicit TypeScript 6 strictNullChecks', () => {
+  it('keeps reports without unsafe fixes when strict options are absent', () => {
+    const fixtureDir = path.join(import.meta.dirname, 'fixtures/implicit-strict-js');
+    const ruleTester = new RuleTester({
+      parserOptions: { project: './tsconfig.json', tsconfigRootDir: fixtureDir },
+    });
+    ruleTester.run('S6582 JavaScript implicit strict null checks', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: `var counts; function getCount(name) { return (counts && counts.get(name)) || 0; }`,
+          filename: path.join(fixtureDir, 'index.js'),
+          output: null,
+          errors: [{ messageId: 'preferOptionalChain', suggestions: [] }],
         },
       ],
     });
@@ -635,7 +655,7 @@ describe('S6582', () => {
 });
 
 describe('S6582 effective strictness', () => {
-  for (const profile of ['strict-mode', '.']) {
+  for (const profile of ['implicit-strict', 'strict-mode', '.']) {
     it(`uses the same type and runtime checks with ${profile}`, () => {
       const fixtureDir = path.join(import.meta.dirname, 'fixtures', profile);
       const filename = path.join(fixtureDir, 'index.ts');
@@ -729,7 +749,7 @@ describe('S6582 effective strictness', () => {
       });
     });
   }
-  for (const profile of ['explicit-strict-js']) {
+  for (const profile of ['implicit-strict-js', 'explicit-strict-js']) {
     it(`uses the same JavaScript checks with ${profile}`, () => {
       const fixtureDir = path.join(import.meta.dirname, 'fixtures', profile);
       const filename = path.join(fixtureDir, 'index.js');
