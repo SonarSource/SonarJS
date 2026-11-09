@@ -19,12 +19,17 @@ import { expect } from 'expect';
 import { meta } from './meta.js';
 import { LinterWrapper } from '../../linter/wrapper.js';
 import { normalizeToAbsolutePath } from '../../../../../shared/src/helpers/files.js';
+import { reverseCssRuleKeyMap } from '../metadata.js';
+import stylelint from 'stylelint';
+import { createStylelintConfig } from '../../linter/config.js';
 
 const RULE = meta.bindings[0].stylelintKey;
 
 async function lint(extension: string, code: string) {
   const linter = new LinterWrapper();
-  linter.initialize([{ key: RULE, configurations: [] }]);
+  linter.initialize(
+    meta.bindings.map(({ stylelintKey }) => ({ key: stylelintKey, configurations: [] })),
+  );
   return (await linter.lint(normalizeToAbsolutePath(`input.${extension}`), code)).issues;
 }
 
@@ -34,15 +39,17 @@ describe('S1116', () => {
       expect(await lint(extension, 'a { color: red; content: ";;"; /* ;; */ }')).toEqual([]);
     });
 
-    it(`reports an extra semicolon in ${extension} under the Sonar binding`, async () => {
-      expect(await lint(extension, 'a { top: 6%;; }')).toEqual([
+    it(`reports an extra semicolon in ${extension} under its declared binding`, async () => {
+      const issues = await lint(extension, 'a { top: 6%;; }');
+      expect(issues).toEqual([
         expect.objectContaining({
-          ruleId: RULE,
+          ruleId: extension === 'css' ? RULE : `@stylistic/${extension}/no-extra-semicolons`,
           message: 'Unexpected extra semicolon',
           line: 1,
           column: 12,
         }),
       ]);
+      expect(reverseCssRuleKeyMap.get(issues[0].ruleId)).toBe('S1116');
     });
   }
 
@@ -61,8 +68,12 @@ describe('S1116', () => {
       const issues = await lint(extension, code);
       expect(issues).toHaveLength(3);
       expect(issues).toEqual(
-        [1, 2, 3].map(line =>
-          expect.objectContaining({ ruleId: RULE, message: 'Unexpected extra semicolon', line }),
+        meta.bindings.map(({ stylelintKey }, index) =>
+          expect.objectContaining({
+            ruleId: stylelintKey,
+            message: 'Unexpected extra semicolon',
+            line: index + 1,
+          }),
         ),
       );
     });
@@ -91,6 +102,17 @@ describe('S1116', () => {
         line: 2,
         column: 12,
       }),
+    ]);
+  });
+
+  it('preserves structured invalid-option diagnostics from the plugin', async () => {
+    const result = await stylelint.lint({
+      code: 'a { color: red; }',
+      codeFilename: normalizeToAbsolutePath('input.css'),
+      config: createStylelintConfig([{ key: RULE, configurations: ['invalid'] }]),
+    });
+    expect(result.results[0].invalidOptionWarnings).toEqual([
+      { text: `Unexpected option value "invalid" for rule "${RULE}"` },
     ]);
   });
 });

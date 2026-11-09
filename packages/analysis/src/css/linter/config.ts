@@ -22,7 +22,7 @@ import postcssLess from 'postcss-less';
 import postcssHtmlConfig from 'stylelint-config-html/html.js';
 import postcssVueConfig from 'stylelint-config-html/vue.js';
 import { sonarRules } from '../rules/index.js';
-import stylisticPlugins from '@stylistic/stylelint-plugin';
+import { stylisticPlugins } from './stylistic-plugins.js';
 import { cssOnlyRuleKeys } from './css-only-rules.js';
 
 /**
@@ -77,13 +77,6 @@ export function createStylelintConfig(rules: RuleConfig[]): stylelint.Config {
       cssOnlyRules[key] = value;
     } else {
       configRules[key] = value;
-      if (key.startsWith('@stylistic/')) {
-        // Plugin v6 selects one configured namespace per parsed root, including
-        // individual style blocks in HTML/Vue documents.
-        const name = key.slice('@stylistic/'.length);
-        configRules[`@stylistic/scss/${name}`] = value;
-        configRules[`@stylistic/less/${name}`] = value;
-      }
     }
   }
   return {

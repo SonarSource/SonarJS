@@ -142,17 +142,6 @@ export function transform(
       continue;
     }
     for (const warning of result.warnings) {
-      const message = normalizeMessage(warning.text);
-      // Plugin v6 reports this configuration advisory with an ordinary rule ID.
-      // It says nothing about extra semicolons and must not become an S1116 issue.
-      if (
-        warning.rule.startsWith('@stylistic/') &&
-        message ===
-          'The "@stylistic/" rules pass over "@charset"; enable the "at-charset-rule-no-invalid" rule to have its spelling checked'
-      ) {
-        debug(message);
-        continue;
-      }
       // CSS-only rules must not report on non-CSS embedded blocks (e.g. <style lang="scss">).
       if (cssOnlyRuleKeys.has(warning.rule) && isInNonCssEmbeddedBlock(warning, result)) {
         continue;
@@ -170,11 +159,10 @@ export function transform(
       }
 
       const issue: CssIssue = {
-        // All syntax variants retain the key configured by the Sonar quality profile.
-        ruleId: warning.rule.replace(/^@stylistic\/(?:scss|less)\//, '@stylistic/'),
+        ruleId: warning.rule,
         line,
         column,
-        message,
+        message: normalizeMessage(warning.text),
         language: 'css',
       };
 

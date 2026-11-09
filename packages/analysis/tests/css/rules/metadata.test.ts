@@ -65,4 +65,15 @@ describe('CSS rule registry', () => {
     assert.ok(!cssOnlyRuleKeys.has('sonar/no-commented-code'));
     assert.ok(!cssOnlyRuleKeys.has('color-no-invalid-hex'));
   });
+
+  it('maps every S1116 syntax binding through the shared registry', () => {
+    assert.deepEqual(
+      cssRulesMeta.filter(meta => meta.sqKey === 'S1116').map(meta => meta.stylelintKey),
+      [
+        '@stylistic/no-extra-semicolons',
+        '@stylistic/scss/no-extra-semicolons',
+        '@stylistic/less/no-extra-semicolons',
+      ],
+    );
+  });
 });
