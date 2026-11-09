@@ -23,6 +23,119 @@ import { toInternalMetricsSettings } from '../helpers/internal-metrics.js';
 import { expect } from 'expect';
 
 describe('S3776', () => {
+  it('should preserve logical sequences through TypeScript expressions', () => {
+    const wrappers = [
+      '(EXPRESSION) as boolean',
+      '(EXPRESSION) satisfies boolean',
+      '(EXPRESSION)!',
+      '<boolean>(EXPRESSION)',
+      '((EXPRESSION) as boolean)! satisfies boolean',
+    ];
+    const ruleTester = new NoTypeCheckingRuleTester();
+    ruleTester.run('logical sequences through TypeScript expressions', rule, {
+      valid: wrappers.map(wrapper => ({
+        filename: 'input.ts',
+        code: `function foo(a, b, c) {
+          ${Array.from({ length: 8 }, () => `use((${wrapper.replace('EXPRESSION', 'a && b')}) && c);`).join('\n')}
+        }`,
+      })),
+      invalid: wrappers.flatMap(wrapper =>
+        [
+          { expression: `(${wrapper.replace('EXPRESSION', 'a && b')}) && c`, score: 1 },
+          { expression: `a && (${wrapper.replace('EXPRESSION', 'b && c')})`, score: 1 },
+          { expression: `(${wrapper.replace('EXPRESSION', 'a && b')}) || c && d`, score: 2 },
+          { expression: `a && (${wrapper.replace('EXPRESSION', 'b || c')})`, score: 1 },
+        ].map(({ expression, score }) => ({
+          filename: 'input.ts',
+          code: `function foo(a, b, c, d) { return ${expression}; }`,
+          options: [0],
+          errors: [message(score)],
+        })),
+      ),
+    });
+  });
+
+  it('should preserve JSX short-circuit exemptions through TypeScript expressions', () => {
+    const wrappers = [
+      '(EXPRESSION) as React.ReactNode',
+      '(EXPRESSION) satisfies React.ReactNode',
+      '(EXPRESSION)!',
+      '((EXPRESSION) as React.ReactNode)! satisfies React.ReactNode',
+    ];
+    const ruleTester = new NoTypeCheckingRuleTester();
+    ruleTester.run('JSX short circuits through TypeScript expressions', rule, {
+      valid: wrappers.flatMap(wrapper => [
+        {
+          code: `function Component() { return <>{${wrapper.replace('EXPRESSION', 'ready && <Row />')}}</>; }`,
+          options: [0],
+        },
+        {
+          code: `function Component() { return <>{ready && (${wrapper.replace('EXPRESSION', 'other && <Row />')})}</>; }`,
+          options: [0],
+        },
+        {
+          code: `function Component() { return <>${Array.from({ length: 16 }, () => `{${wrapper.replace('EXPRESSION', 'ready && <Row />')}}`).join('')}</>; }`,
+        },
+      ]),
+      invalid: wrappers.flatMap(wrapper => [
+        {
+          code: `function Component() { return <>{ready && (${wrapper.replace('EXPRESSION', 'other ? <Row /> : null')})}</>; }`,
+          options: [0],
+          errors: [message(2)],
+        },
+        {
+          code: `function Component() { return <>{ready && (${wrapper.replace('EXPRESSION', 'other || <Row />')})}</>; }`,
+          options: [0],
+          errors: [message(1)],
+        },
+      ]),
+    });
+  });
+
+  it('should balance file nesting across nested ternary function branches', () => {
+    const linter = new ESLintLinter();
+    for (const { initializer, fileComplexity, functionScores } of [
+      { initializer: 'flag ? () => {} : null', fileComplexity: 5, functionScores: [2, 1, 1] },
+      { initializer: 'flag ? null : () => {}', fileComplexity: 5, functionScores: [2, 1, 1] },
+      { initializer: 'flag ? () => {} : () => {}', fileComplexity: 5, functionScores: [2, 1, 1] },
+      { initializer: 'flag ? function () {} : null', fileComplexity: 5, functionScores: [2, 1, 1] },
+      {
+        initializer: 'flag ? () => { if (d) {} } : null',
+        fileComplexity: 9,
+        functionScores: [2, 1, 1, 1],
+      },
+      {
+        initializer: '() => { if (d) {} }',
+        fileComplexity: 6,
+        functionScores: [2, 1, 1],
+      },
+    ]) {
+      const sink = {};
+      const messages = linter.verify(
+        `function outer() {
+          if (a) {}
+          function middle() {
+            const callback = ${initializer};
+          }
+          if (b) {}
+        }
+        function next() { if (c) {} }`,
+        {
+          plugins: { sonarjs: { rules: { S3776: rule } } },
+          rules: { 'sonarjs/S3776': ['error', 0] },
+          settings: toInternalMetricsSettings(sink),
+        },
+      );
+      expect(sink).toEqual({ cognitiveComplexity: fileComplexity });
+      expect(messages.map(({ message }) => message)).toEqual(
+        functionScores.map(
+          score =>
+            `Refactor this function to reduce its Cognitive Complexity from ${score} to the 0 allowed.`,
+        ),
+      );
+    }
+  });
+
   it('should not carry ternary function nesting into subsequent control flow', () => {
     const initializers = [
       'flag ? () => 1 : null',

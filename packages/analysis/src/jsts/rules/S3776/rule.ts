@@ -33,6 +33,7 @@ import {
   isFunctionNode,
   isIfStatement,
   isLogicalExpression,
+  unwrapTypeScriptExpression,
 } from '../helpers/ast.js';
 import { last } from '../helpers/collection.js';
 import type { Rule } from 'eslint';
@@ -213,7 +214,6 @@ export const rule: Rule.RuleModule = {
         complexityIfNested = [];
       } else {
         nesting++;
-        nestingNodes.add(node);
       }
 
       enclosingFunctions.push(node);
@@ -222,6 +222,9 @@ export const rule: Rule.RuleModule = {
     }
 
     function onLeaveFunction(node: TSESTree.FunctionLike) {
+      if (enclosingFunctions.length > 2) {
+        nesting--;
+      }
       const functionComplexity = functionOwnComplexity.pop();
       functionOwnControlFlowNesting.pop();
 
@@ -389,6 +392,7 @@ export const rule: Rule.RuleModule = {
     }
 
     function flattenLogicalExpression(node: TSESTree.Node): TSESTree.LogicalExpression[] {
+      node = unwrapTypeScriptExpression(node);
       if (isLogicalExpression(node)) {
         consideredLogicalExpressions.add(node);
         return [
