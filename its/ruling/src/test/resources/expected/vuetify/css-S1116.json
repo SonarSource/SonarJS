@@ -1,0 +1,290 @@
+{
+"vuetify:packages/docs/src/examples/v-calendar/misc-drag-and-drop.vue": [
+188
+],
+"vuetify:packages/docs/src/examples/v-calendar/slot-day-body.vue": [
+60
+],
+"vuetify:packages/vuetify/_settings.scss": [
+1
+],
+"vuetify:packages/vuetify/_styles.scss": [
+1
+],
+"vuetify:packages/vuetify/_tools.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VAlert/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VApp/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VAppBar/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VAutocomplete/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VAvatar/_mixins.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VAvatar/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VBadge/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VBanner/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VBottomNavigation/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VBottomSheet/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VBreadcrumbs/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VBtn/_mixins.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VBtn/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VBtnGroup/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VBtnToggle/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VCalendar/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VCard/_mixins.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VCard/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VCarousel/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VCheckbox/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VChip/_mixins.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VChip/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VChipGroup/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VCode/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VColorPicker/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VCombobox/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VCounter/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VDataIterator/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VDialog/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VDivider/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VExpansionPanel/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VField/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VFileInput/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VFooter/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VIcon/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VImg/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VInput/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VItemGroup/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VKbd/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VLabel/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VList/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VMain/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VMenu/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VMessages/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VNavigationDrawer/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VOtpInput/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VOverflowBtn/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VOverlay/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VPagination/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VPicker/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VProgressCircular/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VProgressLinear/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VRadioGroup/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VRating/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VSelect/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VSelectionControl/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VSelectionControlGroup/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VSheet/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VSkeletonLoader/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VSlideGroup/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VSlider/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VSnackbar/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VSpeedDial/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VStepper/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VSwitch/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VSystemBar/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VTable/_mixins.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VTable/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VTabs/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VTextField/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VTextarea/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VTimePicker/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VTimeline/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VToolbar/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VTooltip/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VTreeview/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/components/VWindow/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/directives/ripple/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/styles/generic/_animations.scss": [
+1
+],
+"vuetify:packages/vuetify/src/styles/generic/_colors.scss": [
+1
+],
+"vuetify:packages/vuetify/src/styles/generic/_index.scss": [
+1
+],
+"vuetify:packages/vuetify/src/styles/generic/_reset.scss": [
+1
+],
+"vuetify:packages/vuetify/src/styles/generic/_rtl.scss": [
+1
+],
+"vuetify:packages/vuetify/src/styles/generic/_transitions.scss": [
+1
+],
+"vuetify:packages/vuetify/src/styles/settings/_colors.scss": [
+1
+],
+"vuetify:packages/vuetify/src/styles/settings/_elevations.scss": [
+1
+],
+"vuetify:packages/vuetify/src/styles/settings/_utilities.scss": [
+1
+],
+"vuetify:packages/vuetify/src/styles/settings/_variables.scss": [
+1
+],
+"vuetify:packages/vuetify/src/styles/utilities/_elevation.scss": [
+1
+]
+}

@@ -1,0 +1,50 @@
+{
+"moose:renderer/components/Cast/Cast.module.scss": [
+1
+],
+"moose:renderer/components/CastControl/CastControl.module.scss": [
+1
+],
+"moose:renderer/components/Downloads/Downloads.module.scss": [
+1
+],
+"moose:renderer/components/DropUI/DropUI.module.scss": [
+1
+],
+"moose:renderer/components/FilesList/FilesList.module.scss": [
+1
+],
+"moose:renderer/components/Header/Header.module.scss": [
+1
+],
+"moose:renderer/components/Message/Message.module.scss": [
+1
+],
+"moose:renderer/components/MiniPlayer/MiniPlayer.module.scss": [
+1
+],
+"moose:renderer/components/Modal/Modal.module.scss": [
+1
+],
+"moose:renderer/components/Player/Player.module.scss": [
+1
+],
+"moose:renderer/components/Preferences/Preferences.module.scss": [
+1
+],
+"moose:renderer/components/Settings/settings.module.scss": [
+1
+],
+"moose:renderer/components/Toast/Toast.module.scss": [
+1
+],
+"moose:renderer/components/TorrentDetails/TorrentDetails.module.scss": [
+1
+],
+"moose:renderer/styles/main.scss": [
+1
+],
+"moose:website/src/styles/main.scss": [
+1
+]
+}

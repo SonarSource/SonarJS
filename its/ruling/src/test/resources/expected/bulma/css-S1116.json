@@ -1,0 +1,53 @@
+{
+"bulma:bulma-rtl.sass": [
+1
+],
+"bulma:bulma.sass": [
+1
+],
+"bulma:docs/bulma-docs.sass": [
+1
+],
+"bulma:docs/css/bulma-docs.css": [
+1
+],
+"bulma:sass/base/_all.sass": [
+1
+],
+"bulma:sass/components/_all.sass": [
+1
+],
+"bulma:sass/elements/_all.sass": [
+1
+],
+"bulma:sass/form/_all.sass": [
+1
+],
+"bulma:sass/grid/_all.sass": [
+1
+],
+"bulma:sass/helpers/_all.sass": [
+1
+],
+"bulma:sass/layout/_all.sass": [
+1
+],
+"bulma:sass/utilities/_all.sass": [
+1
+],
+"bulma:test/ruby-sass/sass/bulma.sass": [
+1
+],
+"bulma:test/ruby-sass/sass/css-variable.sass": [
+1
+],
+"bulma:test/ruby-sass/sass/customize.scss": [
+1
+],
+"bulma:test/ruby-sass/sass/only-base.sass": [
+1
+],
+"bulma:test/ruby-sass/sass/override.scss": [
+1
+]
+}

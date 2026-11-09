@@ -1,0 +1,32 @@
+{
+"fireface:src/app-header/app-header.component.scss": [
+1
+],
+"fireface:src/app/app.component.scss": [
+1
+],
+"fireface:src/avatar/avatar.component.scss": [
+1
+],
+"fireface:src/create/create.component.scss": [
+1
+],
+"fireface:src/gallery/gallery.component.scss": [
+1
+],
+"fireface:src/landing/landing.component.scss": [
+1
+],
+"fireface:src/sign-in/sign-in.component.scss": [
+1
+],
+"fireface:src/storage/storage.component.scss": [
+1
+],
+"fireface:src/styles.scss": [
+1
+],
+"fireface:src/theme.scss": [
+1
+]
+}

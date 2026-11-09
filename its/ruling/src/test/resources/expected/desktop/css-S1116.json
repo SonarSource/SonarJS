@@ -1,0 +1,473 @@
+{
+"desktop:app/src/crash/styles/crash.scss": [
+1
+],
+"desktop:app/styles/_globals.scss": [
+1
+],
+"desktop:app/styles/_mixins.scss": [
+1
+],
+"desktop:app/styles/_type.scss": [
+1
+],
+"desktop:app/styles/_ui.scss": [
+1
+],
+"desktop:app/styles/_variables.scss": [
+1
+],
+"desktop:app/styles/_vendor.scss": [
+1
+],
+"desktop:app/styles/desktop.scss": [
+1
+],
+"desktop:app/styles/mixins/_checkboard-background.scss": [
+1
+],
+"desktop:app/styles/mixins/_close-button.scss": [
+1
+],
+"desktop:app/styles/mixins/_ellipsis.scss": [
+1
+],
+"desktop:app/styles/mixins/_high-contrast.scss": [
+1
+],
+"desktop:app/styles/mixins/_list-item.scss": [
+1
+],
+"desktop:app/styles/mixins/_octicon-status.scss": [
+1
+],
+"desktop:app/styles/mixins/_platform.scss": [
+1
+],
+"desktop:app/styles/mixins/_textboxish.scss": [
+1
+],
+"desktop:app/styles/themes/_dark.scss": [
+1
+],
+"desktop:app/styles/themes/_high-contrast.scss": [
+1
+],
+"desktop:app/styles/ui/_about.scss": [
+1
+],
+"desktop:app/styles/ui/_acknowledgements.scss": [
+1
+],
+"desktop:app/styles/ui/_add-repository.scss": [
+1
+],
+"desktop:app/styles/ui/_app-menu.scss": [
+1
+],
+"desktop:app/styles/ui/_app.scss": [
+1
+],
+"desktop:app/styles/ui/_author-input.scss": [
+1
+],
+"desktop:app/styles/ui/_autocompletion.scss": [
+1
+],
+"desktop:app/styles/ui/_avatar-stack.scss": [
+1
+],
+"desktop:app/styles/ui/_avatar.scss": [
+1
+],
+"desktop:app/styles/ui/_banners.scss": [
+1
+],
+"desktop:app/styles/ui/_branches.scss": [
+1
+],
+"desktop:app/styles/ui/_button.scss": [
+1
+],
+"desktop:app/styles/ui/_call-to-action.scss": [
+1
+],
+"desktop:app/styles/ui/_changes.scss": [
+1
+],
+"desktop:app/styles/ui/_checkbox.scss": [
+1
+],
+"desktop:app/styles/ui/_ci-status.scss": [
+1
+],
+"desktop:app/styles/ui/_cloneable-repository-filter-list.scss": [
+1
+],
+"desktop:app/styles/ui/_cloning-repository-view.scss": [
+1
+],
+"desktop:app/styles/ui/_codemirror.scss": [
+1
+],
+"desktop:app/styles/ui/_commit-attribution.scss": [
+1
+],
+"desktop:app/styles/ui/_commit-details.scss": [
+1
+],
+"desktop:app/styles/ui/_commit-message-avatar.scss": [
+1
+],
+"desktop:app/styles/ui/_config-lock-file-exists.scss": [
+1
+],
+"desktop:app/styles/ui/_configure-git-user.scss": [
+1
+],
+"desktop:app/styles/ui/_dialog.scss": [
+1
+],
+"desktop:app/styles/ui/_diff-options.scss": [
+1
+],
+"desktop:app/styles/ui/_diff.scss": [
+1
+],
+"desktop:app/styles/ui/_discard-changes-retry.scss": [
+1
+],
+"desktop:app/styles/ui/_discard-changes.scss": [
+1
+],
+"desktop:app/styles/ui/_drag-elements.scss": [
+1
+],
+"desktop:app/styles/ui/_drag-overlay.scss": [
+1
+],
+"desktop:app/styles/ui/_dropdown-select-button.scss": [
+1
+],
+"desktop:app/styles/ui/_emoji.scss": [
+1
+],
+"desktop:app/styles/ui/_errors.scss": [
+1
+],
+"desktop:app/styles/ui/_fancy-text-box.scss": [
+1
+],
+"desktop:app/styles/ui/_file-list.scss": [
+1
+],
+"desktop:app/styles/ui/_filter-list.scss": [
+1
+],
+"desktop:app/styles/ui/_foldout.scss": [
+1
+],
+"desktop:app/styles/ui/_form.scss": [
+1
+],
+"desktop:app/styles/ui/_git-email-not-found-warning.scss": [
+1
+],
+"desktop:app/styles/ui/_history.scss": [
+1
+],
+"desktop:app/styles/ui/_horizontal-rule.scss": [
+1
+],
+"desktop:app/styles/ui/_initialize-lfs.scss": [
+1
+],
+"desktop:app/styles/ui/_list-item-insertion-overlay.scss": [
+1
+],
+"desktop:app/styles/ui/_list.scss": [
+1
+],
+"desktop:app/styles/ui/_local-changes-overwritten.scss": [
+1
+],
+"desktop:app/styles/ui/_merge-status.scss": [
+1
+],
+"desktop:app/styles/ui/_missing-repository-view.scss": [
+1
+],
+"desktop:app/styles/ui/_no-branches.scss": [
+1
+],
+"desktop:app/styles/ui/_no-repositories.scss": [
+1
+],
+"desktop:app/styles/ui/_octicons.scss": [
+1
+],
+"desktop:app/styles/ui/_panel.scss": [
+1
+],
+"desktop:app/styles/ui/_path-label.scss": [
+1
+],
+"desktop:app/styles/ui/_path-text.scss": [
+1
+],
+"desktop:app/styles/ui/_popover.scss": [
+1
+],
+"desktop:app/styles/ui/_popup.scss": [
+1
+],
+"desktop:app/styles/ui/_preferences.scss": [
+1
+],
+"desktop:app/styles/ui/_progress.scss": [
+1
+],
+"desktop:app/styles/ui/_pull-request-badge.scss": [
+1
+],
+"desktop:app/styles/ui/_pull-request-checks-failed.scss": [
+1
+],
+"desktop:app/styles/ui/_pull-request-quick-view.scss": [
+1
+],
+"desktop:app/styles/ui/_pull-request-review.scss": [
+1
+],
+"desktop:app/styles/ui/_radio-button.scss": [
+1
+],
+"desktop:app/styles/ui/_ref-name-text-box.scss": [
+1
+],
+"desktop:app/styles/ui/_ref.scss": [
+1
+],
+"desktop:app/styles/ui/_repository-list.scss": [
+1
+],
+"desktop:app/styles/ui/_repository.scss": [
+1
+],
+"desktop:app/styles/ui/_resizable.scss": [
+1
+],
+"desktop:app/styles/ui/_row.scss": [
+1
+],
+"desktop:app/styles/ui/_sandboxed-markdown.scss": [
+1
+],
+"desktop:app/styles/ui/_scroll.scss": [
+1
+],
+"desktop:app/styles/ui/_select.scss": [
+1
+],
+"desktop:app/styles/ui/_side-by-side-diff.scss": [
+1
+],
+"desktop:app/styles/ui/_stash-diff-viewer.scss": [
+1
+],
+"desktop:app/styles/ui/_tab-bar.scss": [
+1
+],
+"desktop:app/styles/ui/_terms-and-conditions.scss": [
+1
+],
+"desktop:app/styles/ui/_text-area.scss": [
+1
+],
+"desktop:app/styles/ui/_text-box.scss": [
+1
+],
+"desktop:app/styles/ui/_ui-view.scss": [
+1
+],
+"desktop:app/styles/ui/_vertical-segmented-control.scss": [
+1
+],
+"desktop:app/styles/ui/_welcome.scss": [
+1
+],
+"desktop:app/styles/ui/banners/_conflicts.scss": [
+1
+],
+"desktop:app/styles/ui/banners/_open_thank_you_card.scss": [
+1
+],
+"desktop:app/styles/ui/banners/_successful.scss": [
+1
+],
+"desktop:app/styles/ui/banners/_update-available.scss": [
+1
+],
+"desktop:app/styles/ui/changes/_changes-list.scss": [
+1
+],
+"desktop:app/styles/ui/changes/_changes-view.scss": [
+1
+],
+"desktop:app/styles/ui/changes/_commit-message.scss": [
+1
+],
+"desktop:app/styles/ui/changes/_commit-warning.scss": [
+1
+],
+"desktop:app/styles/ui/changes/_continue-rebase.scss": [
+1
+],
+"desktop:app/styles/ui/changes/_no-changes.scss": [
+1
+],
+"desktop:app/styles/ui/changes/_oversized-files-warning.scss": [
+1
+],
+"desktop:app/styles/ui/changes/_undo-commit.scss": [
+1
+],
+"desktop:app/styles/ui/check-runs/_ci-check-run-job-steps.scss": [
+1
+],
+"desktop:app/styles/ui/check-runs/_ci-check-run-list-item.scss": [
+1
+],
+"desktop:app/styles/ui/check-runs/_ci-check-run-list.scss": [
+1
+],
+"desktop:app/styles/ui/check-runs/_ci-check-run-popover.scss": [
+1
+],
+"desktop:app/styles/ui/dialogs/_abort-merge.scss": [
+1
+],
+"desktop:app/styles/ui/dialogs/_cherry-pick.scss": [
+1
+],
+"desktop:app/styles/ui/dialogs/_choose-branch.scss": [
+1
+],
+"desktop:app/styles/ui/dialogs/_ci-check-run-rerun.scss": [
+1
+],
+"desktop:app/styles/ui/dialogs/_commit-conflicts-warning.scss": [
+1
+],
+"desktop:app/styles/ui/dialogs/_commit-message.scss": [
+1
+],
+"desktop:app/styles/ui/dialogs/_conflicts.scss": [
+1
+],
+"desktop:app/styles/ui/dialogs/_create-fork.scss": [
+1
+],
+"desktop:app/styles/ui/dialogs/_create-tutorial-repository.scss": [
+1
+],
+"desktop:app/styles/ui/dialogs/_fork-settings.scss": [
+1
+],
+"desktop:app/styles/ui/dialogs/_merge.scss": [
+1
+],
+"desktop:app/styles/ui/dialogs/_progress-dialog.scss": [
+1
+],
+"desktop:app/styles/ui/dialogs/_publish-repository.scss": [
+1
+],
+"desktop:app/styles/ui/dialogs/_push-needs-pull.scss": [
+1
+],
+"desktop:app/styles/ui/dialogs/_rebase.scss": [
+1
+],
+"desktop:app/styles/ui/dialogs/_release-notes.scss": [
+1
+],
+"desktop:app/styles/ui/dialogs/_repository-settings.scss": [
+1
+],
+"desktop:app/styles/ui/dialogs/_stash-changes.scss": [
+1
+],
+"desktop:app/styles/ui/dialogs/_thank-you.scss": [
+1
+],
+"desktop:app/styles/ui/dialogs/_usage-reporting.scss": [
+1
+],
+"desktop:app/styles/ui/drag-elements/_commit-drag-element.scss": [
+1
+],
+"desktop:app/styles/ui/history/_commit-list.scss": [
+1
+],
+"desktop:app/styles/ui/history/_commit-summary.scss": [
+1
+],
+"desktop:app/styles/ui/history/_file-list.scss": [
+1
+],
+"desktop:app/styles/ui/history/_history.scss": [
+1
+],
+"desktop:app/styles/ui/history/_multiple_commits_selected.scss": [
+1
+],
+"desktop:app/styles/ui/onboarding-tutorial/_done.scss": [
+1
+],
+"desktop:app/styles/ui/onboarding-tutorial/_nudge-arrow.scss": [
+1
+],
+"desktop:app/styles/ui/onboarding-tutorial/_right-panel.scss": [
+1
+],
+"desktop:app/styles/ui/onboarding-tutorial/_welcome.scss": [
+1
+],
+"desktop:app/styles/ui/rebase-status.scss": [
+1
+],
+"desktop:app/styles/ui/suggested-actions/_suggested-action-group.scss": [
+1
+],
+"desktop:app/styles/ui/suggested-actions/_suggested-action.scss": [
+1
+],
+"desktop:app/styles/ui/toolbar/_button.scss": [
+1
+],
+"desktop:app/styles/ui/toolbar/_dropdown.scss": [
+1
+],
+"desktop:app/styles/ui/toolbar/_toolbar.scss": [
+1
+],
+"desktop:app/styles/ui/window/_app-menu-bar.scss": [
+1
+],
+"desktop:app/styles/ui/window/_focus.scss": [
+1
+],
+"desktop:app/styles/ui/window/_title-bar.scss": [
+1
+],
+"desktop:app/styles/ui/window/_toast-notification.scss": [
+1
+],
+"desktop:app/styles/ui/window/_tooltips.scss": [
+1
+],
+"desktop:app/styles/ui/window/_zoom-info.scss": [
+1
+]
+}

@@ -1,8 +1,68 @@
 {
+"Joust:less/animations.less": [
+1
+],
 "Joust:less/entities.less": [
-22,
-29,
-36,
-165
+1
+],
+"Joust:less/font-awesome/animated.less": [
+1
+],
+"Joust:less/font-awesome/bordered-pulled.less": [
+1
+],
+"Joust:less/font-awesome/core.less": [
+1
+],
+"Joust:less/font-awesome/fixed-width.less": [
+1
+],
+"Joust:less/font-awesome/font-awesome.less": [
+1
+],
+"Joust:less/font-awesome/icons.less": [
+1
+],
+"Joust:less/font-awesome/larger.less": [
+1
+],
+"Joust:less/font-awesome/list.less": [
+1
+],
+"Joust:less/font-awesome/mixins.less": [
+1
+],
+"Joust:less/font-awesome/path.less": [
+1
+],
+"Joust:less/font-awesome/rotated-flipped.less": [
+1
+],
+"Joust:less/font-awesome/screen-reader.less": [
+1
+],
+"Joust:less/font-awesome/stacked.less": [
+1
+],
+"Joust:less/font-awesome/variables.less": [
+1
+],
+"Joust:less/joust.less": [
+1
+],
+"Joust:less/layout.less": [
+1
+],
+"Joust:less/loadingscreen.less": [
+1
+],
+"Joust:less/log.less": [
+1
+],
+"Joust:less/scrubber.less": [
+1
+],
+"Joust:less/variables.less": [
+1
 ]
 }
