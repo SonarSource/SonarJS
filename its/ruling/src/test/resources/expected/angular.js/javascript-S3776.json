@@ -17,7 +17,6 @@
 95
 ],
 "angular.js:src/ng/compile.js": [
-1997,
 2192,
 2477,
 2531,
@@ -32,8 +31,7 @@
 4032
 ],
 "angular.js:src/ng/directive/input.js": [
-1444,
-1789
+1444
 ],
 "angular.js:src/ng/directive/ngRepeat.js": [
 531
@@ -99,9 +97,6 @@
 ],
 "angular.js:src/ngResource/resource.js": [
 724
-],
-"angular.js:src/ngSanitize/filter/linky.js": [
-141
 ],
 "angular.js:src/ngSanitize/sanitize.js": [
 508
