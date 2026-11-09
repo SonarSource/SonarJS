@@ -61,7 +61,7 @@ describe('S6582 project strictness matrix', () => {
             getTypeScriptVersionSignal(baseDir)!.replace('^', '').split('.')[0],
             String(version),
           );
-          const filename = path.join(baseDir, `s6582.${language}`);
+          const filename = normalizeToAbsolutePath(path.join(baseDir, `s6582.${language}`));
           const code =
             language === 'ts'
               ? [
@@ -98,7 +98,7 @@ describe('S6582 project strictness matrix', () => {
           const host = ts.createCompilerHost(options);
           const getSourceFile = host.getSourceFile.bind(host);
           host.getSourceFile = (file, target, onError, shouldCreateNewSourceFile) =>
-            file === filename
+            normalizeToAbsolutePath(file) === filename
               ? ts.createSourceFile(file, code, target, true)
               : getSourceFile(file, target, onError, shouldCreateNewSourceFile);
           const program = ts.createProgram([filename], options, host);
