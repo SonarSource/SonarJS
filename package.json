@@ -94,7 +94,7 @@
     "prettier-plugin-java": "2.11.0",
     "pretty-quick": "4.2.2",
     "protobufjs-cli": "2.7.1",
-    "rimraf": "6.1.3",
+    "rimraf": "6.1.4",
     "tsx": "4.23.15",
     "type-fest": "5.10.0"
   },
