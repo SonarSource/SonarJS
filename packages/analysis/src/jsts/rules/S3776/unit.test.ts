@@ -21,8 +21,52 @@ import { describe, it } from 'node:test';
 import { Linter as ESLintLinter } from 'eslint';
 import { toInternalMetricsSettings } from '../helpers/internal-metrics.js';
 import { expect } from 'expect';
+import parser from '@typescript-eslint/parser';
 
 describe('S3776', () => {
+  it('should recognize React components returning JSX through TypeScript expressions', () => {
+    const linter = new ESLintLinter();
+    const wrappers = [
+      'EXPRESSION',
+      '(EXPRESSION) as React.ReactNode',
+      '(EXPRESSION) satisfies React.ReactNode',
+      '(EXPRESSION)!',
+      '((EXPRESSION) as React.ReactNode)! satisfies React.ReactNode',
+    ];
+    const cases = ['<Row />', '<><Row /></>'].flatMap(jsx =>
+      wrappers.map(wrapper => ({ expression: wrapper.replace('EXPRESSION', jsx), complexity: 2 })),
+    );
+    cases.push(
+      { expression: 'null', complexity: 3 },
+      { expression: 'null as React.ReactNode', complexity: 3 },
+    );
+    for (const { expression, complexity } of cases) {
+      for (const declaration of ['function Component()', 'const Component = () =>']) {
+        const sink = {};
+        const messages = linter.verify(
+          `${declaration} {
+            const handler = () => { if (a) {} };
+            if (b) {}
+            return ${expression};
+          }`,
+          {
+            files: ['**/*.tsx'],
+            languageOptions: { parser },
+            plugins: { sonarjs: { rules: { S3776: rule } } },
+            rules: { 'sonarjs/S3776': ['error', 0] },
+            settings: toInternalMetricsSettings(sink),
+          },
+          { filename: 'input.tsx' },
+        );
+        expect(sink).toEqual({ cognitiveComplexity: complexity });
+        expect(messages.map(({ message }) => message)).toEqual([
+          'Refactor this function to reduce its Cognitive Complexity from 1 to the 0 allowed.',
+          'Refactor this function to reduce its Cognitive Complexity from 1 to the 0 allowed.',
+        ]);
+      }
+    }
+  });
+
   it('should preserve logical sequences through TypeScript expressions', () => {
     const wrappers = [
       '(EXPRESSION) as boolean',

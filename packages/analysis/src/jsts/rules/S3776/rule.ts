@@ -337,7 +337,7 @@ export const rule: Rule.RuleModule = {
       if (
         enclosingFunctions.length === 1 &&
         argument &&
-        ['JSXElement', 'JSXFragment'].includes(argument.type as any)
+        ['JSXElement', 'JSXFragment'].includes(unwrapTypeScriptExpression(argument).type as any)
       ) {
         reactFunctionalComponent.returnsJsx = true;
       }
