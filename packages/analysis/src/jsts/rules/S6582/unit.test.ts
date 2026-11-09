@@ -176,6 +176,10 @@ describe('S6582 with strict: true (no explicit strictNullChecks)', () => {
           code: `function getLen(arr: string[] | null): number | null { return arr && arr.length; }`,
           filename: path.join(import.meta.dirname, 'fixtures/strict-mode/index.ts'),
         },
+        {
+          code: `function f(n: number | null): string { return (n && n.toFixed()) || ''; }`,
+          filename: path.join(import.meta.dirname, 'fixtures/strict-mode/index.ts'),
+        },
       ],
       invalid: [
         {
@@ -184,13 +188,25 @@ describe('S6582 with strict: true (no explicit strictNullChecks)', () => {
           filename: path.join(import.meta.dirname, 'fixtures/strict-mode/index.ts'),
           errors: 1,
         },
+        {
+          code: `function f(item: any): unknown { return (item && item.constructor) || 'fallback'; }`,
+          filename: path.join(import.meta.dirname, 'fixtures/strict-mode/index.ts'),
+          output: null,
+          errors: [{ messageId: 'preferOptionalChain', suggestions: [] }],
+        },
+        {
+          code: `function use(x: number) {} function f(arr: string[] | null) { use((arr && arr.length) || 0); }`,
+          filename: path.join(import.meta.dirname, 'fixtures/strict-mode/index.ts'),
+          output: `function use(x: number) {} function f(arr: string[] | null) { use((arr?.length) || 0); }`,
+          errors: 1,
+        },
       ],
     });
   });
 });
 
 describe('S6582 without strictNullChecks', () => {
-  it('reports when strictNullChecks is disabled — null/undefined type reasoning is not meaningful', () => {
+  it('delegates when strict is false', () => {
     const ruleTester = new RuleTester({
       parserOptions: {
         project: './tsconfig.json',
@@ -201,11 +217,106 @@ describe('S6582 without strictNullChecks', () => {
       valid: [],
       invalid: [
         {
-          // Without strictNullChecks, undefined is implicitly assignable to all types,
-          // so suppressing based on contextual type is not meaningful
+          // Explicit non-strict mode disables contextual checks.
           code: `function getLen(arr: string[] | null): number | null { return arr && arr.length; }`,
           filename: path.join(import.meta.dirname, 'fixtures/no-strict-null-checks/index.ts'),
           errors: 1,
+        },
+      ],
+    });
+  });
+});
+
+describe('S6582 contextual and fallback checks', () => {
+  it('suppresses null guards and keeps valid reports without unsafe fixes', () => {
+    const fixtureDir = path.join(import.meta.dirname, 'fixtures/strict-mode');
+    const filename = path.join(fixtureDir, 'index.ts');
+    const ruleTester = new RuleTester({
+      parserOptions: { project: './tsconfig.json', tsconfigRootDir: fixtureDir },
+    });
+    ruleTester.run('S6582 contextual and fallback checks', rule, {
+      valid: [
+        {
+          code: `function getLen(arr: string[] | null): number | null { return arr && arr.length; }`,
+          filename,
+        },
+        {
+          code: `function f<T extends { a: number } | null>(x: T): number | null { return x && x.a; }`,
+          filename,
+        },
+        {
+          code: `function f(x: number | null, y: object): string { return (y && (x && x.toString())) || 'none'; }`,
+          filename,
+        },
+        {
+          code: `function f(a: string[] | null, b: string[] | null) { if (!a || !b || a.length !== b.length) {} }`,
+          filename,
+        },
+        {
+          code: `function use(x: number | null) {} function f(arr: string[] | null, flag: number | null) { use(flag || (arr && arr.length)); }`,
+          filename,
+        },
+      ],
+      invalid: [
+        {
+          code: `function f(arr: string[] | null) { if (arr && arr.length) {} }`,
+          filename,
+          errors: 1,
+        },
+        {
+          code: `function f(a: string[] | null, b: string[] | null) { if (!a || !b) return; if (!a || !b || a.length !== b.length) {} }`,
+          filename,
+          output: null,
+          errors: 1,
+        },
+        {
+          code: `function use(x: number) {} function f(arr: string[] | null) { use((arr && arr.length) ?? 0); }`,
+          filename,
+          output: `function use(x: number) {} function f(arr: string[] | null) { use((arr?.length) ?? 0); }`,
+          errors: 1,
+        },
+        {
+          code: `function use(x: number | null) {} function f(arr: string[] | null, flag: number | null) { use(flag || ((arr && arr.length) ?? 0)); }`,
+          filename,
+          output: `function use(x: number | null) {} function f(arr: string[] | null, flag: number | null) { use(flag || ((arr?.length) ?? 0)); }`,
+          errors: 1,
+        },
+        {
+          code: `interface Node { parent?: Node } function parent(node: Node): Node { return node && node.parent; }`,
+          filename,
+          output: `interface Node { parent?: Node } function parent(node: Node): Node { return node?.parent; }`,
+          errors: 1,
+        },
+        {
+          code: `function f(x: { name: string }, y: object | null): string { return (y && (x && x.name)) || 'none'; }`,
+          output: `function f(x: { name: string }, y: object | null): string { return (y && x?.name) || 'none'; }`,
+          filename,
+          errors: 1,
+        },
+      ],
+    });
+  });
+});
+
+describe('S6582 JavaScript with explicit strictNullChecks', () => {
+  it('keeps the existing contextual check', () => {
+    const fixtureDir = path.join(import.meta.dirname, 'fixtures/explicit-strict-js');
+    const ruleTester = new RuleTester({
+      parserOptions: { project: './tsconfig.json', tsconfigRootDir: fixtureDir },
+    });
+    ruleTester.run('S6582 JavaScript explicit strict null checks', rule, {
+      valid: [
+        {
+          code: `/** @param {string[] | null} arr @returns {number | null} */ function getLen(arr) { return arr && arr.length; }`,
+          filename: path.join(fixtureDir, 'index.js'),
+        },
+      ],
+      invalid: [
+        {
+          code: `/** @param {any} item */ function f(item) { return (item && item.constructor) || 'fallback'; }`,
+          filename: path.join(fixtureDir, 'index.js'),
+          output: null,
+          errors: [{ messageId: 'preferOptionalChain', suggestions: [] }],
         },
       ],
     });
@@ -239,6 +350,12 @@ describe('S6582 with multiple nullable subjects in comparison', () => {
         },
       ],
       invalid: [
+        {
+          code: `function f(a: string[] | null, b: string[] | null) { if (!a || !b) return; if (!a || !b || a.length !== b.length) {} }`,
+          filename: fixtureFile,
+          output: null,
+          errors: 1,
+        },
         {
           // Only one nullable subject (a): upstream still reports, but binary-operator rewrites are
           // suggestion-only starting with typescript-eslint 8.62.1.
@@ -393,12 +510,6 @@ describe('S6582', () => {
           filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
         },
         {
-          // FP: angular.js line 768 pattern — a.prop || (a[0] && a[0].prop) inside a string-typed call
-          // The && is inside an || whose contextual type is string (excludes undefined)
-          code: `declare function lowercase(s: string): string; declare const el: { nodeName: string; 0?: { nodeName: string } }; function f() { return lowercase(el.nodeName || (el[0] && el[0].nodeName)); }`,
-          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
-        },
-        {
           // FP: desktop/tutorial-assessor.ts pattern — a !== undefined && a.method() in boolean return
           // commit?.parentSHAs.some() returns boolean|undefined, not assignable to boolean return type
           code: `interface Commit { parentSHAs: string[] } function hasMultipleCommits(commit: Commit | undefined): boolean { return commit !== undefined && commit.parentSHAs.some(x => x.length > 0) }`,
@@ -416,6 +527,13 @@ describe('S6582', () => {
         },
       ],
       invalid: [
+        {
+          // The original expression can already produce undefined.
+          code: `declare function lowercase(s: string): string; declare const el: { nodeName: string; 0?: { nodeName: string } }; function f() { return lowercase(el.nodeName || (el[0] && el[0].nodeName)); }`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+          output: `declare function lowercase(s: string): string; declare const el: { nodeName: string; 0?: { nodeName: string } }; function f() { return lowercase(el.nodeName || (el[0]?.nodeName)); }`,
+          errors: 1,
+        },
         {
           // boolean context (if-condition): no contextual type — optional chaining is type-safe
           code: `function f(arr: string[] | null) { if (arr && arr.length) {} }`,
@@ -514,4 +632,137 @@ describe('S6582', () => {
       ],
     });
   });
+});
+
+describe('S6582 effective strictness', () => {
+  for (const profile of ['strict-mode', '.']) {
+    it(`uses the same type and runtime checks with ${profile}`, () => {
+      const fixtureDir = path.join(import.meta.dirname, 'fixtures', profile);
+      const filename = path.join(fixtureDir, 'index.ts');
+      const tester = new RuleTester({
+        parserOptions: { project: './tsconfig.json', tsconfigRootDir: fixtureDir },
+      });
+      tester.run('S6582 strictness matrix', rule, {
+        valid: [
+          {
+            code: 'function f(x: { p: number } | null): number | null { return x && x.p; }',
+            filename,
+          },
+          {
+            code: "function f(x: number | null): string { return (x && x.toFixed()) || ''; }",
+            filename,
+          },
+          {
+            code: 'function f(x: { child: { p: number } | null }): number | null { return x && x.child && x.child.p; }',
+            filename,
+          },
+          {
+            code: 'function f(x: { p: boolean } | undefined): boolean { return undefined !== x && x.p; }',
+            filename,
+          },
+          {
+            code: "function f(x: { p: boolean } | undefined): boolean { return typeof x !== 'undefined' && x.p; }",
+            filename,
+          },
+          {
+            code: 'function f(x: { p: number } | undefined): boolean { return x !== undefined && x.p > 0; }',
+            filename,
+          },
+        ],
+        invalid: [
+          {
+            code: "function f(x: any) { let value: string = ''; value = x && x.p; }",
+            output: "function f(x: any) { let value: string = ''; value = x?.p; }",
+            filename,
+            errors: 1,
+          },
+          {
+            code: 'function f(x: { p: number }): number { return x && x.p; }',
+            output: null,
+            filename,
+            errors: [
+              {
+                messageId: 'preferOptionalChain',
+                suggestions: [
+                  {
+                    desc: 'Change to an optional chain.',
+                    output: 'function f(x: { p: number }): number { return x?.p; }',
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            code: 'function use(n: number) {} function f(x: { p: number } | null) { use((x && x.p) || 0); }',
+            output:
+              'function use(n: number) {} function f(x: { p: number } | null) { use((x?.p) || 0); }',
+            filename,
+            errors: 1,
+          },
+          {
+            code: 'function f(x: { p: number } | null): number { return (x && x.p) || 0; }',
+            output: 'function f(x: { p: number } | null): number { return (x?.p) || 0; }',
+            filename,
+            errors: 1,
+          },
+          {
+            code: "function f(a: string | null, b: string | null) { if ((a !== null && a.includes('x')) || (b !== null && b.includes('x'))) {} }",
+            output:
+              "function f(a: string | null, b: string | null) { if ((a?.includes('x')) || (b !== null && b.includes('x'))) {} }",
+            filename,
+            errors: 2,
+          },
+          {
+            code: "function f(cause: { code: string } | null) { if ((typeof cause === 'object' && cause != null && cause.code === 'ERR_LOAD_URL') || false) {} }",
+            output:
+              "function f(cause: { code: string } | null) { if ((typeof cause === 'object' && cause?.code === 'ERR_LOAD_URL') || false) {} }",
+            filename,
+            errors: 1,
+          },
+          {
+            code: "function f(x: any) { return (x && x.constructor) || 'fallback'; }",
+            output: null,
+            filename,
+            errors: [{ messageId: 'preferOptionalChain', suggestions: [] }],
+          },
+        ],
+      });
+    });
+  }
+  for (const profile of ['explicit-strict-js']) {
+    it(`uses the same JavaScript checks with ${profile}`, () => {
+      const fixtureDir = path.join(import.meta.dirname, 'fixtures', profile);
+      const filename = path.join(fixtureDir, 'index.js');
+      const tester = new RuleTester({
+        parserOptions: { project: './tsconfig.json', tsconfigRootDir: fixtureDir },
+      });
+      tester.run('S6582 JavaScript strictness matrix', rule, {
+        valid: [
+          {
+            code: '/** @param {{p: number} | null} x @returns {number | null} */ function f(x) { return x && x.p; }',
+            filename,
+          },
+        ],
+        invalid: [
+          {
+            code: '/** @param {{p: number}} x @returns {number} */ function f(x) { return x && x.p; }',
+            output: null,
+            filename,
+            errors: [
+              {
+                messageId: 'preferOptionalChain',
+                suggestions: [
+                  {
+                    desc: 'Change to an optional chain.',
+                    output:
+                      '/** @param {{p: number}} x @returns {number} */ function f(x) { return x?.p; }',
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      });
+    });
+  }
 });

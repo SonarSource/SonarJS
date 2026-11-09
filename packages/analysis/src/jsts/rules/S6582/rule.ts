@@ -59,8 +59,7 @@ function findReportNode(
   const startIndex = ctx.sourceCode.getIndexFromLoc(loc.start);
   const endIndex = ctx.sourceCode.getIndexFromLoc(loc.end);
   let node = ctx.sourceCode.getNodeByRangeIndex(startIndex) as
-    | (Rule.Node & { range: [number, number] })
-    | null;
+    (Rule.Node & { range: [number, number] }) | null;
   if (!node) {
     ctx.report(descriptor);
     return null;
@@ -135,7 +134,6 @@ export const rule: Rule.RuleModule = {
 
     // Without strictNullChecks, null and undefined are implicitly assignable to every type.
     // Any reasoning about whether undefined is safe to introduce is meaningless in that mode.
-    // `strict: true` implies strictNullChecks but does not materialize it as an explicit property.
     const compilerOptions = services.program.getCompilerOptions();
     if (!compilerOptions.strictNullChecks && !compilerOptions.strict) {
       return preferOptionalChainRule.create(context);
@@ -171,6 +169,133 @@ export const rule: Rule.RuleModule = {
       return checker.getTypeAtLocation(tsNode);
     }
 
+    function guardCanIntroduceUndefined(guard: Rule.Node): boolean {
+      if (guard.type === 'LogicalExpression' && guard.operator === '&&') {
+        return (
+          guardCanIntroduceUndefined(guard.left as Rule.Node) ||
+          guardCanIntroduceUndefined(guard.right as Rule.Node)
+        );
+      }
+      // A null check produces false, while its optional chain can produce undefined.
+      let subject = guard;
+      if (
+        guard.type === 'BinaryExpression' &&
+        ['!=', '!==', '==', '==='].includes(guard.operator)
+      ) {
+        subject =
+          guard.left.type === 'Literal' ||
+          (guard.left.type === 'Identifier' && guard.left.name === 'undefined')
+            ? (guard.right as Rule.Node)
+            : (guard.left as Rule.Node);
+        if (subject.type === 'UnaryExpression' && subject.operator === 'typeof') {
+          subject = subject.argument as Rule.Node;
+        }
+      }
+      const rawType = getTypeOfNode(subject);
+      if (rawType == null) {
+        return false;
+      }
+      const type: ts.Type = checker.getBaseConstraintOfType(rawType) ?? rawType;
+      if (subject !== guard) {
+        return allowsNullOrUndefined(type);
+      }
+      const types: ts.Type[] = type.isUnion() ? type.types : [type];
+      return types.some(part => (part.flags & ts.TypeFlags.Null) !== 0);
+    }
+
+    function typeCanBeFalsy(type: ts.Type): boolean {
+      if (type.isNumberLiteral()) {
+        return type.value === 0;
+      }
+      if (type.isStringLiteral()) {
+        return type.value === '';
+      }
+      if (type.flags & ts.TypeFlags.BigIntLiteral) {
+        return (type as ts.BigIntLiteralType).value.base10Value === '0';
+      }
+      if (type.flags & ts.TypeFlags.BooleanLiteral) {
+        return checker.typeToString(type) === 'false';
+      }
+      return (
+        (type.flags &
+          (ts.TypeFlags.Number |
+            ts.TypeFlags.String |
+            ts.TypeFlags.BigInt |
+            ts.TypeFlags.Boolean |
+            ts.TypeFlags.EnumLike)) !==
+        0
+      );
+    }
+
+    function hasGuardTypeWithinOrFallback(
+      node: Rule.Node,
+      predicate: (type: ts.Type) => boolean,
+    ): boolean {
+      if (node.type !== 'LogicalExpression') {
+        return false;
+      }
+
+      let current: Rule.Node = node;
+      let hasOrFallback = false;
+      while (
+        current.parent?.type === 'LogicalExpression' &&
+        (current.parent.left === current || current.parent.right === current)
+      ) {
+        const parent: Rule.Node = current.parent;
+        if (
+          parent.type === 'LogicalExpression' &&
+          parent.operator === '||' &&
+          parent.left === current
+        ) {
+          hasOrFallback = true;
+          break;
+        }
+        current = parent;
+      }
+      if (!hasOrFallback) {
+        return false;
+      }
+
+      function containsMatchingGuard(expression: Rule.Node): boolean {
+        if (expression.type !== 'LogicalExpression') {
+          return false;
+        }
+        if (
+          expression.operator === '&&' &&
+          expression.left.type !== 'LogicalExpression' &&
+          expression.left.type !== 'BinaryExpression' &&
+          expression.left.type !== 'UnaryExpression'
+        ) {
+          const rawGuardType = getTypeOfNode(expression.left as Rule.Node);
+          if (rawGuardType != null) {
+            const guardType: ts.Type =
+              checker.getBaseConstraintOfType(rawGuardType) ?? rawGuardType;
+            const types: ts.Type[] = guardType.isUnion() ? guardType.types : [guardType];
+            if (types.some(predicate)) {
+              return true;
+            }
+          }
+        }
+        return (
+          containsMatchingGuard(expression.left as Rule.Node) ||
+          containsMatchingGuard(expression.right as Rule.Node)
+        );
+      }
+
+      return containsMatchingGuard(node);
+    }
+
+    function hasFalsyGuardWithinOrFallback(node: Rule.Node): boolean {
+      return hasGuardTypeWithinOrFallback(node, typeCanBeFalsy);
+    }
+
+    function hasUncertainGuardWithinOrFallback(node: Rule.Node): boolean {
+      return hasGuardTypeWithinOrFallback(
+        node,
+        type => (type.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown)) !== 0,
+      );
+    }
+
     // Resolves the type as declared at the symbol's declaration site, bypassing
     // narrowing that the surrounding null-guard chain applies at the use site.
     function getDeclaredTypeOfObject(node: Rule.Node): ts.Type | null {
@@ -195,6 +320,29 @@ export const rule: Rule.RuleModule = {
         current = current.parent;
       }
       return current;
+    }
+
+    function isGuardAbsorbedByCallArgumentFallback(node: Rule.Node): boolean {
+      const subject = getContextualTypeSubject(node);
+      const call = subject.parent;
+      if (call?.type !== 'CallExpression' || !call.arguments.includes(subject as never)) {
+        return false;
+      }
+
+      let current: Rule.Node = node;
+      while (current !== subject && current.parent?.type === 'LogicalExpression') {
+        const parent: Rule.Node = current.parent;
+        // The fallback consumes undefined from the proposed optional chain.
+        if (
+          parent.type === 'LogicalExpression' &&
+          parent.left === current &&
+          (parent.operator === '||' || parent.operator === '??')
+        ) {
+          return true;
+        }
+        current = parent;
+      }
+      return false;
     }
 
     function hasTypeUnsafeContextualType(node: Rule.Node) {
@@ -247,6 +395,10 @@ export const rule: Rule.RuleModule = {
         return false;
       }
 
+      if (isGuardAbsorbedByCallArgumentFallback(node)) {
+        return false;
+      }
+
       const contextualType = getContextualTypeOfNode(subject);
       return contextualType != null && !allowsUndefined(contextualType);
     }
@@ -274,16 +426,22 @@ export const rule: Rule.RuleModule = {
       return targetType != null && !allowsUndefined(targetType);
     }
 
-    // Records source text of null-guarded subjects: `!x` in || chains, bare `x` in && chains.
-    // Source text covers identifier, `this.prop`, and `ref.current`-style member subjects.
+    // Record subjects that are still nullable where their guard is evaluated.
     function collectGuardedSubjects(node: Rule.Node, subjects: Set<string>): void {
+      let guardedNode: Rule.Node;
       if (node.type === 'UnaryExpression' && node.operator === '!') {
-        subjects.add(context.sourceCode.getText(node.argument as Rule.Node));
+        guardedNode = node.argument as Rule.Node;
       } else if (node.type === 'LogicalExpression') {
         collectGuardedSubjects(node.left as Rule.Node, subjects);
         collectGuardedSubjects(node.right as Rule.Node, subjects);
+        return;
       } else {
-        subjects.add(context.sourceCode.getText(node));
+        guardedNode = node;
+      }
+
+      const type = getTypeOfNode(guardedNode);
+      if (type != null && allowsNullOrUndefined(type)) {
+        subjects.add(context.sourceCode.getText(guardedNode));
       }
     }
 
@@ -337,6 +495,17 @@ export const rule: Rule.RuleModule = {
      * into the surrounding context. All other cases are reported by default.
      */
     function isKnownFalsePositive(node: Rule.Node): boolean {
+      if (matchesMultipleNullableSubjectsFalsePositive(node)) {
+        return true;
+      }
+      // Suppress only when the rewrite can introduce undefined.
+      if (
+        node.type !== 'LogicalExpression' ||
+        node.operator !== '&&' ||
+        !guardCanIntroduceUndefined(node.left as Rule.Node)
+      ) {
+        return false;
+      }
       if (matchesFunctionReturnFalsePositive(node)) {
         return true;
       }
@@ -357,16 +526,22 @@ export const rule: Rule.RuleModule = {
         return true;
       }
 
-      if (matchesMultipleNullableSubjectsFalsePositive(node)) {
-        return true;
-      }
-
       return false;
     }
 
     return interceptReport(preferOptionalChainRule, (ctx, descriptor) => {
       const node = findReportNode(ctx, descriptor);
       if (!node) {
+        return;
+      }
+
+      // A `||` fallback exposes the behavior change for falsy values in an `&&` guard.
+      if (hasFalsyGuardWithinOrFallback(node)) {
+        return;
+      }
+      if (hasUncertainGuardWithinOrFallback(node)) {
+        const { fix: _fix, suggest: _suggest, ...rest } = descriptor;
+        ctx.report(rest);
         return;
       }
 
