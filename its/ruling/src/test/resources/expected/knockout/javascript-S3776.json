@@ -36,9 +36,6 @@
 "knockout:src/subscribables/observableArray.changeTracking.js": [
 105
 ],
-"knockout:src/subscribables/observableArray.js": [
-13
-],
 "knockout:src/tasks.js": [
 35
 ],

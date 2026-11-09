@@ -1,7 +1,4 @@
 {
-"eigen:src/app/Components/Bidding/Screens/ConfirmBid/index.tsx": [
-459
-],
 "eigen:src/app/Components/FancyModal/FancyModalCard.tsx": [
 80
 ],
@@ -25,9 +22,6 @@
 ],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/OrderUpdate.tsx": [
 23
-],
-"eigen:src/app/Scenes/MyAccount/MyAccount.tsx": [
-20
 ],
 "eigen:src/app/Scenes/MyCollection/Screens/ArtworkForm/MyCollectionArtworkForm.tsx": [
 283
