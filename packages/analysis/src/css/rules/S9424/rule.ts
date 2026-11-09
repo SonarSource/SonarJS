@@ -54,6 +54,9 @@ const UNVALIDATED_FUNCTIONS = new Set([
   'if',
   'max',
   'min',
+  // The grammar names these functions but cannot validate their DOM-dependent numeric values.
+  'sibling-count',
+  'sibling-index',
   'var',
 ]);
 

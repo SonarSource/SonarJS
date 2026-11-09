@@ -469,9 +469,16 @@ b { --gap: 2em; }`,
   it('ignores standard functions that the CSS grammar does not define yet', () =>
     ruleTester.valid({
       code: `a {
-  order: sibling-count();
   color: color-contrast(white vs red, blue);
   background-image: image-rect(url(a.png), 0, 10, 10, 0);
+}`,
+    }));
+
+  it('accepts tree-counting functions whose numeric values the grammar cannot validate', () =>
+    ruleTester.valid({
+      code: `a {
+  order: sibling-count();
+  z-index: sibling-index();
 }`,
     }));
 

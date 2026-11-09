@@ -72,6 +72,17 @@ export async function buildBundle({ entryPoint, outfile, additionalAssets = [], 
     minify: true,
     plugins: [
       {
+        name: 'bundle-fdir-commonjs',
+        setup(build) {
+          // Stylelint 18 brings tinyglobby/fdir into the bridge. fdir's ESM entry
+          // calls createRequire(import.meta.url), which becomes undefined in CJS.
+          // Bundle its published CommonJS entry instead.
+          build.onResolve({ filter: /^fdir$/ }, args => ({
+            path: require.resolve('fdir', { paths: [args.resolveDir] }),
+          }));
+        },
+      },
+      {
         name: 'inline-package-imports',
         setup(build) {
           build.onLoad({ filter: /[\\/]package-imports\.json$/ }, ({ path }) => ({

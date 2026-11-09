@@ -105,7 +105,7 @@ export function createDecoratedRule(
           ruleSettings: [primary, secondaryOptions],
           root,
           result: isolatedResult(result, upstreamRule, capturedArgs),
-          context: { ...context, fix: false },
+          context,
         },
         warning => {
           const message = warning as DecoratedMessage;

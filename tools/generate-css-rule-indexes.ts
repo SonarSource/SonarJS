@@ -58,7 +58,9 @@ export function validateCssRulesMetadata(entries: CssRuleEntry[]) {
     const javaFields = new Set<string>();
     for (const binding of meta.bindings) {
       const { stylelintKey } = binding;
-      if (!/^(?:sonar\/|@stylistic\/)?[a-z]+(?:-[a-z0-9]+)*$/.test(stylelintKey)) {
+      if (
+        !/^(?:sonar\/|@stylistic\/(?:scss\/|less\/)?)?[a-z]+(?:-[a-z0-9]+)*$/.test(stylelintKey)
+      ) {
         throw new Error(`${sonarKey}: invalid Stylelint key '${stylelintKey}'.`);
       }
       if (keys.has(stylelintKey)) {
