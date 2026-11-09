@@ -28,7 +28,12 @@ import {
 import type { RuleContext } from '../helpers/type.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getJsxShortCircuitNodes } from '../helpers/jsx.js';
-import { isArrowFunctionExpression, isIfStatement, isLogicalExpression } from '../helpers/ast.js';
+import {
+  isArrowFunctionExpression,
+  isFunctionNode,
+  isIfStatement,
+  isLogicalExpression,
+} from '../helpers/ast.js';
 import { last } from '../helpers/collection.js';
 import type { Rule } from 'eslint';
 import type estree from 'estree';
@@ -131,7 +136,8 @@ export const rule: Rule.RuleModule = {
       '*'(node: estree.Node) {
         if (nestingNodes.has(node as TSESTree.Node)) {
           nesting++;
-          if (functionOwnControlFlowNesting.length > 0) {
+          // Function nodes must not change counters across function boundaries.
+          if (functionOwnControlFlowNesting.length > 0 && !isFunctionNode(node)) {
             functionOwnControlFlowNesting[functionOwnControlFlowNesting.length - 1]++;
           }
         }
@@ -140,7 +146,7 @@ export const rule: Rule.RuleModule = {
         if (nestingNodes.has(node as TSESTree.Node)) {
           nesting--;
           nestingNodes.delete(node as TSESTree.Node);
-          if (functionOwnControlFlowNesting.length > 0) {
+          if (functionOwnControlFlowNesting.length > 0 && !isFunctionNode(node)) {
             functionOwnControlFlowNesting[functionOwnControlFlowNesting.length - 1]--;
           }
         }

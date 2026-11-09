@@ -23,6 +23,72 @@ import { toInternalMetricsSettings } from '../helpers/internal-metrics.js';
 import { expect } from 'expect';
 
 describe('S3776', () => {
+  it('should not carry ternary function nesting into subsequent control flow', () => {
+    const initializers = [
+      'flag ? () => 1 : null',
+      'flag ? null : () => 1',
+      'flag ? () => 1 : () => 2',
+      'flag ? function () { return 1; } : null',
+      'flag ? null : function () { return 1; }',
+      'flag ? 1 : null',
+      'flag ? arrow : null',
+    ];
+    const ruleTester = new NoTypeCheckingRuleTester();
+    const testCases = initializers.map(initializer => ({
+      code: `
+      function foo(flag, value) {
+        const arrow = () => 1;
+        const handler = ${initializer};
+        if (value) {
+          return handler;
+        }
+        return null;
+      }`,
+    }));
+
+    ruleTester.run('ternary function branches', rule, {
+      valid: testCases.map(testCase => ({ ...testCase, options: [2] })),
+      invalid: testCases.map(testCase => ({
+        ...testCase,
+        options: [0],
+        errors: [message(2)],
+      })),
+    });
+
+    ruleTester.run('control flow inside and after ternary function branches', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: `
+      function foo(flag, value) {
+        const handler = flag ? () => {
+          if (value) { return 1; }
+          return 0;
+        } : null;
+        if (value) {
+          if (handler) { return handler; }
+        }
+        return null;
+      }`,
+          options: [0],
+          errors: [message(4, { line: 2 }), message(1, { line: 3 })],
+        },
+        {
+          code: `
+      function outer() {
+        return function inner(flag, value) {
+          const handler = flag ? () => 1 : null;
+          if (value) { return handler; }
+          return null;
+        };
+      }`,
+          options: [0],
+          errors: [message(2, { line: 3 })],
+        },
+      ],
+    });
+  });
+
   it('should write file complexity metric to internal settings sink when available', () => {
     const linter = new ESLintLinter();
     const sink = {};
