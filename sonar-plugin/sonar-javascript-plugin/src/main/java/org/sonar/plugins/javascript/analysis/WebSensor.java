@@ -47,7 +47,6 @@ import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.analysis.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.analysis.cache.CacheStrategies;
 import org.sonar.plugins.javascript.analysis.cache.CacheStrategy;
-import org.sonar.plugins.javascript.analysis.cache.ContextSnapshotCache;
 import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectRequest;
 import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectStreamResponse;
 import org.sonar.plugins.javascript.analyzeproject.grpc.FileResultMessage;
@@ -106,10 +105,8 @@ public class WebSensor implements ProjectSensor {
   private Path analysisMetadataPath;
   private String contextMetadata;
   private Path snapshotManifestPath;
-  private ContextSnapshotCache.Snapshot snapshotBaseline;
 
   private boolean recordFilesystemCache;
-  private boolean reusedCachedAnalysis;
   private ReplayProjectPaths replayProjectPaths;
   FSListener fsListener;
 
@@ -241,9 +238,7 @@ public class WebSensor implements ProjectSensor {
     analysisMetadataPath = null;
     contextMetadata = null;
     recordFilesystemCache = false;
-    reusedCachedAnalysis = false;
     snapshotManifestPath = null;
-    snapshotBaseline = null;
     replayProjectPaths = null;
 
     try {
@@ -254,7 +249,6 @@ public class WebSensor implements ProjectSensor {
       contextMetadata = null;
       recordFilesystemCache = false;
       snapshotManifestPath = null;
-      snapshotBaseline = null;
       replayProjectPaths = null;
       if (hasRestoredContextProperties(sensorContext)) {
         throw new IllegalStateException("Invalid restored JavaScript context", e);
@@ -315,12 +309,6 @@ public class WebSensor implements ProjectSensor {
     filesystemCacheArchivePath = archiveDirectory.resolve("archive.pb.gz");
     analysisMetadataPath = archiveDirectory.resolve("analysis-metadata.pb.gz");
     snapshotManifestPath = archiveDirectory.resolve("manifest.json");
-    if (sensorContext.canSkipUnchangedFiles()) {
-      snapshotBaseline = ContextSnapshotCache.restore(
-        sensorContext,
-        archiveDirectory.resolve("baseline")
-      ).orElse(null);
-    }
     recordFilesystemCache = true;
   }
 
@@ -365,7 +353,6 @@ public class WebSensor implements ProjectSensor {
     }
     try {
       if (
-        (reusedCachedAnalysis && snapshotBaseline == null) ||
         !Files.isRegularFile(filesystemCacheArchivePath) ||
         Files.size(filesystemCacheArchivePath) == 0 ||
         !Files.isRegularFile(analysisMetadataPath) ||
@@ -384,15 +371,6 @@ public class WebSensor implements ProjectSensor {
         filesystemCacheArchivePath,
         analysisMetadataPath,
         contextMetadata
-      );
-      ContextSnapshotCache.write(
-        context.getSensorContext(),
-        new ContextSnapshotCache.Snapshot(
-          filesystemCacheArchivePath,
-          analysisMetadataPath,
-          snapshotManifestPath,
-          contextMetadata
-        )
       );
     } catch (Exception e) {
       LOG.warn("Could not publish the JavaScript filesystem cache context", e);
@@ -566,13 +544,6 @@ public class WebSensor implements ProjectSensor {
         }
         if (recordFilesystemCache && snapshotManifestPath != null) {
           filesystemCache.setSnapshotManifestPath(snapshotManifestPath.toString());
-          if (snapshotBaseline != null) {
-            filesystemCache
-              .setBaselineArchivePath(snapshotBaseline.archive().toString())
-              .setBaselineAnalysisMetadataPath(snapshotBaseline.analysisMetadata().toString())
-              .setBaselineManifestPath(snapshotBaseline.manifest().toString())
-              .setBaselineContextMetadata(snapshotBaseline.contextMetadata());
-          }
         }
         request.setFilesystemCache(filesystemCache);
       }
@@ -612,7 +583,12 @@ public class WebSensor implements ProjectSensor {
         return;
       }
 
-      reusedCachedAnalysis = true;
+      if (recordFilesystemCache) {
+        addFileToAnalyze(files, inputFile);
+        files.computeIfPresent(inputFile.absolutePath(), (path, file) ->
+          file.toBuilder().setSkipAnalysis(true).build()
+        );
+      }
       if (isJsTsFile(inputFile)) {
         LOG.debug("Processing cache analysis of file: {}", inputFile.uri());
         var cacheAnalysis = cacheStrategy.readAnalysisFromCache();

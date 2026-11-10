@@ -65,6 +65,7 @@ export type AnalyzableFile = File & {
   fileType: FileType;
   ruleFileType: FileType;
   fileStatus: FileStatus;
+  skipAnalysis?: boolean;
 };
 
 // Brand for the AnalyzableFiles container - ensures type-safe iteration

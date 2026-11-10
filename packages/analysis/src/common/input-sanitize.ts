@@ -47,6 +47,7 @@ export type ProjectAnalysisFileInput = {
   fileContent?: string;
   fileType?: FileType;
   fileStatus?: FileStatus;
+  skipAnalysis?: boolean;
 };
 
 type SanitizedInputFiles = {
@@ -102,6 +103,7 @@ export async function sanitizeInputFiles(
       fileType,
       ruleFileType: getFileTypeForRules(filePath, fileType, filterPathParams),
       fileStatus: rawFileStatus ?? JSTS_ANALYSIS_DEFAULTS.fileStatus,
+      skipAnalysis: fileInput.skipAnalysis,
     };
     pathMap.set(filePath, key);
   }

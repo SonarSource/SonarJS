@@ -58,7 +58,7 @@ import { sonarjs } from './proto/analyze-project.js';
 import { ReplayProjectPaths } from './replay-project-paths.js';
 import path from 'node:path';
 import ts from 'typescript';
-import { prepareIncrementalContext, writeSnapshotManifest } from './incremental-context.js';
+import { writeSnapshotManifest } from './incremental-context.js';
 import { nativeFs } from '../../shared/src/fs-cache/archive-types.js';
 
 const { FilesystemCacheMode } = sonarjs.analyzeproject.v1;
@@ -391,17 +391,10 @@ function removeSnapshotManifest(request: AnalyzeProjectProtoRequest): void {
 function completeContextRecording(
   request: AnalyzeProjectProtoRequest,
   sessions: AnalysisSessions,
-  baselineAvailable: boolean,
   completed: boolean,
 ): void {
   const persisted = endAnalysisSessions(sessions.programSelection, sessions.filesystemCacheSession);
-  if (
-    !completed ||
-    !persisted ||
-    !sessions.programSelection ||
-    !sessions.filesystemCacheSession ||
-    !baselineAvailable
-  ) {
+  if (!completed || !persisted || !sessions.programSelection || !sessions.filesystemCacheSession) {
     return;
   }
   try {
@@ -431,7 +424,6 @@ async function handleProjectAnalysis(
     );
   }
   const sessions: AnalysisSessions = {};
-  let incrementalContext: ReturnType<typeof prepareIncrementalContext> | undefined;
   let completed = false;
   try {
     try {
@@ -446,10 +438,6 @@ async function handleProjectAnalysis(
       sessions.filesystemCacheSession = undefined;
     }
     return await withAnalysisCancellation(async () => {
-      incrementalContext =
-        cacheMode === 'record'
-          ? prepareIncrementalContext(request, sessions.programSelection)
-          : undefined;
       let fileFailed = false;
       logHeapStatistics(workerData?.debugMemory);
       let deliveryFailed = false;
@@ -505,12 +493,7 @@ async function handleProjectAnalysis(
       };
     });
   } finally {
-    completeContextRecording(
-      request,
-      sessions,
-      incrementalContext?.baselineAvailable ?? false,
-      completed,
-    );
+    completeContextRecording(request, sessions, completed);
   }
 }
 

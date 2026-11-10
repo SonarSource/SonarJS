@@ -62,9 +62,44 @@
       <artifactId>sonar-javascript-plugin</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.sonarsource.api.plugin</groupId>
+      <artifactId>sonar-plugin-api</artifactId>
+      <version>${sonar.api.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sonarsource.api.plugin</groupId>
+      <artifactId>sonar-plugin-api-test-fixtures</artifactId>
+      <version>${sonar.api.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sonarsource.scanner.engine</groupId>
+      <artifactId>plugin-api-scanner-impl</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sonarsource.scanner.engine</groupId>
+      <artifactId>sensor-test-fixtures</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <profiles>
+    <profile>
+      <id>it-context-cache</id>
+      <properties>
+        <skipTests>false</skipTests>
+        <surefire.argLine>-server -Xmx2g</surefire.argLine>
+        <jacoco.skip>true</jacoco.skip>
+      </properties>
+    </profile>
     <profile>
       <id>it-ruling</id>
       <properties>

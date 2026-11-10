@@ -25,6 +25,9 @@ import { toAnalyzeProjectUnaryResponse } from '../src/analyze-project-convert.js
 import { FS_CACHE_INSTALLATION, installFsCache } from '../../shared/src/fs-cache/hook.js';
 import { FsCacheArchive } from '../../shared/src/fs-cache/archive.js';
 import type { AnalyzeProjectProtoRequest } from '../src/analyze-project-request.js';
+import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
+import { ProgramSelectionArchive } from '../../analysis/src/program-selection/archive.js';
+import { Linter } from '../../analysis/src/jsts/linter/linter.js';
 import { sonarjs } from '../src/proto/analyze-project.js';
 
 const { AnalysisMode, FileType, FileStatus, JsTsLanguage } = sonarjs.analyzeproject.v1;
@@ -34,7 +37,7 @@ let project: string;
 let artifacts: string;
 
 beforeEach(() => {
-  temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'sonarjs-snapshot-reuse-'));
+  temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'sonarjs-fresh-context-'));
   project = path.join(temporary, 'project');
   artifacts = path.join(temporary, 'artifacts');
   fs.mkdirSync(project);
@@ -73,7 +76,7 @@ function request(generation: string): AnalyzeProjectProtoRequest {
     },
     files: Object.fromEntries(
       ['cached.ts', 'changed.ts', 'values.ts'].map(file => [
-        path.join(project, file),
+        normalizeToAbsolutePath(path.join(project, file)),
         { fileType: FileType.FILE_TYPE_MAIN },
       ]),
     ),
@@ -104,18 +107,6 @@ async function analyze(data: AnalyzeProjectProtoRequest) {
   if (result.type !== 'success' || !result.result) throw new Error(JSON.stringify(result));
   return toAnalyzeProjectUnaryResponse(result.result.output, result.result.pathMap);
 }
-function seed(pr: AnalyzeProjectProtoRequest, baseline: AnalyzeProjectProtoRequest) {
-  Object.assign(pr.filesystemCache!, {
-    baselineArchivePath: baseline.filesystemCache!.archivePath,
-    baselineAnalysisMetadataPath: baseline.filesystemCache!.analysisMetadataPath,
-    baselineManifestPath: baseline.filesystemCache!.snapshotManifestPath,
-    baselineContextMetadata: JSON.stringify({ configuration: baseline.configuration }),
-  });
-  pr.configuration!.analysisMode = AnalysisMode.ANALYSIS_MODE_SKIP_UNCHANGED;
-  // Java handles cache hits itself and sends only the file needing analysis.
-  pr.files = { [path.join(project, 'changed.ts')]: { fileStatus: FileStatus.FILE_STATUS_CHANGED } };
-}
-
 function archive(request: AnalyzeProjectProtoRequest) {
   const archive = new FsCacheArchive({
     archivePath: request.filesystemCache!.archivePath!,
@@ -141,119 +132,185 @@ async function replay(request: AnalyzeProjectProtoRequest, file: string, content
   });
 }
 
-describe('passive sensor-cache context reuse', () => {
+function prRequest(generation: string, allCached = false): AnalyzeProjectProtoRequest {
+  const pr = request(generation);
+  pr.configuration!.analysisMode = AnalysisMode.ANALYSIS_MODE_SKIP_UNCHANGED;
+  for (const [file, input] of Object.entries(pr.files!)) {
+    input.skipAnalysis = allCached || !file.endsWith('changed.ts');
+    input.fileStatus = input.skipAnalysis
+      ? FileStatus.FILE_STATUS_SAME
+      : FileStatus.FILE_STATUS_CHANGED;
+  }
+  return pr;
+}
+
+function selection(request: AnalyzeProjectProtoRequest) {
+  return new ProgramSelectionArchive(
+    request.filesystemCache!.analysisMetadataPath!,
+    normalizeToAbsolutePath(project),
+    'replay',
+    true,
+    JSON.stringify({ configuration: request.configuration }),
+  );
+}
+
+function file(name: string) {
+  return normalizeToAbsolutePath(path.join(project, name));
+}
+
+describe('self-contained PR context', () => {
   for (const kind of ['configured', 'orphan', 'no program'] as const) {
-    it('carries all-cached ' + kind + ' outcomes forward without reading sources', async () => {
-      if (kind === 'orphan') fs.unlinkSync(path.join(project, 'tsconfig.json'));
-      const branch = request('branch');
-      branch.configuration!.disableTypeChecking = kind === 'no program';
-      const original = await analyze(branch);
-      const pr = request('pr');
-      pr.configuration!.disableTypeChecking = branch.configuration!.disableTypeChecking;
-      seed(pr, branch);
-      pr.files = {};
-      const configContent = JSON.stringify({
-        files: ['cached.ts', 'changed.ts', 'values.ts'],
-        compilerOptions: { target: 'ES2022' },
-      });
-      if (kind !== 'orphan') fs.writeFileSync(path.join(project, 'tsconfig.json'), configContent);
-      const observed: Array<{ file: string; operation: string }> = [];
-      const set = FsCacheArchive.prototype.set;
-      mock.method(
-        FsCacheArchive.prototype,
-        'set',
-        function (this: FsCacheArchive, ...args: Parameters<typeof set>) {
-          observed.push({ file: this.absolutePathFor(args[0]), operation: args[1] });
-          return set.apply(this, args);
-        },
-      );
+    it('records fresh all-cached ' + kind + ' outcomes without a baseline', async () => {
+      if (kind === 'orphan') fs.unlinkSync(file('tsconfig.json'));
+      const pr = prRequest('pr', true);
+      pr.configuration!.disableTypeChecking = kind === 'no program';
+      const updated = 'export const values = { sort() {} };';
+      fs.writeFileSync(file('values.ts'), updated);
+      const lint = mock.method(Linter, 'lint');
       const result = await analyze(pr);
       expect(result.files).toEqual({});
-      expect(result.meta?.telemetry?.programCreation?.attempted ?? 0).toBe(0);
-      expect(
-        observed.filter(({ file, operation }) => operation === 'readFile' && file.endsWith('.ts')),
-      ).toEqual([]);
-      expect(observed.some(({ operation }) => operation.startsWith('opendir:'))).toBe(true);
-      if (kind !== 'orphan') {
-        expect(archive(pr).get('tsconfig.json', 'readFile')).toEqual({
-          ok: true,
-          value: Buffer.from(configContent),
-        });
+      expect(lint.mock.callCount()).toBe(0);
+      expect(result.meta?.telemetry?.programCreation?.attempted ?? 0).toBe(
+        kind === 'no program' ? 0 : 1,
+      );
+      expect(archive(pr).get('values.ts', 'readFile')).toEqual({
+        ok: true,
+        value: Buffer.from(updated),
+      });
+      const metadata = selection(pr);
+      for (const name of ['cached.ts', 'changed.ts', 'values.ts']) {
+        expect(metadata.hasSelection(file(name))).toBe(kind !== 'no program');
+        expect(metadata.hasNoProgram(file(name))).toBe(kind === 'no program');
       }
       expect(fs.existsSync(pr.filesystemCache!.snapshotManifestPath!)).toBe(true);
-      mock.restoreAll();
       fs.rmSync(project, { recursive: true });
-      const file = path.join(project, 'cached.ts');
-      const restored = await replay(pr, file, source);
-      expect(restored.files![file].issues).toEqual(original.files![file].issues);
+      expect(
+        (await replay(pr, file('cached.ts'), source)).files![file('cached.ts')].issues,
+      ).toHaveLength(0);
     });
   }
 
-  it('analyzes only the changed file while recording native dependency changes', async () => {
-    const branch = request('branch');
-    const original = await analyze(branch);
-    const pr = request('pr');
-    seed(pr, branch);
-    const values = path.join(project, 'values.ts');
-    const updated = 'export const values = { sort() {} };';
-    fs.writeFileSync(values, updated);
+  it('executes rules for cache misses, including SAME files, and maps cache hits', async () => {
+    const pr = prRequest('pr');
+    pr.files![file('changed.ts')].fileStatus = FileStatus.FILE_STATUS_SAME;
     const result = await analyze(pr);
-    expect(Object.keys(result.files!)).toEqual([path.join(project, 'changed.ts')]);
-    expect(result.files![path.join(project, 'changed.ts')].issues).toHaveLength(0);
-    const recorded = archive(pr);
-    const content = recorded.entries.get(recorded.keyFor(values)!)?.content;
-    expect(content?.ok && content.value.toString()).toBe(updated);
-    fs.rmSync(project, { recursive: true });
-    const file = path.join(project, 'cached.ts');
-    const restored = await replay(pr, file, source);
-    expect(original.files![file].issues).toHaveLength(1);
-    expect(restored.files![file].issues).toHaveLength(0);
+    expect(Object.keys(result.files!)).toEqual([file('changed.ts')]);
+    expect(result.files![file('changed.ts')].cpdTokens!.length).toBeGreaterThan(0);
+    expect(selection(pr).hasSelection(file('cached.ts'))).toBe(true);
   });
 
-  it('reconciles deleted sources during the ordinary walk and retains unchanged source contents', async () => {
+  it('records no-program outcomes for cached files when orphan programs are disabled', async () => {
+    fs.unlinkSync(file('tsconfig.json'));
+    const pr = prRequest('pr', true);
+    pr.configuration!.createTsProgramForOrphanFiles = false;
+    expect((await analyze(pr)).files).toEqual({});
+    expect(selection(pr).hasNoProgram(file('cached.ts'))).toBe(true);
+  });
+
+  it('uses the current orphan roots for analysis as well as replay', async () => {
+    fs.unlinkSync(file('tsconfig.json'));
+    fs.writeFileSync(file('cached.ts'), 'declare const values: number[];');
+    fs.writeFileSync(file('changed.ts'), 'values.sort();');
+    const pr = prRequest('pr');
+    delete pr.files![file('values.ts')];
+    const result = await analyze(pr);
+    expect(Object.keys(result.files!)).toEqual([file('changed.ts')]);
+    expect(result.files![file('changed.ts')].issues).toHaveLength(1);
+    fs.rmSync(project, { recursive: true });
+    expect(
+      (await replay(pr, file('changed.ts'), 'values.sort();')).files![file('changed.ts')].issues,
+    ).toEqual(result.files![file('changed.ts')].issues);
+  });
+
+  it('remaps a cached file after an import removal and never retains deleted inputs', async () => {
+    fs.writeFileSync(file('changed.ts'), source + "import './cached';");
+    fs.writeFileSync(file('tsconfig.json'), JSON.stringify({ files: ['changed.ts'] }));
     const branch = request('branch');
     await analyze(branch);
-    const pr = request('pr');
-    seed(pr, branch);
-    pr.files = {};
-    const removed = path.join(project, 'cached.ts');
-    fs.unlinkSync(removed);
+    expect(selection(branch).getRestoredSelections([file('cached.ts')])[0].program.kind).toBe(
+      'configured',
+    );
+    fs.writeFileSync(file('changed.ts'), source);
+    fs.unlinkSync(file('values.ts'));
+    const pr = prRequest('pr');
+    delete pr.files![file('values.ts')];
+    await analyze(pr);
+    const metadata = selection(pr);
+    expect(metadata.getRestoredSelections([file('cached.ts')])[0].program.kind).toBe('orphan');
+    expect(metadata.hasSelection(file('values.ts'))).toBe(false);
+    expect(archive(pr).get('values.ts', 'readFile')?.ok).not.toBe(true);
+    fs.rmSync(project, { recursive: true });
+    expect(
+      (await replay(pr, file('cached.ts'), source)).files![file('cached.ts')],
+    ).not.toHaveProperty('error');
+  });
+
+  it('processes independent and overlapping configs in the normal order even with no rule work', async () => {
+    const first = file('a.json');
+    const second = file('b.json');
+    fs.writeFileSync(
+      first,
+      JSON.stringify({ files: ['cached.ts'], compilerOptions: { strict: true } }),
+    );
+    fs.writeFileSync(second, JSON.stringify({ files: ['cached.ts', 'changed.ts', 'values.ts'] }));
+    const pr = prRequest('pr', true);
+    pr.configuration!.tsConfigPaths = [first, second];
     const result = await analyze(pr);
     expect(result.files).toEqual({});
-    expect(result.meta?.telemetry?.programCreation?.attempted ?? 0).toBe(0);
-    const recorded = archive(pr);
-    expect(recorded.getExists(recorded.keyFor(removed)!)).toBe(false);
-    expect(recorded.get(recorded.keyFor(removed)!, 'readFile')).toBeUndefined();
-    expect(recorded.get('changed.ts', 'readFile')).toEqual({
-      ok: true,
-      value: Buffer.from(source),
-    });
+    expect(result.meta?.telemetry?.programCreation?.attempted).toBe(2);
+    const metadata = selection(pr);
+    const programs = metadata.getRestoredSelections([file('cached.ts'), file('changed.ts')]);
+    expect(programs.map(p => p.program.kind === 'configured' && p.program.tsconfig)).toEqual([
+      first,
+      second,
+    ]);
   });
 
-  it('retains a baseline in a different checkout directory', async () => {
-    const branch = request('branch');
-    await analyze(branch);
-    const relocated = path.join(temporary, 'relocated');
-    fs.cpSync(project, relocated, { recursive: true });
-    project = relocated;
-    const pr = request('pr');
-    seed(pr, branch);
+  it('discovers referenced configs when every source is cached', async () => {
+    fs.mkdirSync(file('child'));
+    const child = file('child/tsconfig.json');
+    fs.writeFileSync(
+      child,
+      JSON.stringify({ files: ['../cached.ts', '../changed.ts', '../values.ts'] }),
+    );
+    fs.writeFileSync(
+      file('tsconfig.json'),
+      JSON.stringify({ files: [], references: [{ path: './child' }] }),
+    );
+    const pr = prRequest('pr', true);
+    pr.configuration!.tsConfigPaths = [file('tsconfig.json')];
     const result = await analyze(pr);
-    expect(Object.keys(result.files!)).toEqual([path.join(project, 'changed.ts')]);
+    expect(result.files).toEqual({});
+    expect(result.meta?.telemetry?.programCreation?.attempted).toBe(2);
+    const selected = selection(pr).getRestoredSelections([file('cached.ts')])[0].program;
+    expect(selected.kind === 'configured' && selected.tsconfig).toBe(child);
+  });
+
+  it('records added sources, deleted sources and updated compiler options from the current checkout', async () => {
+    await analyze(request('branch'));
+    fs.unlinkSync(file('changed.ts'));
+    fs.writeFileSync(file('added.ts'), source);
+    fs.writeFileSync(
+      file('tsconfig.json'),
+      JSON.stringify({
+        files: ['cached.ts', 'added.ts', 'values.ts'],
+        compilerOptions: { strict: true },
+      }),
+    );
+    const pr = prRequest('pr', true);
+    delete pr.files![file('changed.ts')];
+    pr.files![file('added.ts')] = { fileStatus: FileStatus.FILE_STATUS_ADDED };
+    const result = await analyze(pr);
+    expect(Object.keys(result.files!)).toEqual([file('added.ts')]);
+    expect(result.files![file('added.ts')].issues).toHaveLength(1);
+    const metadata = selection(pr);
+    expect(metadata.hasSelection(file('changed.ts'))).toBe(false);
+    const selected = metadata.getRestoredSelections([file('cached.ts')])[0].program;
+    expect(selected.kind).toBe('configured');
+    expect(selected.compilerOptions.strict).toBe(true);
     fs.rmSync(project, { recursive: true });
-    const file = path.join(project, 'cached.ts');
-    expect((await replay(pr, file, source)).files![file].issues).toHaveLength(1);
-  });
-
-  it('keeps analysis working without publishing a corrupt supplied baseline', async () => {
-    const branch = request('branch');
-    await analyze(branch);
-    fs.writeFileSync(branch.filesystemCache!.snapshotManifestPath!, '{broken');
-    const pr = request('pr');
-    seed(pr, branch);
-    const result = await analyze(pr);
-    expect(Object.keys(result.files!)).toEqual([path.join(project, 'changed.ts')]);
-    expect(result.files![path.join(project, 'changed.ts')].issues).toHaveLength(1);
-    expect(fs.existsSync(pr.filesystemCache!.snapshotManifestPath!)).toBe(false);
+    expect(
+      (await replay(pr, file('added.ts'), source)).files![file('added.ts')].issues,
+    ).toHaveLength(1);
   });
 });

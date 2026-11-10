@@ -144,6 +144,7 @@ function normalizeProtoInputFiles(
       fileContent: optionalString(fileInput?.fileContent),
       fileType: normalizeFileType(fileInput?.fileType),
       fileStatus: normalizeFileStatus(fileInput?.fileStatus),
+      skipAnalysis: fileInput?.skipAnalysis ?? undefined,
     };
   }
 

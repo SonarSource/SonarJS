@@ -124,6 +124,9 @@ message ProjectFileInput {
   // in repeated fields, where optional presence does not help.
   FileType file_type = 2;
   FileStatus file_status = 3;
+  // Java has already restored this file's analysis results from the sensor cache.
+  // The file still participates in context recording and TypeScript program selection.
+  optional bool skip_analysis = 4;
 }
 
 enum FileType {
