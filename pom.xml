@@ -68,7 +68,7 @@
     <jetbrains.annotations.version>26.1.0</jetbrains.annotations.version>
     <sonar.version>26.11.0.134175</sonar.version>
     <scanner-engine.version>13.18.0.6805</scanner-engine.version>
-    <sonar.api.version>14.2.0.5584</sonar.api.version>
+    <sonar.api.version>14.3.0.5639</sonar.api.version>
     <sonar-orchestrator.version>6.4.4.4797</sonar-orchestrator.version>
     <sonar.sca.exclusions>its/**,packages/**/*.fixture.*,packages/**/fixtures/**/*</sonar.sca.exclusions>
     <gson.version>2.15.0</gson.version>
