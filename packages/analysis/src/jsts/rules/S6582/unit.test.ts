@@ -811,3 +811,54 @@ describe('S6582 falsy fallback reports', () => {
     ],
   });
 });
+
+describe('S6582 nullish fallback fix safety', () => {
+  const filename = path.join(import.meta.dirname, 'fixtures/strict-mode/index.ts');
+  const tester = new RuleTester({
+    parserOptions: {
+      project: './tsconfig.json',
+      tsconfigRootDir: path.join(import.meta.dirname, 'fixtures/strict-mode'),
+    },
+  });
+  tester.run('S6582 nullish fallback fix safety', rule, {
+    valid: [],
+    invalid: [
+      {
+        code: 'function use(n: number | false) {} function f(x: { p: number } | null) { use((x !== null && x.p) ?? 99); }',
+        filename,
+        output: null,
+        errors: [{ messageId: 'preferOptionalChain', suggestions: [] }],
+      },
+      {
+        code: 'function use(n: number | false) {} function f(x: { p: number } | undefined) { use((x !== undefined && x.p) ?? 99); }',
+        filename,
+        output: null,
+        errors: [{ messageId: 'preferOptionalChain', suggestions: [] }],
+      },
+      {
+        code: "function use(n: number | false) {} function f(x: { p: number } | undefined) { use((typeof x !== 'undefined' && x.p) ?? 99); }",
+        filename,
+        output: null,
+        errors: [{ messageId: 'preferOptionalChain', suggestions: [] }],
+      },
+      {
+        code: 'function use(n: number | false) {} function f(x: { p: number } | null) { use((x && x.p) ?? 99); }',
+        filename,
+        output: 'function use(n: number | false) {} function f(x: { p: number } | null) { use((x?.p) ?? 99); }',
+        errors: 1,
+      },
+      {
+        code: 'function use(n: number | false) {} function f(x: number | null) { use((x && x.valueOf()) ?? 99); }',
+        filename,
+        output: null,
+        errors: [{ messageId: 'preferOptionalChain', suggestions: [] }],
+      },
+      {
+        code: 'function use(n: number | false) {} function f(x: { p: number } | null) { use((x !== null && x.p) || 99); }',
+        filename,
+        output: 'function use(n: number | false) {} function f(x: { p: number } | null) { use((x?.p) || 99); }',
+        errors: 1,
+      },
+    ],
+  });
+});
