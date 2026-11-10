@@ -14,11 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { FileSystemMap, FileSystemSet } from '../../../common/filesystem.js';
-import {
-  dirnamePath,
-  type NormalizedAbsolutePath,
-} from '../../../../../shared/src/helpers/files.js';
+import { FileSystemMap } from '../../../common/filesystem.js';
 import { debug } from '../../../../../shared/src/helpers/logging.js';
 import type ts from 'typescript';
 import { clearFileRepresentationCaches } from '../file-representation.js';
@@ -71,7 +67,6 @@ function parsedSourceFileCacheIdentity(
  * Current files context for lazy loading
  */
 let currentFilesByPath = new FileSystemMap<string, { fileContent?: string }>();
-const currentDirectories = new FileSystemSet<string>();
 let currentFilesContext: Record<string, { fileContent?: string }> | null = null;
 let sourceFilesContextVersion = 0;
 
@@ -81,19 +76,6 @@ let sourceFilesContextVersion = 0;
 export function setSourceFilesContext(files: Record<string, { fileContent?: string }>): void {
   currentFilesContext = files;
   currentFilesByPath = new FileSystemMap(Object.entries(files));
-  currentDirectories.clear();
-  // Index only request paths; no filesystem reads or snapshot validation are needed.
-  for (const file of Object.keys(files)) {
-    let directory = dirnamePath(file as NormalizedAbsolutePath);
-    while (!currentDirectories.has(directory)) {
-      currentDirectories.add(directory);
-      const parent = dirnamePath(directory);
-      if (parent === directory) {
-        break;
-      }
-      directory = parent;
-    }
-  }
   sourceFilesContextVersion++;
 }
 
@@ -118,10 +100,6 @@ export function getCurrentFilesContext(): Record<string, { fileContent?: string 
 
 export function getProvidedSourceFile(file: string): { fileContent?: string } | undefined {
   return currentFilesByPath.get(file);
-}
-
-export function hasProvidedDirectory(directory: string): boolean {
-  return currentDirectories.has(directory);
 }
 
 /**
@@ -218,7 +196,6 @@ export function clearSourceFileContentCache(): void {
   parsedSourceFileCache.clear();
   currentFilesContext = null;
   currentFilesByPath.clear();
-  currentDirectories.clear();
   sourceFilesContextVersion++;
   debug('Cleared source file content cache and parsed SourceFile cache');
 }

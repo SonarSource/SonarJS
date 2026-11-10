@@ -292,52 +292,86 @@ describe('IncrementalCompilerHost', () => {
   });
 
   describe('getSourceFile', () => {
-    it('discovers wildcard ambient types through recorded directories without escaping baseDir', () => {
-      const temporary = mkdtempSync(path.join(os.tmpdir(), 'host-types-'));
+    it('resolves archived declarations without a parent directory stat', () => {
+      const declarationPath = 'types/value.d.ts';
+      const temporary = mkdtempSync(path.join(os.tmpdir(), 'host-archived-import-'));
       const directory = normalizeToAbsolutePath(path.join(temporary, 'project'));
-      const localTypes = path.join(directory, 'node_modules', '@types', 'localglobals');
-      const outsideModules = path.join(temporary, 'node_modules');
-      const outsideTypes = path.join(outsideModules, '@types', 'outsideglobals');
-      const file = path.join(directory, 'consumer.ts');
-      const declaration = path.join(localTypes, 'index.d.ts');
+      const file = normalizeToAbsolutePath(path.join(directory, 'consumer.ts'));
+      const declaration = normalizeToAbsolutePath(path.join(directory, declarationPath));
+      const archivePath = path.join(temporary, 'fs.pb.gz');
       const options: ts.CompilerOptions = {
         noLib: true,
-        types: ['*'],
-        configFilePath: path.join(directory, 'tsconfig.json'),
+        types: [],
+        module: ts.ModuleKind.CommonJS,
+        moduleResolution: ts.ModuleResolutionKind.Node10,
       };
-      mkdirSync(localTypes, { recursive: true });
-      mkdirSync(outsideTypes, { recursive: true });
-      writeFileSync(declaration, 'declare const localGlobal: string;');
-      writeFileSync(path.join(outsideTypes, 'index.d.ts'), 'declare const outsideGlobal: string;');
-      writeFileSync(file, 'const value: string = localGlobal;');
-      setSourceFilesContext({});
+      const editedContent = "import { value } from './types/value'; const text: string = value;";
+      mkdirSync(path.dirname(declaration), { recursive: true });
+      writeFileSync(file, 'export {};');
+      writeFileSync(declaration, 'export declare const value: number;');
       try {
-        for (const mode of ['record', 'replay'] as const) {
-          clearSourceFileContentCache();
-          const session = installFsCache().beginAnalysis({
-            archivePath: path.join(temporary, 'fs.pb.gz'),
-            rootDir: directory,
-            mode,
-            caseSensitivePaths: isFileSystemCaseSensitive(),
+        setSourceFilesContext({});
+        const recording = installFsCache().beginAnalysis({
+          archivePath,
+          rootDir: directory,
+          mode: 'record',
+          caseSensitivePaths: isFileSystemCaseSensitive(),
+        });
+        try {
+          const host = new IncrementalCompilerHost(options, directory);
+          const program = ts.createProgram({ rootNames: [file, declaration], options, host });
+          expect(program.getSourceFile(declaration)).toBeDefined();
+          expect(program.getSemanticDiagnostics()).toEqual([]);
+        } finally {
+          expect(recording.end()).toBe(true);
+        }
+
+        const archive = new FsCacheArchive({
+          archivePath,
+          rootDir: directory,
+          mode: 'replay',
+          caseSensitivePaths: isFileSystemCaseSensitive(),
+        });
+        archive.load();
+        expect(archive.get(declarationPath, 'readFile:utf8')?.ok).toBe(true);
+        expect(
+          archive.get(path.posix.dirname(declarationPath), 'stat:number:soft'),
+        ).toBeUndefined();
+
+        clearSourceFileContentCache();
+        setSourceFilesContext({ [file]: { fileContent: editedContent } });
+        const nativeProgram = ts.createProgram({
+          rootNames: [file],
+          options,
+          host: new IncrementalCompilerHost(options, directory),
+        });
+        const expectedDiagnostics = nativeProgram.getSemanticDiagnostics().map(({ code }) => code);
+        expect(expectedDiagnostics).toEqual([2322]);
+
+        rmSync(directory, { recursive: true, force: true });
+        clearSourceFileContentCache();
+        setSourceFilesContext({ [file]: { fileContent: editedContent } });
+        const replay = installFsCache().beginAnalysis({
+          archivePath,
+          rootDir: directory,
+          mode: 'replay',
+          caseSensitivePaths: isFileSystemCaseSensitive(),
+        });
+        try {
+          const program = ts.createProgram({
+            rootNames: [file],
+            options,
+            host: new IncrementalCompilerHost(options, directory),
           });
-          try {
-            const host = new IncrementalCompilerHost(options, directory, true);
-            expect(host.directoryExists(outsideModules)).toBe(false);
-            expect(host.getDirectories(outsideModules)).toEqual([]);
-            expect(host.directoryExists(outsideTypes)).toBe(false);
-            expect(host.getDirectories(outsideTypes)).toEqual([]);
-            const program = ts.createProgram({ rootNames: [file], options, host });
-            expect(program.getSourceFile(declaration)).toBeDefined();
-            expect(program.getSourceFile(path.join(outsideTypes, 'index.d.ts'))).toBeUndefined();
-            expect(program.getSemanticDiagnostics()).toEqual([]);
-          } finally {
-            expect(session.end()).toBe(true);
-          }
-          if (mode === 'record') {
-            rmSync(directory, { recursive: true, force: true });
-          }
+          expect(program.getSemanticDiagnostics().map(({ code }) => code)).toEqual(
+            expectedDiagnostics,
+          );
+          expect(program.getSourceFile(declaration)).toBeDefined();
+        } finally {
+          expect(replay.end()).toBe(true);
         }
       } finally {
+        clearSourceFileContentCache();
         rmSync(temporary, { recursive: true, force: true });
       }
     });
