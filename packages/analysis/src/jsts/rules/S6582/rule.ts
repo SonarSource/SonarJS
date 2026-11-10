@@ -285,7 +285,16 @@ export const rule: Rule.RuleModule = {
       return containsMatchingGuard(node);
     }
 
-    function hasUnsafeGuardWithinOrFallback(node: Rule.Node): boolean {
+    function hasPotentiallyUnsafeGuard(node: Rule.Node): boolean {
+      if (node.type === 'LogicalExpression' && node.operator === '&&') {
+        const rawType = getTypeOfNode(node.left as Rule.Node);
+        if (rawType != null) {
+          const type: ts.Type = checker.getBaseConstraintOfType(rawType) ?? rawType;
+          if ((type.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown)) !== 0) {
+            return true;
+          }
+        }
+      }
       return hasGuardTypeWithinOrFallback(
         node,
         type =>
@@ -532,8 +541,8 @@ export const rule: Rule.RuleModule = {
         return;
       }
 
-      // Falsy guards can change fallback behavior. Keep reports without unsafe fixes.
-      if (hasUnsafeGuardWithinOrFallback(node)) {
+      // Unknown values and falsy fallbacks can change behavior. Keep reports without fixes.
+      if (hasPotentiallyUnsafeGuard(node)) {
         const { fix: _fix, suggest: _suggest, ...rest } = descriptor;
         ctx.report(rest);
         return;

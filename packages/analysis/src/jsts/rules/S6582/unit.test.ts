@@ -678,9 +678,9 @@ describe('S6582 effective strictness', () => {
           },
           {
             code: "function f(x: any) { let value: string = ''; value = x && x.p; }",
-            output: "function f(x: any) { let value: string = ''; value = x?.p; }",
+            output: null,
             filename,
-            errors: 1,
+            errors: [{ messageId: 'preferOptionalChain', suggestions: [] }],
           },
           {
             code: 'function f(x: { p: number }): number { return x && x.p; }',
@@ -784,6 +784,12 @@ describe('S6582 falsy fallback reports', () => {
   tester.run('S6582 falsy fallback reports', rule, {
     valid: [],
     invalid: [
+      {
+        code: 'function f(x: any) { return x && x.p; }',
+        filename,
+        output: null,
+        errors: [{ messageId: 'preferOptionalChain', suggestions: [] }],
+      },
       {
         code: 'function f(n: number | null) { return (n && n.valueOf()) || 0; }',
         filename,
