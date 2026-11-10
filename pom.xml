@@ -62,7 +62,7 @@
     <license.title>SonarQube JavaScript Plugin</license.title>
 
     <assertj.version>3.27.7</assertj.version>
-    <jgit.version>7.8.0.202609011348-r</jgit.version>
+    <jgit.version>7.8.1.202611041320-r</jgit.version>
     <junit.version>6.1.3</junit.version>
     <mockito.version>5.24.0</mockito.version>
     <jetbrains.annotations.version>26.1.0</jetbrains.annotations.version>
