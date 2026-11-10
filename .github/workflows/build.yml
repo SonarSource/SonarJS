@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
     inputs:
       validate-registry-routing:
-        description: Validate public/SaaS installs and Edge downloads with isolated caches
+        description: Validate public and SaaS npm installs with isolated caches
         type: boolean
         default: false
   schedule:
@@ -77,13 +77,8 @@ jobs:
           echo "Computed Maven hash: $HASH"
       - name: Compute NPM hash for cache key
         id: compute-npm-hash
-        env:
-          VALIDATE_REGISTRY_ROUTING: ${{ inputs.validate-registry-routing }}
         run: |
           HASH=$(sha256sum package-lock.json patches/* 2>/dev/null | sha256sum | cut -d' ' -f1)
-          if [ "$VALIDATE_REGISTRY_ROUTING" = 'true' ]; then
-            HASH="$HASH-validation-$GITHUB_RUN_ID"
-          fi
           echo "hash=$HASH" >> $GITHUB_OUTPUT
           echo "Computed NPM hash: $HASH"
       - name: Compute cache month for periodic reset
@@ -187,7 +182,7 @@ jobs:
       - if: steps.cache.outputs.cache-hit != 'true'
         uses: SonarSource/ci-github-actions/config-npm@v2
         with:
-          repox-url: https://repox-internal.dev.sonar.build
+          repox-url: https://repox-internal.sonar.build
           artifactory-reader-role: private-reader
           disable-caching: 'true'
       - &npm_cache_install
@@ -211,17 +206,17 @@ jobs:
         name: Access vault secrets
         uses: SonarSource/vault-action-wrapper@v3
         with:
-          url: https://vault.dev.sonar.build
+          url: https://vault.sonar.build
           secrets: |
-            development/artifactory-edge-dev/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
+            development/artifactory-edge-prod/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Configure npm registry
         shell: bash
         env:
           ARTIFACTORY_ACCESS_TOKEN: ${{ steps.secrets.outputs.vault && fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN || '' }}
         run: |
-          npm config set "//repox-internal.dev.sonar.build/artifactory/api/npm/:_authToken=${ARTIFACTORY_ACCESS_TOKEN}"
-          npm config set registry https://repox-internal.dev.sonar.build/artifactory/api/npm/npm/
+          npm config set "//repox-internal.sonar.build/artifactory/api/npm/:_authToken=${ARTIFACTORY_ACCESS_TOKEN}"
+          npm config set registry https://repox-internal.sonar.build/artifactory/api/npm/npm/
       - *npm_cache_install
 
   build:
@@ -429,7 +424,7 @@ jobs:
       - &config_npm_edge
         uses: SonarSource/ci-github-actions/config-npm@v2
         with:
-          repox-url: https://repox-internal.dev.sonar.build
+          repox-url: https://repox-internal.sonar.build
           artifactory-reader-role: private-reader
           disable-caching: 'true'
       - *download_rspec_rule_data
