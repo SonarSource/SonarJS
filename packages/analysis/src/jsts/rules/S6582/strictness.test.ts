@@ -71,6 +71,9 @@ describe('S6582 project strictness matrix', () => {
                   "function numeric(x: number | null): string { return (x && x.toFixed()) || ''; }",
                   'function comparison(a: string[] | null, b: string[] | null) { if (!a || !b || a.length !== b.length) {} }',
                   "function uncertain(x: any) { return (x && x.constructor) || 'fallback'; }",
+                  'function safeNumeric(x: number | null) { return (x && x.valueOf()) || 0; }',
+                  "function safeString(x: string | null) { return (x && x.toUpperCase()) || ''; }",
+                  "function uncertainAssignment(x: any) { let s: string = ''; s = x && x.p; return s; }",
                 ].join('\n')
               : [
                   '/** @param {{p: number} | null} x @returns {number | null} */ function nullable(x) { return x && x.p; }',
@@ -79,6 +82,9 @@ describe('S6582 project strictness matrix', () => {
                   "/** @param {number | null} x @returns {string} */ function numeric(x) { return (x && x.toFixed()) || ''; }",
                   '/** @param {string[] | null} a @param {string[] | null} b */ function comparison(a, b) { if (!a || !b || a.length !== b.length) {} }',
                   "/** @param {any} x */ function uncertain(x) { return (x && x.constructor) || 'fallback'; }",
+                  '/** @param {number | null} x */ function safeNumeric(x) { return (x && x.valueOf()) || 0; }',
+                  "/** @param {string | null} x */ function safeString(x) { return (x && x.toUpperCase()) || ''; }",
+                  "/** @param {any} x */ function uncertainAssignment(x) { let s = ''; s = x && x.p; return s; }",
                 ].join('\n');
           const { options } = createProgramOptions(
             path.join(baseDir, `s6582-${profile.name}-${language}.json`),
@@ -121,8 +127,15 @@ describe('S6582 project strictness matrix', () => {
           // Only effective strict null checking enables the FP remediations.
           assert.deepEqual(
             messages.map(message => message.line),
-            enabled ? [2, 3, 6] : [1, 2, 3, 4, 5, 6],
+            enabled ? [2, 3, 4, 6, 7, 8, 9] : [1, 2, 3, 4, 5, 6, 7, 8, 9],
           );
+          if (enabled) {
+            for (const line of [4, 6, 7, 8, 9]) {
+              const report = messages.find(message => message.line === line)!;
+              assert.equal(report.fix, undefined);
+              assert.equal(report.suggestions?.length ?? 0, 0);
+            }
+          }
           const uncertain = messages.find(message => message.line === 6)!;
           assert.equal(Boolean(uncertain.fix), !enabled);
           assert.equal(uncertain.suggestions?.length ?? 0, 0);
