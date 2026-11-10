@@ -640,6 +640,34 @@ describe('IncrementalCompilerHost', () => {
       typeof normalizeToAbsolutePath
     >;
 
+    it('isolates shared TSX sources between programs with different jsxImportSource values', () => {
+      setSourceFilesContext({});
+      const createProgram = (jsxImportSource?: string) => {
+        const options: ts.CompilerOptions = {
+          target: ts.ScriptTarget.ESNext,
+          jsx: ts.JsxEmit.ReactJSX,
+          jsxImportSource,
+        };
+        const program = ts.createProgram({
+          rootNames: [componentFile],
+          options,
+          host: new IncrementalCompilerHost(options, fixtureDir),
+        });
+        program.getTypeChecker();
+        return program;
+      };
+
+      const reactProgram = createProgram();
+      const preactProgram = createProgram('preact');
+      const preactSource = preactProgram.getSourceFile(componentFile);
+      expect(() => {
+        // @ts-ignore: TypeChecker#getSuggestionDiagnostics is not publicly exposed
+        preactProgram.getTypeChecker().getSuggestionDiagnostics(preactSource);
+      }).not.toThrow();
+      expect(preactSource).not.toBe(reactProgram.getSourceFile(componentFile));
+      expect(createProgram('preact').getSourceFile(componentFile)).toBe(preactSource);
+    });
+
     it('should not serve a stale SourceFile to a jsx:react-jsx program when Component.tsx was first read from disk by a jsx:preserve program', () => {
       // Read the actual file content so the "same content" invariant holds.
       const serverContent = readFileSync(serverFile, 'utf-8');

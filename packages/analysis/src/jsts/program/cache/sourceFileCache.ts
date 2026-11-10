@@ -28,12 +28,13 @@ const sourceFileContentCache = new FileSystemMap<string, string>();
 /**
  * Global cache for parsed TypeScript SourceFile ASTs
  *
- * This cache stores parsed ASTs keyed by fileName, scalar parse options, jsx, importHelpers and scriptKind.
+ * This cache stores parsed ASTs keyed by fileName, scalar parse options, jsx, jsxImportSource,
+ * importHelpers and scriptKind.
  * Content freshness is checked on the cached value; module detection uses scalar compiler options.
  * Multiple programs can share the same parsed AST if they have the same options.
  *
  * IMPLEMENTATION NOTE: Parse options control Node module format and JSDoc/module detection.
- * jsx and importHelpers also affect SourceFile.imports (the synthesized JSX runtime import
+ * jsx, jsxImportSource and importHelpers also affect SourceFile.imports (the synthesized JSX runtime import
  * prepended by TypeScript when jsx=react-jsx, and tslib helpers when importHelpers=true).
  * Sharing a SourceFile between programs with different values for these options causes
  * internal TypeScript assertion failures (e.g. in getSuggestionDiagnostics).
@@ -43,7 +44,10 @@ const parsedSourceFileCache = new FileSystemMap<
   Map<string, { contentHash: string; sourceFile: ts.SourceFile }> // compound key → entry
 >();
 
-type ParsedSourceFileOptions = Pick<ts.CompilerOptions, 'moduleDetection' | 'module'> & {
+type ParsedSourceFileOptions = Pick<
+  ts.CompilerOptions,
+  'moduleDetection' | 'module' | 'jsxImportSource'
+> & {
   scriptKind?: ts.ScriptKind;
 };
 
@@ -60,7 +64,7 @@ function parsedSourceFileCacheIdentity(
     typeof languageVersionOrOptions === 'number'
       ? { languageVersion: languageVersionOrOptions }
       : languageVersionOrOptions;
-  return `${options.languageVersion}:${options.impliedNodeFormat ?? -1}:${options.jsDocParsingMode ?? -1}:${jsx ?? -1}:${importHelpers ? 1 : 0}:${compilerOptions?.moduleDetection ?? -1}:${compilerOptions?.module ?? -1}:${compilerOptions?.scriptKind ?? -1}`;
+  return `${options.languageVersion}:${options.impliedNodeFormat ?? -1}:${options.jsDocParsingMode ?? -1}:${jsx ?? -1}:${importHelpers ? 1 : 0}:${compilerOptions?.moduleDetection ?? -1}:${compilerOptions?.module ?? -1}:${compilerOptions?.scriptKind ?? -1}:${compilerOptions?.jsxImportSource ?? ''}`;
 }
 
 /**
@@ -109,7 +113,7 @@ export function getProvidedSourceFile(file: string): { fileContent?: string } | 
  * @param contentHash Hash/version of the file content
  * @param jsx The jsx compiler option (affects SourceFile.imports structure)
  * @param importHelpers The importHelpers compiler option (affects SourceFile.imports structure)
- * @param compilerOptions Module settings and the representation script kind
+ * @param compilerOptions Module settings, JSX import source and the representation script kind
  * @returns Cached SourceFile if available and content matches, undefined otherwise
  */
 export function getCachedSourceFile(
@@ -150,7 +154,7 @@ export function getCachedSourceFile(
  * @param sourceFile The parsed TypeScript SourceFile
  * @param jsx The jsx compiler option (affects SourceFile.imports structure)
  * @param importHelpers The importHelpers compiler option (affects SourceFile.imports structure)
- * @param compilerOptions Module settings and the representation script kind
+ * @param compilerOptions Module settings, JSX import source and the representation script kind
  */
 export function setCachedSourceFile(
   fileName: string,
