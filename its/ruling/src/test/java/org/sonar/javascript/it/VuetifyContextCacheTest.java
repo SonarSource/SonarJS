@@ -194,10 +194,8 @@ class VuetifyContextCacheTest {
     } finally {
       inputs.clear();
       inputs.putAll(allInputs);
-      // Replay deploys its runtime under .scannerwork. Preserve that output before restoring sources.
-      Files.move(project, output.resolve("replay-project"));
-      Files.move(output.resolve("hidden-project"), project);
     }
+    // Keep the source tree hidden; verification reads the captured context, not the checkout.
     assertThat(warnings).isEmpty();
     var verification = new ProcessBuilder(
       System.getProperty("sonarjs.localNodeExecutable"),
