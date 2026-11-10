@@ -81,8 +81,6 @@ jobs:
           VALIDATE_REGISTRY_ROUTING: ${{ inputs.validate-registry-routing }}
         run: |
           HASH=$(sha256sum package-lock.json patches/* 2>/dev/null | sha256sum | cut -d' ' -f1)
-          # Reinstall dependencies when switching from dev Edge to production Edge.
-          HASH="$HASH-production-edge"
           if [ "$VALIDATE_REGISTRY_ROUTING" = 'true' ]; then
             HASH="$HASH-validation-$GITHUB_RUN_ID"
           fi
