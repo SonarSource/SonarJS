@@ -40,13 +40,10 @@ An asynchronous read completing after its session ends cannot record into a late
 An outstanding native open is closed before its caller receives
 `ERR_SONARJS_FS_CACHE_SESSION_ENDED`, preventing descriptor leaks and cross-request ownership.
 
-Creating an archive starts with a cold in-memory cache. The first read of a filesystem fact uses
-native `fs`; compatible later operations reuse the consolidated per-path state. For example, file
-content is shared by `readFile` and descriptor APIs, metadata by `stat` and `fstat`, and typed
-directory entries by `readdir` and `opendir`. This both avoids repeated filesystem work during
-normal CI analysis and produces the archive used by later sessions. The configured root is assumed
-to remain stable for the lifetime of the session; mutation tracking and invalidation are
-intentionally unsupported.
+Creating an archive starts with an empty set of current observations. RECORD calls always use
+native `fs` and update the consolidated per-path state. File content, metadata and directory
+entries are stored for REPLAY, where compatible operations share the recorded observations.
+The configured root is assumed to remain stable for the lifetime of the session.
 
 The archive is a versioned gzip-compressed Protocol Buffers document. Its typed schema stores raw
 file bytes, filesystem errors, stats, directory entries, paths, and link observations without JSON
@@ -78,11 +75,14 @@ dedicated loader thread, adding startup and module-loading overhead unrelated to
 
 On supported SonarQube versions, CI records context only when the A3S context collector is enabled.
 Collection-enabled PR scans can reuse a compatible baseline transported through the sensor cache.
-The baseline is retained passively for publication, without walking or validating project paths.
+The baseline is retained for publication without an additional validation walk.
 RECORD always uses the native filesystem and records its actual observations; it never serves
 baseline observations to live analysis. New observations replace earlier values, while untouched
-observations may remain stale, including entries for deleted files. The baseline itself is never
-mutated. Known existence or file-type changes discard contradictory prior observations.
+dependency observations may remain stale. Fresh complete directory listings reconcile deleted
+paths and subtrees within the normal file-store traversal, including all-cached requests. Configs
+discovered by the stores refresh their contents; unchanged source contents are not reread solely
+for context. The baseline itself is never mutated. Known existence or file-type changes discard
+contradictory prior observations.
 Snapshot maintenance does not invalidate per-file analysis-cache hits. It follows their existing
 trust assumptions; independent dependency validity is a separate concern.
 

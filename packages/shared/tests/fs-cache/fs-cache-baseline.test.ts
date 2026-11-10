@@ -68,6 +68,162 @@ function load(archivePath: string) {
 }
 
 describe('passive filesystem baseline', () => {
+  for (const encoding of ['utf8', 'buffer'] as const) {
+    it(`reconciles deleted paths from current flat listings without reading retained files (${encoding})`, () => {
+      const kept = path.join(rootDir, 'kept.ts');
+      const removed = path.join(rootDir, 'removed.ts');
+      const removedDirectory = path.join(rootDir, 'removed');
+      const nested = path.join(removedDirectory, 'nested.ts');
+      const dependencyDirectory = path.join(rootDir, 'node_modules');
+      const dependency = path.join(dependencyDirectory, 'index.d.ts');
+      fs.mkdirSync(removedDirectory);
+      fs.mkdirSync(dependencyDirectory);
+      for (const file of [kept, removed, nested, dependency]) {
+        fs.writeFileSync(file, 'baseline');
+      }
+      record(baselinePath, () => {
+        for (const file of [kept, removed, nested, dependency]) fs.readFileSync(file);
+        fs.readdirSync(rootDir, { recursive: true });
+      });
+      fs.unlinkSync(removed);
+      fs.rmSync(removedDirectory, { recursive: true });
+      fs.writeFileSync(dependency, 'unobserved dependency update');
+      record(currentPath, () => {
+        seedFilesystemBaseline(baselinePath);
+        const read = mock.method(fs, 'readFileSync');
+        if (encoding === 'buffer') fs.readdirSync(rootDir, { encoding, withFileTypes: true });
+        else fs.readdirSync(rootDir, { encoding, withFileTypes: true });
+        expect(read.mock.calls).toHaveLength(0);
+        read.mock.restore();
+      });
+      const current = load(currentPath);
+      for (const file of ['removed.ts', 'removed/nested.ts']) {
+        expect(current.getExists(file)).toBe(false);
+        expect(current.get(file, 'readFile')).toBeUndefined();
+      }
+      for (const file of ['kept.ts', 'node_modules/index.d.ts']) {
+        expect(current.get(file, 'readFile')).toEqual({ ok: true, value: Buffer.from('baseline') });
+      }
+      expect(current.get('.', 'readdir:utf8:false:true')).toBeUndefined();
+    });
+  }
+
+  it('removes inherited descendants when a directory becomes a regular file', () => {
+    const directory = path.join(rootDir, 'replaced');
+    fs.mkdirSync(directory);
+    fs.writeFileSync(path.join(directory, 'source.ts'), 'baseline');
+    record(baselinePath, () => fs.readFileSync(path.join(directory, 'source.ts')));
+    fs.rmSync(directory, { recursive: true });
+    fs.writeFileSync(directory, 'regular file');
+    record(currentPath, () => {
+      seedFilesystemBaseline(baselinePath);
+      fs.readdirSync(rootDir, { withFileTypes: true });
+      fs.readdirSync(rootDir);
+    });
+    expect(load(currentPath).getExists('replaced/source.ts')).toBe(false);
+  });
+
+  for (const fileToDirectory of [false, true]) {
+    it(`drops inherited facts when a listed entry changes type; file-to-directory=${fileToDirectory}`, () => {
+      const entry = path.join(rootDir, 'entry');
+      if (fileToDirectory) fs.writeFileSync(entry, 'baseline');
+      else fs.mkdirSync(entry);
+      record(baselinePath, () => {
+        fs.statSync(entry);
+        if (fileToDirectory) fs.readFileSync(entry);
+        else fs.readdirSync(entry);
+      });
+      if (fileToDirectory) {
+        fs.unlinkSync(entry);
+        fs.mkdirSync(entry);
+      } else {
+        fs.rmdirSync(entry);
+        fs.writeFileSync(entry, 'current');
+      }
+      record(currentPath, () => {
+        seedFilesystemBaseline(baselinePath);
+        fs.readdirSync(rootDir, { withFileTypes: true });
+      });
+      const current = load(currentPath);
+      expect(current.getExists('entry')).toBe(true);
+      expect(current.get('entry', 'readFile')).toBeUndefined();
+      expect(current.get('entry', 'stat')).toBeUndefined();
+      expect(current.get('entry', 'readdir:utf8:false:false')).toBeUndefined();
+    });
+  }
+
+  it('clears inherited missing facts for newly listed entries without reading them', () => {
+    const added = path.join(rootDir, 'added.ts');
+    record(baselinePath, () => expect(fs.existsSync(added)).toBe(false));
+    fs.writeFileSync(added, 'added');
+    record(currentPath, () => {
+      seedFilesystemBaseline(baselinePath);
+      fs.readdirSync(rootDir, { withFileTypes: true });
+    });
+    expect(load(currentPath).getExists('added.ts')).toBe(true);
+  });
+
+  for (const addFile of [false, true]) {
+    it(`preserves compatible listing variants and invalidates changed recursive listings; added=${addFile}`, () => {
+      const directory = path.join(rootDir, 'child');
+      fs.mkdirSync(directory);
+      fs.writeFileSync(path.join(directory, 'kept.ts'), 'baseline');
+      record(baselinePath, () => {
+        fs.readdirSync(rootDir);
+        fs.readdirSync(rootDir, { encoding: 'buffer' });
+        fs.readdirSync(rootDir, { withFileTypes: true });
+        fs.readdirSync(rootDir, { recursive: true });
+      });
+      if (addFile) fs.writeFileSync(path.join(directory, 'added.ts'), 'added');
+      record(currentPath, () => {
+        seedFilesystemBaseline(baselinePath);
+        fs.readdirSync(rootDir, { withFileTypes: true });
+        fs.readdirSync(directory, { withFileTypes: true });
+      });
+      const current = load(currentPath);
+      expect(current.get('.', 'readdir:utf8:false:false')).toEqual(
+        load(baselinePath).get('.', 'readdir:utf8:false:false'),
+      );
+      expect(current.get('.', 'readdir:buffer:false:false')).toEqual(
+        load(baselinePath).get('.', 'readdir:buffer:false:false'),
+      );
+      expect(current.get('.', 'readdir:utf8:false:true') === undefined).toBe(addFile);
+    });
+  }
+
+  it('does not infer a symlink target exists from a directory entry', () => {
+    const baseline = new FsCacheArchive({
+      mode: 'record',
+      caseSensitivePaths: true,
+      rootDir,
+      archivePath: baselinePath,
+    });
+    baseline.set('link', 'exists', { ok: true, value: false });
+    baseline.flush();
+    const current = new FsCacheArchive({
+      mode: 'record',
+      caseSensitivePaths: true,
+      rootDir,
+      archivePath: currentPath,
+    });
+    current.retainBaseline(load(baselinePath));
+    current.set('.', 'readdir:utf8:true:false', {
+      ok: true,
+      value: [
+        {
+          kind: 'dirent',
+          type: 'symbolicLink',
+          name: { kind: 'string', value: 'link' },
+          parentPath: { kind: 'relative', path: '.' },
+        },
+      ],
+    });
+    current.flush();
+    const replay = load(currentPath);
+    expect(replay.getExists('link')).toBeUndefined();
+    expect(replay.getExists('link', 'lstat:number')).toBe(true);
+  });
+
   it('retains untouched observations without validating native paths, including deleted files', () => {
     const source = path.join(rootDir, 'source.ts');
     fs.writeFileSync(source, 'archived source');

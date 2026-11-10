@@ -14,17 +14,21 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { pathsEqual } from '../common/filesystem.js';
+import { FileSystemSet, pathsEqual } from '../common/filesystem.js';
 import { debug, error, info } from '../../../shared/src/helpers/logging.js';
 import { basename } from 'node:path/posix';
 import { Minimatch } from 'minimatch';
-import type { FileStore } from './store-type.js';
+import type { FileStore, FileStoreContext } from './store-type.js';
 import type { File, NormalizedAbsolutePath } from '../../../shared/src/helpers/files.js';
 import { type Configuration, getProjectFileDiscoveryConfigKey } from '../common/configuration.js';
 import type { AnalyzableFiles } from '../projectAnalysis.js';
-import { clearTsConfigContentCache } from '../jsts/program/cache/tsconfigCache.js';
+import {
+  clearTsConfigContentCache,
+  getTsConfigContentCache,
+} from '../jsts/program/cache/tsconfigCache.js';
 import { clearProgramOptionsCache } from '../jsts/program/cache/programOptionsCache.js';
 import { getProgramCacheManager } from '../jsts/program/cache/programCache.js';
+import { isFsCacheReplayError } from '../../../shared/src/fs-cache/hook.js';
 
 const TSCONFIG_JSON = 'tsconfig.json';
 
@@ -155,7 +159,7 @@ export class TsConfigStore implements FileStore {
 
   wantsFile(filename: NormalizedAbsolutePath, _configuration: Configuration) {
     return this.filenameMatchesProvidedTsConfig(filename) || this.filenameMatchesTsConfig(filename)
-      ? 'path'
+      ? 'deferred-content'
       : false;
   }
 
@@ -182,7 +186,22 @@ export class TsConfigStore implements FileStore {
   /**
    * Performs post-processing after all files have been processed.
    */
-  async postProcess(configuration: Configuration) {
+  async postProcess(configuration: Configuration, context: FileStoreContext) {
+    for (const filename of new FileSystemSet([
+      ...this.foundLookupTsConfigs,
+      ...this.foundPropertyTsConfigs,
+    ])) {
+      try {
+        const file = await context.getFile(filename);
+        getTsConfigContentCache().set(filename, { contents: file.fileContent, missing: false });
+      } catch (failure) {
+        if (isFsCacheReplayError(failure)) {
+          throw failure;
+        }
+        // Config parsing retains responsibility for reporting unreadable configs when used.
+        debug(`Could not preload tsconfig ${filename}: ${failure}`);
+      }
+    }
     const { tsConfigPaths } = configuration;
     if (tsConfigPaths.length && !this.foundPropertyTsConfigs.length) {
       error(`Failed to find any of the provided tsconfig.json files: ${tsConfigPaths.join(', ')}`);

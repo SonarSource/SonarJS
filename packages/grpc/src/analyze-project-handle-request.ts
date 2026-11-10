@@ -451,23 +451,18 @@ async function handleProjectAnalysis(
           ? prepareIncrementalContext(request, sessions.programSelection)
           : undefined;
       let fileFailed = false;
-      const onResult: typeof incrementalResultsChannel = incrementalResultsChannel
-        ? event => {
+      logHeapStatistics(workerData?.debugMemory);
+      let deliveryFailed = false;
+      const publishEvent = incrementalResultsChannel
+        ? (event: AnalyzeProjectIncrementalEvent) => {
             if (event.event.messageType === 'fileResult' && 'error' in event.event) {
               fileFailed = true;
             }
-            incrementalResultsChannel(event);
-          }
-        : undefined;
-      logHeapStatistics(workerData?.debugMemory);
-      let deliveryFailed = false;
-      const publishEvent = onResult
-        ? (event: AnalyzeProjectIncrementalEvent) => {
             if (event.event.messageType === 'meta' && sessions.fallbackWarning) {
               event.event.warnings.push(sessions.fallbackWarning);
             }
             try {
-              onResult(event);
+              incrementalResultsChannel(event);
             } catch (error) {
               deliveryFailed = true;
               throw error;

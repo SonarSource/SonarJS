@@ -65,13 +65,7 @@ export async function normalizeAnalyzeProjectRequest(
   const bundles = normalizePathList(request.bundles, configuration.baseDir);
   const rulesWorkdir = normalizeOptionalPath(request.rulesWorkdir, configuration.baseDir);
 
-  // With no pending source, discovery/config preloading would only serve collection.
-  // Reset the stores normally, but do not walk/read unchanged generated-source configs.
-  const storeConfiguration =
-    sanitizedFiles && Object.keys(sanitizedFiles.files).length === 0
-      ? { ...configuration, canAccessFileSystem: false }
-      : configuration;
-  await initFileStoresForAnalysis(storeConfiguration, sanitizedFiles?.files);
+  await initFileStoresForAnalysis(configuration, sanitizedFiles?.files);
 
   return {
     rules,

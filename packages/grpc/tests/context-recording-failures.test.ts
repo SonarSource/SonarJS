@@ -19,6 +19,7 @@ import { expect } from 'expect';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import ts from 'typescript';
 import { handleAnalyzeProjectRequest } from '../src/analyze-project-handle-request.js';
 import type { AnalyzeProjectProtoRequest } from '../src/analyze-project-request.js';
 import { ProgramSelectionArchive } from '../../analysis/src/program-selection/archive.js';
@@ -179,54 +180,98 @@ for (const interrupted of ['cancellation', 'file error'] as const) {
   });
 }
 
-it('keeps cached ambient peers in a changed orphan program and in replay', async () => {
-  const project = request.configuration!.baseDir!;
-  const ambient = path.join(project, 'ambient.ts');
-  const changed = path.join(project, 'changed.ts');
-  const content = 'values.sort();\nexport {};';
-  fs.writeFileSync(ambient, 'declare const values: number[];');
-  fs.writeFileSync(changed, content);
-  request.configuration!.disableTypeChecking = false;
-  request.files = { [ambient]: {}, [changed]: {} };
-  request.rules = [{ key: 'S2871', language: 2, fileTypeTargets: [1], analysisModes: [1] }];
-  const analyze = () =>
-    handleAnalyzeProjectRequest(
-      { type: 'on-analyze-project', data: request },
-      { debugMemory: false },
-    );
-  expect((await analyze()).type).toBe('success');
-  const previous = request.filesystemCache!;
-  request.filesystemCache = {
-    mode: 1,
-    archivePath: path.join(temporary, 'warm-filesystem.pb.gz'),
-    analysisMetadataPath: path.join(temporary, 'warm-programs.pb.gz'),
-    snapshotManifestPath: path.join(temporary, 'warm-manifest.json'),
-    baselineArchivePath: previous.archivePath,
-    baselineAnalysisMetadataPath: previous.analysisMetadataPath,
-    baselineManifestPath: previous.snapshotManifestPath,
-    baselineContextMetadata: JSON.stringify({ configuration: request.configuration }),
-  };
-  delete request.files![ambient];
-  const expectIssue = async () => {
-    const result = await analyze();
-    expect(result.type).toBe('success');
-    if (result.type === 'success' && result.result) {
-      const file = result.result.output.files[normalizeToAbsolutePath(changed)];
-      expect('issues' in file && file.issues).toHaveLength(1);
+for (const caseOnlyRename of [false, true]) {
+  it(`keeps orphan analysis independent of the baseline (case-only rename: ${caseOnlyRename})`, async () => {
+    const project = request.configuration!.baseDir!;
+    const ambient = path.join(project, 'ambient.ts');
+    const original = path.join(project, 'Changed.ts');
+    const changed = caseOnlyRename ? path.join(project, 'changed.ts') : original;
+    const content = 'values.sort();\nexport {};';
+    const nativeCaseSensitivity = ts.sys.useCaseSensitiveFileNames;
+    if (caseOnlyRename) {
+      // A request may use the new spelling before the old metadata has been replaced.
+      ts.sys.useCaseSensitiveFileNames = false;
     }
-    return result;
-  };
-  const warm = await expectIssue();
-  if (warm.type === 'success' && warm.result) {
-    expect(warm.result.output.files[normalizeToAbsolutePath(ambient)]).toBeUndefined();
-  }
-  fs.rmSync(project, { recursive: true });
-  request.files = { [changed]: { fileContent: content } };
-  request.filesystemCache = {
-    mode: 2,
-    archivePath: request.filesystemCache.archivePath,
-    analysisMetadataPath: request.filesystemCache.analysisMetadataPath,
-    contextMetadata: JSON.stringify({ configuration: request.configuration }),
-  };
-  await expectIssue();
-});
+    try {
+      fs.writeFileSync(ambient, 'declare const values: number[];');
+      fs.writeFileSync(original, content);
+      request.configuration!.disableTypeChecking = false;
+      request.files = { [ambient]: {}, [original]: {} };
+      request.rules = [{ key: 'S2871', language: 2, fileTypeTargets: [1], analysisModes: [1] }];
+      const analyze = () =>
+        handleAnalyzeProjectRequest(
+          { type: 'on-analyze-project', data: request },
+          { debugMemory: false },
+        );
+      const cold = await analyze();
+      expect(cold.type).toBe('success');
+      if (cold.type === 'success' && cold.result) {
+        const file = cold.result.output.files[normalizeToAbsolutePath(original)];
+        expect('issues' in file && file.issues).toHaveLength(1);
+      }
+      const previous = request.filesystemCache!;
+      request.files = { [changed]: { fileContent: content } };
+      request.filesystemCache = undefined;
+      const ruleExecutions = mock.method(Linter.rules.S2871, 'create');
+      const ordinary = await analyze();
+      expect(ordinary.type).toBe('success');
+      expect(ruleExecutions.mock.callCount()).toBe(1);
+      request.filesystemCache = {
+        mode: 1,
+        archivePath: path.join(temporary, 'warm-filesystem.pb.gz'),
+        analysisMetadataPath: path.join(temporary, 'warm-programs.pb.gz'),
+        snapshotManifestPath: path.join(temporary, 'warm-manifest.json'),
+        baselineArchivePath: previous.archivePath,
+        baselineAnalysisMetadataPath: previous.analysisMetadataPath,
+        baselineManifestPath: previous.snapshotManifestPath,
+        baselineContextMetadata: JSON.stringify({ configuration: request.configuration }),
+      };
+      const groups = mock.method(ProgramSelectionArchive.prototype, 'recordOrphanGroup');
+      const observed: string[] = [];
+      const set = FsCacheArchive.prototype.set;
+      mock.method(
+        FsCacheArchive.prototype,
+        'set',
+        function (this: FsCacheArchive, ...args: Parameters<typeof set>) {
+          if (args[1] === 'readFile') observed.push(this.absolutePathFor(args[0]));
+          return set.apply(this, args);
+        },
+      );
+      const warm = await analyze();
+      expect(warm.type).toBe('success');
+      expect(ruleExecutions.mock.calls.map(call => call.arguments[0].filename)).toEqual([
+        normalizeToAbsolutePath(changed),
+        normalizeToAbsolutePath(changed),
+      ]);
+      if (
+        warm.type === 'success' &&
+        warm.result &&
+        ordinary.type === 'success' &&
+        ordinary.result
+      ) {
+        const file = warm.result.output.files[normalizeToAbsolutePath(changed)];
+        // The omitted ambient peer is the existing incremental limitation tracked by JS-2815.
+        expect('issues' in file && file.issues).toEqual([]);
+        expect(warm.result.output.files).toEqual(ordinary.result.output.files);
+        expect(Object.keys(warm.result.output.files)).toEqual([normalizeToAbsolutePath(changed)]);
+        expect(ordinary.result.output.meta.telemetry?.programCreation.attempted).toBe(1);
+        expect(warm.result.output.meta.telemetry?.programCreation.attempted).toBe(1);
+      }
+      expect(groups.mock.calls.map(call => call.arguments[0])).toEqual([
+        [normalizeToAbsolutePath(changed)],
+      ]);
+      expect(observed).not.toContain(normalizeToAbsolutePath(ambient));
+      expect(fs.existsSync(request.filesystemCache.snapshotManifestPath!)).toBe(true);
+      const metadata = new ProgramSelectionArchive(
+        request.filesystemCache.analysisMetadataPath!,
+        normalizeToAbsolutePath(project),
+        'replay',
+      );
+      expect(
+        metadata.getRestoredSelections([normalizeToAbsolutePath(changed)])[0].rootNames,
+      ).toEqual([normalizeToAbsolutePath(changed)]);
+    } finally {
+      ts.sys.useCaseSensitiveFileNames = nativeCaseSensitivity;
+    }
+  });
+}

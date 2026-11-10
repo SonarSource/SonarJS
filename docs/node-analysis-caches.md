@@ -32,10 +32,11 @@ SQAA filesystem/program snapshots described in [the A3S context contract](./a3s-
 Java handles sensor-cache hits before building the Node request, with or without recording.
 Only files requiring analysis are sent to Node. During RECORD, the filesystem layer passively
 retains baseline observations for publication and updates them through normal native filesystem
-calls. Untouched entries may remain stale; there is no validation sweep. Program selections are
-also carried forward and updated by actual analysis. Cached orphan peers can remain roots of a
-program required by a changed file without being analyzed themselves. An empty RECORD request
-does not discover or preload project files. SQAA REPLAY instead treats the snapshot as authoritative.
+calls. Fresh directory listings reconcile removed paths within normal traversal coverage; there
+is no additional validation walk. Program selections are carried forward and updated by actual
+analysis, but inherited metadata does not choose CI program roots. An empty RECORD request still
+discovers project configuration and records directory listings without analyzing source files or
+creating TypeScript programs. SQAA REPLAY instead treats the snapshot as authoritative.
 These archives contain observations and program selections, not compiler objects or ESLint state.
 Clearing Node caches does not invalidate the platform cache.
 
@@ -128,6 +129,11 @@ It also owns the policy decision between those two sets:
 - otherwise lookup-discovered tsconfigs are used
 
 The store is also responsible for clearing downstream TypeScript caches when tsconfig discovery becomes stale.
+
+Discovered configs request file contents and populate the raw tsconfig content cache, so recording
+captures current configs even when no source needs analysis. This covers lookup-discovered files
+and explicit path matches; arbitrary `extends` targets are read when normal config parsing needs
+them rather than through an additional config-resolution pass.
 
 ### `dependencyManifestStore`
 

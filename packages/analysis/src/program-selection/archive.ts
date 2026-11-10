@@ -140,7 +140,6 @@ export class ProgramSelectionArchive {
   private canonicalPathsCaseSensitive?: boolean;
   private nextProgramId = 1;
   private readonly inheritedOutcomes = new Set<string>();
-  private baselineOrphanGroups: NormalizedAbsolutePath[][] = [];
 
   constructor(
     archivePath: string,
@@ -178,9 +177,6 @@ export class ProgramSelectionArchive {
     );
     // Validate metadata identities under this filesystem policy before mutating the recorder.
     baseline.canonicalRequestedFile(this.baseDir);
-    this.baselineOrphanGroups = [...baseline.programs]
-      .filter(([, stored]) => !isConfigured(stored.program))
-      .map(([id]) => baseline.filesByProgram.get(id) ?? []);
     for (const [id, stored] of baseline.programs) {
       this.nextProgramId = Math.max(this.nextProgramId, id + 1);
       this.programs.set(id, stored);
@@ -196,29 +192,6 @@ export class ProgramSelectionArchive {
       this.noProgramFiles.add(file);
       this.inheritedOutcomes.add(canonicalFileName(file));
     }
-  }
-
-  /** Preserve ambient declarations from cached peers when a changed orphan still needs analysis. */
-  orphanEntryPoints(pendingFiles: readonly NormalizedAbsolutePath[]): NormalizedAbsolutePath[] {
-    const pending = new Set(pendingFiles.map(file => canonicalFileName(file)));
-    const roots = new Map(pendingFiles.map(file => [canonicalFileName(file), file]));
-    for (const group of this.baselineOrphanGroups) {
-      if (!group.some(file => pending.has(canonicalFileName(file)))) {
-        continue;
-      }
-      for (const file of group) {
-        if (this.hasNoProgram(file)) {
-          continue;
-        }
-        const selectedId = this.selections.get(this.canonicalRequestedFile(file));
-        const selected = selectedId === undefined ? undefined : this.programs.get(selectedId);
-        if (selected && isConfigured(selected.program)) {
-          continue;
-        }
-        roots.set(canonicalFileName(file), file);
-      }
-    }
-    return [...roots.values()];
   }
 
   restoredConfiguration(): ReplayableConfiguration | undefined {

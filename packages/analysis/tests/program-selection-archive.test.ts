@@ -85,13 +85,12 @@ describe('ProgramSelectionArchive', () => {
       current.recordNoProgram(nowFiltered);
       current.recordNoProgram(nowNoProgram);
       current.recordOrphanGroup([nowOrphan, noProgramToOrphan], { allowJs: true });
-      const roots = current.orphanEntryPoints([changed]);
-      expect(roots).toEqual([changed, ambient, unsubmitted]);
-      current.recordOrphanGroup(roots, { allowJs: true });
+      current.recordOrphanGroup([changed], { allowJs: true });
       expect(() => current.recordNoProgram(nowConfigured)).toThrow('both a program and no-program');
       current.end();
       const replay = new ProgramSelectionArchive(currentPath, root, 'replay');
-      expect(replay.getRestoredSelections([changed])[0].rootNames).toEqual(roots);
+      expect(replay.getRestoredSelections([changed])[0].rootNames).toEqual([changed]);
+      expect(replay.getRestoredSelections([ambient])[0].rootNames).toEqual([ambient, unsubmitted]);
       for (const configured of [nowConfigured, noProgramToConfigured, configuredPeer]) {
         expect(replay.getRestoredSelections([configured])[0].program).toMatchObject({
           kind: 'configured',

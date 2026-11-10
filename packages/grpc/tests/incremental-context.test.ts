@@ -152,20 +152,34 @@ describe('passive sensor-cache context reuse', () => {
       pr.configuration!.disableTypeChecking = branch.configuration!.disableTypeChecking;
       seed(pr, branch);
       pr.files = {};
-      const observed: string[] = [];
+      const configContent = JSON.stringify({
+        files: ['cached.ts', 'changed.ts', 'values.ts'],
+        compilerOptions: { target: 'ES2022' },
+      });
+      if (kind !== 'orphan') fs.writeFileSync(path.join(project, 'tsconfig.json'), configContent);
+      const observed: Array<{ file: string; operation: string }> = [];
       const set = FsCacheArchive.prototype.set;
       mock.method(
         FsCacheArchive.prototype,
         'set',
         function (this: FsCacheArchive, ...args: Parameters<typeof set>) {
-          observed.push(this.absolutePathFor(args[0]));
+          observed.push({ file: this.absolutePathFor(args[0]), operation: args[1] });
           return set.apply(this, args);
         },
       );
       const result = await analyze(pr);
       expect(result.files).toEqual({});
       expect(result.meta?.telemetry?.programCreation?.attempted ?? 0).toBe(0);
-      expect(observed).toEqual([]);
+      expect(
+        observed.filter(({ file, operation }) => operation === 'readFile' && file.endsWith('.ts')),
+      ).toEqual([]);
+      expect(observed.some(({ operation }) => operation.startsWith('opendir:'))).toBe(true);
+      if (kind !== 'orphan') {
+        expect(archive(pr).get('tsconfig.json', 'readFile')).toEqual({
+          ok: true,
+          value: Buffer.from(configContent),
+        });
+      }
       expect(fs.existsSync(pr.filesystemCache!.snapshotManifestPath!)).toBe(true);
       mock.restoreAll();
       fs.rmSync(project, { recursive: true });
@@ -196,7 +210,7 @@ describe('passive sensor-cache context reuse', () => {
     expect(restored.files![file].issues).toHaveLength(0);
   });
 
-  it('keeps untouched entries, including deleted sources, without a validation pass', async () => {
+  it('reconciles deleted sources during the ordinary walk and retains unchanged source contents', async () => {
     const branch = request('branch');
     await analyze(branch);
     const pr = request('pr');
@@ -204,11 +218,16 @@ describe('passive sensor-cache context reuse', () => {
     pr.files = {};
     const removed = path.join(project, 'cached.ts');
     fs.unlinkSync(removed);
-    await analyze(pr);
+    const result = await analyze(pr);
+    expect(result.files).toEqual({});
+    expect(result.meta?.telemetry?.programCreation?.attempted ?? 0).toBe(0);
     const recorded = archive(pr);
-    const content = recorded.entries.get(recorded.keyFor(removed)!)?.content;
-    expect(content?.ok && content.value.toString()).toBe(source);
-    expect(recorded.entries.size).toBe(archive(branch).entries.size);
+    expect(recorded.getExists(recorded.keyFor(removed)!)).toBe(false);
+    expect(recorded.get(recorded.keyFor(removed)!, 'readFile')).toBeUndefined();
+    expect(recorded.get('changed.ts', 'readFile')).toEqual({
+      ok: true,
+      value: Buffer.from(source),
+    });
   });
 
   it('retains a baseline in a different checkout directory', async () => {

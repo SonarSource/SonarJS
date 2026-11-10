@@ -121,16 +121,21 @@ The snapshot-reuse implementation uses this path:
    and omit those files from the Node request. Only misses are sent for analysis.
 4. The filesystem layer passively retains baseline observations. Normal RECORD calls always use
    native FS and update the snapshot as they occur. Program outcomes are also retained and replaced
-   by actual analysis. An all-cached empty request does not discover or analyze files.
+   by actual analysis, without using inherited metadata to expand CI program roots. An all-cached
+   empty request still runs file-store discovery to capture configuration and directory listings;
+   it does not analyze source files or create TypeScript programs.
 5. A completion marker permits publication through the collector's existing two attachments after
    successful analysis and archive persistence. It does not assert filesystem completeness. With
    no usable baseline and any reused hits, Java skips context publication without reanalysis.
    The marker is cache-only. PR snapshot writes go to the platform's no-op writer and leave
    the stored branch generation intact.
 
-There is no baseline-entry validation pass or deletion sweep. Untouched observations may remain
-stale, including deleted files that normal analysis never queries. This approximation is deliberate
-to preserve PR speed. Context failure must not fail successful analysis or introduce cache misses.
+There is no additional baseline-entry validation walk. Current complete directory listings remove
+inherited paths that disappeared within normal traversal coverage. Discovered and explicitly
+selected tsconfig contents and dependency manifests refresh through the file stores. Unchanged
+source contents are retained without rereading them solely for context. Unvisited dependencies
+and arbitrary extended configs not read by normal analysis may retain baseline observations.
+Context failure must not fail successful analysis or introduce cache misses.
 Dependency-aware cache invalidation is a separate improvement (JS-2815). Normal analysis may still
 read unchanged dependencies needed by a changed file. TypeScript program objects are not persisted.
 
@@ -225,7 +230,7 @@ sensor cache and are sent to Node on every run.
 6. Can cached data be deserialized successfully?
    NO  → WRITE_ONLY (reason: CACHE_CORRUPTED)
 
-7. All checks pass → READ_AND_WRITE (deferred until Node confirms during recording)
+7. All checks pass → READ_AND_WRITE (Java handles cache hits before sending misses to Node)
 ```
 
 Note: `isInCache()` checks for CPD + AST presence but **not** file metadata (checked in step 4).

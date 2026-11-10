@@ -212,7 +212,7 @@ async function analyzeFilesFromDiscoveredPrograms(
       telemetry,
       programSelection,
       incrementalResultsChannel,
-      orphanProgramRoots ?? programSelection?.orphanEntryPoints([...pendingFiles]),
+      orphanProgramRoots,
     );
   } else if (pendingFiles.size) {
     info(

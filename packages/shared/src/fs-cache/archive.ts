@@ -42,6 +42,7 @@ import {
   writeFileWithNativePrimitives,
 } from './archive-types.js';
 import { deserializeProtobufDocument, serializeProtobufDocument } from './archive-serialization.js';
+import { reconcileDirectoryObservations } from './archive-directories.js';
 import {
   createNode,
   isMissingOutcome,
@@ -504,6 +505,9 @@ export class FsCacheArchive {
         this.entries = ownEntries;
         this.missingPaths = ownMissingPaths;
       }
+      reconcileDirectoryObservations(mergedEntries, mergedMissingPaths, ownEntries, value =>
+        this.canonicalKey(value),
+      );
       for (const missingPath of ownMissingPaths) {
         mergedEntries.delete(missingPath);
         mergedMissingPaths.add(missingPath);

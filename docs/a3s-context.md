@@ -21,7 +21,8 @@ archives are already compressed and are transported unchanged.
 During PR recording, Java handles per-file cache hits exactly as it does without recording:
 it copies cached results, re-emits CPD/AST where applicable, and omits those files from the
 Java-to-Node request. Node receives only files requiring analysis. An all-cached request has
-an empty files map and does not trigger discovery, source reads, or TypeScript program creation.
+an empty files map. The normal file-store walk still discovers project configuration and records
+directory listings, but does not analyze source files or create TypeScript programs.
 
 The filesystem layer passively retains the platform-selected `previousCache()` baseline.
 In RECORD mode every intercepted filesystem call uses the native filesystem; its result updates
@@ -29,11 +30,17 @@ the snapshot. Supplied source contents are recorded too. Program-selection outco
 forward and replaced when actual analysis learns a new outcome. Baseline entries are not served
 as filesystem answers during CI analysis. In SQAA REPLAY, by contrast, the archive is authoritative.
 
-There is no separate snapshot-entry validation or deletion sweep. Untouched entries remain as
-they were, even if their files have since changed or been deleted. A missing path is updated only
-if normal analysis observes it. A fresh directory listing replaces the corresponding listing,
-but does not independently validate every child. This is an intentional approximation to preserve
-fast PR analysis; PR snapshots do not promise the consistency of a fresh full-analysis snapshot.
+There is no separate snapshot-entry validation walk. Fresh, complete directory listings remove
+inherited paths that no longer exist, including removed subtrees. Discovered `tsconfig.json` files,
+explicit tsconfig-path matches and dependency manifests refresh their contents during the normal
+file-store walk, including all-cached requests. Unchanged source contents remain in the baseline
+without being reread solely for context.
+
+Reconciliation covers directories visited by normal discovery. Untouched dependency observations
+may remain stale. An arbitrary extended config outside tsconfig discovery is refreshed only when
+normal analysis reads it; this change does not add eager config-graph resolution. Program metadata
+is retained and updated by actual analysis, but never expands CI program roots. PR snapshots do
+not promise the semantics of a fresh full analysis.
 
 Dependency-aware reanalysis after imported files or TypeScript configuration changes is a separate
 improvement tracked by JS-2815. This regression fix preserves the previous cache trust boundary.
