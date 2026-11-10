@@ -157,6 +157,118 @@ parameter conflicts, and the presence of local implementation files. Registry
 tests also verify that local plugin names match their metadata. Metadata imports
 do not load local plugin implementations.
 
+## Next steps for the CSS analyzer
+
+This section records deferred proposals for the CSS analyzer as CSS-family rule
+coverage grows. They are not part of the current architecture or requirements for
+adding new rules.
+
+### Shared parsing services
+
+When adding CSS rules, check whether they repeat parsing or interpretation already
+performed by another rule or by syntax highlighting. A future per-file service
+could expose cached parsing entry points for `postcss-value-parser`,
+`postcss-selector-parser`, and `css-tree`. It would return the libraries' existing
+ASTs, rather than wrap every method they expose. Rules could still call methods
+such as `ast.walk()` directly.
+
+**Decision:** keep the current direct imports for now. Repeated work exists, but
+we have not demonstrated an end-to-end performance gain that justifies a shared
+abstraction. Prefer measured local optimizations until more consumers need the
+same data. This proposal does not require a listener dispatcher or changes to
+Stylelint's per-rule traversal model.
+
+#### Candidates to revisit
+
+- **S9440:** repeated interpretation of animation/transition values and spatial
+  values. Caching derived results may save more work than caching parsing alone.
+  Resolved selectors already have a local cache during collection.
+- **S9424 and S9449:** overlapping `css-tree` value parsing for transition
+  declarations. S9424 already caches successful validations by lexer and modifies
+  parsed identifiers, so sharing its AST requires care.
+- **S7923, S7924, S7925 and S9441:** value parsing can overlap with other rules or
+  highlighting, depending on the declarations and enabled rules.
+- **Syntax highlighting:** can reuse value trees requested during linting. Cache
+  lifetime would therefore need to extend through highlighting.
+
+An exploratory probe on 17 local CSS fixtures reduced `postcss-value-parser`
+executions from 103 to 42 with a temporary per-file text cache, preserving findings
+and highlighting in that sample. Deprecated S5362 was excluded. These counts
+include repeated values across declarations and intermediate fragments; a cache
+keyed only by declaration nodes would not necessarily achieve the same reduction.
+This was a small fixture experiment, not a representative performance benchmark
+or evidence of a 59% reduction in analysis time.
+
+#### Design and validation considerations
+
+If revisited, create services lazily for each file or embedded stylesheet and
+share the instance with participating rules and highlighting. Provide access
+through our integration layer; avoid a global mutable service instance.
+
+Cache keys must distinguish the parser, input text and relevant options. Preserve
+the distinction between raw, normalized and comment-preserving values. Cached
+ASTs must be treated as read-only; consumers that mutate trees need an isolated
+copy or a separately cached derived result. Node-based caches must account for
+changes to node content. Bound memory and release caches after analysis.
+
+Before adopting the service, benchmark real stylesheets with the actual quality
+profile. Compare end-to-end analysis time and peak memory, check findings and
+highlighting parity, and account for existing caches and lookup/cloning costs.
+Upstream Stylelint rules will retain their own parsing unless explicitly adapted.
+Introduce only the shared operations that demonstrate a benefit.
+
+### Retain the Sass AST for syntax-specific rules
+
+For `.sass` files, `sass-parser` already builds a Sass AST with expression trees.
+Our adapter uses statement structure and source locations to build a separate
+PostCSS tree for Stylelint, but does not retain a queryable association with the
+original nodes. A future step is to retain the Sass AST and expose selected
+information through per-stylesheet analysis services when a concrete rule needs
+it.
+
+Suggested architecture (not implemented):
+
+```text
+                  Parse Sass once
+                         |
+                         v
+                  Upstream Sass AST
+                         |
+                  Our PostCSS builder
+                         |
+             +-----------+------------+
+             |                        |
+             v                        v
+      PostCSS tree              Side mapping
+      used by Stylelint         to original Sass nodes
+             |                        ^
+             v                        |
+      Stylelint rules ----> Analysis services
+                              query Sass information
+```
+
+We would own a side mapping from generated PostCSS nodes to their original Sass
+nodes, recorded during conversion. The mapping must allow missing or multiple
+counterparts because conversion can split, synthesize or flatten nodes. Rules
+could query the Sass expression for a declaration without parsing the file again.
+In the installed API, declaration values are available through `.expression` and
+node kinds through `.sassType`.
+
+Keep the existing PostCSS tree for compatibility with current rules. Treat the
+retained Sass tree as read-only and translate expression ranges through
+`SassSource` before reporting against original source, including dedented embedded
+styles. Ordinary PostCSS traversal does not visit expression children; expression
+walking would need a tested adapter around the experimental upstream API. Do not
+rely on upstream selector ASTs while our keyframe workaround disables their
+parsing.
+
+This applies initially to `.sass`: `.scss` still uses `postcss-scss`, so equivalent
+SCSS access requires a separate parser integration decision. The available data
+describes syntax, not resolved variables, expanded mixins or computed values.
+Validate node associations, reporting locations and unsupported cases, and measure
+the memory cost of retaining the tree before adopting this proposal. Keep it
+separate from the performance case for shared parsing caches.
+
 ## Verify changes
 
 Run the CSS registry checks and the relevant CSS rule and linter tests through the
