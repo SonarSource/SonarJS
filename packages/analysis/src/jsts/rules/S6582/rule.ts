@@ -136,6 +136,30 @@ function isGuardAbsorbedByCallArgumentFallback(node: Rule.Node): boolean {
   return false;
 }
 
+function typeCanBeFalsy(type: ts.Type, checker: ts.TypeChecker): boolean {
+  if (type.isNumberLiteral()) {
+    return type.value === 0;
+  }
+  if (type.isStringLiteral()) {
+    return type.value === '';
+  }
+  if (type.flags & ts.TypeFlags.BigIntLiteral) {
+    return (type as ts.BigIntLiteralType).value.base10Value === '0';
+  }
+  if (type.flags & ts.TypeFlags.BooleanLiteral) {
+    return checker.typeToString(type) === 'false';
+  }
+  return (
+    (type.flags &
+      (ts.TypeFlags.Number |
+        ts.TypeFlags.String |
+        ts.TypeFlags.BigInt |
+        ts.TypeFlags.Boolean |
+        ts.TypeFlags.EnumLike)) !==
+    0
+  );
+}
+
 function createTypeLookupHelpers(
   getTSNode: (node: Rule.Node) => ts.Node | undefined,
   checker: ts.TypeChecker,
@@ -223,33 +247,10 @@ function createGuardHelpers(
     return types.some(part => (part.flags & ts.TypeFlags.Null) !== 0);
   }
 
-  function typeCanBeFalsy(type: ts.Type): boolean {
-    if (type.isNumberLiteral()) {
-      return type.value === 0;
-    }
-    if (type.isStringLiteral()) {
-      return type.value === '';
-    }
-    if (type.flags & ts.TypeFlags.BigIntLiteral) {
-      return (type as ts.BigIntLiteralType).value.base10Value === '0';
-    }
-    if (type.flags & ts.TypeFlags.BooleanLiteral) {
-      return checker.typeToString(type) === 'false';
-    }
-    return (
-      (type.flags &
-        (ts.TypeFlags.Number |
-          ts.TypeFlags.String |
-          ts.TypeFlags.BigInt |
-          ts.TypeFlags.Boolean |
-          ts.TypeFlags.EnumLike)) !==
-      0
-    );
-  }
-
-  function hasGuardTypeWithinOrFallback(
+  function hasGuardTypeWithinFallback(
     node: Rule.Node,
     predicate: (type: ts.Type) => boolean,
+    fallbackOperator: '||' | '??',
   ): boolean {
     if (node.type !== 'LogicalExpression') {
       return false;
@@ -264,7 +265,7 @@ function createGuardHelpers(
       const parent: Rule.Node = current.parent;
       if (
         parent.type === 'LogicalExpression' &&
-        parent.operator === '||' &&
+        parent.operator === fallbackOperator &&
         parent.left === current
       ) {
         hasOrFallback = true;
@@ -282,18 +283,19 @@ function createGuardHelpers(
       }
       if (
         expression.operator === '&&' &&
-        expression.left.type !== 'LogicalExpression' &&
-        expression.left.type !== 'BinaryExpression' &&
-        expression.left.type !== 'UnaryExpression'
+        (fallbackOperator === '??' ||
+          (expression.left.type !== 'LogicalExpression' &&
+            expression.left.type !== 'BinaryExpression' &&
+            expression.left.type !== 'UnaryExpression'))
       ) {
         const rawGuardType = getTypeOfNode(expression.left as Rule.Node);
-        if (rawGuardType != null) {
-          const guardType: ts.Type =
-            checker.getBaseConstraintOfType(rawGuardType) ?? rawGuardType;
-          const types: ts.Type[] = guardType.isUnion() ? guardType.types : [guardType];
-          if (types.some(predicate)) {
-            return true;
-          }
+        if (rawGuardType == null) {
+          return fallbackOperator === '??';
+        }
+        const guardType: ts.Type = checker.getBaseConstraintOfType(rawGuardType) ?? rawGuardType;
+        const types: ts.Type[] = guardType.isUnion() ? guardType.types : [guardType];
+        if (types.some(predicate)) {
+          return true;
         }
       }
       return (
@@ -315,10 +317,13 @@ function createGuardHelpers(
         }
       }
     }
-    return hasGuardTypeWithinOrFallback(
-      node,
-      type =>
-        typeCanBeFalsy(type) || (type.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown)) !== 0,
+    const isUnsafe =
+      (type: ts.Type) =>
+        typeCanBeFalsy(type, checker) ||
+        (type.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown)) !== 0;
+    return (
+      hasGuardTypeWithinFallback(node, isUnsafe, '||') ||
+      hasGuardTypeWithinFallback(node, isUnsafe, '??')
     );
   }
   return { guardCanIntroduceUndefined, hasPotentiallyUnsafeGuard };
