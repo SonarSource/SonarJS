@@ -176,12 +176,14 @@ describe('S6582 with strict: true (no explicit strictNullChecks)', () => {
           code: `function getLen(arr: string[] | null): number | null { return arr && arr.length; }`,
           filename: path.join(import.meta.dirname, 'fixtures/strict-mode/index.ts'),
         },
+      ],
+      invalid: [
         {
           code: `function f(n: number | null): string { return (n && n.toFixed()) || ''; }`,
           filename: path.join(import.meta.dirname, 'fixtures/strict-mode/index.ts'),
+          output: null,
+          errors: [{ messageId: 'preferOptionalChain', suggestions: [] }],
         },
-      ],
-      invalid: [
         {
           // boolean context (if-condition): no contextual type — optional chaining is type-safe
           code: `function f(arr: string[] | null) { if (arr && arr.length) {} }`,
@@ -245,10 +247,6 @@ describe('S6582 contextual and fallback checks', () => {
           filename,
         },
         {
-          code: `function f(x: number | null, y: object): string { return (y && (x && x.toString())) || 'none'; }`,
-          filename,
-        },
-        {
           code: `function f(a: string[] | null, b: string[] | null) { if (!a || !b || a.length !== b.length) {} }`,
           filename,
         },
@@ -258,6 +256,12 @@ describe('S6582 contextual and fallback checks', () => {
         },
       ],
       invalid: [
+        {
+          code: `function f(x: number | null, y: object): string { return (y && (x && x.toString())) || 'none'; }`,
+          filename,
+          output: null,
+          errors: [{ messageId: 'preferOptionalChain', suggestions: [] }],
+        },
         {
           code: `function f(arr: string[] | null) { if (arr && arr.length) {} }`,
           filename,
@@ -649,10 +653,6 @@ describe('S6582 effective strictness', () => {
             filename,
           },
           {
-            code: "function f(x: number | null): string { return (x && x.toFixed()) || ''; }",
-            filename,
-          },
-          {
             code: 'function f(x: { child: { p: number } | null }): number | null { return x && x.child && x.child.p; }',
             filename,
           },
@@ -670,6 +670,12 @@ describe('S6582 effective strictness', () => {
           },
         ],
         invalid: [
+          {
+            code: "function f(x: number | null): string { return (x && x.toFixed()) || ''; }",
+            filename,
+            output: null,
+            errors: [{ messageId: 'preferOptionalChain', suggestions: [] }],
+          },
           {
             code: "function f(x: any) { let value: string = ''; value = x && x.p; }",
             output: "function f(x: any) { let value: string = ''; value = x?.p; }",
@@ -765,4 +771,37 @@ describe('S6582 effective strictness', () => {
       });
     });
   }
+});
+
+describe('S6582 falsy fallback reports', () => {
+  const filename = path.join(import.meta.dirname, 'fixtures/strict-mode/index.ts');
+  const tester = new RuleTester({
+    parserOptions: {
+      project: './tsconfig.json',
+      tsconfigRootDir: path.join(import.meta.dirname, 'fixtures/strict-mode'),
+    },
+  });
+  tester.run('S6582 falsy fallback reports', rule, {
+    valid: [],
+    invalid: [
+      {
+        code: 'function f(n: number | null) { return (n && n.valueOf()) || 0; }',
+        filename,
+        output: null,
+        errors: [{ messageId: 'preferOptionalChain', suggestions: [] }],
+      },
+      {
+        code: "function f(s: string | null) { return (s && s.toUpperCase()) || ''; }",
+        filename,
+        output: null,
+        errors: [{ messageId: 'preferOptionalChain', suggestions: [] }],
+      },
+      {
+        code: 'function use(n: number) {} function f(n: number | null) { use((n && n.valueOf()) || 0); }',
+        filename,
+        output: null,
+        errors: [{ messageId: 'preferOptionalChain', suggestions: [] }],
+      },
+    ],
+  });
 });

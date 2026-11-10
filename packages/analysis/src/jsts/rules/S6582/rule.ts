@@ -285,14 +285,11 @@ export const rule: Rule.RuleModule = {
       return containsMatchingGuard(node);
     }
 
-    function hasFalsyGuardWithinOrFallback(node: Rule.Node): boolean {
-      return hasGuardTypeWithinOrFallback(node, typeCanBeFalsy);
-    }
-
-    function hasUncertainGuardWithinOrFallback(node: Rule.Node): boolean {
+    function hasUnsafeGuardWithinOrFallback(node: Rule.Node): boolean {
       return hasGuardTypeWithinOrFallback(
         node,
-        type => (type.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown)) !== 0,
+        type =>
+          typeCanBeFalsy(type) || (type.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown)) !== 0,
       );
     }
 
@@ -535,11 +532,8 @@ export const rule: Rule.RuleModule = {
         return;
       }
 
-      // A `||` fallback exposes the behavior change for falsy values in an `&&` guard.
-      if (hasFalsyGuardWithinOrFallback(node)) {
-        return;
-      }
-      if (hasUncertainGuardWithinOrFallback(node)) {
+      // Falsy guards can change fallback behavior. Keep reports without unsafe fixes.
+      if (hasUnsafeGuardWithinOrFallback(node)) {
         const { fix: _fix, suggest: _suggest, ...rest } = descriptor;
         ctx.report(rest);
         return;
