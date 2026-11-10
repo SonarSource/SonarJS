@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
     inputs:
       validate-registry-routing:
-        description: Validate public/SaaS installs and Edge downloads with isolated caches
+        description: Validate public and SaaS npm installs with isolated caches
         type: boolean
         default: false
   schedule:
@@ -77,13 +77,8 @@ jobs:
           echo "Computed Maven hash: $HASH"
       - name: Compute NPM hash for cache key
         id: compute-npm-hash
-        env:
-          VALIDATE_REGISTRY_ROUTING: ${{ inputs.validate-registry-routing }}
         run: |
           HASH=$(sha256sum package-lock.json patches/* 2>/dev/null | sha256sum | cut -d' ' -f1)
-          if [ "$VALIDATE_REGISTRY_ROUTING" = 'true' ]; then
-            HASH="$HASH-validation-$GITHUB_RUN_ID"
-          fi
           echo "hash=$HASH" >> $GITHUB_OUTPUT
           echo "Computed NPM hash: $HASH"
       - name: Compute cache month for periodic reset
