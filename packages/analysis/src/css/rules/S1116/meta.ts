@@ -23,5 +23,11 @@ export const meta = {
     {
       stylelintKey: '@stylistic/no-extra-semicolons',
     },
+    {
+      stylelintKey: '@stylistic/scss/no-extra-semicolons',
+    },
+    {
+      stylelintKey: '@stylistic/less/no-extra-semicolons',
+    },
   ],
 } satisfies CssRuleDefinition;

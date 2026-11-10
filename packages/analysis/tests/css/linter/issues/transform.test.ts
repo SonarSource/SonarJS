@@ -20,8 +20,81 @@ import { describe, it, beforeEach, afterEach, type Mock } from 'node:test';
 import { expect } from 'expect';
 import { normalizeToAbsolutePath } from '../../../../../shared/src/helpers/files.js';
 import { cssOnlyRuleKeys } from '../../../../src/css/linter/css-only-rules.js';
+import { createStylelintConfig } from '../../../../src/css/linter/config.js';
 
 describe('transform', () => {
+  it('filters charset advice emitted by a different stylistic rule and keeps its findings', async () => {
+    const filePath = normalizeToAbsolutePath('styles.css');
+    const key = '@stylistic/string-quotes';
+    const result = await stylelint.lint({
+      code: '@charset "UTF-8";\na { content: "text"; }',
+      codeFilename: filePath,
+      config: createStylelintConfig([{ key, configurations: ['single'] }]),
+    });
+
+    expect(result.results[0].warnings).toEqual([
+      expect.objectContaining({ rule: key, text: expect.stringContaining('pass over "@charset"') }),
+      expect.objectContaining({
+        rule: key,
+        text: expect.stringContaining('Expected single quotes'),
+      }),
+    ]);
+    expect(transform(result.results, filePath)).toEqual([
+      expect.objectContaining({ ruleId: key, message: 'Expected single quotes' }),
+    ]);
+  });
+
+  for (const keys of [
+    ['@stylistic/at-rule-name-case', '@stylistic/no-extra-semicolons'],
+    ['@stylistic/no-extra-semicolons', '@stylistic/at-rule-name-case'],
+  ]) {
+    it(`filters shared charset advice with rule order ${keys.join(', ')}`, async () => {
+      const filePath = normalizeToAbsolutePath('styles.css');
+      const result = await stylelint.lint({
+        code: '@charset "UTF-8";\n@media screen { a { color: red;; } }',
+        codeFilename: filePath,
+        config: createStylelintConfig(
+          keys.map(key => ({
+            key,
+            configurations: key.endsWith('at-rule-name-case') ? ['upper'] : [],
+          })),
+        ),
+      });
+
+      expect(result.results[0].warnings).toHaveLength(3);
+      expect(result.results[0].warnings[0]).toEqual(
+        expect.objectContaining({
+          rule: keys[0],
+          text: expect.stringContaining('pass over "@charset"'),
+        }),
+      );
+      expect(transform(result.results, filePath)).toEqual(
+        keys.map(ruleId => expect.objectContaining({ ruleId })),
+      );
+    });
+  }
+
+  for (const key of ['@stylistic/string-quotes', '@stylistic/no-extra-semicolons']) {
+    it(`filters shared syntax advice emitted by ${key}`, async () => {
+      const filePath = normalizeToAbsolutePath('styles.scss');
+      const result = await stylelint.lint({
+        code: '$color: red; a { color: $color; }',
+        codeFilename: filePath,
+        config: createStylelintConfig([
+          { key, configurations: key.endsWith('string-quotes') ? ['single'] : [] },
+        ]),
+      });
+
+      expect(result.results[0].warnings).toEqual([
+        expect.objectContaining({
+          rule: key,
+          text: expect.stringContaining('does not read a stylesheet parsed with this syntax'),
+        }),
+      ]);
+      expect(transform(result.results, filePath)).toEqual([]);
+    });
+  }
+
   it('should transform Stylelint results into issues', () => {
     const filePath = normalizeToAbsolutePath('/tmp/path');
     const results = [

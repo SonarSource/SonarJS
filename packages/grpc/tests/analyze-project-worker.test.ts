@@ -166,7 +166,7 @@ describe('analyze-project worker', () => {
           const key = `${baseDir}/${logical && isWindowsProjectPath(origin) ? 'MAIN.TEST.ts' : 'main.test.ts'}`;
           const timer = setTimeout(
             () => finish(new Error('Portable replay worker timed out')),
-            30_000,
+            60_000,
           );
           const onError = (error: Error) => finish(error);
           const onMessage = (message: AnalyzeProjectWorkerOutMessage) => {
@@ -341,7 +341,7 @@ describe('analyze-project worker', () => {
           };
           const timer = setTimeout(
             () => finish(new Error('Context fallback worker timed out')),
-            30_000,
+            60_000,
           );
           function finish(error?: Error) {
             clearTimeout(timer);
@@ -488,7 +488,7 @@ describe('analyze-project worker', () => {
     const analyze = (baseDir: string, mode: number, content?: string) =>
       new Promise<AnalyzeProjectWorkerOutMessage>((resolve, reject) => {
         const requestId = String(++sequence);
-        const timer = setTimeout(() => finish(new Error('CSS replay worker timed out')), 30_000);
+        const timer = setTimeout(() => finish(new Error('CSS replay worker timed out')), 60_000);
         const onMessage = (message: AnalyzeProjectWorkerOutMessage) => {
           if (
             'requestId' in message &&

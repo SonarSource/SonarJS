@@ -21,6 +21,11 @@ import type { CssIssue } from './issue.js';
 import type { NormalizedAbsolutePath } from '../../../../../shared/src/helpers/files.js';
 import { cssOnlyRuleKeys } from '../css-only-rules.js';
 
+// Plugin v6 reports these shared advisories under whichever rule runs first,
+// without a diagnostic code. They are not findings for any Sonar CSS rule.
+const CHARSET_ADVISORY =
+  'The "@stylistic/" rules pass over "@charset"; enable the "at-charset-rule-no-invalid" rule to have its spelling checked';
+
 const NON_CSS_LANGS = new Set(['scss', 'sass', 'less', 'stylus', 'styl']);
 
 type EmbeddedBlockSource = PostCSS.Source & { lang?: string };
@@ -96,9 +101,7 @@ function isInNonCssEmbeddedBlock(
   result: stylelint.LintResult,
 ): boolean {
   const root = (result as { _postcssResult?: { root?: unknown } })._postcssResult?.root as
-    | PostCSS.Root
-    | PostCSS.Document
-    | undefined;
+    PostCSS.Root | PostCSS.Document | undefined;
 
   if (root?.type !== 'document') {
     return false;
@@ -144,6 +147,18 @@ export function transform(
       continue;
     }
     for (const warning of result.warnings) {
+      const message = normalizeMessage(warning.text);
+      if (
+        warning.rule.startsWith('@stylistic/') &&
+        (message === CHARSET_ADVISORY ||
+          message.startsWith(
+            `The "${warning.rule}" rule does not read a stylesheet parsed with this syntax`,
+          ))
+      ) {
+        debug(warning.text);
+        continue;
+      }
+
       // CSS-only rules must not report on non-CSS embedded blocks (e.g. <style lang="scss">).
       if (cssOnlyRuleKeys.has(warning.rule) && isInNonCssEmbeddedBlock(warning, result)) {
         continue;
@@ -164,7 +179,7 @@ export function transform(
         ruleId: warning.rule,
         line,
         column,
-        message: normalizeMessage(warning.text),
+        message,
         language: 'css',
       };
 
