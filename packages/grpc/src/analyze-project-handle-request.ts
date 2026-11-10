@@ -253,7 +253,20 @@ async function normalizeProjectInput(
   try {
     return await normalizeProjectInputOnce(request, cacheMode, sessions);
   } catch (error) {
-    fallBackAfterReplayError(sessions, error);
+    if (cacheMode === 'record' && !(error instanceof InvalidAnalyzeProjectRequestError)) {
+      endAnalysisSessions(sessions.programSelection, sessions.filesystemCacheSession);
+      sessions.programSelection = undefined;
+      sessions.filesystemCacheSession = undefined;
+      sessions.fallbackWarning = `Could not record SonarJS context: ${error}; continuing analysis without context`;
+      warn(sessions.fallbackWarning);
+      // No rules have run yet. Retry only the ordinary analysis inputs; Java already
+      // handled cache hits. Keep RECORD's explicit input scope for an all-cached request.
+      request.files = Object.fromEntries(
+        Object.entries(request.files ?? {}).filter(([, file]) => !file.skipAnalysis),
+      );
+    } else {
+      fallBackAfterReplayError(sessions, error);
+    }
     return normalizeProjectInputOnce(request, cacheMode, sessions);
   }
 }

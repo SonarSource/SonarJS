@@ -40,7 +40,7 @@ beforeEach(() => {
 afterEach(() => fs.rmSync(temporary, { recursive: true, force: true }));
 
 describe('file-store context reconciliation', () => {
-  it('propagates missing config observations so replay recovery can run', async () => {
+  it('does not require unused config observations during replay discovery', async () => {
     const rootDir = normalizeToAbsolutePath(path.join(temporary, 'project'));
     fs.mkdirSync(rootDir);
     fs.writeFileSync(path.join(rootDir, 'tsconfig.json'), '{}');
@@ -64,12 +64,14 @@ describe('file-store context reconciliation', () => {
       archivePath,
     });
     try {
-      await expect(
-        initFileStoresForAnalysis(
-          createConfiguration({ baseDir: rootDir }),
-          createAnalyzableFiles(),
-        ),
-      ).rejects.toMatchObject({ code: 'ERR_SONARJS_FS_CACHE_MISS' });
+      await initFileStoresForAnalysis(
+        createConfiguration({ baseDir: rootDir }),
+        createAnalyzableFiles(),
+      );
+      expect(tsConfigStore.getTsConfigs()).toEqual([
+        normalizeToAbsolutePath(path.join(rootDir, 'tsconfig.json')),
+      ]);
+      expect(getTsConfigContentCache().size).toBe(0);
     } finally {
       replay.end();
     }

@@ -159,6 +159,40 @@ function file(name: string) {
 }
 
 describe('self-contained PR context', () => {
+  for (const missingConfig of ['unused', 'selected']) {
+    it(`requires archived config contents only for the selected program; missing=${missingConfig}`, async () => {
+      const unused = path.join(project, 'z-unused');
+      fs.mkdirSync(unused);
+      fs.writeFileSync(path.join(unused, 'tsconfig.json'), '{}');
+      const pr = prRequest('pr');
+      await analyze(pr);
+      const snapshot = archive(pr);
+      const config =
+        missingConfig === 'selected' ? file('tsconfig.json') : file('z-unused/tsconfig.json');
+      delete snapshot.entries.get(snapshot.keyFor(config)!)!.content;
+      // Write a separate archive so flush does not merge the removed observation back in.
+      snapshot.archivePath = path.join(artifacts, 'sparse.pb.gz');
+      snapshot.mode = 'record';
+      snapshot.dirty = true;
+      snapshot.flush();
+      pr.filesystemCache!.archivePath = snapshot.archivePath;
+      fs.rmSync(project, { recursive: true });
+      fs.mkdirSync(project);
+
+      const result = await replay(pr, file('changed.ts'), source);
+      expect(result.files![file('changed.ts')].issues).toHaveLength(
+        missingConfig === 'unused' ? 1 : 0,
+      );
+      if (missingConfig === 'unused') {
+        expect(result.meta!.warnings).toEqual([]);
+      } else {
+        expect(result.meta!.warnings).toEqual([
+          expect.stringContaining('falling back to source-only analysis'),
+        ]);
+      }
+    });
+  }
+
   for (const kind of ['configured', 'orphan', 'no program'] as const) {
     it('records fresh all-cached ' + kind + ' outcomes without a baseline', async () => {
       if (kind === 'orphan') fs.unlinkSync(file('tsconfig.json'));

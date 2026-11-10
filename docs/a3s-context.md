@@ -45,6 +45,9 @@ permits Java to publish the two attachments and collector JSON metadata, but is 
 published and does not assert complete filesystem coverage. A runtime file error prevents
 context publication. Context initialization, serialization and publication errors do not fail
 otherwise successful analysis. No compatible branch context is needed to create a new context.
+If input preparation fails during recording, Node stops collection and retries only ordinary
+analysis inputs. Cached files remain skipped, an all-cached request remains empty, and the
+failure is reported in logs and response metadata. An unreadable analysis input still fails.
 
 The scanner owns sensor-cache enablement, reference selection and persistence. PR `nextCache()`
 writes remain no-op; they do not overwrite the stored branch generation. No whole-context entry
@@ -123,6 +126,8 @@ The removed configuration, derived scope and project-root Protobuf fields are re
 SQAA can forward a context collected by an earlier analyzer release. SonarJS validates the
 filesystem archive format version; this does not guarantee that the current analyzer can replay
 every operation it needs from an older context.
+An older snapshot may list unused configs without their contents. Optional config preloading
+does not require those observations; a missing selected config still triggers source-only recovery.
 
 Missing or old `{}` collector metadata and unrecorded program selections use source-only analysis.
 If replay fails with a missing filesystem observation or an unsupported filesystem operation,

@@ -21,6 +21,7 @@ import { error, info } from '../../shared/src/helpers/logging.js';
 import { reportMissingExtendedTsConfig } from './common/analysis-warnings.js';
 import { sourceFileStore, tsConfigStore } from './file-stores/index.js';
 import ts from 'typescript';
+import fs from 'node:fs';
 import type { ProgressReport } from './common/progress-report.js';
 import type { WsIncrementalResult } from './incremental-result.js';
 import { isAnalysisCancelled } from './analyzeProject.js';
@@ -534,7 +535,9 @@ function restoreSelectedProgram(
   const programOptions = isConfigured(selection.program)
     ? createProgramOptions(
         selection.program.tsconfig,
-        undefined,
+        // Read outside TypeScript's config-error conversion so a missing observation
+        // retains its replay error and triggers source-only recovery.
+        fs.readFileSync(selection.program.tsconfig, 'utf8'),
         canAccessFileSystem,
         jsTsConfigFields.ecmaScriptVersion,
         baseDir,

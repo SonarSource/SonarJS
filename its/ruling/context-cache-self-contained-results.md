@@ -236,12 +236,13 @@ The Maven license scan was skipped for these local runs because pre-existing unt
 
 ## Work remaining before merge
 
-The measurements above describe the prototype before the final baseline-code cleanup
-and JSX AST-cache correction; their revisions and results remain historical evidence.
+The "Historical prototype results" section describes the prototype before the final
+baseline-code cleanup and JSX AST-cache correction; its revisions and results remain
+historical evidence.
 The broader orphan roots and improved findings are accepted. Local finalization
-checks and current measurements are recorded above. Actual Cloud/Server publication
-remains unverified because no test environment is available; numeric overhead/memory
-acceptance remains open. CI must be assessed on the latest pushed head.
+checks and current measurements are recorded in "Finalization measurements at a793efd871".
+Actual Cloud/Server publication remains unverified because no test environment is available;
+numeric overhead/memory acceptance remains open. CI must be assessed on the latest pushed head.
 Context publication remains conservative after
 a runtime file error. The PR #8332 replay findings are assessed separately.
 The implementation uses only SonarJS; no scanner-engine or SQAA code change is needed.

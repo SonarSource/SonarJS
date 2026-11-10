@@ -21,7 +21,10 @@ import os from 'node:os';
 import path from 'node:path';
 import ts from 'typescript';
 import { handleAnalyzeProjectRequest } from '../src/analyze-project-handle-request.js';
-import type { AnalyzeProjectProtoRequest } from '../src/analyze-project-request.js';
+import type {
+  AnalyzeProjectIncrementalEvent,
+  AnalyzeProjectProtoRequest,
+} from '../src/analyze-project-request.js';
 import { ProgramSelectionArchive } from '../../analysis/src/program-selection/archive.js';
 import { FsCacheArchive } from '../../shared/src/fs-cache/archive.js';
 import { FS_CACHE_INSTALLATION, installFsCache } from '../../shared/src/fs-cache/hook.js';
@@ -80,6 +83,58 @@ for (const failure of ['initialization', 'metadata', 'filesystem', 'manifest'] a
     expect(fs.existsSync(marker) && fs.statSync(marker).isFile()).toBe(false);
   });
 }
+
+for (const allCached of [false, true]) {
+  for (const streaming of [false, true]) {
+    it(`preserves cache hits after a context-only source read fails; all cached=${allCached}, streaming=${streaming}`, async () => {
+      const cached = path.join(request.configuration!.baseDir!, 'cached.js');
+      fs.writeFileSync(cached, 'export const cached = 1;');
+      if (allCached) request.files = {};
+      request.files![cached] = { skipAnalysis: true };
+      const readFile = fs.promises.readFile;
+      mock.method(fs.promises, 'readFile', async (...args: Parameters<typeof readFile>) => {
+        if (normalizeToAbsolutePath(String(args[0])) === normalizeToAbsolutePath(cached)) {
+          throw Object.assign(new Error('injected cached-file read failure'), { code: 'EIO' });
+        }
+        return readFile(...args);
+      });
+      const lint = mock.method(Linter, 'lint');
+      const events: AnalyzeProjectIncrementalEvent['event'][] = [];
+      const result = await handleAnalyzeProjectRequest(
+        { type: 'on-analyze-project', data: request },
+        { debugMemory: false },
+        streaming ? event => events.push(event.event) : undefined,
+      );
+      expect(result.type).toBe('success');
+      if (result.type === 'success' && result.result) {
+        const files = streaming
+          ? events.filter(event => event.messageType === 'fileResult')
+          : Object.values(result.result.output.files);
+        expect(files).toHaveLength(allCached ? 0 : 1);
+        if (!allCached) expect('issues' in files[0] && files[0].issues).toHaveLength(1);
+        const metadata = streaming
+          ? events.find(event => event.messageType === 'meta')!
+          : result.result.output.meta;
+        expect(metadata.warnings).toEqual([
+          expect.stringContaining('injected cached-file read failure'),
+        ]);
+      }
+      expect(lint.mock.callCount()).toBe(allCached ? 0 : 1);
+      expect(fs.existsSync(request.filesystemCache!.snapshotManifestPath!)).toBe(false);
+    });
+  }
+}
+
+it('still fails when an analysis input cannot be read', async () => {
+  const main = Object.keys(request.files!)[0];
+  request.files![main] = {};
+  const result = await handleAnalyzeProjectRequest(
+    { type: 'on-analyze-project', data: request },
+    { debugMemory: false },
+  );
+  expect(result.type).toBe('failure');
+  expect(fs.existsSync(request.filesystemCache!.snapshotManifestPath!)).toBe(false);
+});
 
 it('does not analyze discovered files for an empty recording request', async () => {
   const project = request.configuration!.baseDir!;

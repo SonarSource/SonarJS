@@ -28,7 +28,6 @@ import {
 } from '../jsts/program/cache/tsconfigCache.js';
 import { clearProgramOptionsCache } from '../jsts/program/cache/programOptionsCache.js';
 import { getProgramCacheManager } from '../jsts/program/cache/programCache.js';
-import { isFsCacheReplayError } from '../../../shared/src/fs-cache/hook.js';
 
 const TSCONFIG_JSON = 'tsconfig.json';
 
@@ -195,10 +194,8 @@ export class TsConfigStore implements FileStore {
         const file = await context.getFile(filename);
         getTsConfigContentCache().set(filename, { contents: file.fileContent, missing: false });
       } catch (failure) {
-        if (isFsCacheReplayError(failure)) {
-          throw failure;
-        }
-        // Config parsing retains responsibility for reporting unreadable configs when used.
+        // Older snapshots may list configs that were never used or read. Defer failures
+        // until a config is actually needed rather than abandoning usable replay context.
         debug(`Could not preload tsconfig ${filename}: ${failure}`);
       }
     }
