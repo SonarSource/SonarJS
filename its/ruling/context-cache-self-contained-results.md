@@ -4,7 +4,7 @@ This prototype is published for discussion in [PR 8306](https://github.com/Sonar
 It was developed and measured on `codex/pr-8306-self-contained-context`, based on
 previous PR head `2d1ea7500b6ed71bcb1051d48d359b4e609d393f`.
 
-## Decision being evaluated
+## Current decision and measurement scope
 
 The user authorized a prototype that sends all current input files to Node, with
 Java's actual per-file sensor-cache decision. `file_status` remains independent:
@@ -19,9 +19,10 @@ reads nor writes a whole-context entry through the sensor-cache API. Per-file re
 caching, cached CPD/AST handling, and the scanner's no-op PR cache writers remain.
 The snapshot and metadata formats consumed by SQAA are unchanged.
 
-This intentionally relaxes the earlier prohibition on extra source reads and TS
-program construction solely for context, for evaluation only. No numeric time or
-memory budget or merge acceptance has been agreed. Publication for discussion is authorized.
+The user accepted the broader current orphan roots and their improved findings on
+10 November 2026, and authorized completing this approach. This supersedes the
+earlier prohibition on source reads and TS program construction solely for context.
+No numeric time or memory budget or final merge acceptance has been agreed.
 
 ## Correctness checks
 
@@ -41,8 +42,8 @@ memory budget or merge acceptance has been agreed. Publication for discussion is
 
 A cached ambient declaration is now a root of its current orphan group. Consequently,
 a changed file can report S2871 where a one-file ordinary incremental request cannot.
-This is an intentional consequence of the proposed broader root set; it differs
-from the published design's results-preservation contract. Sensor-cache invalidation
+This is an accepted consequence of the broader root set; it supersedes the earlier
+results-preservation requirement for this case. Sensor-cache invalidation
 is otherwise unchanged: improvements in JS-2815 remain separate. The wildcard ambient
 package discovery extension remains excluded and tracked in JS-2853.
 
@@ -126,9 +127,10 @@ The Maven license scan was skipped for these local runs because pre-existing unt
 
 ## Work remaining before merge
 
-This prototype leaves the old baseline merge/cache helpers and their compatibility
-fields dormant, to avoid combining the evaluation with final deletion/cleanup. If
-adopted, remove that obsolete code and tests, update the transport documentation,
-requirements register, and review the changed orphan-finding contract. The PR body
-describes the current prototype and its unsettled tradeoffs.
+The measurements above describe the prototype before the final baseline-code cleanup
+and JSX AST-cache correction; their revisions and results remain historical evidence.
+The broader orphan roots and improved findings are accepted. Final validation,
+Cloud/Server publication checks, and agreement on a numeric overhead/memory budget
+remain separate from that decision. Context publication remains conservative after
+a runtime file error. The PR #8332 replay findings are assessed separately.
 The implementation uses only SonarJS; no scanner-engine or SQAA code change is needed.

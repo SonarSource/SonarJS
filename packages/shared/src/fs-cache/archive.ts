@@ -42,7 +42,6 @@ import {
   writeFileWithNativePrimitives,
 } from './archive-types.js';
 import { deserializeProtobufDocument, serializeProtobufDocument } from './archive-serialization.js';
-import { reconcileDirectoryObservations } from './archive-directories.js';
 import {
   createNode,
   isMissingOutcome,
@@ -183,8 +182,6 @@ export class FsCacheArchive {
   dirty: boolean;
   cacheHits: number;
   cacheMisses: number;
-  private retainedEntries = new Map<string, CacheNode>();
-  private retainedMissingPaths = new Set<string>();
 
   constructor({
     archivePath,
@@ -445,18 +442,6 @@ export class FsCacheArchive {
     return observesLink(operation) ? node?.linkExists : node?.exists;
   }
 
-  /** Baseline facts are only merged when publishing; live analysis must observe the checkout. */
-  retainBaseline(baseline: FsCacheArchive): void {
-    if (this.mode !== 'record' || baseline.caseSensitivePaths !== this.caseSensitivePaths) {
-      throw new FsCacheArchiveError('Incompatible filesystem context baseline');
-    }
-    this.retainedEntries = new Map(
-      [...baseline.entries].map(([key, node]) => [key, createNode(node)]),
-    );
-    this.retainedMissingPaths = new Set(baseline.missingPaths);
-    this.dirty = true;
-  }
-
   recordCacheHit(): void {
     this.cacheHits += 1;
   }
@@ -491,23 +476,12 @@ export class FsCacheArchive {
       let mergedMissingPaths: Set<string>;
       try {
         this.load();
-        mergedEntries = new Map(this.retainedEntries);
-        mergedMissingPaths = new Set(this.retainedMissingPaths);
-        for (const missingPath of this.missingPaths) {
-          mergedEntries.delete(missingPath);
-          mergedMissingPaths.add(missingPath);
-        }
-        for (const [entryPath, node] of this.entries) {
-          mergedMissingPaths.delete(entryPath);
-          mergedEntries.set(entryPath, mergeNodes(mergedEntries.get(entryPath), node));
-        }
+        mergedEntries = this.entries;
+        mergedMissingPaths = this.missingPaths;
       } finally {
         this.entries = ownEntries;
         this.missingPaths = ownMissingPaths;
       }
-      reconcileDirectoryObservations(mergedEntries, mergedMissingPaths, ownEntries, value =>
-        this.canonicalKey(value),
-      );
       for (const missingPath of ownMissingPaths) {
         mergedEntries.delete(missingPath);
         mergedMissingPaths.add(missingPath);

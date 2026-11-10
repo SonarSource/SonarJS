@@ -3,7 +3,7 @@
 ## Recording and the sensor cache
 
 The SQAA collector context and the persistent [sensor cache](./sonar-cache.md) have separate
-publication lifecycles. The sensor cache also transports a baseline for incremental recording.
+publication lifecycles. The sensor cache stores per-file analysis payloads, not SQAA context.
 `DefaultFilesystemCacheContext.isEnabled()` delegates to the platform's
 `A3SContextCollector.isEnabled()`. On a supported host, when collection is enabled and this is
 not a restored-context request, `WebSensor` records a new context.
@@ -13,47 +13,44 @@ forced `AnalysisMode.DEFAULT` and prevented per-file cache reuse during collecti
 PRs. Cache eligibility is now independent of context availability: missing context must not
 force analysis of otherwise reusable files.
 
-A successful recording writes a versioned sensor-cache entry containing both archives, the
-collector JSON metadata and a small completion marker. The marker is transported as gzip binary;
-Java restores plain JSON before passing its path to Node. The filesystem and program-selection
-archives are already compressed and are transported unchanged.
-
 During PR recording, Java handles per-file cache hits exactly as it does without recording:
-it copies cached results, re-emits CPD/AST where applicable, and omits those files from the
-Java-to-Node request. Node receives only files requiring analysis. An all-cached request has
-an empty files map. The normal file-store walk still discovers project configuration and records
-directory listings, but does not analyze source files or create TypeScript programs.
+it copies cached entries and re-emits CPD/AST where applicable. Recording also sends all current
+input files to Node, with `skip_analysis` on actual cache hits. `file_status` is independent:
+a `SAME` file with a cache miss still requires analysis under the normal mode/rule filtering.
+Without recording, Java omits cache hits from the request.
 
-The filesystem layer passively retains the platform-selected `previousCache()` baseline.
-In RECORD mode every intercepted filesystem call uses the native filesystem; its result updates
-the snapshot. Supplied source contents are recorded too. Program-selection outcomes are carried
-forward and replaced when actual analysis learns a new outcome. Baseline entries are not served
-as filesystem answers during CI analysis. In SQAA REPLAY, by contrast, the archive is authoritative.
+Node creates a fresh filesystem archive and fresh program-selection metadata from the current
+checkout. It visits configured programs in normal discovery order, including project references,
+until all eligible inputs have a configured, orphan or no-program outcome. Cached files execute
+no rules and emit no file results, but participate in program construction. An all-cached PR
+therefore still reads current inputs and constructs the programs needed for its context.
 
-There is no separate snapshot-entry validation walk. Fresh, complete directory listings remove
-inherited paths that no longer exist, including removed subtrees. Discovered `tsconfig.json` files,
-explicit tsconfig-path matches and dependency manifests refresh their contents during the normal
-file-store walk, including all-cached requests. Unchanged source contents remain in the baseline
-without being reread solely for context.
+In RECORD mode every intercepted filesystem call uses the native filesystem. Supplied source
+contents are recorded too. CI does not restore or merge an earlier SQAA context. Removed source
+inputs cannot survive as inherited archive entries or program selections; current configuration
+and dependency inputs read during discovery and program construction form the new observations.
+The archive remains an observation archive, not a mirror of every filesystem path. In SQAA
+REPLAY, by contrast, the archive is authoritative.
 
-Reconciliation covers directories visited by normal discovery. Untouched dependency observations
-may remain stale. An arbitrary extended config outside tsconfig discovery is refreshed only when
-normal analysis reads it; this change does not add eager config-graph resolution. Program metadata
-is retained and updated by actual analysis, but never expands CI program roots. PR snapshots do
-not promise the semantics of a fresh full analysis.
+Current orphan groups include eligible cached peers. Their ambient types can improve findings
+in a changed file compared with a request containing only cache misses. That broader root set
+and its improved findings are accepted. Fresh context adds source reads and compiler work solely
+for collection; a numeric time/memory budget remains open. The per-file cache trust boundary is
+unchanged: dependency-aware reanalysis remains in JS-2815, and wildcard ambient-package discovery
+remains in JS-2853. Fresh context does not re-run cached rules or promise fresh-full-analysis
+findings for every SQAA request.
 
-Dependency-aware reanalysis after imported files or TypeScript configuration changes is a separate
-improvement tracked by JS-2815. This regression fix preserves the previous cache trust boundary.
+After successful analysis and archive persistence, Node writes a local completion marker. It
+permits Java to publish the two attachments and collector JSON metadata, but is not itself
+published and does not assert complete filesystem coverage. A runtime file error prevents
+context publication. Context initialization, serialization and publication errors do not fail
+otherwise successful analysis. No compatible branch context is needed to create a new context.
 
-Without a usable baseline, cache hits still work. If Java reused any hits, it omits context
-publication instead of reanalyzing those files to reconstruct context. A completion marker only
-confirms successful analysis and archive persistence; it is not a filesystem-completeness check.
-Context initialization, serialization and publication errors do not fail successful analysis.
-
-The scanner owns cache enablement, reference selection and persistence. PR `nextCache()`
-writes are no-op; they do not overwrite the branch baseline. There are still two collector
-attachments: the completion marker exists only inside the sensor-cache bundle.
-See `ContextSnapshotCache`, `WebSensor` and `packages/grpc/src/incremental-context.ts`.
+The scanner owns sensor-cache enablement, reference selection and persistence. PR `nextCache()`
+writes remain no-op; they do not overwrite the stored branch generation. No whole-context entry
+is read or written through this API. Both Cloud and Server must support collection-enabled PRs;
+local sensor recording/replay tests do not establish backend publication success.
+See `WebSensor` and `packages/grpc/src/analyze-project-handle-request.ts`.
 
 ### Platform collection policy
 

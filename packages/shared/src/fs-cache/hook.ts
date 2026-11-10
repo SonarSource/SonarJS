@@ -75,23 +75,6 @@ export function hasArchivedFileContent(fileName: string): boolean {
   return key !== undefined && activeArchive.get(key, 'readFile')?.ok === true;
 }
 
-/** Retain prior observations for publication without consulting the project filesystem. */
-export function seedFilesystemBaseline(archivePath: string): FsCacheArchive {
-  const current = requireActiveArchive();
-  if (current.mode !== 'record') {
-    throw new Error('Only recording can reuse a filesystem baseline');
-  }
-  const baseline = new FsCacheArchive({
-    archivePath,
-    rootDir: current.rootDir,
-    mode: 'replay',
-    caseSensitivePaths: current.caseSensitivePaths,
-  });
-  baseline.load();
-  current.retainBaseline(baseline);
-  return baseline;
-}
-
 type FsError = Error & {
   code?: string;
   errno?: number;

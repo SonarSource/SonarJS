@@ -3,7 +3,7 @@
 This document describes the Node.js-side caches used by `analyzeProject`.
 
 Source audit: 2026-11-02, SonarJS `c0037621e1a4c4d027e98f5ad1d2a31037225c65`,
-with snapshot-reuse changes in this working tree.
+with the self-contained PR-context changes of 2026-11-10.
 
 It is the cross-layer companion to more focused notes such as [SonarQube Sensor Cache](./sonar-cache.md). The goal here is to explain how file discovery, tsconfig discovery, dependency-manifest lookups, request-file overrides, and TypeScript program reuse fit together inside the Node analyzer.
 
@@ -29,14 +29,17 @@ It does not describe:
 
 These in-memory caches are separate from both the scanner's persistent sensor cache and the
 SQAA filesystem/program snapshots described in [the A3S context contract](./a3s-context.md).
-Java handles sensor-cache hits before building the Node request, with or without recording.
-Only files requiring analysis are sent to Node. During RECORD, the filesystem layer passively
-retains baseline observations for publication and updates them through normal native filesystem
-calls. Fresh directory listings reconcile removed paths within normal traversal coverage; there
-is no additional validation walk. Program selections are carried forward and updated by actual
-analysis, but inherited metadata does not choose CI program roots. An empty RECORD request still
-discovers project configuration and records directory listings without analyzing source files or
-creating TypeScript programs. SQAA REPLAY instead treats the snapshot as authoritative.
+Java handles sensor-cache hits before building the Node request. Without recording, it sends only
+files requiring analysis. During RECORD, it sends every current input and marks actual cache hits
+with `skip_analysis`. File status is independent: `SAME` does not itself permit skipping rules.
+Node records fresh source/configuration contents and native filesystem observations, without
+restoring an earlier SQAA context. It follows normal configured-program ordering and references,
+then orphan groups, until all eligible inputs have a configured, orphan or no-program outcome.
+Cached files execute no rules and emit no file results, but participate in program construction
+even on an all-cached PR. Current cached orphan peers can supply ambient types to a changed file;
+the resulting improved findings are accepted. This adds source reads and compiler work for
+context; a numeric time/memory budget remains open. SQAA REPLAY instead treats the snapshot as
+authoritative. Dependency-aware cache invalidation remains separate work (JS-2815).
 These archives contain observations and program selections, not compiler objects or ESLint state.
 Clearing Node caches does not invalidate the platform cache.
 
@@ -312,12 +315,16 @@ The parsed AST cache is indexed by a filesystem-aware path map and a compound ke
 
 - normalized file path
 - script target, implied module format and JSDoc parsing mode
-- `jsx`
+- `jsx` and `jsxImportSource`
 - `importHelpers`
+- `moduleDetection` and `module`
+- representation `scriptKind`
 
-The content hash/version and external-module-indicator callback identity are stored alongside
-the AST and checked on lookup; they are not additional key dimensions. A changed version or
-callback replaces the same scalar-options entry, keeping repeated program rebuilds bounded.
+The content hash/version is stored alongside the AST and checked on lookup. The compiler host
+also checks that the compiler representation text still matches. A changed version replaces the
+same scalar-options entry, keeping repeated program rebuilds bounded. Module-indicator callbacks
+are not compared by identity: TypeScript creates fresh callbacks for equivalent programs, so their
+semantic compiler options belong in the key instead.
 The compiler host forwards TypeScript's complete source-creation options so NodeNext import and
 require branches retain the correct module format.
 

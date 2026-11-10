@@ -148,10 +148,26 @@ class VuetifyContextCacheTest {
         assertThat(full.collector.published).isTrue();
         assertThat(full.hits).isZero();
       }
-      var allCached = run("all-cached-with", true, true, prCache(latestFullCache), null);
-      assertThat(allCached.hits).isEqualTo(inputs.size());
-      assertThat(allCached.issues).isEmpty();
-      assertThat(allCached.collector.published).isTrue();
+      var fullCacheDigest = latestFullCache.digest();
+      for (int pair = 0; pair <= repetitions; pair++) {
+        Run without;
+        Run with;
+        String prefix = pair == 0 ? "all-cached-warmup" : "all-cached-pair-" + pair;
+        if (pair % 2 == 0) {
+          without = run(prefix + "-without", true, false, prCache(latestFullCache), null);
+          with = run(prefix + "-with", true, true, prCache(latestFullCache), null);
+        } else {
+          with = run(prefix + "-with", true, true, prCache(latestFullCache), null);
+          without = run(prefix + "-without", true, false, prCache(latestFullCache), null);
+        }
+        assertThat(without.hits).isEqualTo(inputs.size());
+        assertThat(with.hits).isEqualTo(without.hits);
+        assertThat(without.issues).isEmpty();
+        assertThat(with.issues).isEmpty();
+        assertThat(without.collector.published).isFalse();
+        assertThat(with.collector.published).isTrue();
+        assertThat(latestFullCache.digest()).isEqualTo(fullCacheDigest);
+      }
     }
 
     // Replay the edited file AND a skipped file with the actual source tree unavailable.
@@ -238,7 +254,7 @@ class VuetifyContextCacheTest {
           .setType(InputFile.Type.MAIN)
           .setCharset(StandardCharsets.UTF_8)
           .setStatus(
-            pr && (name.equals("all-cached-with") || !entry.getKey().equals(CHANGED))
+            pr && (name.startsWith("all-cached-") || !entry.getKey().equals(CHANGED))
               ? InputFile.Status.SAME
               : InputFile.Status.CHANGED
           )
@@ -375,7 +391,7 @@ class VuetifyContextCacheTest {
       )
     );
     Files.writeString(output.resolve("measurements.json"), GSON.toJson(measurements));
-    if (pr && !name.equals("all-cached-with")) {
+    if (pr && !name.startsWith("all-cached-")) {
       assertThat(hits)
         .as("Unchanged-file cache hits in %s; see sensor.log", name)
         .isEqualTo(inputs.size() - 1);

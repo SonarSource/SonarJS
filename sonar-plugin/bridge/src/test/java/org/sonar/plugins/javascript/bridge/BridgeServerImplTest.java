@@ -79,8 +79,6 @@ import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectUnaryRespo
 import org.sonar.plugins.javascript.analyzeproject.grpc.FileResultMessage;
 import org.sonar.plugins.javascript.analyzeproject.grpc.FileStatus;
 import org.sonar.plugins.javascript.analyzeproject.grpc.FileType;
-import org.sonar.plugins.javascript.analyzeproject.grpc.FilesystemCache;
-import org.sonar.plugins.javascript.analyzeproject.grpc.FilesystemCacheMode;
 import org.sonar.plugins.javascript.analyzeproject.grpc.Issue;
 import org.sonar.plugins.javascript.analyzeproject.grpc.ProjectAnalysisFileResult;
 import org.sonar.plugins.javascript.analyzeproject.grpc.ProjectFileInput;
@@ -715,32 +713,6 @@ class BridgeServerImplTest {
       assertThat(logTester.logs(DEBUG)).contains(
         "Skipping project analysis because there are no files to analyze"
       );
-    }
-  }
-
-  @Test
-  void should_forward_an_empty_recording_request_to_retain_its_context_baseline() throws Exception {
-    bridgeServer = createUnitBridgeServer();
-    var request = AnalyzeProjectRequest.newBuilder()
-      .setFilesystemCache(
-        FilesystemCache.newBuilder()
-          .setMode(FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD)
-          .setBaselineArchivePath("baseline.pb.gz")
-      )
-      .build();
-    var handler = mock(ProjectAnalysisHandler.class);
-    when(handler.getRequest()).thenReturn(request);
-    when(handler.getContext()).thenReturn(SensorContextTester.create(moduleBase));
-    when(handler.getFuture()).thenReturn(CompletableFuture.completedFuture(null));
-    var stub = mock(AnalyzeProjectServiceGrpc.AnalyzeProjectServiceBlockingStub.class);
-    try (
-      MockedStatic<AnalyzeProjectServiceGrpc> mockedGrpc = mockBlockingStub(bridgeServer, stub)
-    ) {
-      when(stub.analyzeProject(request)).thenReturn(
-        List.<AnalyzeProjectStreamResponse>of().iterator()
-      );
-      bridgeServer.analyzeProject(handler);
-      verify(stub).analyzeProject(request);
     }
   }
 

@@ -139,7 +139,6 @@ export class ProgramSelectionArchive {
   private readonly pathsByCanonicalName = new Map<string, NormalizedAbsolutePath>();
   private canonicalPathsCaseSensitive?: boolean;
   private nextProgramId = 1;
-  private readonly inheritedOutcomes = new Set<string>();
 
   constructor(
     archivePath: string,
@@ -162,36 +161,6 @@ export class ProgramSelectionArchive {
 
   isRecord(): boolean {
     return this.mode === 'record';
-  }
-
-  seedFrom(archivePath: string, contextMetadata: string): void {
-    if (!this.isRecord()) {
-      throw new Error('Only recording can reuse a sensor-cache baseline');
-    }
-    const baseline = new ProgramSelectionArchive(
-      archivePath,
-      this.baseDir,
-      'replay',
-      false,
-      contextMetadata,
-    );
-    // Validate metadata identities under this filesystem policy before mutating the recorder.
-    baseline.canonicalRequestedFile(this.baseDir);
-    for (const [id, stored] of baseline.programs) {
-      this.nextProgramId = Math.max(this.nextProgramId, id + 1);
-      this.programs.set(id, stored);
-      if (isConfigured(stored.program)) {
-        this.configuredProgramIds.set(stored.program.tsconfig, id);
-      }
-    }
-    for (const [file, id] of baseline.selections) {
-      this.storeSelection(file, id);
-      this.inheritedOutcomes.add(canonicalFileName(file));
-    }
-    for (const file of baseline.noProgramFiles) {
-      this.noProgramFiles.add(file);
-      this.inheritedOutcomes.add(canonicalFileName(file));
-    }
   }
 
   restoredConfiguration(): ReplayableConfiguration | undefined {
@@ -253,11 +222,7 @@ export class ProgramSelectionArchive {
     if (id === undefined) {
       id = this.addProgram({ kind: 'configured', tsconfig, compilerOptions });
       this.configuredProgramIds.set(tsconfig, id);
-    } else {
-      // Normal analysis has learned the current options for this shared configured program.
-      this.programs.set(id, { id, program: { kind: 'configured', tsconfig, compilerOptions } });
     }
-    this.replaceInheritedOutcome(file);
     this.addSelection(file, id);
   }
 
@@ -271,7 +236,6 @@ export class ProgramSelectionArchive {
     }
     const id = this.addProgram({ kind: 'orphan', compilerOptions });
     for (const file of projectFiles) {
-      this.replaceInheritedOutcome(file);
       this.addSelection(file, id);
     }
   }
@@ -315,7 +279,6 @@ export class ProgramSelectionArchive {
     if (!this.isRecord() || !this.isProjectRelative(file)) {
       return;
     }
-    this.replaceInheritedOutcome(file);
     if (this.hasSelection(file)) {
       throw new Error(`File has both a program and no-program outcome: ${file}`);
     }
@@ -368,23 +331,6 @@ export class ProgramSelectionArchive {
     this.nextProgramId += 1;
     this.programs.set(id, { id, program });
     return id;
-  }
-
-  /** Actual analysis outcomes replace inherited metadata without validating cached files. */
-  private replaceInheritedOutcome(file: NormalizedAbsolutePath): void {
-    if (!this.inheritedOutcomes.delete(canonicalFileName(file))) {
-      return;
-    }
-    const original = this.canonicalRequestedFile(file);
-    const previousId = this.selections.get(original);
-    if (previousId !== undefined) {
-      this.selections.delete(original);
-      this.filesByProgram.set(
-        previousId,
-        (this.filesByProgram.get(previousId) ?? []).filter(member => member !== original),
-      );
-    }
-    this.noProgramFiles.delete(original);
   }
 
   private addSelection(file: NormalizedAbsolutePath, programId: number): void {

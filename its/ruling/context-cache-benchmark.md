@@ -28,8 +28,9 @@ when the test appends an empty statement to an existing TypeScript file.
    indexed source contents match the PR, including every skipped file.
 
 Each sensor run starts a fresh Node process. Sensor time includes bundle
-extraction, Node startup, local cache reads, baseline restoration, rule execution,
-context serialization and local attachment copies. Input indexing, fixture
+extraction, Node startup, local cache reads, program construction, rule execution,
+context recording/serialization and local attachment copies. Historical baseline-reuse
+implementations also include context restoration. Input indexing, fixture
 creation, verification and bridge shutdown are outside the measured interval.
 The sensor fixtures run in one JVM. Fixture objects from previous runs are
 released and explicit GC runs before each measured interval. This is useful for
@@ -42,9 +43,10 @@ Maven, unrelated processes and the verifier are excluded. RSS includes shared
 pages and sampling can miss short-lived peaks. Raw samples are retained.
 
 Set `sonarjs.contextCacheFullComparisons=true` to add three full analyses of the
-edited checkout and an all-cached PR. The all-cached PR uses the final full-analysis
-cache generation, requires every file to hit the cache, emits no issues, and must
-still publish a complete context. Full-analysis repetitions use fresh write caches.
+edited checkout and alternating all-cached PR pairs with context disabled/enabled.
+The pairs use the final full-analysis cache generation and discard one warm-up pair.
+Every file must hit the cache and emit no file results; only collection mode must
+publish complete context. Full-analysis repetitions use fresh write caches.
 
 The harness can run unchanged against the published baseline and the local prototype.
 Build and package each implementation before running its measurements; use distinct
@@ -86,11 +88,12 @@ reported results. Set time/memory limits only after reviewing representative dat
 
 ## Self-contained context evaluation
 
-The local prototype sends all current inputs during recording, separately flags
+The self-contained implementation sends all current inputs during recording, separately flags
 Java cache hits, and records fresh filesystem and program metadata. It preserves
 rule skipping, but deliberately reads cached source contents and constructs programs
-solely for context. This is an evaluation of that requirement change, not evidence
-that the earlier no-extra-reads/programs requirement is met.
+solely for context. Broader current orphan roots and their improved findings were
+accepted on 10 November 2026. The earlier no-extra-reads/programs requirement is
+superseded for this approach; a numeric time/memory budget remains open.
 
 `measure-program-mapping.mjs` supplements Vuetify with two controlled 1,000-file
 projects: ten independent tsconfigs, and an orphan-only project. Each compares a
@@ -107,6 +110,7 @@ node its/ruling/measure-program-mapping.mjs --run /absolute/fresh/output/directo
 Regression tests separately cover import removal, added/deleted files, changed
 compiler options, config precedence, project references, cache misses on SAME files,
 all-cached requests, failure isolation and checkout-free replay. Broader orphan
-roots can change type-aware findings compared to ordinary incremental requests.
+roots can improve type-aware findings compared to ordinary incremental requests;
+that difference is accepted.
 Backend upload and real dependency-installation changes remain outside this
 local benchmark. No time or memory budget has been accepted for this design.

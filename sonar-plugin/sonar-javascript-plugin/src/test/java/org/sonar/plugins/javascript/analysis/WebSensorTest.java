@@ -1434,7 +1434,6 @@ class WebSensorTest {
     );
     assertThat(request.getFilesMap()).containsOnlyKeys(inputFile.absolutePath());
     assertThat(request.getFilesOrThrow(inputFile.absolutePath()).getSkipAnalysis()).isTrue();
-    assertThat(request.getFilesystemCache().hasBaselineArchivePath()).isFalse();
     verify(context.previousCache(), never()).read(startsWith("js:sqaa-context:"));
     assertThat(request.getConfiguration().getAnalysisMode()).isEqualTo(
       org.sonar.plugins.javascript.analyzeproject.grpc.AnalysisMode.ANALYSIS_MODE_SKIP_UNCHANGED
@@ -1473,7 +1472,6 @@ class WebSensorTest {
       new WebSensorModuleConfiguration()
     );
     var request = executeSensorAndCaptureHandler(sensor, context).getRequest();
-    assertThat(request.getFilesystemCache().hasBaselineArchivePath()).isFalse();
     assertThat(request.getFilesOrThrow(inputFile.absolutePath()).getSkipAnalysis()).isTrue();
     if (changedFile == null) {
       assertThat(request.getFilesMap()).containsOnlyKeys(inputFile.absolutePath());

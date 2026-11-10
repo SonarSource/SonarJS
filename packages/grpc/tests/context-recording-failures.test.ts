@@ -81,56 +81,26 @@ for (const failure of ['initialization', 'metadata', 'filesystem', 'manifest'] a
   });
 }
 
-for (const baseline of [false, true]) {
-  it(`handles an empty all-cached request without source reads/programs (baseline: ${baseline})`, async () => {
-    const project = request.configuration!.baseDir!;
-    const file = path.join(project, 'codegen.ts');
-    fs.writeFileSync(file, 'export default {};');
-    request.files = { [file]: { fileContent: 'export default {};' } };
-    if (baseline) {
-      const cold = await handleAnalyzeProjectRequest(
-        { type: 'on-analyze-project', data: request },
-        { debugMemory: false },
-      );
-      expect(cold.type).toBe('success');
-      expect(fs.existsSync(request.filesystemCache!.snapshotManifestPath!)).toBe(true);
-      const previous = request.filesystemCache!;
-      request.filesystemCache = {
-        mode: 1,
-        archivePath: path.join(temporary, 'warm-filesystem.pb.gz'),
-        analysisMetadataPath: path.join(temporary, 'warm-programs.pb.gz'),
-        snapshotManifestPath: path.join(temporary, 'warm-manifest.json'),
-        baselineArchivePath: previous.archivePath,
-        baselineAnalysisMetadataPath: previous.analysisMetadataPath,
-        baselineManifestPath: previous.snapshotManifestPath,
-        baselineContextMetadata: JSON.stringify({ configuration: request.configuration }),
-      };
-    }
-    request.files = {};
-    const observed: string[] = [];
-    const set = FsCacheArchive.prototype.set;
-    mock.method(
-      FsCacheArchive.prototype,
-      'set',
-      function (this: FsCacheArchive, ...args: Parameters<typeof set>) {
-        if (args[1] === 'readFile') observed.push(this.absolutePathFor(args[0]));
-        return set.apply(this, args);
-      },
-    );
-    const result = await handleAnalyzeProjectRequest(
-      { type: 'on-analyze-project', data: request },
-      { debugMemory: false },
-    );
-    expect(result.type).toBe('success');
-    if (result.type === 'success' && result.result) {
-      expect(result.result.output.files).toEqual({});
-      expect(result.result.output.meta?.telemetry?.programCreation.attempted).toBe(0);
-      expect(result.result.pathMap.size).toBe(0);
-    }
-    expect(observed).not.toContain(normalizeToAbsolutePath(file));
-    expect(fs.existsSync(request.filesystemCache!.snapshotManifestPath!)).toBe(true);
-  });
-}
+it('does not analyze discovered files for an empty recording request', async () => {
+  const project = request.configuration!.baseDir!;
+  const file = path.join(project, 'codegen.ts');
+  fs.writeFileSync(file, 'export default {};');
+  request.files = {};
+  // Generated-source discovery can read codegen.ts as a configuration file.
+  const lint = mock.method(Linter, 'lint');
+  const result = await handleAnalyzeProjectRequest(
+    { type: 'on-analyze-project', data: request },
+    { debugMemory: false },
+  );
+  expect(result.type).toBe('success');
+  if (result.type === 'success' && result.result) {
+    expect(result.result.output.files).toEqual({});
+    expect(result.result.output.meta?.telemetry?.programCreation.attempted).toBe(0);
+    expect(result.result.pathMap.size).toBe(0);
+  }
+  expect(lint.mock.callCount()).toBe(0);
+  expect(fs.existsSync(request.filesystemCache!.snapshotManifestPath!)).toBe(true);
+});
 
 it('records supplied contents and no-program outcomes for filtered sources', async () => {
   const file = Object.keys(request.files!)[0];
@@ -181,7 +151,7 @@ for (const interrupted of ['cancellation', 'file error'] as const) {
 }
 
 for (const caseOnlyRename of [false, true]) {
-  it(`keeps orphan analysis independent of the baseline (case-only rename: ${caseOnlyRename})`, async () => {
+  it(`keeps orphan recording scoped to the current request (case-only rename: ${caseOnlyRename})`, async () => {
     const project = request.configuration!.baseDir!;
     const ambient = path.join(project, 'ambient.ts');
     const original = path.join(project, 'Changed.ts');
@@ -189,7 +159,7 @@ for (const caseOnlyRename of [false, true]) {
     const content = 'values.sort();\nexport {};';
     const nativeCaseSensitivity = ts.sys.useCaseSensitiveFileNames;
     if (caseOnlyRename) {
-      // A request may use the new spelling before the old metadata has been replaced.
+      // A later request may use a different spelling for the same path.
       ts.sys.useCaseSensitiveFileNames = false;
     }
     try {
@@ -209,7 +179,6 @@ for (const caseOnlyRename of [false, true]) {
         const file = cold.result.output.files[normalizeToAbsolutePath(original)];
         expect('issues' in file && file.issues).toHaveLength(1);
       }
-      const previous = request.filesystemCache!;
       request.files = { [changed]: { fileContent: content } };
       request.filesystemCache = undefined;
       const ruleExecutions = mock.method(Linter.rules.S2871, 'create');
@@ -221,10 +190,6 @@ for (const caseOnlyRename of [false, true]) {
         archivePath: path.join(temporary, 'warm-filesystem.pb.gz'),
         analysisMetadataPath: path.join(temporary, 'warm-programs.pb.gz'),
         snapshotManifestPath: path.join(temporary, 'warm-manifest.json'),
-        baselineArchivePath: previous.archivePath,
-        baselineAnalysisMetadataPath: previous.analysisMetadataPath,
-        baselineManifestPath: previous.snapshotManifestPath,
-        baselineContextMetadata: JSON.stringify({ configuration: request.configuration }),
       };
       const groups = mock.method(ProgramSelectionArchive.prototype, 'recordOrphanGroup');
       const observed: string[] = [];

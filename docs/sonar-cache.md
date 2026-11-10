@@ -4,11 +4,12 @@ This section documents how SonarQube's plugin cache API works and how SonarJS us
 
 The sensor cache, Node's in-memory caches, and SQAA's recorded context are different mechanisms.
 See [Node.js analysis caches](./node-analysis-caches.md) and [the A3S context contract](./a3s-context.md)
-for the other two layers. SQAA recording can reuse a context snapshot transported
-through the sensor cache while preserving best-effort PR context collection.
+for the other two layers. SQAA recording creates fresh context while preserving per-file
+sensor-cache reuse. The sensor cache does not transport SQAA context.
 
 Source audit: 2026-11-02, SonarJS `c0037621e1a4c4d027e98f5ad1d2a31037225c65` and
-sonar-scanner-engine `a54007566d`, with the snapshot-reuse changes in this working tree.
+sonar-scanner-engine `a54007566d`. The SonarJS recording path below reflects the
+self-contained PR-context changes of 2026-11-10.
 Platform details below distinguish Cloud, Server and Light;
 they do not establish backend storage or cache-selection policy outside scanner-engine.
 
@@ -92,15 +93,15 @@ requires `sonar.unchangedFiles.optimize` (default `false`), a non-PR analysis wi
 branch and reference branch, and an allowed sensor (CFamily/Cobol, plus test sensors).
 SonarJS does not use `markAsUnchanged()`.
 
-### SQAA context recording and snapshot reuse
+### SQAA context recording and per-file cache reuse
 
 `JsTsContext.getAnalysisMode()` maps `canSkipUnchangedFiles()` to `SKIP_UNCHANGED` or
 `DEFAULT`. Context collection preserves that decision.
 
 On supported hosts, `DefaultFilesystemCacheContext.isEnabled()` delegates to
 `A3SContextCollector.isEnabled()`. If collection is enabled and no restored context is being
-replayed, `WebSensor` sets `recordFilesystemCache = true`. There is no PR exception. Per-file
-cache hits remain in Java; Node records filesystem observations for the analysis that actually runs.
+replayed, `WebSensor` sets `recordFilesystemCache = true`. There is no PR exception. Java handles
+per-file cache hits, while Node records fresh filesystem observations and program selections.
 Cloud obtains this enablement from its collection-config API; see
 [platform collection policy](./a3s-context.md#platform-collection-policy).
 
@@ -109,35 +110,35 @@ in 14.1 forced `DEFAULT` and made collection-enabled PRs report `ANALYSIS_MODE_I
 even with valid per-file caches. It is removed. Missing context is not a reason to force rules
 to execute on independently reusable files.
 
-The snapshot-reuse implementation uses this path:
+Recording uses this path:
 
-1. A successful recording writes one `js:sqaa-context:<formatVersion>:<analyzerVersion>` entry through
-   `nextCache()`. It bundles the filesystem archive, program-selection archive, completion marker
-   and collector JSON metadata from the same recording. The marker is gzip binary in the cache;
-   Java decompresses it on restore. The two archives are already compressed.
-2. When skipping is permitted, Java restores this entry from `previousCache()`. The platform
-   selects the reference branch; SonarJS does not fetch `master` or implement branch fallback.
-3. Java handles per-file cache hits normally: copy cached entries, re-emit CPD/AST where applicable,
-   and omit those files from the Node request. Only misses are sent for analysis.
-4. The filesystem layer passively retains baseline observations. Normal RECORD calls always use
-   native FS and update the snapshot as they occur. Program outcomes are also retained and replaced
-   by actual analysis, without using inherited metadata to expand CI program roots. An all-cached
-   empty request still runs file-store discovery to capture configuration and directory listings;
-   it does not analyze source files or create TypeScript programs.
-5. A completion marker permits publication through the collector's existing two attachments after
-   successful analysis and archive persistence. It does not assert filesystem completeness. With
-   no usable baseline and any reused hits, Java skips context publication without reanalysis.
-   The marker is cache-only. PR snapshot writes go to the platform's no-op writer and leave
-   the stored branch generation intact.
+1. Java handles per-file cache hits normally: copy cached entries and re-emit CPD/AST where
+   applicable. During recording it also sends every current input to Node, marking actual hits
+   with `skip_analysis`. `file_status` remains independent: a `SAME` file can have a cache miss.
+2. Node records current source contents, configuration and filesystem observations. It visits
+   configured programs in the normal discovery order, including references, until all eligible
+   inputs have a configured, orphan or no-program outcome. No earlier SQAA context is restored.
+3. Cached files participate in program construction but execute no rules and emit no file results.
+   An all-cached PR still constructs the programs needed for its fresh context. Orphan programs
+   include current cached peers, so a changed file can gain type information and additional findings.
+4. After successful analysis and archive persistence, Node writes a local completion marker. Java
+   publishes the two archives and collector JSON metadata through the existing collector API.
+   The marker is not published and does not assert that every filesystem path was observed.
 
-There is no additional baseline-entry validation walk. Current complete directory listings remove
-inherited paths that disappeared within normal traversal coverage. Discovered and explicitly
-selected tsconfig contents and dependency manifests refresh through the file stores. Unchanged
-source contents are retained without rereading them solely for context. Unvisited dependencies
-and arbitrary extended configs not read by normal analysis may retain baseline observations.
-Context failure must not fail successful analysis or introduce cache misses.
-Dependency-aware cache invalidation is a separate improvement (JS-2815). Normal analysis may still
-read unchanged dependencies needed by a changed file. TypeScript program objects are not persisted.
+This supports fresh context without a compatible branch snapshot, including source additions,
+deletions and configuration changes. Only current observations are recorded; project and dependency
+files read while building programs can participate even when they are not analysis inputs. No
+whole-context entry is read or written through the sensor cache. Its per-file API and the
+platform's PR no-op writer are unchanged.
+
+Fresh construction adds source reads and compiler work solely for context. Broader current orphan
+roots and their improved findings are accepted; a numeric time/memory budget remains open.
+Context initialization, persistence or publication failure must not fail otherwise successful
+analysis. A runtime file error prevents context publication. Dependency-aware cache invalidation
+remains separate work (JS-2815), and wildcard ambient-package discovery remains in JS-2853.
+Fresh context does not re-run cached rules or guarantee fresh-full-analysis findings. TypeScript
+program objects are not persisted. Both Cloud and Server must support this path; local sensor
+recording/replay does not establish successful backend publication.
 
 ### Why CPD tokens must be re-emitted even on cache hit
 
@@ -230,7 +231,7 @@ sensor cache and are sent to Node on every run.
 6. Can cached data be deserialized successfully?
    NO  → WRITE_ONLY (reason: CACHE_CORRUPTED)
 
-7. All checks pass → READ_AND_WRITE (Java handles cache hits before sending misses to Node)
+7. All checks pass → READ_AND_WRITE (Java handles the hit; recording also sends it with skip_analysis)
 ```
 
 Note: `isInCache()` checks for CPD + AST presence but **not** file metadata (checked in step 4).
@@ -262,9 +263,10 @@ For HTML/YAML files:
   (no processCacheAnalysis, no CPD, no AST forwarding)
 ```
 
-The file is not sent to Node.js, with or without recording. SonarJS emits no issues, measures,
-highlights or symbols on a hit. The scanner's
-result-storage rules are separate from this cache hit.
+Without recording, the file is omitted from the Node.js request. During recording, it is sent
+with `skip_analysis` for fresh context construction. Node emits no file results for it; SonarJS
+emits no issues, measures, highlights or symbols on a hit. The scanner's result-storage rules
+are separate from this cache hit.
 
 **Analysis required** (`WRITE_ONLY` or `NO_CACHE` — for example a changed file, missing entry,
 ineligible mode or incompatible runtime):
@@ -361,23 +363,22 @@ If `fileStatus` is `SAME` (unchanged), the configured `analysisMode` is used. If
 
 ### Analysis paths and limits
 
-| Analysis / file path                                        | Effective mode                  | Node and cache behavior                                                                                               |
-| ----------------------------------------------------------- | ------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| Branch analysis, cache-eligible file                        | DEFAULT                         | Analyze through Node; attempt CPD, AST and metadata writes; no sensor-cache reads                                     |
-| PR with SQAA recording, cache-eligible file                 | Scanner-selected mode           | Java handles hits and omits them from Node; RECORD retains baseline observations; misses follow normal mode filtering |
-| PR with or without recording, JS/TS cache hit               | SKIP_UNCHANGED                  | Skip Node; re-emit CPD for MAIN files and forward any cached AST; attempted cache copies go to a no-op writer         |
-| PR with or without recording, SAME JS/TS cache miss         | SKIP_UNCHANGED                  | Send to Node; built-in DEFAULT-only rules are filtered out, while hooks declaring SKIP_UNCHANGED can run              |
-| PR with or without recording, CHANGED/ADDED JS/TS file      | SKIP_UNCHANGED at request level | Send to Node; linter selects DEFAULT rules for that file                                                              |
-| PR with or without recording, web/yaml cache hit            | SKIP_UNCHANGED                  | Skip Node; no CPD re-emission or AST forwarding by SonarJS                                                            |
-| CSS or additional-extension file with another/null language | Either                          | Bypass sensor cache; send to Node                                                                                     |
+| Analysis / file path                                        | Effective mode                  | Node and cache behavior                                                                                              |
+| ----------------------------------------------------------- | ------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Branch analysis, cache-eligible file                        | DEFAULT                         | Analyze through Node; attempt CPD, AST and metadata writes; no sensor-cache reads                                    |
+| PR with SQAA recording, cache-eligible file                 | Scanner-selected mode           | Send all current inputs; mark actual hits skip_analysis; construct fresh filesystem/program context; analyze misses  |
+| PR with or without recording, JS/TS cache hit               | SKIP_UNCHANGED                  | Skip rules; recording still maps the file; re-emit CPD for MAIN files and forward cached AST; cache copies are no-op |
+| PR with or without recording, SAME JS/TS cache miss         | SKIP_UNCHANGED                  | Send to Node; built-in DEFAULT-only rules are filtered out, while hooks declaring SKIP_UNCHANGED can run             |
+| PR with or without recording, CHANGED/ADDED JS/TS file      | SKIP_UNCHANGED at request level | Send to Node; linter selects DEFAULT rules for that file                                                             |
+| PR with or without recording, web/yaml cache hit            | SKIP_UNCHANGED                  | Skip rules; recording still captures the file; no CPD re-emission or AST forwarding by SonarJS                       |
+| CSS or additional-extension file with another/null language | Either                          | Bypass sensor cache; send to Node                                                                                    |
 
 These are implementation paths, not a claim that every mode produces equivalent data.
 In particular:
 
-- SQAA recording can reuse independently valid per-file entries without a compatible snapshot.
-  Without a baseline, a scan that reused hits omits context publication. With a baseline, RECORD
-  updates only observations made by normal analysis; untouched stale/deleted entries may remain.
-  There is no snapshot validation pass.
+- SQAA recording reuses independently valid per-file entries and builds fresh context without
+  a compatible snapshot. Cached files skip rules, but recording reads current source/configuration
+  inputs and constructs programs to map all eligible files. Broader orphan roots can improve findings.
 - HTML/YAML hits provide no cached CPD or AST to consumers through SonarJS. Other sensors
   have their own processing paths for these files.
 - On a hit, SonarJS emits no measures. Scanner measure storage does not itself skip SAME PR
@@ -442,7 +443,6 @@ must be interpreted using the reason, not just the hit count.
 | `cache/CacheStrategy.java`                          | Strategy object: holds cached data (if hit) and serialization reference                                     |
 | `cache/CacheAnalysis.java`                          | Container for cached data: CPD tokens + AST                                                                 |
 | `cache/CacheAnalysisSerialization.java`             | Orchestrates read/write and copy of AST + CPD + metadata                                                    |
-| `cache/ContextSnapshotCache.java`                   | Transports a versioned context generation through the sensor cache                                          |
 | `cache/AstProtobufSerialization.java`               | AST protobuf serialization                                                                                  |
 | `cache/CpdSerialization.java`                       | CPD binary serialization (data + string table)                                                              |
 | `cache/CpdSerializer.java` / `CpdDeserializer.java` | Binary encoding/decoding with var-length integers and string table                                          |

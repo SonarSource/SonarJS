@@ -29,7 +29,7 @@ import { getTsConfigContentCache } from '../src/jsts/program/cache/tsconfigCache
 import { createAnalyzableFiles } from '../src/projectAnalysis.js';
 import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
 import { FsCacheArchive } from '../../shared/src/fs-cache/archive.js';
-import { installFsCache, seedFilesystemBaseline } from '../../shared/src/fs-cache/hook.js';
+import { installFsCache } from '../../shared/src/fs-cache/hook.js';
 
 const cache = installFsCache();
 let temporary: string;
@@ -114,21 +114,8 @@ describe('file-store context reconciliation', () => {
         baseDir: rootDir,
         tsConfigPaths: ['custom-config.json'],
       });
-      const baselinePath = path.join(temporary, 'baseline.pb.gz');
       const archivePath = path.join(temporary, 'current.pb.gz');
-      const baseline = cache.beginAnalysis({
-        mode: 'record',
-        caseSensitivePaths: true,
-        rootDir,
-        archivePath: baselinePath,
-      });
-      try {
-        fs.readFileSync(kept);
-        fs.readFileSync(removed);
-        await initFileStoresForAnalysis(configuration, createAnalyzableFiles());
-      } finally {
-        baseline.end();
-      }
+      await initFileStoresForAnalysis(configuration, createAnalyzableFiles());
       if (removeSource) fs.rmSync(removedDirectory, { recursive: true });
       for (const config of configs)
         fs.writeFileSync(path.join(rootDir, config), '{"changed":true}');
@@ -139,7 +126,6 @@ describe('file-store context reconciliation', () => {
         archivePath,
       });
       try {
-        seedFilesystemBaseline(baselinePath);
         const read = mock.method(fs.promises, 'readFile');
         await initFileStoresForAnalysis(configuration, createAnalyzableFiles());
         expect(sourceFileStore.getFiles()).toEqual({});
@@ -164,16 +150,8 @@ describe('file-store context reconciliation', () => {
         archivePath,
       });
       archive.load();
-      expect(archive.get('kept.ts', 'readFile')).toEqual({
-        ok: true,
-        value: Buffer.from('const kept = 1;'),
-      });
-      if (removeSource) {
-        expect(archive.getExists('removed/source.ts')).toBe(false);
-        expect(archive.get('removed/source.ts', 'readFile')).toBeUndefined();
-      } else {
-        expect(archive.getExists('removed/source.ts')).toBe(true);
-      }
+      expect(archive.get('kept.ts', 'readFile')).toBeUndefined();
+      expect(archive.get('removed/source.ts', 'readFile')).toBeUndefined();
       for (const config of configs) {
         expect(archive.get(config, 'readFile')).toEqual({
           ok: true,

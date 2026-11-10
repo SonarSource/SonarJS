@@ -80,27 +80,6 @@ export function mergeNodes(base: CacheNode = {}, update: CacheNode = {}): CacheN
   return result;
 }
 
-/** Dirents describe the entry itself; a symlink says nothing about its followed target. */
-export function hasConflictingEntryType(node: CacheNode, type: string): boolean {
-  if (type === 'unknown') {
-    return false;
-  }
-  const stat = (kind: string) =>
-    Object.entries(node.stats ?? {}).find(
-      ([operation, outcome]) => operation.startsWith(`${kind}:`) && outcome.ok,
-    )?.[1];
-  const previous = stat('lstat') ?? (type === 'symbolicLink' ? undefined : stat('stat'));
-  if (previous?.ok) {
-    return previous.value.types[type] === false;
-  }
-  return (
-    type !== 'symbolicLink' &&
-    ((node.content?.ok === true && type !== 'file') ||
-      (Object.values(node.directories ?? {}).some(outcome => outcome.ok) && type !== 'directory') ||
-      Object.values(node.readlinks ?? {}).some(outcome => outcome.ok))
-  );
-}
-
 export function sortedNode(node: CacheNode): CacheNode {
   const result: CacheNode = {};
   if (node.exists !== undefined) {

@@ -74,23 +74,25 @@ dedicated loader thread, adding startup and module-loading overhead unrelated to
 ## SQAA context contract
 
 On supported SonarQube versions, CI records context only when the A3S context collector is enabled.
-Collection-enabled PR scans can reuse a compatible baseline transported through the sensor cache.
-The baseline is retained for publication without an additional validation walk.
-RECORD always uses the native filesystem and records its actual observations; it never serves
-baseline observations to live analysis. New observations replace earlier values, while untouched
-dependency observations may remain stale. Fresh complete directory listings reconcile deleted
-paths and subtrees within the normal file-store traversal, including all-cached requests. Configs
-discovered by the stores refresh their contents; unchanged source contents are not reread solely
-for context. The baseline itself is never mutated. Known existence or file-type changes discard
-contradictory prior observations.
-Snapshot maintenance does not invalidate per-file analysis-cache hits. It follows their existing
-trust assumptions; independent dependency validity is a separate concern.
+Collection-enabled PR scans build fresh context without restoring a branch snapshot. Java sends
+all current inputs, marking actual per-file cache hits with `skip_analysis`. Node records their
+contents and maps every eligible input to its configured program, orphan group or no-program
+outcome. Cached files execute no rules and emit no file results, but still participate in current
+program construction. This also runs on all-cached PRs. Current orphan roots include cached peers,
+so a changed file can gain type information and additional findings.
 
-Missing/corrupt baselines do not prevent independent analysis-cache hits. Such a scan may finish
-without context. Only a successfully persisted recording receives the completion marker that
-permits Java to publish it. The marker confirms persistence, not filesystem completeness or
-freshness. Recording failures do not fail otherwise successful analysis. The sensor-cache API
-and PR no-op persistence remain owned by the scanner.
+RECORD always uses the native filesystem and records current observations. Source, configuration
+and dependency inputs accessed during program construction form the fresh archive; unobserved
+paths are not copied from an earlier archive. This adds source reads and compiler work solely for
+context. Broader orphan roots and improved findings are accepted; a numeric time/memory budget
+remains open. Per-file cache eligibility remains unchanged. Dependency-aware invalidation is
+separate work (JS-2815); wildcard ambient-package discovery is tracked in JS-2853.
+
+Only a successfully persisted recording receives the local completion marker that permits Java
+to publish it. The marker confirms successful analysis and persistence, not complete filesystem
+coverage. A runtime file error prevents publication. Context initialization, persistence and
+publication failures do not fail otherwise successful analysis. No whole-context entry uses the
+sensor cache; its per-file API and PR no-op persistence remain owned by the scanner.
 
 The scanner sends Node explicit RECORD mode with two output paths and publishes the resulting
 gzip-compressed Protocol Buffers attachments under context kind `javascript`:

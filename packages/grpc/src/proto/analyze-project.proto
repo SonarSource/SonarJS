@@ -41,12 +41,9 @@ message FilesystemCache {
   optional string fallback_base_dir = 4;
   // Collector JSON containing the original project root and captured configuration.
   optional string context_metadata = 5;
-  // Sensor-cache baseline for incremental CI recording. Never used for SQAA REPLAY.
-  optional string baseline_archive_path = 6;
-  optional string baseline_analysis_metadata_path = 7;
-  optional string baseline_context_metadata = 8;
+  reserved 6, 7, 8, 10;
+  reserved "baseline_archive_path", "baseline_analysis_metadata_path", "baseline_context_metadata", "baseline_manifest_path";
   optional string snapshot_manifest_path = 9;
-  optional string baseline_manifest_path = 10;
 }
 
 enum FilesystemCacheMode {
