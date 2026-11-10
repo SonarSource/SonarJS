@@ -101,6 +101,427 @@ function allowsNullOrUndefined(type: ts.Type): boolean {
 // optional chaining silently inverts the original "either-side-null" guard.
 const DANGEROUS_OPERATORS = new Set(['!==', '!=', '<', '>', '<=', '>=']);
 
+function getContextualTypeSubject(node: Rule.Node) {
+  let current = node;
+  while (
+    current.parent?.type === 'LogicalExpression' &&
+    (current.parent.left === current || current.parent.right === current)
+  ) {
+    current = current.parent;
+  }
+  return current;
+}
+
+function isGuardAbsorbedByCallArgumentFallback(node: Rule.Node): boolean {
+  const subject = getContextualTypeSubject(node);
+  const call = subject.parent;
+  if (call?.type !== 'CallExpression' || !call.arguments.includes(subject as never)) {
+    return false;
+  }
+
+  let current: Rule.Node = node;
+  while (current !== subject && current.parent?.type === 'LogicalExpression') {
+    const parent: Rule.Node = current.parent;
+    // The fallback consumes undefined from the proposed optional chain.
+    if (
+      parent.type === 'LogicalExpression' &&
+      parent.left === current &&
+      (parent.operator === '||' || parent.operator === '??')
+    ) {
+      return true;
+    }
+    current = parent;
+  }
+  return false;
+}
+
+function createTypeLookupHelpers(
+  getTSNode: (node: Rule.Node) => ts.Node | undefined,
+  checker: ts.TypeChecker,
+) {
+  /**
+   * Returns the type imposed by the surrounding context on the reported expression.
+   *
+   * Pseudo code:
+   * let result: string | null;
+   * result = value && value.property;
+   *
+   * Here, `node` is `value && value.property`, and its contextual type is `string | null`
+   * because that is the type expected by the assignment target `result`.
+   */
+  function getContextualTypeOfNode(node: Rule.Node): ts.Type | null {
+    const tsNode = getTSNode(node);
+    if (!tsNode) {
+      return null;
+    }
+
+    return checker.getContextualType(tsNode as ts.Expression) ?? null;
+  }
+
+  function getTypeOfNode(node: Rule.Node): ts.Type | null {
+    const tsNode = getTSNode(node);
+    if (!tsNode) {
+      return null;
+    }
+
+    return checker.getTypeAtLocation(tsNode);
+  }
+
+  // Resolves the type as declared at the symbol's declaration site, bypassing
+  // narrowing that the surrounding null-guard chain applies at the use site.
+  function getDeclaredTypeOfObject(node: Rule.Node): ts.Type | null {
+    const tsNode = getTSNode(node);
+    if (!tsNode) {
+      return null;
+    }
+    const symbol = checker.getSymbolAtLocation(tsNode);
+    const declaration = symbol?.declarations?.[0];
+    if (symbol && declaration) {
+      return checker.getTypeOfSymbolAtLocation(symbol, declaration);
+    }
+    return checker.getTypeAtLocation(tsNode);
+  }
+  return { getContextualTypeOfNode, getTypeOfNode, getDeclaredTypeOfObject };
+}
+
+function createGuardHelpers(
+  checker: ts.TypeChecker,
+  getTypeOfNode: (node: Rule.Node) => ts.Type | null,
+) {
+  function guardCanIntroduceUndefined(guard: Rule.Node): boolean {
+    if (guard.type === 'LogicalExpression' && guard.operator === '&&') {
+      return (
+        guardCanIntroduceUndefined(guard.left as Rule.Node) ||
+        guardCanIntroduceUndefined(guard.right as Rule.Node)
+      );
+    }
+    // A null check produces false, while its optional chain can produce undefined.
+    let subject = guard;
+    if (
+      guard.type === 'BinaryExpression' &&
+      ['!=', '!==', '==', '==='].includes(guard.operator)
+    ) {
+      subject =
+        guard.left.type === 'Literal' ||
+        (guard.left.type === 'Identifier' && guard.left.name === 'undefined')
+          ? (guard.right as Rule.Node)
+          : (guard.left as Rule.Node);
+      if (subject.type === 'UnaryExpression' && subject.operator === 'typeof') {
+        subject = subject.argument as Rule.Node;
+      }
+    }
+    const rawType = getTypeOfNode(subject);
+    if (rawType == null) {
+      return false;
+    }
+    const type: ts.Type = checker.getBaseConstraintOfType(rawType) ?? rawType;
+    if (subject !== guard) {
+      return allowsNullOrUndefined(type);
+    }
+    const types: ts.Type[] = type.isUnion() ? type.types : [type];
+    return types.some(part => (part.flags & ts.TypeFlags.Null) !== 0);
+  }
+
+  function typeCanBeFalsy(type: ts.Type): boolean {
+    if (type.isNumberLiteral()) {
+      return type.value === 0;
+    }
+    if (type.isStringLiteral()) {
+      return type.value === '';
+    }
+    if (type.flags & ts.TypeFlags.BigIntLiteral) {
+      return (type as ts.BigIntLiteralType).value.base10Value === '0';
+    }
+    if (type.flags & ts.TypeFlags.BooleanLiteral) {
+      return checker.typeToString(type) === 'false';
+    }
+    return (
+      (type.flags &
+        (ts.TypeFlags.Number |
+          ts.TypeFlags.String |
+          ts.TypeFlags.BigInt |
+          ts.TypeFlags.Boolean |
+          ts.TypeFlags.EnumLike)) !==
+      0
+    );
+  }
+
+  function hasGuardTypeWithinOrFallback(
+    node: Rule.Node,
+    predicate: (type: ts.Type) => boolean,
+  ): boolean {
+    if (node.type !== 'LogicalExpression') {
+      return false;
+    }
+
+    let current: Rule.Node = node;
+    let hasOrFallback = false;
+    while (
+      current.parent?.type === 'LogicalExpression' &&
+      (current.parent.left === current || current.parent.right === current)
+    ) {
+      const parent: Rule.Node = current.parent;
+      if (
+        parent.type === 'LogicalExpression' &&
+        parent.operator === '||' &&
+        parent.left === current
+      ) {
+        hasOrFallback = true;
+        break;
+      }
+      current = parent;
+    }
+    if (!hasOrFallback) {
+      return false;
+    }
+
+    function containsMatchingGuard(expression: Rule.Node): boolean {
+      if (expression.type !== 'LogicalExpression') {
+        return false;
+      }
+      if (
+        expression.operator === '&&' &&
+        expression.left.type !== 'LogicalExpression' &&
+        expression.left.type !== 'BinaryExpression' &&
+        expression.left.type !== 'UnaryExpression'
+      ) {
+        const rawGuardType = getTypeOfNode(expression.left as Rule.Node);
+        if (rawGuardType != null) {
+          const guardType: ts.Type =
+            checker.getBaseConstraintOfType(rawGuardType) ?? rawGuardType;
+          const types: ts.Type[] = guardType.isUnion() ? guardType.types : [guardType];
+          if (types.some(predicate)) {
+            return true;
+          }
+        }
+      }
+      return (
+        containsMatchingGuard(expression.left as Rule.Node) ||
+        containsMatchingGuard(expression.right as Rule.Node)
+      );
+    }
+
+    return containsMatchingGuard(node);
+  }
+
+  function hasPotentiallyUnsafeGuard(node: Rule.Node): boolean {
+    if (node.type === 'LogicalExpression' && node.operator === '&&') {
+      const rawType = getTypeOfNode(node.left as Rule.Node);
+      if (rawType != null) {
+        const type: ts.Type = checker.getBaseConstraintOfType(rawType) ?? rawType;
+        if ((type.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown)) !== 0) {
+          return true;
+        }
+      }
+    }
+    return hasGuardTypeWithinOrFallback(
+      node,
+      type =>
+        typeCanBeFalsy(type) || (type.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown)) !== 0,
+    );
+  }
+  return { guardCanIntroduceUndefined, hasPotentiallyUnsafeGuard };
+}
+
+function createMultipleNullableSubjectsMatcher(
+  context: Rule.RuleContext,
+  getTypeOfNode: (node: Rule.Node) => ts.Type | null,
+  getDeclaredTypeOfObject: (node: Rule.Node) => ts.Type | null,
+) {
+  // Record subjects that are still nullable where their guard is evaluated.
+  function collectGuardedSubjects(node: Rule.Node, subjects: Set<string>): void {
+    let guardedNode: Rule.Node;
+    if (node.type === 'UnaryExpression' && node.operator === '!') {
+      guardedNode = node.argument as Rule.Node;
+    } else if (node.type === 'LogicalExpression') {
+      collectGuardedSubjects(node.left as Rule.Node, subjects);
+      collectGuardedSubjects(node.right as Rule.Node, subjects);
+      return;
+    } else {
+      guardedNode = node;
+    }
+
+    const type = getTypeOfNode(guardedNode);
+    if (type != null && allowsNullOrUndefined(type)) {
+      subjects.add(context.sourceCode.getText(guardedNode));
+    }
+  }
+
+  // Suppress when the comparison involves more than one null-guarded nullable subject.
+  // Optional chaining has no clean single-chain form for multi-subject comparisons:
+  // the partial fix (e.g. `!a || a.x !== b?.x`) is unreadable and misleads customers
+  // into writing the full fix (`a?.x !== b?.x`) which silently changes semantics.
+  function matchesMultipleNullableSubjectsFalsePositive(node: Rule.Node): boolean {
+    if (node.type !== 'LogicalExpression' || node.right.type !== 'BinaryExpression') {
+      return false;
+    }
+
+    const binary = node.right;
+    if (!DANGEROUS_OPERATORS.has(binary.operator)) {
+      return false;
+    }
+
+    if (binary.left.type !== 'MemberExpression' || binary.right.type !== 'MemberExpression') {
+      return false;
+    }
+
+    const leftObj = binary.left.object as Rule.Node;
+    const rightObj = binary.right.object as Rule.Node;
+
+    const leftText = context.sourceCode.getText(leftObj);
+    const rightText = context.sourceCode.getText(rightObj);
+    if (leftText === rightText) {
+      return false;
+    }
+
+    const leftType = getDeclaredTypeOfObject(leftObj);
+    const rightType = getDeclaredTypeOfObject(rightObj);
+    if (
+      leftType == null ||
+      rightType == null ||
+      !allowsNullOrUndefined(leftType) ||
+      !allowsNullOrUndefined(rightType)
+    ) {
+      return false;
+    }
+
+    const guardedSubjects = new Set<string>();
+    collectGuardedSubjects(node.left as Rule.Node, guardedSubjects);
+    return guardedSubjects.has(leftText) && guardedSubjects.has(rightText);
+  }
+  return matchesMultipleNullableSubjectsFalsePositive;
+}
+
+function createFalsePositiveMatcher(
+  getContextualTypeOfNode: (node: Rule.Node) => ts.Type | null,
+  getTypeOfNode: (node: Rule.Node) => ts.Type | null,
+  guardCanIntroduceUndefined: (node: Rule.Node) => boolean,
+  matchesMultipleNullableSubjectsFalsePositive: (node: Rule.Node) => boolean,
+) {
+  function hasTypeUnsafeContextualType(node: Rule.Node) {
+    const contextualType = getContextualTypeOfNode(getContextualTypeSubject(node));
+    return contextualType != null && !allowsUndefined(contextualType);
+  }
+
+  function matchesFunctionReturnFalsePositive(node: Rule.Node) {
+    return (
+      node.type === 'LogicalExpression' &&
+      node.operator === '&&' &&
+      node.parent?.type === 'ReturnStatement' &&
+      node.right.type !== 'BinaryExpression' &&
+      hasTypeUnsafeContextualType(node)
+    );
+  }
+
+  function matchesTypedVariableInitializerFalsePositive(node: Rule.Node) {
+    return (
+      node.type === 'LogicalExpression' &&
+      node.operator === '&&' &&
+      node.parent?.type === 'VariableDeclarator' &&
+      node.parent.init === node &&
+      node.right.type !== 'BinaryExpression' &&
+      hasTypeUnsafeContextualType(node)
+    );
+  }
+
+  function matchesObjectLiteralPropertyFalsePositive(node: Rule.Node) {
+    return (
+      node.type === 'LogicalExpression' &&
+      node.operator === '&&' &&
+      node.parent?.type === 'Property' &&
+      node.parent.value === node &&
+      node.right.type !== 'BinaryExpression' &&
+      hasTypeUnsafeContextualType(node)
+    );
+  }
+
+  function matchesCallArgumentFalsePositive(node: Rule.Node) {
+    const subject = getContextualTypeSubject(node);
+    const parent = subject.parent;
+    if (
+      node.type !== 'LogicalExpression' ||
+      node.operator !== '&&' ||
+      node.right.type === 'BinaryExpression' ||
+      parent?.type !== 'CallExpression' ||
+      !parent.arguments.includes(subject as never)
+    ) {
+      return false;
+    }
+
+    if (isGuardAbsorbedByCallArgumentFallback(node)) {
+      return false;
+    }
+
+    const contextualType = getContextualTypeOfNode(subject);
+    return contextualType != null && !allowsUndefined(contextualType);
+  }
+
+  function matchesAssignmentFalsePositive(node: Rule.Node) {
+    if (
+      node.type !== 'LogicalExpression' ||
+      node.operator !== '&&' ||
+      node.right.type === 'BinaryExpression' ||
+      node.parent?.type !== 'AssignmentExpression' ||
+      node.parent.right !== node ||
+      node.parent.operator !== '='
+    ) {
+      return false;
+    }
+
+    const parent = node.parent;
+    if (parent.left.type !== 'Identifier' && parent.left.type !== 'MemberExpression') {
+      // Keep the matcher narrowly scoped to ordinary typed assignment targets.
+      // Broader target coverage can be added once we have concrete FP examples.
+      return false;
+    }
+
+    const targetType = getTypeOfNode(parent.left as Rule.Node);
+    return targetType != null && !allowsUndefined(targetType);
+  }
+
+  /**
+   * Returns true when the upstream report is a known false positive that should be suppressed.
+   *
+   * We suppress only when the optional-chain rewrite would leak a type-unsafe `undefined`
+   * into the surrounding context. All other cases are reported by default.
+   */
+  function isKnownFalsePositive(node: Rule.Node): boolean {
+    if (matchesMultipleNullableSubjectsFalsePositive(node)) {
+      return true;
+    }
+    // Suppress only when the rewrite can introduce undefined.
+    if (
+      node.type !== 'LogicalExpression' ||
+      node.operator !== '&&' ||
+      !guardCanIntroduceUndefined(node.left as Rule.Node)
+    ) {
+      return false;
+    }
+    if (matchesFunctionReturnFalsePositive(node)) {
+      return true;
+    }
+
+    if (matchesTypedVariableInitializerFalsePositive(node)) {
+      return true;
+    }
+
+    if (matchesObjectLiteralPropertyFalsePositive(node)) {
+      return true;
+    }
+
+    if (matchesCallArgumentFalsePositive(node)) {
+      return true;
+    }
+
+    if (matchesAssignmentFalsePositive(node)) {
+      return true;
+    }
+
+    return false;
+  }
+  return isKnownFalsePositive;
+}
+
 /**
  * Sanitized rule 'prefer-optional-chain' from TypeScript ESLint.
  *
@@ -141,399 +562,22 @@ export const rule: Rule.RuleModule = {
 
     const checker = services.program.getTypeChecker();
 
-    /**
-     * Returns the type imposed by the surrounding context on the reported expression.
-     *
-     * Pseudo code:
-     * let result: string | null;
-     * result = value && value.property;
-     *
-     * Here, `node` is `value && value.property`, and its contextual type is `string | null`
-     * because that is the type expected by the assignment target `result`.
-     */
-    function getContextualTypeOfNode(node: Rule.Node): ts.Type | null {
-      const tsNode = services.esTreeNodeToTSNodeMap.get(node);
-      if (!tsNode) {
-        return null;
-      }
-
-      return checker.getContextualType(tsNode as ts.Expression) ?? null;
-    }
-
-    function getTypeOfNode(node: Rule.Node): ts.Type | null {
-      const tsNode = services.esTreeNodeToTSNodeMap.get(node);
-      if (!tsNode) {
-        return null;
-      }
-
-      return checker.getTypeAtLocation(tsNode);
-    }
-
-    function guardCanIntroduceUndefined(guard: Rule.Node): boolean {
-      if (guard.type === 'LogicalExpression' && guard.operator === '&&') {
-        return (
-          guardCanIntroduceUndefined(guard.left as Rule.Node) ||
-          guardCanIntroduceUndefined(guard.right as Rule.Node)
-        );
-      }
-      // A null check produces false, while its optional chain can produce undefined.
-      let subject = guard;
-      if (
-        guard.type === 'BinaryExpression' &&
-        ['!=', '!==', '==', '==='].includes(guard.operator)
-      ) {
-        subject =
-          guard.left.type === 'Literal' ||
-          (guard.left.type === 'Identifier' && guard.left.name === 'undefined')
-            ? (guard.right as Rule.Node)
-            : (guard.left as Rule.Node);
-        if (subject.type === 'UnaryExpression' && subject.operator === 'typeof') {
-          subject = subject.argument as Rule.Node;
-        }
-      }
-      const rawType = getTypeOfNode(subject);
-      if (rawType == null) {
-        return false;
-      }
-      const type: ts.Type = checker.getBaseConstraintOfType(rawType) ?? rawType;
-      if (subject !== guard) {
-        return allowsNullOrUndefined(type);
-      }
-      const types: ts.Type[] = type.isUnion() ? type.types : [type];
-      return types.some(part => (part.flags & ts.TypeFlags.Null) !== 0);
-    }
-
-    function typeCanBeFalsy(type: ts.Type): boolean {
-      if (type.isNumberLiteral()) {
-        return type.value === 0;
-      }
-      if (type.isStringLiteral()) {
-        return type.value === '';
-      }
-      if (type.flags & ts.TypeFlags.BigIntLiteral) {
-        return (type as ts.BigIntLiteralType).value.base10Value === '0';
-      }
-      if (type.flags & ts.TypeFlags.BooleanLiteral) {
-        return checker.typeToString(type) === 'false';
-      }
-      return (
-        (type.flags &
-          (ts.TypeFlags.Number |
-            ts.TypeFlags.String |
-            ts.TypeFlags.BigInt |
-            ts.TypeFlags.Boolean |
-            ts.TypeFlags.EnumLike)) !==
-        0
+    const esTreeNodeToTSNodeMap = services.esTreeNodeToTSNodeMap;
+    const getTSNode = (node: Rule.Node) => esTreeNodeToTSNodeMap.get(node);
+    const typeHelpers = createTypeLookupHelpers(getTSNode, checker);
+    const guardHelpers = createGuardHelpers(checker, typeHelpers.getTypeOfNode);
+    const matchesMultipleNullableSubjectsFalsePositive =
+      createMultipleNullableSubjectsMatcher(
+        context,
+        typeHelpers.getTypeOfNode,
+        typeHelpers.getDeclaredTypeOfObject,
       );
-    }
-
-    function hasGuardTypeWithinOrFallback(
-      node: Rule.Node,
-      predicate: (type: ts.Type) => boolean,
-    ): boolean {
-      if (node.type !== 'LogicalExpression') {
-        return false;
-      }
-
-      let current: Rule.Node = node;
-      let hasOrFallback = false;
-      while (
-        current.parent?.type === 'LogicalExpression' &&
-        (current.parent.left === current || current.parent.right === current)
-      ) {
-        const parent: Rule.Node = current.parent;
-        if (
-          parent.type === 'LogicalExpression' &&
-          parent.operator === '||' &&
-          parent.left === current
-        ) {
-          hasOrFallback = true;
-          break;
-        }
-        current = parent;
-      }
-      if (!hasOrFallback) {
-        return false;
-      }
-
-      function containsMatchingGuard(expression: Rule.Node): boolean {
-        if (expression.type !== 'LogicalExpression') {
-          return false;
-        }
-        if (
-          expression.operator === '&&' &&
-          expression.left.type !== 'LogicalExpression' &&
-          expression.left.type !== 'BinaryExpression' &&
-          expression.left.type !== 'UnaryExpression'
-        ) {
-          const rawGuardType = getTypeOfNode(expression.left as Rule.Node);
-          if (rawGuardType != null) {
-            const guardType: ts.Type =
-              checker.getBaseConstraintOfType(rawGuardType) ?? rawGuardType;
-            const types: ts.Type[] = guardType.isUnion() ? guardType.types : [guardType];
-            if (types.some(predicate)) {
-              return true;
-            }
-          }
-        }
-        return (
-          containsMatchingGuard(expression.left as Rule.Node) ||
-          containsMatchingGuard(expression.right as Rule.Node)
-        );
-      }
-
-      return containsMatchingGuard(node);
-    }
-
-    function hasPotentiallyUnsafeGuard(node: Rule.Node): boolean {
-      if (node.type === 'LogicalExpression' && node.operator === '&&') {
-        const rawType = getTypeOfNode(node.left as Rule.Node);
-        if (rawType != null) {
-          const type: ts.Type = checker.getBaseConstraintOfType(rawType) ?? rawType;
-          if ((type.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown)) !== 0) {
-            return true;
-          }
-        }
-      }
-      return hasGuardTypeWithinOrFallback(
-        node,
-        type =>
-          typeCanBeFalsy(type) || (type.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown)) !== 0,
-      );
-    }
-
-    // Resolves the type as declared at the symbol's declaration site, bypassing
-    // narrowing that the surrounding null-guard chain applies at the use site.
-    function getDeclaredTypeOfObject(node: Rule.Node): ts.Type | null {
-      const tsNode = services.esTreeNodeToTSNodeMap.get(node);
-      if (!tsNode) {
-        return null;
-      }
-      const symbol = checker.getSymbolAtLocation(tsNode);
-      const declaration = symbol?.declarations?.[0];
-      if (symbol && declaration) {
-        return checker.getTypeOfSymbolAtLocation(symbol, declaration);
-      }
-      return checker.getTypeAtLocation(tsNode);
-    }
-
-    function getContextualTypeSubject(node: Rule.Node) {
-      let current = node;
-      while (
-        current.parent?.type === 'LogicalExpression' &&
-        (current.parent.left === current || current.parent.right === current)
-      ) {
-        current = current.parent;
-      }
-      return current;
-    }
-
-    function isGuardAbsorbedByCallArgumentFallback(node: Rule.Node): boolean {
-      const subject = getContextualTypeSubject(node);
-      const call = subject.parent;
-      if (call?.type !== 'CallExpression' || !call.arguments.includes(subject as never)) {
-        return false;
-      }
-
-      let current: Rule.Node = node;
-      while (current !== subject && current.parent?.type === 'LogicalExpression') {
-        const parent: Rule.Node = current.parent;
-        // The fallback consumes undefined from the proposed optional chain.
-        if (
-          parent.type === 'LogicalExpression' &&
-          parent.left === current &&
-          (parent.operator === '||' || parent.operator === '??')
-        ) {
-          return true;
-        }
-        current = parent;
-      }
-      return false;
-    }
-
-    function hasTypeUnsafeContextualType(node: Rule.Node) {
-      const contextualType = getContextualTypeOfNode(getContextualTypeSubject(node));
-      return contextualType != null && !allowsUndefined(contextualType);
-    }
-
-    function matchesFunctionReturnFalsePositive(node: Rule.Node) {
-      return (
-        node.type === 'LogicalExpression' &&
-        node.operator === '&&' &&
-        node.parent?.type === 'ReturnStatement' &&
-        node.right.type !== 'BinaryExpression' &&
-        hasTypeUnsafeContextualType(node)
-      );
-    }
-
-    function matchesTypedVariableInitializerFalsePositive(node: Rule.Node) {
-      return (
-        node.type === 'LogicalExpression' &&
-        node.operator === '&&' &&
-        node.parent?.type === 'VariableDeclarator' &&
-        node.parent.init === node &&
-        node.right.type !== 'BinaryExpression' &&
-        hasTypeUnsafeContextualType(node)
-      );
-    }
-
-    function matchesObjectLiteralPropertyFalsePositive(node: Rule.Node) {
-      return (
-        node.type === 'LogicalExpression' &&
-        node.operator === '&&' &&
-        node.parent?.type === 'Property' &&
-        node.parent.value === node &&
-        node.right.type !== 'BinaryExpression' &&
-        hasTypeUnsafeContextualType(node)
-      );
-    }
-
-    function matchesCallArgumentFalsePositive(node: Rule.Node) {
-      const subject = getContextualTypeSubject(node);
-      const parent = subject.parent;
-      if (
-        node.type !== 'LogicalExpression' ||
-        node.operator !== '&&' ||
-        node.right.type === 'BinaryExpression' ||
-        parent?.type !== 'CallExpression' ||
-        !parent.arguments.includes(subject as never)
-      ) {
-        return false;
-      }
-
-      if (isGuardAbsorbedByCallArgumentFallback(node)) {
-        return false;
-      }
-
-      const contextualType = getContextualTypeOfNode(subject);
-      return contextualType != null && !allowsUndefined(contextualType);
-    }
-
-    function matchesAssignmentFalsePositive(node: Rule.Node) {
-      if (
-        node.type !== 'LogicalExpression' ||
-        node.operator !== '&&' ||
-        node.right.type === 'BinaryExpression' ||
-        node.parent?.type !== 'AssignmentExpression' ||
-        node.parent.right !== node ||
-        node.parent.operator !== '='
-      ) {
-        return false;
-      }
-
-      const parent = node.parent;
-      if (parent.left.type !== 'Identifier' && parent.left.type !== 'MemberExpression') {
-        // Keep the matcher narrowly scoped to ordinary typed assignment targets.
-        // Broader target coverage can be added once we have concrete FP examples.
-        return false;
-      }
-
-      const targetType = getTypeOfNode(parent.left as Rule.Node);
-      return targetType != null && !allowsUndefined(targetType);
-    }
-
-    // Record subjects that are still nullable where their guard is evaluated.
-    function collectGuardedSubjects(node: Rule.Node, subjects: Set<string>): void {
-      let guardedNode: Rule.Node;
-      if (node.type === 'UnaryExpression' && node.operator === '!') {
-        guardedNode = node.argument as Rule.Node;
-      } else if (node.type === 'LogicalExpression') {
-        collectGuardedSubjects(node.left as Rule.Node, subjects);
-        collectGuardedSubjects(node.right as Rule.Node, subjects);
-        return;
-      } else {
-        guardedNode = node;
-      }
-
-      const type = getTypeOfNode(guardedNode);
-      if (type != null && allowsNullOrUndefined(type)) {
-        subjects.add(context.sourceCode.getText(guardedNode));
-      }
-    }
-
-    // Suppress when the comparison involves more than one null-guarded nullable subject.
-    // Optional chaining has no clean single-chain form for multi-subject comparisons:
-    // the partial fix (e.g. `!a || a.x !== b?.x`) is unreadable and misleads customers
-    // into writing the full fix (`a?.x !== b?.x`) which silently changes semantics.
-    function matchesMultipleNullableSubjectsFalsePositive(node: Rule.Node): boolean {
-      if (node.type !== 'LogicalExpression' || node.right.type !== 'BinaryExpression') {
-        return false;
-      }
-
-      const binary = node.right;
-      if (!DANGEROUS_OPERATORS.has(binary.operator)) {
-        return false;
-      }
-
-      if (binary.left.type !== 'MemberExpression' || binary.right.type !== 'MemberExpression') {
-        return false;
-      }
-
-      const leftObj = binary.left.object as Rule.Node;
-      const rightObj = binary.right.object as Rule.Node;
-
-      const leftText = context.sourceCode.getText(leftObj);
-      const rightText = context.sourceCode.getText(rightObj);
-      if (leftText === rightText) {
-        return false;
-      }
-
-      const leftType = getDeclaredTypeOfObject(leftObj);
-      const rightType = getDeclaredTypeOfObject(rightObj);
-      if (
-        leftType == null ||
-        rightType == null ||
-        !allowsNullOrUndefined(leftType) ||
-        !allowsNullOrUndefined(rightType)
-      ) {
-        return false;
-      }
-
-      const guardedSubjects = new Set<string>();
-      collectGuardedSubjects(node.left as Rule.Node, guardedSubjects);
-      return guardedSubjects.has(leftText) && guardedSubjects.has(rightText);
-    }
-
-    /**
-     * Returns true when the upstream report is a known false positive that should be suppressed.
-     *
-     * We suppress only when the optional-chain rewrite would leak a type-unsafe `undefined`
-     * into the surrounding context. All other cases are reported by default.
-     */
-    function isKnownFalsePositive(node: Rule.Node): boolean {
-      if (matchesMultipleNullableSubjectsFalsePositive(node)) {
-        return true;
-      }
-      // Suppress only when the rewrite can introduce undefined.
-      if (
-        node.type !== 'LogicalExpression' ||
-        node.operator !== '&&' ||
-        !guardCanIntroduceUndefined(node.left as Rule.Node)
-      ) {
-        return false;
-      }
-      if (matchesFunctionReturnFalsePositive(node)) {
-        return true;
-      }
-
-      if (matchesTypedVariableInitializerFalsePositive(node)) {
-        return true;
-      }
-
-      if (matchesObjectLiteralPropertyFalsePositive(node)) {
-        return true;
-      }
-
-      if (matchesCallArgumentFalsePositive(node)) {
-        return true;
-      }
-
-      if (matchesAssignmentFalsePositive(node)) {
-        return true;
-      }
-
-      return false;
-    }
+    const isKnownFalsePositive = createFalsePositiveMatcher(
+      typeHelpers.getContextualTypeOfNode,
+      typeHelpers.getTypeOfNode,
+      guardHelpers.guardCanIntroduceUndefined,
+      matchesMultipleNullableSubjectsFalsePositive,
+    );
 
     return interceptReport(preferOptionalChainRule, (ctx, descriptor) => {
       const node = findReportNode(ctx, descriptor);
@@ -542,7 +586,7 @@ export const rule: Rule.RuleModule = {
       }
 
       // Unknown values and falsy fallbacks can change behavior. Keep reports without fixes.
-      if (hasPotentiallyUnsafeGuard(node)) {
+      if (guardHelpers.hasPotentiallyUnsafeGuard(node)) {
         const { fix: _fix, suggest: _suggest, ...rest } = descriptor;
         ctx.report(rest);
         return;
