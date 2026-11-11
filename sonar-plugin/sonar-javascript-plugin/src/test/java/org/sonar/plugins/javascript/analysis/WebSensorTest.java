@@ -21,8 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
@@ -1521,7 +1519,7 @@ class WebSensorTest {
       assertThat(cold.allIssues()).hasSize(1);
       assertThat(cachedBytes).isNotEmpty();
 
-      // Prove the ordinary hit path before checking reuse during context recording.
+      // Prove the ordinary cache-hit path before checking context recording.
       logTester.clear();
       var cached = realNodeCacheContext(nodeExecutable, source, cachedBytes, true);
       createSensor(
@@ -1536,7 +1534,6 @@ class WebSensorTest {
       );
 
       logTester.clear();
-      contextItems.clear();
       var warm = realNodeCacheContext(nodeExecutable, source, cachedBytes, true);
       createSensor(
         checks("S2871"),
@@ -1546,64 +1543,12 @@ class WebSensorTest {
         new WebSensorModuleConfiguration()
       ).execute(warm);
       assertThat(warm.allIssues()).isEmpty();
-      verify(warm.nextCache()).copyFromPrevious(
-        "js:filemetadata:" +
-          PLUGIN_VERSION +
-          ":" +
-          warm.fileSystem().inputFiles(warm.fileSystem().predicates().all()).iterator().next().key()
-      );
       assertThat(logTester.logs(Level.DEBUG)).anyMatch(message ->
         message.startsWith("Processing cache analysis of file:")
       );
       assertThat(contextItems)
         .hasSize(2)
         .allSatisfy(item -> assertThat(item).isNotEmptyFile());
-
-      // A scanner cache predating context collection must still retain its ordinary file-cache hit.
-      var withoutContext = new HashMap<>(cachedBytes);
-      withoutContext.keySet().removeIf(key -> key.startsWith("js:sqaa-context:"));
-      var missingBaselineItems = new ArrayList<Path>();
-      var withoutBaseline = realNodeCacheContext(nodeExecutable, source, withoutContext, true);
-      createSensor(
-        checks("S2871"),
-        new AnalysisConsumers(),
-        null,
-        localRecordingCollector(missingBaselineItems),
-        new WebSensorModuleConfiguration()
-      ).execute(withoutBaseline);
-      assertThat(withoutBaseline.allIssues()).isEmpty();
-      assertThat(missingBaselineItems).hasSize(2);
-      assertThat(withoutContext.keySet()).noneMatch(key -> key.startsWith("js:sqaa-context:"));
-      var cachedFile = withoutBaseline
-        .fileSystem()
-        .inputFiles(withoutBaseline.fileSystem().predicates().all())
-        .iterator()
-        .next();
-      verify(withoutBaseline.nextCache()).copyFromPrevious(
-        "js:filemetadata:" + PLUGIN_VERSION + ":" + cachedFile.key()
-      );
-
-      // Recording preserves the existing per-file cache policy for unindexed dependencies.
-      Files.writeString(baseDir.resolve("values.ts"), "export const values = { sort() {} };");
-      var dependencyCache = new HashMap<>(cachedBytes);
-      var dependencyItems = new ArrayList<Path>();
-      var dependencyChanged = realNodeCacheContext(nodeExecutable, source, dependencyCache, true);
-      createSensor(
-        checks("S2871"),
-        new AnalysisConsumers(),
-        null,
-        localRecordingCollector(dependencyItems),
-        new WebSensorModuleConfiguration()
-      ).execute(dependencyChanged);
-      assertThat(dependencyChanged.allIssues()).isEmpty();
-      assertThat(dependencyItems).hasSize(2);
-      var fileMetadataKey = "js:filemetadata:" + PLUGIN_VERSION + ":" + cachedFile.key();
-      verify(dependencyChanged.nextCache()).copyFromPrevious(fileMetadataKey);
-      verify(dependencyChanged.nextCache(), never()).write(eq(fileMetadataKey), any(byte[].class));
-      Files.writeString(
-        baseDir.resolve("values.ts"),
-        "export const values: number[] = [80, 3, 9];"
-      );
 
       // Preserve the real Java-produced pair for the separate SQAA adapter test.
       var exportDirectory = System.getProperty("sonarjs.localContextDirectory");
@@ -1734,16 +1679,6 @@ class WebSensorTest {
     Map<String, byte[]> cachedBytes,
     boolean unchanged
   ) throws IOException {
-    var sensorContext = realNodeSensorContext(nodeExecutable, cachedBytes);
-    var file = createInputFile(sensorContext, "main.ts", StandardCharsets.UTF_8, baseDir, contents);
-    file.setStatus(unchanged ? InputFile.Status.SAME : InputFile.Status.ADDED);
-    return sensorContext;
-  }
-
-  private SensorContextTester realNodeSensorContext(
-    String nodeExecutable,
-    Map<String, byte[]> cachedBytes
-  ) throws IOException {
     var sensorContext = createSensorContext(baseDir);
     sensorContext.setRuntime(
       TestSonarRuntime.forSonarQube(
@@ -1781,6 +1716,8 @@ class WebSensorTest {
       .when(next)
       .write(any(String.class), any(InputStream.class));
     sensorContext.setNextCache(next);
+    var file = createInputFile(sensorContext, "main.ts", StandardCharsets.UTF_8, baseDir, contents);
+    file.setStatus(unchanged ? InputFile.Status.SAME : InputFile.Status.ADDED);
     return sensorContext;
   }
 

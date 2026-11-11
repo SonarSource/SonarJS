@@ -192,10 +192,10 @@ export class TsConfigStore implements FileStore {
           try {
             const file = await context.getFile(filename);
             getTsConfigContentCache().set(filename, { contents: file.fileContent, missing: false });
-          } catch (error_) {
+          } catch (err) {
             // Older snapshots may list configs that were never used or read. Defer failures
             // until a config is actually needed rather than abandoning usable replay context.
-            debug(`Could not preload tsconfig ${filename}: ${error_}`);
+            debug(`Could not preload tsconfig ${filename}: ${err}`);
           }
         },
       ),
