@@ -169,12 +169,16 @@ for (const allCached of [false, true]) {
 it('still fails when an analysis input cannot be read', async () => {
   const main = Object.keys(request.files!)[0];
   request.files![main] = {};
+  const events: AnalyzeProjectIncrementalEvent['event'][] = [];
   const result = await handleAnalyzeProjectRequest(
     { type: 'on-analyze-project', data: request },
     { debugMemory: false },
+    event => events.push(event.event),
   );
   expect(result.type).toBe('failure');
-  expect(result).not.toMatchObject({ result: { output: { meta: { contextRecorded: true } } } });
+  expect(events).not.toContainEqual(
+    expect.objectContaining({ messageType: 'meta', contextRecorded: true }),
+  );
 });
 
 it('recovers from context capture failure even without cached inputs', async () => {
