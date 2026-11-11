@@ -145,7 +145,7 @@
     "postcss-selector-parser": "7.1.7",
     "postcss-value-parser": "4.2.0",
     "protobufjs": "8.8.1",
-    "sass-parser": "0.5.3",
+    "sass-parser": "0.5.4",
     "scslre": "0.3.0",
     "semver": "7.8.6",
     "stylelint": "18.0.0",
@@ -171,7 +171,7 @@
   ],
   "overrides": {
     "sass-parser": {
-      "sass": "1.107.1"
+      "sass": "1.108.0"
     }
   }
 }
