@@ -182,6 +182,8 @@ async function analyzeFilesFromDiscoveredPrograms(
 
   // Process tsconfigs, discovering project references as we go. When a tsconfig has project
   // references, addDiscoveredTsConfig() extends this live iterable.
+  // Await each program: it claims pending files in config order and updates the options
+  // used for orphan programs. Running programs concurrently would change those selections.
   for (const tsConfig of tsconfigs) {
     if (isAnalysisCancelled()) {
       return;

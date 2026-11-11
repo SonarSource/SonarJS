@@ -136,6 +136,25 @@ it('still fails when an analysis input cannot be read', async () => {
   expect(fs.existsSync(request.filesystemCache!.snapshotManifestPath!)).toBe(false);
 });
 
+it('recovers from context capture failure even without cached inputs', async () => {
+  mock.method(FsCacheArchive.prototype, 'set', () => {
+    throw new Error('injected context capture failure');
+  });
+  const result = await handleAnalyzeProjectRequest(
+    { type: 'on-analyze-project', data: request },
+    { debugMemory: false },
+  );
+  expect(result.type).toBe('success');
+  if (result.type === 'success' && result.result) {
+    const file = Object.values(result.result.output.files)[0];
+    expect('issues' in file && file.issues).toHaveLength(1);
+    expect(result.result.output.meta.warnings).toEqual([
+      expect.stringContaining('retrying once without context recording'),
+    ]);
+  }
+  expect(fs.existsSync(request.filesystemCache!.snapshotManifestPath!)).toBe(false);
+});
+
 it('does not analyze discovered files for an empty recording request', async () => {
   const project = request.configuration!.baseDir!;
   const file = path.join(project, 'codegen.ts');

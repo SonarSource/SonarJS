@@ -186,19 +186,20 @@ export class TsConfigStore implements FileStore {
    * Performs post-processing after all files have been processed.
    */
   async postProcess(configuration: Configuration, context: FileStoreContext) {
-    for (const filename of new FileSystemSet([
-      ...this.foundLookupTsConfigs,
-      ...this.foundPropertyTsConfigs,
-    ])) {
-      try {
-        const file = await context.getFile(filename);
-        getTsConfigContentCache().set(filename, { contents: file.fileContent, missing: false });
-      } catch (failure) {
-        // Older snapshots may list configs that were never used or read. Defer failures
-        // until a config is actually needed rather than abandoning usable replay context.
-        debug(`Could not preload tsconfig ${filename}: ${failure}`);
-      }
-    }
+    await Promise.all(
+      [...new FileSystemSet([...this.foundLookupTsConfigs, ...this.foundPropertyTsConfigs])].map(
+        async filename => {
+          try {
+            const file = await context.getFile(filename);
+            getTsConfigContentCache().set(filename, { contents: file.fileContent, missing: false });
+          } catch (error_) {
+            // Older snapshots may list configs that were never used or read. Defer failures
+            // until a config is actually needed rather than abandoning usable replay context.
+            debug(`Could not preload tsconfig ${filename}: ${error_}`);
+          }
+        },
+      ),
+    );
     const { tsConfigPaths } = configuration;
     if (tsConfigPaths.length && !this.foundPropertyTsConfigs.length) {
       error(`Failed to find any of the provided tsconfig.json files: ${tsConfigPaths.join(', ')}`);

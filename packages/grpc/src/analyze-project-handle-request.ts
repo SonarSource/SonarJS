@@ -257,7 +257,7 @@ async function normalizeProjectInput(
       endAnalysisSessions(sessions.programSelection, sessions.filesystemCacheSession);
       sessions.programSelection = undefined;
       sessions.filesystemCacheSession = undefined;
-      sessions.fallbackWarning = `Could not record SonarJS context: ${error}; continuing analysis without context`;
+      sessions.fallbackWarning = `Analysis preparation failed with context recording enabled: ${error}; retrying once without context recording`;
       warn(sessions.fallbackWarning);
       // No rules have run yet. Retry only the ordinary analysis inputs; Java already
       // handled cache hits. Keep RECORD's explicit input scope for an all-cached request.
