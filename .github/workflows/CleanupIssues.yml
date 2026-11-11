@@ -1,0 +1,27 @@
+name: Cleanup Issues
+
+on:
+  schedule:
+    - cron: "00 4 * * *"
+  workflow_dispatch:
+
+jobs:
+  CleanupIssues_job:
+    name: Cleanup Issues
+    runs-on: sonar-xs
+    permissions:
+      id-token: write
+      pull-requests: read
+    steps:
+      - id: secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/kv/data/jira user | JIRA_USER;
+            development/kv/data/jira token | JIRA_TOKEN;
+      - uses: sonarsource/gh-action-lt-backlog/CleanupIssues@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          jira-user:    ${{ fromJSON(steps.secrets.outputs.vault).JIRA_USER }}
+          jira-token:   ${{ fromJSON(steps.secrets.outputs.vault).JIRA_TOKEN }}
+          jira-project: JS
