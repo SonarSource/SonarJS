@@ -27,7 +27,7 @@ import type { WsIncrementalResult } from './incremental-result.js';
 import { isAnalysisCancelled } from './analyzeProject.js';
 import { isJsTsFile, type JsTsConfigFields } from './common/configuration.js';
 import merge from 'lodash.merge';
-import type { NormalizedAbsolutePath } from '../../shared/src/helpers/files.js';
+import { decodeFileContent, type NormalizedAbsolutePath } from '../../shared/src/helpers/files.js';
 import { IncrementalCompilerHost } from './jsts/program/compilerHost.js';
 import {
   createProgramOptions,
@@ -539,7 +539,7 @@ function restoreSelectedProgram(
         selection.program.tsconfig,
         // Read outside TypeScript's config-error conversion so a missing observation
         // retains its replay error and triggers source-only recovery.
-        fs.readFileSync(selection.program.tsconfig, 'utf8'),
+        decodeFileContent(fs.readFileSync(selection.program.tsconfig)),
         canAccessFileSystem,
         jsTsConfigFields.ecmaScriptVersion,
         baseDir,

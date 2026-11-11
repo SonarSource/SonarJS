@@ -159,6 +159,50 @@ function file(name: string) {
 }
 
 describe('self-contained PR context', () => {
+  for (const encoding of ['utf8', 'utf8-bom', 'utf16le', 'utf16be'] as const) {
+    it(`preserves tsconfig path aliases in ordinary analysis, recording and replay; encoding=${encoding}`, async () => {
+      const content = "import { values } from '@values';\nvalues.sort();\n";
+      fs.writeFileSync(file('changed.ts'), content);
+      const config = JSON.stringify({
+        compilerOptions: { baseUrl: '.', paths: { '@values': ['./values.ts'] } },
+        files: ['cached.ts', 'changed.ts', 'values.ts'],
+      });
+      let bytes = Buffer.from(config, encoding.startsWith('utf16') ? 'utf16le' : 'utf8');
+      if (encoding === 'utf16be') bytes.swap16();
+      const bom = {
+        utf8: [],
+        'utf8-bom': [0xef, 0xbb, 0xbf],
+        utf16le: [0xff, 0xfe],
+        utf16be: [0xfe, 0xff],
+      }[encoding];
+      bytes = Buffer.concat([Buffer.from(bom), bytes]);
+      fs.writeFileSync(file('tsconfig.json'), bytes);
+
+      const ordinary = request('ordinary');
+      ordinary.filesystemCache = undefined;
+      const recorded = prRequest('pr');
+      for (const input of [ordinary, recorded]) {
+        const result = await analyze(input);
+        expect(result.files![file('changed.ts')].issues!.map(issue => issue.ruleId)).toEqual([
+          'S2871',
+        ]);
+        expect(result.meta!.warnings).toEqual([]);
+      }
+      expect(archive(recorded).get('tsconfig.json', 'readFile')).toEqual({
+        ok: true,
+        value: bytes,
+      });
+      fs.rmSync(project, { recursive: true });
+      fs.mkdirSync(project);
+
+      const result = await replay(recorded, file('changed.ts'), content);
+      expect(result.files![file('changed.ts')].issues!.map(issue => issue.ruleId)).toEqual([
+        'S2871',
+      ]);
+      expect(result.meta!.warnings).toEqual([]);
+    });
+  }
+
   for (const missingConfig of ['unused', 'selected']) {
     it(`requires archived config contents only for the selected program; missing=${missingConfig}`, async () => {
       const unused = path.join(project, 'z-unused');
