@@ -18,6 +18,7 @@
 import {
   analyzeProject,
   cancelAnalysis,
+  isAnalysisCancelled,
   withAnalysisCancellation,
 } from '../../analysis/src/analyzeProject.js';
 import { logHeapStatistics } from './analyze-project-memory.js';
@@ -41,7 +42,7 @@ import {
 } from '../../shared/src/fs-cache/hook.js';
 import { ProgramSelectionArchive } from '../../analysis/src/program-selection/archive.js';
 import { filesWithoutRecordedProgramOutcome } from '../../analysis/src/analyzeWithProgram.js';
-import { getJsTsConfigFields } from '../../analysis/src/common/configuration.js';
+import { getJsTsConfigFields, isJsTsFile } from '../../analysis/src/common/configuration.js';
 import { isFileSystemCaseSensitive } from '../../analysis/src/common/filesystem.js';
 import { sourceFileStore } from '../../analysis/src/file-stores/index.js';
 import type {
@@ -147,14 +148,24 @@ function beginAnalysisMetadata(
 function endAnalysisSessions(
   programSelection: ProgramSelectionArchive | undefined,
   filesystemCacheSession: FsCacheSession | undefined,
-): void {
+): boolean {
+  let persisted = true;
   try {
     programSelection?.end();
   } catch (error) {
+    persisted = false;
     warn(`Could not persist SonarJS analysis metadata: ${error}`);
   } finally {
-    filesystemCacheSession?.end();
+    try {
+      if (filesystemCacheSession?.end() === false) {
+        persisted = false;
+      }
+    } catch (error) {
+      persisted = false;
+      warn(`Could not persist SonarJS filesystem context: ${error}`);
+    }
   }
+  return persisted;
 }
 
 export type WorkerData = {
@@ -240,7 +251,20 @@ async function normalizeProjectInput(
   try {
     return await normalizeProjectInputOnce(request, cacheMode, sessions);
   } catch (error) {
-    fallBackAfterReplayError(sessions, error);
+    if (cacheMode === 'record' && !(error instanceof InvalidAnalyzeProjectRequestError)) {
+      endAnalysisSessions(sessions.programSelection, sessions.filesystemCacheSession);
+      sessions.programSelection = undefined;
+      sessions.filesystemCacheSession = undefined;
+      sessions.fallbackWarning = `Analysis preparation failed with context recording enabled: ${error}; retrying once without context recording`;
+      warn(sessions.fallbackWarning);
+      // No rules have run yet. Retry only the ordinary analysis inputs; Java already
+      // handled cache hits. Keep RECORD's explicit input scope for an all-cached request.
+      request.files = Object.fromEntries(
+        Object.entries(request.files ?? {}).filter(([, file]) => !file.skipAnalysis),
+      );
+    } else {
+      fallBackAfterReplayError(sessions, error);
+    }
     return normalizeProjectInputOnce(request, cacheMode, sessions);
   }
 }
@@ -347,6 +371,22 @@ async function analyzeNormalizedProject(
   return { output, pathMap: input.pathMap };
 }
 
+function recordFilteredFiles(
+  request: AnalyzeProjectProtoRequest,
+  input: Awaited<ReturnType<typeof normalizeAnalyzeProjectRequest>>,
+  programSelection: ProgramSelectionArchive,
+): void {
+  const suffixes = getJsTsConfigFields(input.configuration).shouldIgnoreParams;
+  for (const file of Object.keys(request.files ?? {})) {
+    const normalized = normalizeToAbsolutePath(file, input.configuration.baseDir);
+    // Filtering is an explicit no-program outcome too. It must not suppress the
+    // complete project context or silently drop supplied source contents.
+    if (!input.pathMap.has(normalized) && isJsTsFile(normalized, suffixes)) {
+      programSelection.recordNoProgram(normalized);
+    }
+  }
+}
+
 async function handleProjectAnalysis(
   request: AnalyzeProjectProtoRequest,
   workerData: WorkerData,
@@ -363,15 +403,33 @@ async function handleProjectAnalysis(
     );
   }
   const sessions: AnalysisSessions = {};
+  let completed = false;
+  let cancelled = false;
+  let result: AnalyzeProjectResponse | undefined;
   try {
-    beginAnalysisSessions(request, cacheMode, sessions);
-    return await withAnalysisCancellation(async () => {
+    try {
+      beginAnalysisSessions(request, cacheMode, sessions);
+    } catch (error) {
+      if (cacheMode !== 'record' || error instanceof InvalidAnalyzeProjectRequestError) {
+        throw error;
+      }
+      warn(`Could not initialize SonarJS context recording; continuing without context: ${error}`);
+      endAnalysisSessions(sessions.programSelection, sessions.filesystemCacheSession);
+      sessions.programSelection = undefined;
+      sessions.filesystemCacheSession = undefined;
+    }
+    result = await withAnalysisCancellation(async () => {
+      let fileFailed = false;
       logHeapStatistics(workerData?.debugMemory);
       let deliveryFailed = false;
       const publishEvent = incrementalResultsChannel
         ? (event: AnalyzeProjectIncrementalEvent) => {
-            if (event.event.messageType === 'meta' && sessions.fallbackWarning) {
-              event.event.warnings.push(sessions.fallbackWarning);
+            // Publish the final metadata only after both context artifacts have been persisted.
+            if (event.event.messageType === 'meta') {
+              return;
+            }
+            if (event.event.messageType === 'fileResult' && 'error' in event.event) {
+              fileFailed = true;
             }
             try {
               incrementalResultsChannel(event);
@@ -382,6 +440,9 @@ async function handleProjectAnalysis(
           }
         : undefined;
       const input = await normalizeProjectInput(request, cacheMode, sessions);
+      if (cacheMode === 'record' && sessions.programSelection) {
+        recordFilteredFiles(request, input, sessions.programSelection);
+      }
       const onContextFailure =
         sessions.filesystemCacheSession?.mode === 'replay'
           ? (failure: Error) => {
@@ -403,15 +464,31 @@ async function handleProjectAnalysis(
       ) {
         result.output.meta.warnings.push(sessions.fallbackWarning);
       }
+      cancelled = isAnalysisCancelled();
+      completed =
+        !cancelled &&
+        !fileFailed &&
+        !Object.values(result.output.files).some(file => 'error' in file);
       logHeapStatistics(workerData?.debugMemory);
-      return {
-        type: 'success',
-        result,
-      };
+      return result;
     });
   } finally {
-    endAnalysisSessions(sessions.programSelection, sessions.filesystemCacheSession);
+    const persisted = endAnalysisSessions(
+      sessions.programSelection,
+      sessions.filesystemCacheSession,
+    );
+    if (result && cacheMode === 'record') {
+      result.output.meta.contextRecorded =
+        completed && persisted && !!sessions.programSelection && !!sessions.filesystemCacheSession;
+    }
   }
+  if (!cancelled) {
+    incrementalResultsChannel?.({
+      event: { ...result.output.meta, messageType: 'meta' },
+      pathMap: result.pathMap,
+    });
+  }
+  return { type: 'success', result };
 }
 
 export async function handleAnalyzeProjectRequest(

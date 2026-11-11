@@ -2,6 +2,9 @@
 
 This document describes the Node.js-side caches used by `analyzeProject`.
 
+Source audit: 2026-11-02, SonarJS `c0037621e1a4c4d027e98f5ad1d2a31037225c65`,
+with the self-contained PR-context changes of 2026-11-10.
+
 It is the cross-layer companion to more focused notes such as [SonarQube Sensor Cache](./sonar-cache.md). The goal here is to explain how file discovery, tsconfig discovery, dependency-manifest lookups, request-file overrides, and TypeScript program reuse fit together inside the Node analyzer.
 
 ## Scope
@@ -23,6 +26,22 @@ It does not describe:
 - the SonarQube scanner-side sensor cache
 - issue persistence on the server side
 - CSS, HTML, or YAML analysis internals except where they share the same project-input pipeline
+
+These in-memory caches are separate from both the scanner's persistent sensor cache and the
+SQAA filesystem/program snapshots described in [the A3S context contract](./a3s-context.md).
+Java handles sensor-cache hits before building the Node request. Without recording, it sends only
+files requiring analysis. During RECORD, it sends every current input and marks actual cache hits
+with `skip_analysis`. File status is independent: `SAME` does not itself permit skipping rules.
+Node records fresh source/configuration contents and native filesystem observations, without
+restoring an earlier SQAA context. It follows normal configured-program ordering and references,
+then orphan groups, until all eligible inputs have a configured, orphan or no-program outcome.
+Cached files execute no rules and emit no file results, but participate in program construction
+even on an all-cached PR. Current cached orphan peers can supply ambient types to a changed file;
+the resulting improved findings are accepted. This adds source reads and compiler work for
+context; a numeric time/memory budget remains open. SQAA REPLAY instead treats the snapshot as
+authoritative. Dependency-aware cache invalidation remains separate work (JS-2815).
+These archives contain observations and program selections, not compiler objects or ESLint state.
+Clearing Node caches does not invalidate the platform cache.
 
 ## Why This Exists
 
@@ -70,12 +89,12 @@ They are initialized through `initFileStores(configuration, inputFiles?)`.
 
 ### Summary Table
 
-| Store                     | What it owns                                                                               | How it is populated                                       | Main invalidation                                                                      |
-| ------------------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| `sourceFileStore`         | analyzable files, file contents, file types, file statuses, ignored dirs, `DirectoryIndex` | filesystem walk or explicit request files                 | `baseDir` change, or direct reseeding from `inputFiles`                                |
-| `dependencyManifestStore` | raw preloadable manifest contents plus directory-parent graph                              | filesystem walk or simulated traversal from request files | `baseDir` change, manifest-shaped `fsEvents`                                           |
-| `generatedSourceStore`    | project-derived generated-source families plus watched config/output paths                 | post-process derivation from discovered project metadata  | `baseDir` change, JS/TS suffix changes, project discovery changes, relevant `fsEvents` |
-| `tsConfigStore`           | discovered `tsconfig.json` files and provided `tsConfigPaths` matches                      | filesystem walk or simulated traversal from request files | `baseDir` change, `tsConfigPaths` change, relevant `fsEvents`                          |
+| Store                     | What it owns                                                                               | How it is populated                                       | Main invalidation                                                                                                                            |
+| ------------------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sourceFileStore`         | analyzable files, file contents, file types, file statuses, ignored dirs, `DirectoryIndex` | filesystem walk or explicit request files                 | `baseDir`, filesystem-access or analyzable-file configuration changes; direct reseeding from `inputFiles`                                    |
+| `dependencyManifestStore` | raw preloadable manifest contents plus directory-parent graph                              | filesystem walk or simulated traversal from request files | `baseDir`, filesystem-access or discovery configuration changes; manifest-shaped `fsEvents`                                                  |
+| `generatedSourceStore`    | project-derived generated-source families plus watched config/output paths                 | post-process derivation from discovered project metadata  | disabled detection/filesystem access; `baseDir`, filesystem-access, generated-source or discovery configuration changes; relevant `fsEvents` |
+| `tsConfigStore`           | discovered `tsconfig.json` files and provided `tsConfigPaths` matches                      | filesystem walk or simulated traversal from request files | `baseDir`, filesystem-access, discovery configuration or `tsConfigPaths` changes; relevant `fsEvents`                                        |
 
 ### `sourceFileStore`
 
@@ -114,6 +133,11 @@ It also owns the policy decision between those two sets:
 
 The store is also responsible for clearing downstream TypeScript caches when tsconfig discovery becomes stale.
 
+Discovered configs request file contents and populate the raw tsconfig content cache, so recording
+captures current configs even when no source needs analysis. This covers lookup-discovered files
+and explicit path matches; arbitrary `extends` targets are read when normal config parsing needs
+them rather than through an additional config-resolution pass.
+
 ### `dependencyManifestStore`
 
 `DependencyManifestStore` preloads raw manifest contents and builds the directory ancestry graph needed by the dependency-helper layer.
@@ -143,8 +167,8 @@ tagged subset and generated-source telemetry are computed later in `analyzeProje
 
 During traversal it also collects a temporary project snapshot made of walked directories,
 walked JS/TS file paths matching the current suffix set, and a small detector-specific set of
-preloaded files. File reads are centralized in `file-stores/index.ts`, which reads each requested
-path at most once and passes the same shared `File` object to every interested store. The
+preloaded files. File reads are centralized in `file-stores/index.ts`, which shares a `File`
+object between immediate consumers and retains deferred reads for later post-processing. The
 generated-source store also reuses `dependencyManifestStore` for raw `package.json` contents, then
 `postProcess()` derives the cached metadata from that combined in-memory snapshot.
 
@@ -179,7 +203,9 @@ It initializes the file stores through `initFileStoresForAnalysis()`:
 3. Populate those stores either by walking the real filesystem or by simulating a walk from explicit request files.
 4. Run each refreshed store's `postProcess()` hook.
 
-This means the file-store layer is not recomputed eagerly on every call. Each store decides for itself when its current state is still valid.
+Each store decides whether its state is still valid. However, scanner requests first clear all
+four stores through `initFileStoresForAnalysis()`, so reuse across requests applies to the IDE
+path, not independent scanner analyses.
 
 ### Population Mode 1: Real Filesystem Traversal
 
@@ -196,9 +222,10 @@ The walk is intentionally broader than the final analyzable source-file set beca
 - dependency manifests
 - parent-directory relationships
 
-For file entries, `initFileStores()` first asks each pending store whether it wants the path only or
-needs contents too. If any pending store needs contents, the file is read once and the same shared
-`File` object is passed to every interested store.
+For file entries, `initFileStores()` asks each pending store whether it wants the path, immediate
+contents, or deferred contents. Immediate consumers share a `File` object within that traversal
+callback. Paths requested with `deferred-content` are retained in the traversal context so
+post-processing can reuse their contents; other reads are not retained for the whole traversal.
 
 ### Population Mode 2: Simulated Traversal From Explicit Request Files
 
@@ -257,7 +284,8 @@ This avoids re-reading the same tsconfig graph from disk or from the virtual req
 
 Its cache key is:
 
-- tsconfig path
+- filesystem case-sensitivity mode
+- canonical tsconfig path
 - optional explicit tsconfig contents provided by the caller
 
 This avoids repeated `ts.readConfigFile()` plus `ts.parseJsonConfigFileContent()` work for the same tsconfig state.
@@ -283,13 +311,22 @@ This cache is mainly valuable for SonarLint / IDE usage, where multiple requests
 - a shared parsed `ts.SourceFile` cache
 - `currentFilesContext`, which is the per-request overlay of authoritative request files
 
-The parsed AST cache is keyed by:
+The parsed AST cache is indexed by a filesystem-aware path map and a compound key containing:
 
 - normalized file path
-- script target
-- `jsx`
+- script target, implied module format and JSDoc parsing mode
+- `jsx` and `jsxImportSource`
 - `importHelpers`
-- content version
+- `moduleDetection` and `module`
+- representation `scriptKind`
+
+The content hash/version is stored alongside the AST and checked on lookup. The compiler host
+also checks that the compiler representation text still matches. A changed version replaces the
+same scalar-options entry, keeping repeated program rebuilds bounded. Module-indicator callbacks
+are not compared by identity: TypeScript creates fresh callbacks for equivalent programs, so their
+semantic compiler options belong in the key instead.
+The compiler host forwards TypeScript's complete source-creation options so NodeNext import and
+require branches retain the correct module format.
 
 That is why the same source file may exist in the cache more than once under different compiler options.
 
@@ -320,14 +357,20 @@ Each layer is cleared for different reasons.
 `SourceFileStore` is cleared when:
 
 - `baseDir` changes
+- `canAccessFileSystem` changes
+- `getAnalyzableFilesConfigKey()` changes: path case sensitivity, file suffixes, bundle detection,
+  maximum file size, source/test scopes, or inclusion/exclusion patterns
 
-It is also directly reseeded when explicit `inputFiles` are provided. That reseeding is effectively a per-request refresh even though it does not go through `clearCache()`.
+It is also directly reseeded when explicit `inputFiles` are provided. That path calls
+`clearCache()` and `setup()`, replaces the analyzable file map, and rebuilds the directory index.
 
 ### `tsConfigStore`
 
 `TsConfigStore` is cleared when:
 
 - `baseDir` changes
+- `canAccessFileSystem` changes
+- `getProjectFileDiscoveryConfigKey()` changes: path case sensitivity or JS/TS exclusion patterns
 - `sonar.typescript.tsconfigPaths` changes
 - an `fsEvent` points at:
   - an already-known tsconfig
@@ -347,6 +390,8 @@ This is why tsconfig invalidation is also the main invalidation path for cached 
 `DependencyManifestStore` is cleared when:
 
 - `baseDir` changes
+- `canAccessFileSystem` changes
+- `getProjectFileDiscoveryConfigKey()` changes: path case sensitivity or JS/TS exclusion patterns
 - an `fsEvent` points at a preloadable dependency manifest
 
 When it clears, it also calls `clearDependenciesCache()`, which resets:
@@ -358,12 +403,21 @@ When it clears, it also calls `clearDependenciesCache()`, which resets:
 - module-type caches
 - minimatch helpers used by manifest resolution
 
+### `generatedSourceStore`
+
+The store clears its state when generated-code detection or filesystem access is disabled.
+Otherwise it invalidates on `baseDir`, filesystem-access mode, generated-source configuration
+or project discovery configuration changes, and on relevant watched-file events. Like the
+other stores, it is also reset before each independent scanner analysis.
+
 ### `sourceFileCache`
 
 The compiler-side source-file content cache and parsed AST cache are cleared when:
 
 - `initFileStoresForAnalysis()` starts a scanner analysis
 - `analyzeWithProgram()` finishes a SonarQube-style batch analysis with a populated program cache
+- `analyzeProject()` exits a scanner analysis, through its `finally` block, including failure
+  and cancellation after analysis has started; this also releases the linter's parser-held state
 
 They are intentionally kept warm across `analyzeWithIncrementalProgram()` calls.
 
@@ -378,7 +432,12 @@ The SonarQube path usually behaves closer to a per-analysis cache model:
 - `initFileStoresForAnalysis()` resets the file stores and compiler-side caches before analysis
 - `analyzeProject()` chooses `analyzeWithProgram()`
 - `analyzeWithProgram()` also clears a populated program cache and the source-file content / AST cache at the end
+- `analyzeProject()` always releases linter state and compiler-side source caches in `finally`
 - file stores and tsconfig / manifest caches are still useful during the analysis itself, but the long-lived reuse story is limited
+
+This final cleanup does not clear every file store or tsconfig/manifest cache. Those are reset
+before the next scanner request. A failure during normalization occurs before `analyzeProject()`
+and is outside its final cleanup.
 
 ### SonarLint / SonarQube For IDE
 

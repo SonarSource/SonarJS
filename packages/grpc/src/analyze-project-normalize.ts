@@ -53,7 +53,10 @@ export async function normalizeAnalyzeProjectRequest(
   request: AnalyzeProjectRequest,
 ): Promise<SanitizedProjectAnalysisInput> {
   const configuration = createConfigurationFromProto(request.configuration);
-  const filesPresent = hasExplicitFiles(request.files, configuration.canAccessFileSystem);
+  const filesPresent =
+    request.filesystemCache?.mode ===
+      sonarjs.analyzeproject.v1.FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD ||
+    hasExplicitFiles(request.files, configuration.canAccessFileSystem);
   const sanitizedFiles = filesPresent
     ? await sanitizeInputFiles(normalizeProtoInputFiles(request.files), configuration)
     : undefined;
@@ -141,6 +144,7 @@ function normalizeProtoInputFiles(
       fileContent: optionalString(fileInput?.fileContent),
       fileType: normalizeFileType(fileInput?.fileType),
       fileStatus: normalizeFileStatus(fileInput?.fileStatus),
+      skipAnalysis: fileInput?.skipAnalysis ?? undefined,
     };
   }
 

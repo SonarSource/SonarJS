@@ -67,5 +67,6 @@ public class CacheAnalysisSerialization extends CacheSerialization {
   void copyFromPrevious() {
     astProtobufSerialization.copyFromPrevious();
     cpdSerialization.copyFromPrevious();
+    fileMetadataSerialization.copyFromPrevious();
   }
 }

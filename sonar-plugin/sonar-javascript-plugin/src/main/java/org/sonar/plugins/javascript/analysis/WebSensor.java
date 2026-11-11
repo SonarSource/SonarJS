@@ -197,8 +197,8 @@ public class WebSensor implements ProjectSensor {
         context
       );
       bridgeServer.startServerLazily(BridgeServerConfig.fromSensorContext(sensorContext));
-      analyzeFiles(inputFiles);
-      collectFilesystemCache();
+      var contextRecorded = analyzeFiles(inputFiles);
+      collectFilesystemCache(contextRecorded);
     } catch (CancellationException e) {
       // do not propagate the exception
       LOG.info(e.toString());
@@ -341,7 +341,7 @@ public class WebSensor implements ProjectSensor {
     contextMetadata = metadata;
   }
 
-  private void collectFilesystemCache() {
+  private void collectFilesystemCache(boolean contextRecorded) {
     if (
       !recordFilesystemCache || filesystemCacheArchivePath == null || analysisMetadataPath == null
     ) {
@@ -349,6 +349,7 @@ public class WebSensor implements ProjectSensor {
     }
     try {
       if (
+        !contextRecorded ||
         !Files.isRegularFile(filesystemCacheArchivePath) ||
         Files.size(filesystemCacheArchivePath) == 0 ||
         !Files.isRegularFile(analysisMetadataPath) ||
@@ -356,7 +357,7 @@ public class WebSensor implements ProjectSensor {
         contextMetadata == null
       ) {
         LOG.warn(
-          "The JavaScript filesystem cache archive was not created; no SQAA context will be published"
+          "The JavaScript filesystem cache context was not created; no SQAA context will be published"
         );
         return;
       }
@@ -381,13 +382,6 @@ public class WebSensor implements ProjectSensor {
     var baseContext = new JsTsContext<>(sensorContext);
     Set<String> collectedTsConfigPaths = moduleConfiguration.tsConfigPaths(baseContext);
     return new JsTsContext<>(sensorContext) {
-      @Override
-      public AnalysisMode getAnalysisMode() {
-        // Cached files never reach Node and cannot contribute program selections or filesystem
-        // observations. Collection-enabled analyses must produce a complete context instead.
-        return recordFilesystemCache ? AnalysisMode.DEFAULT : super.getAnalysisMode();
-      }
-
       @Override
       public Set<String> getTsConfigPaths() {
         return collectedTsConfigPaths;
@@ -432,7 +426,7 @@ public class WebSensor implements ProjectSensor {
     ).toList();
   }
 
-  private void analyzeFiles(List<InputFile> inputFiles) {
+  private boolean analyzeFiles(List<InputFile> inputFiles) {
     var eslintImporter = new EslintReportImporter();
     var externalIssues = eslintImporter.execute(
       context,
@@ -447,6 +441,7 @@ public class WebSensor implements ProjectSensor {
         handler.getProjectAnalysisTelemetry()
       ).reportTelemetry();
       consumers.doneAnalysis(context.getSensorContext());
+      return handler.contextRecorded;
     } catch (CompletionException e) {
       if (e.getCause() instanceof CancellationException nestedException) {
         throw nestedException;
@@ -472,6 +467,7 @@ public class WebSensor implements ProjectSensor {
     private final Map<String, InputFile> fileToInputFile = new HashMap<>();
     private final HashMap<String, CacheStrategy> fileToCacheStrategy = new HashMap<>();
     private final CompletableFuture<Void> handle;
+    private boolean contextRecorded;
 
     @Nullable
     private ProjectAnalysisTelemetry projectAnalysisTelemetry;
@@ -506,7 +502,12 @@ public class WebSensor implements ProjectSensor {
       }
       configurationBuilder.setSkipAst(handlerContext.skipAst(consumers));
       if (recordFilesystemCache) {
-        contextMetadata = AnalyzeProjectMessages.contextMetadata(configurationBuilder.build());
+        try {
+          contextMetadata = AnalyzeProjectMessages.contextMetadata(configurationBuilder.build());
+        } catch (RuntimeException e) {
+          contextMetadata = null;
+          LOG.warn("Could not serialize the JavaScript filesystem cache configuration", e);
+        }
       }
       var request = AnalyzeProjectRequest.newBuilder()
         .setConfiguration(configurationBuilder.build())
@@ -517,6 +518,11 @@ public class WebSensor implements ProjectSensor {
         .addAllCssRules(
           cssRules.getStylelintRules().stream().map(AnalyzeProjectMessages::toProtoRule).toList()
         );
+      addFilesystemCacheToRequest(request);
+      return request.build();
+    }
+
+    private void addFilesystemCacheToRequest(AnalyzeProjectRequest.Builder request) {
       if (filesystemCacheArchivePath != null) {
         var filesystemCache = FilesystemCache.newBuilder()
           .setArchivePath(filesystemCacheArchivePath.toString())
@@ -534,7 +540,6 @@ public class WebSensor implements ProjectSensor {
         }
         request.setFilesystemCache(filesystemCache);
       }
-      return request.build();
     }
 
     private void addInputFilesToRequest(Map<String, ProjectFileInput> files) throws IOException {
@@ -571,6 +576,12 @@ public class WebSensor implements ProjectSensor {
         return;
       }
 
+      if (recordFilesystemCache) {
+        addFileToAnalyze(files, inputFile);
+        files.computeIfPresent(inputFile.absolutePath(), (path, file) ->
+          file.toBuilder().setSkipAnalysis(true).build()
+        );
+      }
       if (isJsTsFile(inputFile)) {
         LOG.debug("Processing cache analysis of file: {}", inputFile.uri());
         var cacheAnalysis = cacheStrategy.readAnalysisFromCache();
@@ -679,6 +690,7 @@ public class WebSensor implements ProjectSensor {
     private void handleMeta(ProjectAnalysisMeta meta) {
       meta.getWarningsList().forEach(analysisWarnings::addUnique);
       projectAnalysisTelemetry = meta.hasTelemetry() ? meta.getTelemetry() : null;
+      contextRecorded = meta.getContextRecorded();
       handle.complete(null);
     }
 

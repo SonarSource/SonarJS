@@ -75,6 +75,12 @@ public class CacheStrategies {
       return strategy;
     }
 
+    if (!context.getSensorContext().isCacheEnabled()) {
+      var strategy = noCache();
+      REPORTER.logAndIncrement(strategy, inputFile, MissReason.CACHE_DISABLED);
+      return strategy;
+    }
+
     var cacheKey = CacheKey.forFile(inputFile, pluginVersion);
     var serialization = new CacheAnalysisSerialization(context.getSensorContext(), cacheKey);
 

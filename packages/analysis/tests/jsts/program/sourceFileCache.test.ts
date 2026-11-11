@@ -101,6 +101,36 @@ describe('sourceFileCache', () => {
     }
 
     describe('getCachedSourceFile', () => {
+      it('isolates semantic parse options without comparing callback identity', () => {
+        const options: ts.CreateSourceFileOptions = {
+          languageVersion: ts.ScriptTarget.ESNext,
+          impliedNodeFormat: ts.ModuleKind.ESNext,
+          jsDocParsingMode: ts.JSDocParsingMode.ParseAll,
+          setExternalModuleIndicator: () => {},
+        };
+        const source = ts.createSourceFile(testFileName, testContent, options, true);
+        setCachedSourceFile(testFileName, options, '1', source);
+        expect(
+          getCachedSourceFile(
+            testFileName,
+            {
+              ...options,
+              setExternalModuleIndicator: () => {},
+            },
+            '1',
+          ),
+        ).toBe(source);
+        const overrides: Partial<ts.CreateSourceFileOptions>[] = [
+          { impliedNodeFormat: ts.ModuleKind.CommonJS },
+          { jsDocParsingMode: ts.JSDocParsingMode.ParseNone },
+        ];
+        for (const override of overrides) {
+          expect(
+            getCachedSourceFile(testFileName, { ...options, ...override }, '1'),
+          ).toBeUndefined();
+        }
+      });
+
       it('should return undefined for uncached file', () => {
         const result = getCachedSourceFile(testFileName, ts.ScriptTarget.ESNext, '0');
         expect(result).toBeUndefined();

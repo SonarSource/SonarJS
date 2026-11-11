@@ -29,6 +29,7 @@ import type { Configuration } from './common/configuration.js';
 export type ProjectAnalysisMeta = {
   warnings: string[];
   telemetry?: ProjectAnalysisTelemetry;
+  contextRecorded?: boolean;
 };
 
 // Brand for the FileResults container - ensures type-safe iteration
@@ -65,6 +66,7 @@ export type AnalyzableFile = File & {
   fileType: FileType;
   ruleFileType: FileType;
   fileStatus: FileStatus;
+  skipAnalysis?: boolean;
 };
 
 // Brand for the AnalyzableFiles container - ensures type-safe iteration
