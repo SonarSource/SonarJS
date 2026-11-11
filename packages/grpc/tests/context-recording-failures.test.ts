@@ -45,7 +45,6 @@ beforeEach(() => {
       mode: 1,
       archivePath: path.join(temporary, 'filesystem.pb.gz'),
       analysisMetadataPath: path.join(temporary, 'programs.pb.gz'),
-      snapshotManifestPath: path.join(temporary, 'manifest.json'),
     },
   };
   installFsCache();
@@ -56,33 +55,75 @@ afterEach(() => {
   fs.rmSync(temporary, { recursive: true, force: true });
 });
 
-for (const failure of ['initialization', 'metadata', 'filesystem', 'manifest'] as const) {
-  it(`preserves successful analysis without publishing context after ${failure} failure`, async () => {
-    const fail = () => {
-      throw new Error('injected context failure');
-    };
-    if (failure === 'initialization') {
-      (globalThis as Record<symbol, unknown>)[FS_CACHE_INSTALLATION] = { beginAnalysis: fail };
-    } else if (failure === 'metadata') {
-      mock.method(ProgramSelectionArchive.prototype, 'end', fail);
-    } else if (failure === 'filesystem') {
-      mock.method(FsCacheArchive.prototype, 'flush', fail);
-    } else {
-      fs.mkdirSync(request.filesystemCache!.snapshotManifestPath!);
-    }
-    const result = await handleAnalyzeProjectRequest(
-      { type: 'on-analyze-project', data: request },
-      { debugMemory: false },
-    );
-    expect(result.type).toBe('success');
-    if (result.type === 'success' && result.result) {
-      const file = Object.values(result.result.output.files)[0];
-      expect('issues' in file && file.issues).toHaveLength(1);
-    }
-    const marker = request.filesystemCache!.snapshotManifestPath!;
-    expect(fs.existsSync(marker) && fs.statSync(marker).isFile()).toBe(false);
-  });
+for (const failure of ['initialization', 'metadata', 'filesystem'] as const) {
+  for (const streaming of [false, true]) {
+    it(`preserves successful analysis after ${failure} failure; streaming=${streaming}`, async () => {
+      const fail = () => {
+        throw new Error('injected context failure');
+      };
+      if (failure === 'initialization') {
+        (globalThis as Record<symbol, unknown>)[FS_CACHE_INSTALLATION] = { beginAnalysis: fail };
+      } else if (failure === 'metadata') {
+        mock.method(ProgramSelectionArchive.prototype, 'end', fail);
+      } else {
+        mock.method(FsCacheArchive.prototype, 'flush', fail);
+      }
+      const events: AnalyzeProjectIncrementalEvent['event'][] = [];
+      const result = await handleAnalyzeProjectRequest(
+        { type: 'on-analyze-project', data: request },
+        { debugMemory: false },
+        streaming ? event => events.push(event.event) : undefined,
+      );
+      expect(result).toMatchObject({
+        type: 'success',
+        result: { output: { meta: { contextRecorded: false } } },
+      });
+      if (result.type === 'success' && result.result) {
+        const file = streaming ? events[0] : Object.values(result.result.output.files)[0];
+        expect('issues' in file && file.issues).toHaveLength(1);
+      }
+      if (streaming) {
+        expect(events.map(event => event.messageType)).toEqual(['fileResult', 'meta']);
+        expect(events[1]).toMatchObject({ contextRecorded: false });
+      }
+    });
+  }
 }
+
+it('reports completed recording in META only after both artifacts have been persisted', async () => {
+  const events: AnalyzeProjectIncrementalEvent['event'][] = [];
+  const result = await handleAnalyzeProjectRequest(
+    { type: 'on-analyze-project', data: request },
+    { debugMemory: false },
+    event => {
+      events.push(event.event);
+      if (event.event.messageType === 'meta') {
+        expect(event.event.contextRecorded).toBe(true);
+        const archive = new FsCacheArchive({
+          archivePath: request.filesystemCache!.archivePath!,
+          rootDir: request.configuration!.baseDir!,
+          caseSensitivePaths: true,
+          mode: 'replay',
+        });
+        archive.load();
+        expect(archive.get('main.js', 'readFile')?.ok).toBe(true);
+        const metadata = new ProgramSelectionArchive(
+          request.filesystemCache!.analysisMetadataPath!,
+          normalizeToAbsolutePath(request.configuration!.baseDir!),
+          'replay',
+        );
+        expect(metadata.hasNoProgram(normalizeToAbsolutePath(Object.keys(request.files!)[0]))).toBe(
+          true,
+        );
+      }
+    },
+  );
+  expect(result).toMatchObject({
+    type: 'success',
+    result: { output: { meta: { contextRecorded: true } } },
+  });
+  expect(events.map(event => event.messageType)).toEqual(['fileResult', 'meta']);
+});
 
 for (const allCached of [false, true]) {
   for (const streaming of [false, true]) {
@@ -120,7 +161,7 @@ for (const allCached of [false, true]) {
         ]);
       }
       expect(lint.mock.callCount()).toBe(allCached ? 0 : 1);
-      expect(fs.existsSync(request.filesystemCache!.snapshotManifestPath!)).toBe(false);
+      expect(result).toMatchObject({ result: { output: { meta: { contextRecorded: false } } } });
     });
   }
 }
@@ -133,7 +174,7 @@ it('still fails when an analysis input cannot be read', async () => {
     { debugMemory: false },
   );
   expect(result.type).toBe('failure');
-  expect(fs.existsSync(request.filesystemCache!.snapshotManifestPath!)).toBe(false);
+  expect(result).not.toMatchObject({ result: { output: { meta: { contextRecorded: true } } } });
 });
 
 it('recovers from context capture failure even without cached inputs', async () => {
@@ -152,7 +193,7 @@ it('recovers from context capture failure even without cached inputs', async () 
       expect.stringContaining('retrying once without context recording'),
     ]);
   }
-  expect(fs.existsSync(request.filesystemCache!.snapshotManifestPath!)).toBe(false);
+  expect(result).not.toMatchObject({ result: { output: { meta: { contextRecorded: true } } } });
 });
 
 it('does not analyze discovered files for an empty recording request', async () => {
@@ -173,7 +214,7 @@ it('does not analyze discovered files for an empty recording request', async () 
     expect(result.result.pathMap.size).toBe(0);
   }
   expect(lint.mock.callCount()).toBe(0);
-  expect(fs.existsSync(request.filesystemCache!.snapshotManifestPath!)).toBe(true);
+  expect(result).toMatchObject({ result: { output: { meta: { contextRecorded: true } } } });
 });
 
 it('records supplied contents and no-program outcomes for filtered sources', async () => {
@@ -185,7 +226,7 @@ it('records supplied contents and no-program outcomes for filtered sources', asy
     { debugMemory: false },
   );
   expect(result.type).toBe('success');
-  expect(fs.existsSync(request.filesystemCache!.snapshotManifestPath!)).toBe(true);
+  expect(result).toMatchObject({ result: { output: { meta: { contextRecorded: true } } } });
   const archive = new FsCacheArchive({
     archivePath: request.filesystemCache!.archivePath!,
     rootDir: request.configuration!.baseDir!,
@@ -205,22 +246,32 @@ it('records supplied contents and no-program outcomes for filtered sources', asy
 });
 
 for (const interrupted of ['cancellation', 'file error'] as const) {
-  it(`does not publish a completion marker after ${interrupted}`, async () => {
+  it(`does not report completed recording after ${interrupted}`, async () => {
     if (interrupted === 'file error') {
       mock.method(Linter, 'lint', () => {
         throw new Error('injected rule failure');
       });
     }
-    await handleAnalyzeProjectRequest(
+    const events: AnalyzeProjectIncrementalEvent['event'][] = [];
+    const result = await handleAnalyzeProjectRequest(
       { type: 'on-analyze-project', data: request },
       { debugMemory: false },
       event => {
+        events.push(event.event);
         if (interrupted === 'cancellation' && event.event.messageType === 'fileResult') {
           void handleAnalyzeProjectRequest({ type: 'on-cancel-analysis' }, { debugMemory: false });
         }
       },
     );
-    expect(fs.existsSync(request.filesystemCache!.snapshotManifestPath!)).toBe(false);
+    expect(result).toMatchObject({
+      type: 'success',
+      result: { output: { meta: { contextRecorded: false } } },
+    });
+    if (interrupted === 'cancellation') {
+      expect(events.map(event => event.messageType)).toEqual(['fileResult', 'cancelled']);
+    } else {
+      expect(events.at(-1)).toMatchObject({ messageType: 'meta', contextRecorded: false });
+    }
   });
 }
 
@@ -263,7 +314,6 @@ for (const caseOnlyRename of [false, true]) {
         mode: 1,
         archivePath: path.join(temporary, 'warm-filesystem.pb.gz'),
         analysisMetadataPath: path.join(temporary, 'warm-programs.pb.gz'),
-        snapshotManifestPath: path.join(temporary, 'warm-manifest.json'),
       };
       const groups = mock.method(ProgramSelectionArchive.prototype, 'recordOrphanGroup');
       const observed: string[] = [];
@@ -300,7 +350,7 @@ for (const caseOnlyRename of [false, true]) {
         [normalizeToAbsolutePath(changed)],
       ]);
       expect(observed).not.toContain(normalizeToAbsolutePath(ambient));
-      expect(fs.existsSync(request.filesystemCache.snapshotManifestPath!)).toBe(true);
+      expect(warm).toMatchObject({ result: { output: { meta: { contextRecorded: true } } } });
       const metadata = new ProgramSelectionArchive(
         request.filesystemCache.analysisMetadataPath!,
         normalizeToAbsolutePath(project),

@@ -140,13 +140,11 @@ function toProjectAnalysisFileResult(
   };
 }
 
-function toProjectAnalysisMeta(meta: {
-  warnings: string[];
-  telemetry?: ProjectAnalysisTelemetry;
-}): ProjectAnalysisMeta {
+function toProjectAnalysisMeta(meta: ProjectAnalysisOutput['meta']): ProjectAnalysisMeta {
   return {
     warnings: [...meta.warnings],
     telemetry: meta.telemetry ? toTelemetry(meta.telemetry) : undefined,
+    contextRecorded: meta.contextRecorded,
   };
 }
 

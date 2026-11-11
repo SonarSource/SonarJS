@@ -104,7 +104,6 @@ public class WebSensor implements ProjectSensor {
 
   private Path analysisMetadataPath;
   private String contextMetadata;
-  private Path snapshotManifestPath;
 
   private boolean recordFilesystemCache;
   private ReplayProjectPaths replayProjectPaths;
@@ -198,8 +197,8 @@ public class WebSensor implements ProjectSensor {
         context
       );
       bridgeServer.startServerLazily(BridgeServerConfig.fromSensorContext(sensorContext));
-      analyzeFiles(inputFiles);
-      collectFilesystemCache();
+      var contextRecorded = analyzeFiles(inputFiles);
+      collectFilesystemCache(contextRecorded);
     } catch (CancellationException e) {
       // do not propagate the exception
       LOG.info(e.toString());
@@ -238,7 +237,6 @@ public class WebSensor implements ProjectSensor {
     analysisMetadataPath = null;
     contextMetadata = null;
     recordFilesystemCache = false;
-    snapshotManifestPath = null;
     replayProjectPaths = null;
 
     try {
@@ -248,7 +246,6 @@ public class WebSensor implements ProjectSensor {
       analysisMetadataPath = null;
       contextMetadata = null;
       recordFilesystemCache = false;
-      snapshotManifestPath = null;
       replayProjectPaths = null;
       if (hasRestoredContextProperties(sensorContext)) {
         throw new IllegalStateException("Invalid restored JavaScript context", e);
@@ -308,7 +305,6 @@ public class WebSensor implements ProjectSensor {
     );
     filesystemCacheArchivePath = archiveDirectory.resolve("archive.pb.gz");
     analysisMetadataPath = archiveDirectory.resolve("analysis-metadata.pb.gz");
-    snapshotManifestPath = archiveDirectory.resolve("manifest.json");
     recordFilesystemCache = true;
   }
 
@@ -345,7 +341,7 @@ public class WebSensor implements ProjectSensor {
     contextMetadata = metadata;
   }
 
-  private void collectFilesystemCache() {
+  private void collectFilesystemCache(boolean contextRecorded) {
     if (
       !recordFilesystemCache || filesystemCacheArchivePath == null || analysisMetadataPath == null
     ) {
@@ -353,13 +349,11 @@ public class WebSensor implements ProjectSensor {
     }
     try {
       if (
+        !contextRecorded ||
         !Files.isRegularFile(filesystemCacheArchivePath) ||
         Files.size(filesystemCacheArchivePath) == 0 ||
         !Files.isRegularFile(analysisMetadataPath) ||
         Files.size(analysisMetadataPath) == 0 ||
-        snapshotManifestPath == null ||
-        !Files.isRegularFile(snapshotManifestPath) ||
-        Files.size(snapshotManifestPath) == 0 ||
         contextMetadata == null
       ) {
         LOG.warn(
@@ -432,7 +426,7 @@ public class WebSensor implements ProjectSensor {
     ).toList();
   }
 
-  private void analyzeFiles(List<InputFile> inputFiles) {
+  private boolean analyzeFiles(List<InputFile> inputFiles) {
     var eslintImporter = new EslintReportImporter();
     var externalIssues = eslintImporter.execute(
       context,
@@ -447,6 +441,7 @@ public class WebSensor implements ProjectSensor {
         handler.getProjectAnalysisTelemetry()
       ).reportTelemetry();
       consumers.doneAnalysis(context.getSensorContext());
+      return handler.contextRecorded;
     } catch (CompletionException e) {
       if (e.getCause() instanceof CancellationException nestedException) {
         throw nestedException;
@@ -472,6 +467,7 @@ public class WebSensor implements ProjectSensor {
     private final Map<String, InputFile> fileToInputFile = new HashMap<>();
     private final HashMap<String, CacheStrategy> fileToCacheStrategy = new HashMap<>();
     private final CompletableFuture<Void> handle;
+    private boolean contextRecorded;
 
     @Nullable
     private ProjectAnalysisTelemetry projectAnalysisTelemetry;
@@ -541,9 +537,6 @@ public class WebSensor implements ProjectSensor {
           filesystemCache.setFallbackBaseDir(
             handlerContext.getSensorContext().fileSystem().baseDir().getAbsolutePath()
           );
-        }
-        if (recordFilesystemCache && snapshotManifestPath != null) {
-          filesystemCache.setSnapshotManifestPath(snapshotManifestPath.toString());
         }
         request.setFilesystemCache(filesystemCache);
       }
@@ -697,6 +690,7 @@ public class WebSensor implements ProjectSensor {
     private void handleMeta(ProjectAnalysisMeta meta) {
       meta.getWarningsList().forEach(analysisWarnings::addUnique);
       projectAnalysisTelemetry = meta.hasTelemetry() ? meta.getTelemetry() : null;
+      contextRecorded = meta.getContextRecorded();
       handle.complete(null);
     }
 

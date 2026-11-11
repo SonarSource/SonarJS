@@ -58,8 +58,6 @@ import { sonarjs } from './proto/analyze-project.js';
 import { ReplayProjectPaths } from './replay-project-paths.js';
 import path from 'node:path';
 import ts from 'typescript';
-import { writeSnapshotManifest } from './incremental-context.js';
-import { nativeFs } from '../../shared/src/fs-cache/archive-types.js';
 
 const { FilesystemCacheMode } = sonarjs.analyzeproject.v1;
 type CacheMode = 'record' | 'replay';
@@ -389,38 +387,6 @@ function recordFilteredFiles(
   }
 }
 
-function removeSnapshotManifest(request: AnalyzeProjectProtoRequest): void {
-  const marker = request.filesystemCache?.snapshotManifestPath;
-  if (!marker) {
-    return;
-  }
-  try {
-    nativeFs.unlinkSync(marker);
-  } catch {
-    // Preserve the original publication error reported by the caller.
-  }
-}
-
-function completeContextRecording(
-  request: AnalyzeProjectProtoRequest,
-  sessions: AnalysisSessions,
-  completed: boolean,
-): void {
-  const persisted = endAnalysisSessions(sessions.programSelection, sessions.filesystemCacheSession);
-  if (!completed || !persisted || !sessions.programSelection || !sessions.filesystemCacheSession) {
-    return;
-  }
-  try {
-    writeSnapshotManifest(request);
-  } catch (error) {
-    // A completion marker must never survive a failed publication attempt.
-    removeSnapshotManifest(request);
-    warn(
-      `Could not complete SonarJS context recording; analysis succeeded without context: ${error}`,
-    );
-  }
-}
-
 async function handleProjectAnalysis(
   request: AnalyzeProjectProtoRequest,
   workerData: WorkerData,
@@ -438,6 +404,8 @@ async function handleProjectAnalysis(
   }
   const sessions: AnalysisSessions = {};
   let completed = false;
+  let cancelled = false;
+  let result: AnalyzeProjectResponse | undefined;
   try {
     try {
       beginAnalysisSessions(request, cacheMode, sessions);
@@ -450,17 +418,18 @@ async function handleProjectAnalysis(
       sessions.programSelection = undefined;
       sessions.filesystemCacheSession = undefined;
     }
-    return await withAnalysisCancellation(async () => {
+    result = await withAnalysisCancellation(async () => {
       let fileFailed = false;
       logHeapStatistics(workerData?.debugMemory);
       let deliveryFailed = false;
       const publishEvent = incrementalResultsChannel
         ? (event: AnalyzeProjectIncrementalEvent) => {
+            // Publish the final metadata only after both context artifacts have been persisted.
+            if (event.event.messageType === 'meta') {
+              return;
+            }
             if (event.event.messageType === 'fileResult' && 'error' in event.event) {
               fileFailed = true;
-            }
-            if (event.event.messageType === 'meta' && sessions.fallbackWarning) {
-              event.event.warnings.push(sessions.fallbackWarning);
             }
             try {
               incrementalResultsChannel(event);
@@ -495,19 +464,31 @@ async function handleProjectAnalysis(
       ) {
         result.output.meta.warnings.push(sessions.fallbackWarning);
       }
+      cancelled = isAnalysisCancelled();
       completed =
-        !isAnalysisCancelled() &&
+        !cancelled &&
         !fileFailed &&
         !Object.values(result.output.files).some(file => 'error' in file);
       logHeapStatistics(workerData?.debugMemory);
-      return {
-        type: 'success',
-        result,
-      };
+      return result;
     });
   } finally {
-    completeContextRecording(request, sessions, completed);
+    const persisted = endAnalysisSessions(
+      sessions.programSelection,
+      sessions.filesystemCacheSession,
+    );
+    if (result && cacheMode === 'record') {
+      result.output.meta.contextRecorded =
+        completed && persisted && !!sessions.programSelection && !!sessions.filesystemCacheSession;
+    }
   }
+  if (!cancelled) {
+    incrementalResultsChannel?.({
+      event: { ...result.output.meta, messageType: 'meta' },
+      pathMap: result.pathMap,
+    });
+  }
+  return { type: 'success', result };
 }
 
 export async function handleAnalyzeProjectRequest(

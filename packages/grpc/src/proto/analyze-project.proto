@@ -41,9 +41,8 @@ message FilesystemCache {
   optional string fallback_base_dir = 4;
   // Collector JSON containing the original project root and captured configuration.
   optional string context_metadata = 5;
-  reserved 6, 7, 8, 10;
-  reserved "baseline_archive_path", "baseline_analysis_metadata_path", "baseline_context_metadata", "baseline_manifest_path";
-  optional string snapshot_manifest_path = 9;
+  reserved 6, 7, 8, 9, 10;
+  reserved "baseline_archive_path", "baseline_analysis_metadata_path", "baseline_context_metadata", "snapshot_manifest_path", "baseline_manifest_path";
 }
 
 enum FilesystemCacheMode {
@@ -295,6 +294,8 @@ message SonarResolveComment {
 message ProjectAnalysisMeta {
   repeated string warnings = 1;
   ProjectAnalysisTelemetry telemetry = 2;
+  // True only after a successful RECORD analysis has persisted both context artifacts.
+  bool context_recorded = 3;
 }
 
 message ProjectAnalysisTelemetry {

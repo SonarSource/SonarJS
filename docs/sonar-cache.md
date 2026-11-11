@@ -121,9 +121,10 @@ Recording uses this path:
 3. Cached files participate in program construction but execute no rules and emit no file results.
    An all-cached PR still constructs the programs needed for its fresh context. Orphan programs
    include current cached peers, so a changed file can gain type information and additional findings.
-4. After successful analysis and archive persistence, Node writes a local completion marker. Java
-   publishes the two archives and collector JSON metadata through the existing collector API.
-   The marker is not published and does not assert that every filesystem path was observed.
+4. After successful analysis and archive persistence, Node sets `context_recorded` in the final
+   gRPC META response. Java publishes the two archives and collector JSON metadata through the
+   existing collector API only after receiving that confirmation. The flag does not assert that
+   every filesystem path was observed.
 
 This supports fresh context without a compatible branch snapshot, including source additions,
 deletions and configuration changes. Only current observations are recorded; project and dependency

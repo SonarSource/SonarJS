@@ -88,9 +88,9 @@ context. Broader orphan roots and improved findings are accepted; a numeric time
 remains open. Per-file cache eligibility remains unchanged. Dependency-aware invalidation is
 separate work (JS-2815); wildcard ambient-package discovery is tracked in JS-2853.
 
-Only a successfully persisted recording receives the local completion marker that permits Java
-to publish it. The marker confirms successful analysis and persistence, not complete filesystem
-coverage. A runtime file error prevents publication. Context initialization, persistence and
+Only a successfully persisted recording sets `context_recorded` in the final gRPC META response,
+permitting Java to publish it. The flag confirms successful analysis and persistence, not complete
+filesystem coverage. A runtime file error prevents publication. Context initialization, persistence and
 publication failures do not fail otherwise successful analysis. No whole-context entry uses the
 sensor cache; its per-file API and PR no-op persistence remain owned by the scanner.
 

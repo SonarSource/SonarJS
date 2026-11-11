@@ -40,9 +40,9 @@ unchanged: dependency-aware reanalysis remains in JS-2815, and wildcard ambient-
 remains in JS-2853. Fresh context does not re-run cached rules or promise fresh-full-analysis
 findings for every SQAA request.
 
-After successful analysis and archive persistence, Node writes a local completion marker. It
-permits Java to publish the two attachments and collector JSON metadata, but is not itself
-published and does not assert complete filesystem coverage. A runtime file error prevents
+After successful analysis and archive persistence, Node sets `context_recorded` in the final
+gRPC META response. Java publishes the two attachments and collector JSON metadata only after
+receiving that confirmation. The flag does not assert complete filesystem coverage. A runtime file error prevents
 context publication. Context initialization, serialization and publication errors do not fail
 otherwise successful analysis. No compatible branch context is needed to create a new context.
 If input preparation fails during recording, Node stops collection and retries only ordinary

@@ -546,11 +546,11 @@ class WebSensorTest {
       assertThat(analysisMetadata).doesNotExist();
       Files.writeString(archive, "archive");
       Files.writeString(analysisMetadata, "metadata");
-      Files.writeString(
-        Path.of(request.getFilesystemCache().getSnapshotManifestPath()),
-        "manifest"
+      var response = new ProjectAnalysisOutput(
+        createFilesMap(List.of(inputFile)),
+        ProjectAnalysisMeta.newBuilder().setContextRecorded(true).build()
       );
-      for (var message : getAnalysisStreamMessages(createProjectResponse(List.of(inputFile)))) {
+      for (var message : getAnalysisStreamMessages(response)) {
         dispatchAnalysisStreamMessage(handler, message);
       }
       return handler.getFuture().join();
@@ -625,9 +625,8 @@ class WebSensorTest {
     );
   }
 
-  @ParameterizedTest
-  @ValueSource(booleans = { false, true })
-  void should_not_publish_context_without_a_completion_manifest(boolean emptyManifest) {
+  @Test
+  void should_not_publish_context_without_confirmation_in_meta() {
     var collector = mock(FilesystemCacheContext.class);
     when(collector.isSupported()).thenReturn(true);
     when(collector.isEnabled()).thenReturn(true);
@@ -643,7 +642,6 @@ class WebSensorTest {
       var cache = handler.getRequest().getFilesystemCache();
       Files.writeString(Path.of(cache.getArchivePath()), "partial archive");
       Files.writeString(Path.of(cache.getAnalysisMetadataPath()), "partial metadata");
-      if (emptyManifest) Files.writeString(Path.of(cache.getSnapshotManifestPath()), "");
       for (var message : getAnalysisStreamMessages(createProjectResponse(List.of(inputFile)))) {
         dispatchAnalysisStreamMessage(handler, message);
       }
@@ -1419,7 +1417,11 @@ class WebSensorTest {
       var cache = request.getFilesystemCache();
       Files.writeString(Path.of(cache.getArchivePath()), "current request observations");
       Files.writeString(Path.of(cache.getAnalysisMetadataPath()), "current request selections");
-      Files.writeString(Path.of(cache.getSnapshotManifestPath()), "manifest");
+      handler.handleMessage(
+        AnalyzeProjectStreamResponse.newBuilder()
+          .setMeta(ProjectAnalysisMeta.newBuilder().setContextRecorded(true))
+          .build()
+      );
       return null;
     })
       .when(bridgeServerMock)

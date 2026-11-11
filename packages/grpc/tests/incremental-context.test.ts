@@ -95,7 +95,6 @@ function request(generation: string): AnalyzeProjectProtoRequest {
       mode: 1,
       archivePath: path.join(directory, 'filesystem.pb.gz'),
       analysisMetadataPath: path.join(directory, 'programs.pb.gz'),
-      snapshotManifestPath: path.join(directory, 'manifest.json'),
     },
   };
 }
@@ -260,7 +259,7 @@ describe('self-contained PR context', () => {
         expect(metadata.hasSelection(file(name))).toBe(kind !== 'no program');
         expect(metadata.hasNoProgram(file(name))).toBe(kind === 'no program');
       }
-      expect(fs.existsSync(pr.filesystemCache!.snapshotManifestPath!)).toBe(true);
+      expect(result.meta?.contextRecorded).toBe(true);
       fs.rmSync(project, { recursive: true });
       expect(
         (await replay(pr, file('cached.ts'), source)).files![file('cached.ts')].issues,

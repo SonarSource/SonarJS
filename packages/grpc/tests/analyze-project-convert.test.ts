@@ -65,7 +65,7 @@ function toPlainTelemetryValue(value: object | null | undefined) {
 }
 
 describe('analyze-project convert', () => {
-  it('should preserve generated-source telemetry through protobuf serialization', () => {
+  it('should preserve final metadata through protobuf serialization', () => {
     const telemetry = createProjectAnalysisTelemetry();
 
     const unaryResponse = toAnalyzeProjectUnaryResponse(
@@ -74,6 +74,7 @@ describe('analyze-project convert', () => {
         meta: {
           warnings: [],
           telemetry,
+          contextRecorded: true,
         },
       },
       new Map(),
@@ -90,12 +91,14 @@ describe('analyze-project convert', () => {
     expect(decodedUnary.meta?.telemetry?.packageImportFileCounts).toEqual(
       telemetry.packageImportFileCounts,
     );
+    expect(decodedUnary.meta?.contextRecorded).toBe(true);
 
     const streamResponse = toAnalyzeProjectStreamResponse(
       {
         messageType: 'meta',
         warnings: [],
         telemetry,
+        contextRecorded: true,
       },
       new Map(),
     );
@@ -111,5 +114,6 @@ describe('analyze-project convert', () => {
     expect(decodedStream.meta?.telemetry?.packageImportFileCounts).toEqual(
       telemetry.packageImportFileCounts,
     );
+    expect(decodedStream.meta?.contextRecorded).toBe(true);
   });
 });
