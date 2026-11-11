@@ -44,6 +44,9 @@ export type {
   NormalizedAbsolutePath,
 } from '../../../analysis/src/jsts/rules/helpers/files.js';
 
+const UTF16_BOM_HIGH_BYTE = 0xfe;
+const UTF16_BOM_LOW_BYTE = 0xff;
+
 /**
  * Asynchronous read of file contents from a file path
  *
@@ -59,13 +62,13 @@ export async function readFile(filePath: NormalizedAbsolutePath) {
 
 /** Decode without modifying the bytes retained by filesystem recording or replay. */
 export function decodeFileContent(content: Buffer): string {
-  if (content[0] === 0xfe && content[1] === 0xff) {
+  if (content[0] === UTF16_BOM_HIGH_BYTE && content[1] === UTF16_BOM_LOW_BYTE) {
     // As in TypeScript, ignore an incomplete trailing UTF-16 code unit.
     return Buffer.from(content.subarray(2, content.length & ~1))
       .swap16()
       .toString('utf16le');
   }
-  if (content[0] === 0xff && content[1] === 0xfe) {
+  if (content[0] === UTF16_BOM_LOW_BYTE && content[1] === UTF16_BOM_HIGH_BYTE) {
     return content.toString('utf16le', 2);
   }
   return stripBOM(content.toString('utf8'));
