@@ -21,8 +21,231 @@ import { describe, it } from 'node:test';
 import { Linter as ESLintLinter } from 'eslint';
 import { toInternalMetricsSettings } from '../helpers/internal-metrics.js';
 import { expect } from 'expect';
+import parser from '@typescript-eslint/parser';
 
 describe('S3776', () => {
+  it('should recognize React components returning JSX through TypeScript expressions', () => {
+    const linter = new ESLintLinter();
+    const wrappers = [
+      'EXPRESSION',
+      '(EXPRESSION) as React.ReactNode',
+      '(EXPRESSION) satisfies React.ReactNode',
+      '(EXPRESSION)!',
+      '((EXPRESSION) as React.ReactNode)! satisfies React.ReactNode',
+    ];
+    const cases = ['<Row />', '<><Row /></>'].flatMap(jsx =>
+      wrappers.map(wrapper => ({ expression: wrapper.replace('EXPRESSION', jsx), complexity: 2 })),
+    );
+    cases.push(
+      { expression: 'null', complexity: 3 },
+      { expression: 'null as React.ReactNode', complexity: 3 },
+    );
+    for (const { expression, complexity } of cases) {
+      for (const declaration of ['function Component()', 'const Component = () =>']) {
+        const sink = {};
+        const messages = linter.verify(
+          `${declaration} {
+            const handler = () => { if (a) {} };
+            if (b) {}
+            return ${expression};
+          }`,
+          {
+            files: ['**/*.tsx'],
+            languageOptions: { parser },
+            plugins: { sonarjs: { rules: { S3776: rule } } },
+            rules: { 'sonarjs/S3776': ['error', 0] },
+            settings: toInternalMetricsSettings(sink),
+          },
+          { filename: 'input.tsx' },
+        );
+        expect(sink).toEqual({ cognitiveComplexity: complexity });
+        expect(messages.map(({ message }) => message)).toEqual([
+          'Refactor this function to reduce its Cognitive Complexity from 1 to the 0 allowed.',
+          'Refactor this function to reduce its Cognitive Complexity from 1 to the 0 allowed.',
+        ]);
+      }
+    }
+  });
+
+  it('should preserve logical sequences through TypeScript expressions', () => {
+    const wrappers = [
+      '(EXPRESSION) as boolean',
+      '(EXPRESSION) satisfies boolean',
+      '(EXPRESSION)!',
+      '<boolean>(EXPRESSION)',
+      '((EXPRESSION) as boolean)! satisfies boolean',
+    ];
+    const ruleTester = new NoTypeCheckingRuleTester();
+    ruleTester.run('logical sequences through TypeScript expressions', rule, {
+      valid: wrappers.map(wrapper => ({
+        filename: 'input.ts',
+        code: `function foo(a, b, c) {
+          ${Array.from({ length: 8 }, () => `use((${wrapper.replace('EXPRESSION', 'a && b')}) && c);`).join('\n')}
+        }`,
+      })),
+      invalid: wrappers.flatMap(wrapper =>
+        [
+          { expression: `(${wrapper.replace('EXPRESSION', 'a && b')}) && c`, score: 1 },
+          { expression: `a && (${wrapper.replace('EXPRESSION', 'b && c')})`, score: 1 },
+          { expression: `(${wrapper.replace('EXPRESSION', 'a && b')}) || c && d`, score: 2 },
+          { expression: `a && (${wrapper.replace('EXPRESSION', 'b || c')})`, score: 1 },
+        ].map(({ expression, score }) => ({
+          filename: 'input.ts',
+          code: `function foo(a, b, c, d) { return ${expression}; }`,
+          options: [0],
+          errors: [message(score)],
+        })),
+      ),
+    });
+  });
+
+  it('should preserve JSX short-circuit exemptions through TypeScript expressions', () => {
+    const wrappers = [
+      '(EXPRESSION) as React.ReactNode',
+      '(EXPRESSION) satisfies React.ReactNode',
+      '(EXPRESSION)!',
+      '((EXPRESSION) as React.ReactNode)! satisfies React.ReactNode',
+    ];
+    const ruleTester = new NoTypeCheckingRuleTester();
+    ruleTester.run('JSX short circuits through TypeScript expressions', rule, {
+      valid: wrappers.flatMap(wrapper => [
+        {
+          code: `function Component() { return <>{${wrapper.replace('EXPRESSION', 'ready && <Row />')}}</>; }`,
+          options: [0],
+        },
+        {
+          code: `function Component() { return <>{ready && (${wrapper.replace('EXPRESSION', 'other && <Row />')})}</>; }`,
+          options: [0],
+        },
+        {
+          code: `function Component() { return <>${Array.from({ length: 16 }, () => `{${wrapper.replace('EXPRESSION', 'ready && <Row />')}}`).join('')}</>; }`,
+        },
+      ]),
+      invalid: wrappers.flatMap(wrapper => [
+        {
+          code: `function Component() { return <>{ready && (${wrapper.replace('EXPRESSION', 'other ? <Row /> : null')})}</>; }`,
+          options: [0],
+          errors: [message(2)],
+        },
+        {
+          code: `function Component() { return <>{ready && (${wrapper.replace('EXPRESSION', 'other || <Row />')})}</>; }`,
+          options: [0],
+          errors: [message(1)],
+        },
+      ]),
+    });
+  });
+
+  it('should balance file nesting across nested ternary function branches', () => {
+    const linter = new ESLintLinter();
+    for (const { initializer, fileComplexity, functionScores } of [
+      { initializer: 'flag ? () => {} : null', fileComplexity: 5, functionScores: [2, 1, 1] },
+      { initializer: 'flag ? null : () => {}', fileComplexity: 5, functionScores: [2, 1, 1] },
+      { initializer: 'flag ? () => {} : () => {}', fileComplexity: 5, functionScores: [2, 1, 1] },
+      { initializer: 'flag ? function () {} : null', fileComplexity: 5, functionScores: [2, 1, 1] },
+      {
+        initializer: 'flag ? () => { if (d) {} } : null',
+        fileComplexity: 9,
+        functionScores: [2, 1, 1, 1],
+      },
+      {
+        initializer: '() => { if (d) {} }',
+        fileComplexity: 6,
+        functionScores: [2, 1, 1],
+      },
+    ]) {
+      const sink = {};
+      const messages = linter.verify(
+        `function outer() {
+          if (a) {}
+          function middle() {
+            const callback = ${initializer};
+          }
+          if (b) {}
+        }
+        function next() { if (c) {} }`,
+        {
+          plugins: { sonarjs: { rules: { S3776: rule } } },
+          rules: { 'sonarjs/S3776': ['error', 0] },
+          settings: toInternalMetricsSettings(sink),
+        },
+      );
+      expect(sink).toEqual({ cognitiveComplexity: fileComplexity });
+      expect(messages.map(({ message }) => message)).toEqual(
+        functionScores.map(
+          score =>
+            `Refactor this function to reduce its Cognitive Complexity from ${score} to the 0 allowed.`,
+        ),
+      );
+    }
+  });
+
+  it('should not carry ternary function nesting into subsequent control flow', () => {
+    const initializers = [
+      'flag ? () => 1 : null',
+      'flag ? null : () => 1',
+      'flag ? () => 1 : () => 2',
+      'flag ? function () { return 1; } : null',
+      'flag ? null : function () { return 1; }',
+      'flag ? 1 : null',
+      'flag ? arrow : null',
+    ];
+    const ruleTester = new NoTypeCheckingRuleTester();
+    const testCases = initializers.map(initializer => ({
+      code: `
+      function foo(flag, value) {
+        const arrow = () => 1;
+        const handler = ${initializer};
+        if (value) {
+          return handler;
+        }
+        return null;
+      }`,
+    }));
+
+    ruleTester.run('ternary function branches', rule, {
+      valid: testCases.map(testCase => ({ ...testCase, options: [2] })),
+      invalid: testCases.map(testCase => ({
+        ...testCase,
+        options: [0],
+        errors: [message(2)],
+      })),
+    });
+
+    ruleTester.run('control flow inside and after ternary function branches', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: `
+      function foo(flag, value) {
+        const handler = flag ? () => {
+          if (value) { return 1; }
+          return 0;
+        } : null;
+        if (value) {
+          if (handler) { return handler; }
+        }
+        return null;
+      }`,
+          options: [0],
+          errors: [message(4, { line: 2 }), message(1, { line: 3 })],
+        },
+        {
+          code: `
+      function outer() {
+        return function inner(flag, value) {
+          const handler = flag ? () => 1 : null;
+          if (value) { return handler; }
+          return null;
+        };
+      }`,
+          options: [0],
+          errors: [message(2, { line: 3 })],
+        },
+      ],
+    });
+  });
+
   it('should write file complexity metric to internal settings sink when available', () => {
     const linter = new ESLintLinter();
     const sink = {};
