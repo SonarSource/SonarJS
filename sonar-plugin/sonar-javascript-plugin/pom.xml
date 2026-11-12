@@ -26,7 +26,7 @@
 
   <properties>
     <artifactoryToken/>
-    <nodejs.runtime.version>24.22.1.10229</nodejs.runtime.version>
+    <nodejs.runtime.version>26.13.1.10255</nodejs.runtime.version>
     <sonar.coverage.jacoco.xmlReportPaths>${project.reporting.outputDirectory}/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
   </properties>
 
@@ -524,7 +524,7 @@
               <rules>
                 <requireFilesSize>
                   <minsize>100000000</minsize>
-                  <maxsize>140000000</maxsize>
+                  <maxsize>150000000</maxsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}-multi.jar</file>
                   </files>
