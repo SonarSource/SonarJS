@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "paths": { "supertest": ["./@types/supertest/index.d.ts"] }
+  },
+  "include": ["placeholder.ts"]
+}

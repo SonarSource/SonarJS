@@ -1667,6 +1667,8 @@ describe('typed unrelated should chains', () => {
       'let http = () => request(app);',
       "const http = () => require('supertest')(app);",
       "const client = require('supertest'); const http = () => client(app);",
+      'const http = server => request(app);',
+      'const factory = () => request(app); const http = () => factory();',
     ];
     const invalidCases = [
       ...[
@@ -1713,17 +1715,6 @@ describe('typed unrelated should chains', () => {
         code: testCase('function http() { return request(app); } http = () => fakeRequest(app);'),
       },
       {
-        name: 'rejects a factory with parameters',
-        code: testCase('const http = server => request(app);'),
-      },
-      {
-        name: 'rejects a factory call with arguments',
-        code: testCase(
-          'const http = () => request(app);',
-          "await http(app).get('/items').expect(401);",
-        ),
-      },
-      {
         name: 'rejects an async factory',
         code: testCase('const http = async () => request(app);'),
       },
@@ -1757,10 +1748,6 @@ describe('typed unrelated should chains', () => {
         code: testCase('function http() { return request(app); return fakeRequest(app); }'),
       },
       {
-        name: 'rejects a nested factory call',
-        code: testCase('const factory = () => request(app); const http = () => factory();'),
-      },
-      {
         name: 'rejects a request chain that uses a plugin',
         code: testCase(
           'const http = () => request(app); const plugin = req => { req.expect = () => req; };',
@@ -1772,24 +1759,10 @@ describe('typed unrelated should chains', () => {
         code: testCase('const http = () => request(app);', "await http().get('/items').expect;"),
       },
       {
-        name: 'rejects a computed HTTP method',
-        code: testCase(
-          'const http = () => request(app);',
-          "await http()['get']('/items').expect(401);",
-        ),
-      },
-      {
         name: 'rejects a computed HTTP method name',
         code: testCase(
           'const http = () => request(app);',
           "await http()[method]('/items').expect(401);",
-        ),
-      },
-      {
-        name: 'rejects a computed expect method',
-        code: testCase(
-          'const http = () => request(app);',
-          "await http().get('/items')['expect'](401);",
         ),
       },
       {
@@ -1883,6 +1856,11 @@ it('only sends a request from the same factory', async () => {
       new Tester().run(`Local Supertest factories (${Tester.name})`, rule, {
         valid: [
           ...validFactories.map(factory => ({ name: factory, code: testCase(factory) })),
+          ...[
+            "await http(app).get('/items').expect(401);",
+            "await http()['get']('/items').expect(401);",
+            "await http().get('/items')['expect'](401);",
+          ].map(body => ({ code: testCase('const http = () => request(app);', body) })),
           {
             name: 'uses a writable global require without changing it',
             code: testCase("const http = () => require('supertest')(app);"),
@@ -1976,6 +1954,10 @@ it('checks the response', async () => {
         'const http = () => request(app);',
         "await ((http() satisfies any).get('/items').expect as any)(200);",
       ),
+      testCase(
+        'const http = () => request(app) as any;',
+        "await http()!['get']('/items').expect(200);",
+      ),
     ];
     const invalid = [
       {
@@ -2009,13 +1991,6 @@ it('checks the response', async () => {
         ),
       },
       {
-        name: 'rejects a computed member with a non-null wrapper',
-        code: testCase(
-          'const http = () => request(app) as any;',
-          "await http()!['get']('/items').expect(200);",
-        ),
-      },
-      {
         name: 'rejects a TypeScript import-equals factory',
         code: testCase("import client = require('supertest'); const http = () => client(app);"),
       },
@@ -2036,6 +2011,180 @@ it('checks the response', async () => {
       new Tester().run(`Typed local Supertest factories (${Tester.name})`, rule, {
         valid: valid.map(code => ({ code })),
         invalid: invalid.map(test => ({ ...test, errors: 1 })),
+      });
+    }
+  });
+  it('recognizes the Supertest assertion declaration through receiver types', () => {
+    const fixtureDir = join(import.meta.dirname, 'fixtures', 'supertest-types');
+    new RuleTester({ parserOptions: { project: join(fixtureDir, 'tsconfig.json') } }).run(
+      'Typed Supertest receivers',
+      rule,
+      {
+        valid: [
+          {
+            filename: join(fixtureDir, 'placeholder.ts'),
+            code: supertestFactoryTestCase(
+              "import type { Test } from 'supertest'; function check(req: Test) { req.expect(404); }",
+              "check(request(app).get('/items'));",
+            ),
+          },
+          {
+            filename: join(fixtureDir, 'placeholder.ts'),
+            code: supertestFactoryTestCase(
+              "const read = (route: string) => (id: string) => request(app).get(route + '/' + id);",
+              "await read('/items')('x').expect(404);",
+            ),
+          },
+          {
+            filename: join(fixtureDir, 'placeholder.ts'),
+            code: supertestFactoryTestCase(
+              "function read(id: string) { const url = '/items/' + id; return request(app).get(url); }",
+              "await read('x').expect(404);",
+            ),
+          },
+        ],
+        invalid: [
+          {
+            filename: join(fixtureDir, 'placeholder.ts'),
+            code: supertestFactoryTestCase(
+              "const read = () => request(app).get('/items').use(plugin);",
+              'await read().expect(404);',
+            ),
+            errors: 1,
+          },
+          {
+            filename: join(fixtureDir, 'placeholder.ts'),
+            code: supertestFactoryTestCase(
+              'const http = () => request(app);',
+              "await http()?.get('/items').expect(404);",
+            ),
+            errors: 1,
+          },
+          {
+            filename: join(fixtureDir, 'placeholder.ts'),
+            code: supertestFactoryTestCase(
+              'function check(req: { expect(status: number): void }) { req.expect(404); }',
+              'check({ expect: () => {} });',
+            ),
+            errors: 1,
+          },
+          {
+            filename: join(fixtureDir, 'placeholder.ts'),
+            code: supertestFactoryTestCase(
+              "const read = (route: string) => (id: string) => request(app).get(route + '/' + id);",
+              "await read('/items')('x');",
+            ),
+            errors: 1,
+          },
+        ],
+      },
+    );
+  });
+
+  it('follows Supertest values through local helper returns and arguments', () => {
+    const valid = [
+      supertestFactoryTestCase(
+        "const add = (id, body) => request(app).post('/items/' + id).send(body);",
+        "await add('x', {}).expect(404);",
+      ),
+      supertestFactoryTestCase(
+        "const list = (qs = '') => request(app).get('/items' + qs).set('tenantid', t);",
+        "await list('?cursor=bad').expect(400);",
+      ),
+      supertestFactoryTestCase(
+        "function postTransition(id, body) { return request(app).post('/items/' + id).send(body); }",
+        "await postTransition('x', {}).expect(404);",
+      ),
+      supertestFactoryTestCase(
+        '',
+        "const add = id => request(app).post('/items/' + id); await add('x').expect(404);",
+      ),
+      supertestFactoryTestCase(
+        'const post = url => request(app).post(url);',
+        "const req = post('/items'); const alias = req; await alias.send({}).expect(404);",
+      ),
+      supertestFactoryTestCase(
+        "const asUser = (req, status) => req.set('authorization', tok).expect(status);",
+        "await asUser(request(app).get('/items/x'), 404);",
+      ),
+      supertestFactoryTestCase(
+        "function asUser(req, status) { return req.set('authorization', tok).expect(status); }",
+        "await asUser(request(app).get('/items/x'), 404);",
+      ),
+      supertestFactoryTestCase(
+        'function check(req) { req.expect(404); }',
+        "check(request(app).get('/items'));",
+      ),
+      supertestFactoryTestCase(
+        "const withHeader = req => req.set('tenantid', t);",
+        "await withHeader(request(app).get('/items')).expect(400);",
+      ),
+      supertestFactoryTestCase(
+        '',
+        "for (const method of ['post', 'put', 'patch', 'delete']) { await request(app)[method]('/items').expect(404); }",
+      ),
+    ];
+    const invalid = [
+      supertestFactoryTestCase(
+        "const add = id => request(app).get('/items/' + id);",
+        "await add('x');",
+      ),
+      supertestFactoryTestCase(
+        'const check = req => req.expect(404);',
+        "await check(fakeRequest(app).get('/items'));",
+      ),
+      supertestFactoryTestCase(
+        'const check = req => req.expect(404);',
+        'await check(request(app));',
+      ),
+      supertestFactoryTestCase(
+        'function check(req) { req = fakeRequest(app); return req.expect(404); }',
+        "await check(request(app).get('/items'));",
+      ),
+      supertestFactoryTestCase(
+        'const pass = req => req;',
+        "await pass(fakeRequest(app)).get('/items').expect(404);",
+      ),
+      supertestFactoryTestCase(
+        'function http() { request(app); }',
+        "await http().get('/items').expect(404);",
+      ),
+      supertestFactoryTestCase(
+        'const check = (unused, req) => req.expect(404);',
+        "check(...[], request(app).get('/items'));",
+      ),
+      supertestFactoryTestCase(
+        "const post = () => request(app).post('/items'); const previous = post().expect(404);",
+        'await previous.send({});',
+      ),
+      supertestFactoryTestCase(
+        'const http = () => http();',
+        "await http().get('/items').expect(404);",
+      ),
+      supertestFactoryTestCase(
+        'const first = () => second(); const second = () => first();',
+        "await first().get('/items').expect(404);",
+      ),
+      supertestFactoryTestCase(
+        "const post = () => request(app).post('/items').use(plugin);",
+        'await post().expect(404);',
+      ),
+      supertestFactoryTestCase(
+        "const post = () => request(app).post('/items');",
+        'let req = post(); req = fakeRequest(app); await req.expect(404);',
+      ),
+      supertestFactoryTestCase(
+        'const check = req => req.expect(404);',
+        "await check(request(app).get('/items'));",
+      ) + "it('unrelated receiver', () => { check(fakeRequest(app)); });",
+      "import { it } from 'node:test'; import request from 'supertest'; const check = req => req.expect(404);" +
+        "it('unrelated receiver first', () => { check(fakeRequest(app)); });" +
+        "it('real receiver second', () => { check(request(app).get('/items')); });",
+    ];
+    for (const Tester of [DefaultParserRuleTester, NoTypeCheckingRuleTester, RuleTester]) {
+      new Tester().run(`Supertest helper values (${Tester.name})`, rule, {
+        valid: valid.map(code => ({ code })),
+        invalid: invalid.map(code => ({ code, errors: 1 })),
       });
     }
   });
