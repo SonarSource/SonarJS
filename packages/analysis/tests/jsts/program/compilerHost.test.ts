@@ -19,7 +19,7 @@ import { describe, it, beforeEach } from 'node:test';
 import { expect } from 'expect';
 import ts from 'typescript';
 import path from 'node:path';
-import { readFileSync, mkdtempSync } from 'node:fs';
+import { readFileSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import os from 'node:os';
 import { IncrementalCompilerHost } from '../../../src/jsts/program/compilerHost.js';
 import {
@@ -292,6 +292,169 @@ describe('IncrementalCompilerHost', () => {
   });
 
   describe('getSourceFile', () => {
+    it('resolves archived declarations without a parent directory stat', () => {
+      const declarationPath = 'types/value.d.ts';
+      const temporary = mkdtempSync(path.join(os.tmpdir(), 'host-archived-import-'));
+      const directory = normalizeToAbsolutePath(path.join(temporary, 'project'));
+      const file = normalizeToAbsolutePath(path.join(directory, 'consumer.ts'));
+      const declaration = normalizeToAbsolutePath(path.join(directory, declarationPath));
+      const archivePath = path.join(temporary, 'fs.pb.gz');
+      const options: ts.CompilerOptions = {
+        noLib: true,
+        types: [],
+        module: ts.ModuleKind.CommonJS,
+        moduleResolution: ts.ModuleResolutionKind.Node10,
+      };
+      const editedContent = "import { value } from './types/value'; const text: string = value;";
+      mkdirSync(path.dirname(declaration), { recursive: true });
+      writeFileSync(file, 'export {};');
+      writeFileSync(declaration, 'export declare const value: number;');
+      try {
+        setSourceFilesContext({});
+        const recording = installFsCache().beginAnalysis({
+          archivePath,
+          rootDir: directory,
+          mode: 'record',
+          caseSensitivePaths: isFileSystemCaseSensitive(),
+        });
+        try {
+          const host = new IncrementalCompilerHost(options, directory);
+          const program = ts.createProgram({ rootNames: [file, declaration], options, host });
+          expect(program.getSourceFile(declaration)).toBeDefined();
+          expect(program.getSemanticDiagnostics()).toEqual([]);
+        } finally {
+          expect(recording.end()).toBe(true);
+        }
+
+        const archive = new FsCacheArchive({
+          archivePath,
+          rootDir: directory,
+          mode: 'replay',
+          caseSensitivePaths: isFileSystemCaseSensitive(),
+        });
+        archive.load();
+        expect(archive.get(declarationPath, 'readFile:utf8')?.ok).toBe(true);
+        expect(
+          archive.get(path.posix.dirname(declarationPath), 'stat:number:soft'),
+        ).toBeUndefined();
+
+        clearSourceFileContentCache();
+        setSourceFilesContext({ [file]: { fileContent: editedContent } });
+        const nativeProgram = ts.createProgram({
+          rootNames: [file],
+          options,
+          host: new IncrementalCompilerHost(options, directory),
+        });
+        const expectedDiagnostics = nativeProgram.getSemanticDiagnostics().map(({ code }) => code);
+        expect(expectedDiagnostics).toEqual([2322]);
+
+        rmSync(directory, { recursive: true, force: true });
+        clearSourceFileContentCache();
+        setSourceFilesContext({ [file]: { fileContent: editedContent } });
+        const replay = installFsCache().beginAnalysis({
+          archivePath,
+          rootDir: directory,
+          mode: 'replay',
+          caseSensitivePaths: isFileSystemCaseSensitive(),
+        });
+        try {
+          const program = ts.createProgram({
+            rootNames: [file],
+            options,
+            host: new IncrementalCompilerHost(options, directory),
+          });
+          expect(program.getSemanticDiagnostics().map(({ code }) => code)).toEqual(
+            expectedDiagnostics,
+          );
+          expect(program.getSourceFile(declaration)).toBeDefined();
+        } finally {
+          expect(replay.end()).toBe(true);
+        }
+      } finally {
+        clearSourceFileContentCache();
+        rmSync(temporary, { recursive: true, force: true });
+      }
+    });
+
+    it('shares ASTs between real programs only when module-detection settings match', () => {
+      const directory = normalizeToAbsolutePath(
+        mkdtempSync(path.join(os.tmpdir(), 'host-modules-')),
+      );
+      const file = path.join(directory, 'script.ts');
+      writeFileSync(file, 'const value = 1;');
+      setSourceFilesContext({});
+      try {
+        const cases: [ts.CompilerOptions, boolean][] = [
+          [{ moduleDetection: ts.ModuleDetectionKind.Legacy }, false],
+          [{ moduleDetection: ts.ModuleDetectionKind.Auto }, false],
+          [{ moduleDetection: ts.ModuleDetectionKind.Force }, true],
+          [{ module: ts.ModuleKind.ESNext }, false],
+          [{ module: ts.ModuleKind.NodeNext }, true],
+        ];
+        const sources = cases.map(([settings, isModule]) => {
+          const options = { ...settings, noLib: true, types: [] };
+          const create = () =>
+            ts
+              .createProgram({
+                rootNames: [file],
+                options,
+                host: new IncrementalCompilerHost(options, directory),
+              })
+              .getSourceFile(file)!;
+          const first = create();
+          expect(ts.isExternalModule(first)).toBe(isModule);
+          expect(create()).toBe(first);
+          return first;
+        });
+        expect(new Set(sources).size).toBe(cases.length);
+      } finally {
+        rmSync(directory, { recursive: true, force: true });
+      }
+    });
+
+    it('preserves source-file module format and conditional exports under NodeNext', () => {
+      const directory = normalizeToAbsolutePath(
+        mkdtempSync(path.join(os.tmpdir(), 'host-nodenext-')),
+      );
+      try {
+        const packageDir = path.join(directory, 'node_modules', 'conditional');
+        mkdirSync(packageDir, { recursive: true });
+        writeFileSync(
+          path.join(packageDir, 'package.json'),
+          JSON.stringify({
+            name: 'conditional',
+            exports: { import: './esm.ts', require: './cjs.ts' },
+          }),
+        );
+        for (const branch of ['esm', 'cjs'])
+          writeFileSync(path.join(packageDir, branch + '.ts'), 'export const value = 1;');
+        const options = {
+          module: ts.ModuleKind.NodeNext,
+          moduleResolution: ts.ModuleResolutionKind.NodeNext,
+          noLib: true,
+          types: [],
+        };
+        for (const [extension, branch, format] of [
+          ['mts', 'esm', ts.ModuleKind.ESNext],
+          ['cts', 'cjs', ts.ModuleKind.CommonJS],
+        ] as const) {
+          const file = path.join(directory, 'consumer.' + extension);
+          writeFileSync(file, "import { value } from 'conditional'; value;");
+          const host = new IncrementalCompilerHost(options, directory);
+          const program = ts.createProgram({ rootNames: [file], options, host });
+          expect(program.getSourceFile(file)?.impliedNodeFormat).toBe(format);
+          expect(program.getSourceFile(path.join(packageDir, branch + '.ts'))).toBeDefined();
+          expect(
+            program.getSourceFile(
+              path.join(packageDir, (branch === 'esm' ? 'cjs' : 'esm') + '.ts'),
+            ),
+          ).toBeUndefined();
+        }
+      } finally {
+        rmSync(directory, { recursive: true, force: true });
+      }
+    });
+
     it('should return cached source file when available', () => {
       const host = new IncrementalCompilerHost(compilerOptions, baseDir);
       const content = 'const x = 1;';
@@ -476,6 +639,34 @@ describe('IncrementalCompilerHost', () => {
     const componentFile = path.join(fixtureDir, 'Component.tsx') as ReturnType<
       typeof normalizeToAbsolutePath
     >;
+
+    it('isolates shared TSX sources between programs with different jsxImportSource values', () => {
+      setSourceFilesContext({});
+      const createProgram = (jsxImportSource?: string) => {
+        const options: ts.CompilerOptions = {
+          target: ts.ScriptTarget.ESNext,
+          jsx: ts.JsxEmit.ReactJSX,
+          jsxImportSource,
+        };
+        const program = ts.createProgram({
+          rootNames: [componentFile],
+          options,
+          host: new IncrementalCompilerHost(options, fixtureDir),
+        });
+        program.getTypeChecker();
+        return program;
+      };
+
+      const reactProgram = createProgram();
+      const preactProgram = createProgram('preact');
+      const preactSource = preactProgram.getSourceFile(componentFile);
+      expect(() => {
+        // @ts-ignore: TypeChecker#getSuggestionDiagnostics is not publicly exposed
+        preactProgram.getTypeChecker().getSuggestionDiagnostics(preactSource);
+      }).not.toThrow();
+      expect(preactSource).not.toBe(reactProgram.getSourceFile(componentFile));
+      expect(createProgram('preact').getSourceFile(componentFile)).toBe(preactSource);
+    });
 
     it('should not serve a stale SourceFile to a jsx:react-jsx program when Component.tsx was first read from disk by a jsx:preserve program', () => {
       // Read the actual file content so the "same content" invariant holds.

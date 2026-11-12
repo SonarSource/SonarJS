@@ -419,18 +419,17 @@ export class FsCacheArchive {
 
   set<T>(key: string, operation: string, outcome: FsCacheOutcome<T>): void {
     key = this.canonicalKey(key);
-    let node = this.entries.get(key);
-    if (!node) {
-      node = this.missingPaths.delete(key) ? createNode({ exists: false }) : createNode();
-      this.entries.set(key, node);
-    }
-
+    const previous =
+      this.entries.get(key) ??
+      (this.missingPaths.delete(key) ? createNode({ exists: false }) : createNode());
+    const node = createNode();
     const missing = isMissingOutcome(operation, outcome);
     updateExistence(node, operation, outcome, missing);
 
     if (operation !== 'exists' && !missing) {
       writeSlot(node, operationSlot(operation), outcome);
     }
+    this.entries.set(key, mergeNodes(previous, node));
     this.dirty = true;
   }
 

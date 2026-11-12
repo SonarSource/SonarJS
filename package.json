@@ -80,7 +80,7 @@
     "eslint-doc-generator": "3.7.1",
     "esprima": "4.0.1",
     "expect": "30.5.2",
-    "glob": "14.0.3",
+    "glob": "14.0.4",
     "husky": "9.1.7",
     "json-schema-to-ts": "3.1.1",
     "knip": "6.44.1",
@@ -111,7 +111,7 @@
     "@protobufjs/base64": "1.1.2",
     "@sonarsource/analyzer-commons-configurations": "2.31.0-5284",
     "@stylistic/eslint-plugin": "5.10.0",
-    "@stylistic/stylelint-plugin": "6.0.0",
+    "@stylistic/stylelint-plugin": "6.0.1",
     "@typescript-eslint/eslint-plugin": "8.72.1",
     "@typescript-eslint/parser": "8.72.1",
     "@typescript-eslint/type-utils": "8.72.1",
@@ -137,7 +137,7 @@
     "htmlparser2": "12.0.0",
     "jsx-ast-utils-x": "0.1.0",
     "lodash.merge": "4.6.2",
-    "minimatch": "11.0.4",
+    "minimatch": "11.0.5",
     "postcss": "8.5.32",
     "postcss-html": "2.0.0",
     "postcss-less": "7.0.1",
@@ -145,14 +145,14 @@
     "postcss-selector-parser": "7.1.7",
     "postcss-value-parser": "4.2.0",
     "protobufjs": "8.8.1",
-    "sass-parser": "0.5.3",
+    "sass-parser": "0.5.4",
     "scslre": "0.3.0",
     "semver": "7.8.6",
     "stylelint": "18.0.0",
     "stylelint-config-html": "2.0.0",
     "ts-api-utils": "2.5.0",
     "typescript": "6.0.3",
-    "vue-eslint-parser": "10.4.1",
+    "vue-eslint-parser": "10.4.2",
     "yaml": "2.9.1"
   },
   "prettier": {
@@ -171,7 +171,7 @@
   ],
   "overrides": {
     "sass-parser": {
-      "sass": "1.107.1"
+      "sass": "1.108.0"
     }
   }
 }

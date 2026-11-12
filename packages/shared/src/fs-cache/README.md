@@ -40,13 +40,10 @@ An asynchronous read completing after its session ends cannot record into a late
 An outstanding native open is closed before its caller receives
 `ERR_SONARJS_FS_CACHE_SESSION_ENDED`, preventing descriptor leaks and cross-request ownership.
 
-Creating an archive starts with a cold in-memory cache. The first read of a filesystem fact uses
-native `fs`; compatible later operations reuse the consolidated per-path state. For example, file
-content is shared by `readFile` and descriptor APIs, metadata by `stat` and `fstat`, and typed
-directory entries by `readdir` and `opendir`. This both avoids repeated filesystem work during
-normal CI analysis and produces the archive used by later sessions. The configured root is assumed
-to remain stable for the lifetime of the session; mutation tracking and invalidation are
-intentionally unsupported.
+Creating an archive starts with an empty set of current observations. RECORD calls always use
+native `fs` and update the consolidated per-path state. File content, metadata and directory
+entries are stored for REPLAY, where compatible operations share the recorded observations.
+The configured root is assumed to remain stable for the lifetime of the session.
 
 The archive is a versioned gzip-compressed Protocol Buffers document. Its typed schema stores raw
 file bytes, filesystem errors, stats, directory entries, paths, and link observations without JSON
@@ -77,9 +74,25 @@ dedicated loader thread, adding startup and module-loading overhead unrelated to
 ## SQAA context contract
 
 On supported SonarQube versions, CI records context only when the A3S context collector is enabled.
-Collection-enabled scans analyze unchanged files too: a scanner analysis-cache hit cannot provide
-the filesystem observations or program-selection outcomes needed for replay. Scans without
-collection retain the ordinary incremental-analysis behavior.
+Collection-enabled PR scans build fresh context without restoring a branch snapshot. Java sends
+all current inputs, marking actual per-file cache hits with `skip_analysis`. Node records their
+contents and maps every eligible input to its configured program, orphan group or no-program
+outcome. Cached files execute no rules and emit no file results, but still participate in current
+program construction. This also runs on all-cached PRs. Current orphan roots include cached peers,
+so a changed file can gain type information and additional findings.
+
+RECORD always uses the native filesystem and records current observations. Source, configuration
+and dependency inputs accessed during program construction form the fresh archive; unobserved
+paths are not copied from an earlier archive. This adds source reads and compiler work solely for
+context. Broader orphan roots and improved findings are accepted; a numeric time/memory budget
+remains open. Per-file cache eligibility remains unchanged. Dependency-aware invalidation is
+separate work (JS-2815); wildcard ambient-package discovery is tracked in JS-2853.
+
+Only a successfully persisted recording sets `context_recorded` in the final gRPC META response,
+permitting Java to publish it. The flag confirms successful analysis and persistence, not complete
+filesystem coverage. A runtime file error prevents publication. Context initialization, persistence and
+publication failures do not fail otherwise successful analysis. No whole-context entry uses the
+sensor cache; its per-file API and PR no-op persistence remain owned by the scanner.
 
 The scanner sends Node explicit RECORD mode with two output paths and publishes the resulting
 gzip-compressed Protocol Buffers attachments under context kind `javascript`:

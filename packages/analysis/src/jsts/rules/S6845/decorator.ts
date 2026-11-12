@@ -238,8 +238,8 @@ function isTabIndexOutsideSequentialFocusOrder(reportDescriptor: Rule.ReportDesc
     node.name.name === 'tabIndex' &&
     node.value?.type === 'JSXExpressionContainer' &&
     node.value.expression.type === 'ConditionalExpression' &&
-    hasNoTabIndexOverrides(node) &&
-    isNonSequentialTabIndexValue(node.value.expression)
+    isNonSequentialTabIndexValue(node.value.expression) &&
+    hasNoTabIndexOverrides(node)
   );
 }
 
@@ -258,18 +258,23 @@ function hasNoTabIndexOverrides(node: TSESTree.JSXAttribute): boolean {
     return false;
   }
 
-  const index = parent.attributes.indexOf(node);
+  let seenNode = false;
   // Spreads can add a differently cased DOM attribute, even before tabIndex.
-  return (
-    index !== -1 &&
-    !parent.attributes.some(
-      (attribute, attributeIndex) =>
-        attribute.type === 'JSXSpreadAttribute' ||
-        (attributeIndex > index &&
-          attribute.name.type === 'JSXIdentifier' &&
-          attribute.name.name.toLowerCase() === 'tabindex'),
-    )
-  );
+  for (const attribute of parent.attributes) {
+    if (attribute.type === 'JSXSpreadAttribute') {
+      return false;
+    }
+    if (attribute === node) {
+      seenNode = true;
+    } else if (
+      seenNode &&
+      attribute.name.type === 'JSXIdentifier' &&
+      attribute.name.name.toLowerCase() === 'tabindex'
+    ) {
+      return false;
+    }
+  }
+  return seenNode;
 }
 
 /**

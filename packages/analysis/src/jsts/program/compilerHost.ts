@@ -29,10 +29,7 @@ import {
   normalizeToAbsolutePath,
   type NormalizedAbsolutePath,
 } from '../../../../shared/src/helpers/files.js';
-import {
-  captureProvidedFile,
-  hasArchivedFileContent,
-} from '../../../../shared/src/fs-cache/hook.js';
+import { hasArchivedFileContent } from '../../../../shared/src/fs-cache/hook.js';
 import {
   canonicalFileName,
   isFileSystemCaseSensitive,
@@ -163,8 +160,6 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     if (typeof providedFile?.fileContent === 'string') {
       this.trackFsCall('readFile-context', fileName);
       const content = providedFile.fileContent;
-      // Request-provided content bypasses the patched fs API; record it explicitly.
-      captureProvidedFile(fileName, content);
       if (cache.get(normalized) !== content) {
         cache.set(normalized, content);
       }
@@ -211,11 +206,6 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     const providedFile = getProvidedSourceFile(fileName);
     if (providedFile) {
       this.trackFsCall('fileExists-context', fileName);
-      const content = providedFile.fileContent;
-      if (content !== undefined) {
-        // This content can satisfy existence checks without an archived stat result.
-        captureProvidedFile(fileName, content);
-      }
       return true;
     }
 
@@ -248,7 +238,6 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     // request content authoritative before looking up cached parsed ASTs.
     const contextContent = getProvidedSourceFile(fileName)?.fileContent;
     if (contextContent !== undefined) {
-      captureProvidedFile(fileName, contextContent);
       this.updateFile(normalized as NormalizedAbsolutePath, contextContent);
     }
 
@@ -289,23 +278,19 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     shouldCreateNewSourceFile?: boolean,
   ): ts.SourceFile {
     const normalized = path.normalize(fileName);
-    const scriptTarget =
-      typeof languageVersionOrOptions === 'number'
-        ? languageVersionOrOptions
-        : languageVersionOrOptions.languageVersion;
-
     const { jsx, importHelpers } = this.compilerOptions;
     const representation = prepareFileRepresentation(normalized, content, this.compilerOptions);
+    const cacheOptions = { ...this.compilerOptions, scriptKind: representation.scriptKind };
 
     // Check global cache (unless forced to create new)
     if (!shouldCreateNewSourceFile) {
       const cached = getCachedSourceFile(
         normalized,
-        scriptTarget,
+        languageVersionOrOptions,
         contentHash,
         jsx,
         importHelpers,
-        representation.scriptKind,
+        cacheOptions,
       );
       if (cached?.text === representation.text) {
         return representation.createSourceFile(fileName, languageVersionOrOptions, cached);
@@ -316,12 +301,12 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
 
     setCachedSourceFile(
       normalized,
-      scriptTarget,
+      languageVersionOrOptions,
       contentHash,
       sourceFile,
       jsx,
       importHelpers,
-      representation.scriptKind,
+      cacheOptions,
     );
     return sourceFile;
   }
@@ -398,8 +383,10 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     if (pathIsUnder(fileName, this.getDefaultLibLocation())) {
       return false;
     }
+    const canonical = canonicalFileName(fileName);
     return (
-      canonicalFileName(fileName).includes('/node_modules/') && !pathIsUnder(fileName, this.baseDir)
+      (canonical.includes('/node_modules/') || canonical.endsWith('/node_modules')) &&
+      !pathIsUnder(fileName, this.baseDir)
     );
   }
 }

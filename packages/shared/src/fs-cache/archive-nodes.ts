@@ -17,6 +17,7 @@
 import {
   type CachedDirectoryEntry,
   type CacheNode,
+  FS_TYPE_METHODS,
   FsCacheArchiveError,
   type FsCacheOutcome,
   MAP_FIELDS,
@@ -45,6 +46,31 @@ export function createNode(node: CacheNode = {}): CacheNode {
 }
 
 export function mergeNodes(base: CacheNode = {}, update: CacheNode = {}): CacheNode {
+  const typeChanged = Object.entries(update.stats ?? {}).some(([operation, current]) => {
+    const kind = operation.split(':')[0];
+    const previous =
+      base.stats?.[operation] ?? base.stats?.[`${kind}:number`] ?? base.stats?.[`${kind}:bigint`];
+    return (
+      current.ok &&
+      previous?.ok &&
+      Object.keys(FS_TYPE_METHODS).some(
+        type => current.value.types[type] !== previous.value.types[type],
+      )
+    );
+  });
+  if (typeChanged || update.linkExists === false) {
+    base = {};
+  } else if (update.exists === false || (base.exists === false && update.exists === true)) {
+    // A missing target can still be a dangling symlink. Preserve observations of the
+    // directory entry itself, but never keep contradictory target contents or metadata.
+    base = {
+      linkExists: base.linkExists,
+      readlinks: base.readlinks,
+      stats: Object.fromEntries(
+        Object.entries(base.stats ?? {}).filter(([operation]) => operation.startsWith('lstat:')),
+      ),
+    };
+  }
   const result = { ...base, ...update };
   for (const field of MAP_FIELDS) {
     if (base[field] || update[field]) {

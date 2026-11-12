@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { afterEach, describe, it } from 'node:test';
-import { mkdir, mkdtemp, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { expect } from 'expect';
@@ -35,6 +35,8 @@ import {
   type NormalizedAbsolutePath,
 } from '../../shared/src/helpers/files.js';
 import { sonarjs } from '../src/proto/analyze-project.js';
+import { createOrGetCachedProgramForFile } from '../../analysis/src/jsts/program/factory.js';
+import { createProgramOptions } from '../../analysis/src/jsts/program/tsconfig/options.js';
 
 const { AnalysisMode, FileStatus, FileType, JsTsLanguage } = sonarjs.analyzeproject.v1;
 
@@ -305,6 +307,61 @@ describe('normalizeAnalyzeProjectRequest', () => {
 
     expect(normalized.pathMap.size).toBe(0);
     expect(normalized.configuration.canAccessFileSystem).toBe(false);
+  });
+
+  it('should reuse the IDE program after a request whose files are filtered out', async () => {
+    const baseDir = await createBaseDir();
+    const sourceFile = normalizeToAbsolutePath('src/main.ts', baseDir);
+    const tsConfig = join(baseDir, 'tsconfig.json');
+    const content = 'export const value = 1;';
+    await writeFile(sourceFile, content);
+    await writeFile(
+      tsConfig,
+      JSON.stringify({ files: ['src/main.ts'], compilerOptions: { noLib: true } }),
+    );
+    const configuration = { baseDir, sonarlint: true, canAccessFileSystem: true };
+    const request = {
+      configuration,
+      files: { [sourceFile]: { fileContent: content } },
+    };
+    const getProgram = () =>
+      createOrGetCachedProgramForFile(baseDir, sourceFile, () =>
+        createProgramOptions(tsConfig, undefined, true),
+      );
+
+    await normalizeAnalyzeProjectRequest(request);
+    const originalProgram = getProgram();
+    expect(originalProgram).toBeDefined();
+
+    const filtered = await normalizeAnalyzeProjectRequest({
+      configuration,
+      files: { [join(baseDir, 'src/jquery.min.js')]: { fileContent: 'console.log(1);' } },
+    });
+    expect(filtered.pathMap.size).toBe(0);
+    expect(Object.keys(sourceFileStore.getFiles())).toHaveLength(0);
+
+    await normalizeAnalyzeProjectRequest(request);
+    expect(getProgram()).toBe(originalProgram);
+  });
+
+  it('should not discover source inputs for an empty recording request', async () => {
+    const baseDir = await createBaseDir();
+    await writeFile(join(baseDir, 'src/main.ts'), 'export const value = 1;');
+    await writeFile(join(baseDir, 'tsconfig.json'), '{}');
+
+    const normalized = await normalizeAnalyzeProjectRequest({
+      configuration: { baseDir, canAccessFileSystem: true },
+      files: {},
+      filesystemCache: {
+        mode: sonarjs.analyzeproject.v1.FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD,
+      },
+    });
+
+    expect(normalized.pathMap.size).toBe(0);
+    expect(Object.keys(sourceFileStore.getFiles())).toHaveLength(0);
+    expect(tsConfigStore.getTsConfigs()).toEqual([
+      normalizeToAbsolutePath('tsconfig.json', baseDir),
+    ]);
   });
 
   it('should preserve detectGeneratedCode from protobuf configuration', async () => {

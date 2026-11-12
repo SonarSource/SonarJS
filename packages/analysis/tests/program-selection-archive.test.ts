@@ -65,6 +65,8 @@ describe('ProgramSelectionArchive', () => {
       expect(replay.hasSelection(lower)).toBe(false);
       expect(replay.hasNoProgram(lower)).toBe(true);
       expect(replay.hasNoProgram(upper)).toBe(false);
+      setArchivedFileSystemCaseSensitivity(false);
+      expect(() => replay.hasSelection(upper)).toThrow('Duplicate program outcome');
     } finally {
       fs.rmSync(temporary, { recursive: true, force: true });
     }

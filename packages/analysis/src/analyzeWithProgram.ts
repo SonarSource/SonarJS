@@ -21,12 +21,13 @@ import { error, info } from '../../shared/src/helpers/logging.js';
 import { reportMissingExtendedTsConfig } from './common/analysis-warnings.js';
 import { sourceFileStore, tsConfigStore } from './file-stores/index.js';
 import ts from 'typescript';
+import fs from 'node:fs';
 import type { ProgressReport } from './common/progress-report.js';
 import type { WsIncrementalResult } from './incremental-result.js';
 import { isAnalysisCancelled } from './analyzeProject.js';
 import { isJsTsFile, type JsTsConfigFields } from './common/configuration.js';
 import merge from 'lodash.merge';
-import type { NormalizedAbsolutePath } from '../../shared/src/helpers/files.js';
+import { decodeFileContent, type NormalizedAbsolutePath } from '../../shared/src/helpers/files.js';
 import { IncrementalCompilerHost } from './jsts/program/compilerHost.js';
 import {
   createProgramOptions,
@@ -56,6 +57,7 @@ type ProgramAnalysisContext = {
   files: AnalyzableFiles;
   results: ProjectAnalysisOutput;
   pendingFiles: Set<NormalizedAbsolutePath>;
+  pendingProgramFiles: Set<NormalizedAbsolutePath>;
   progressReport: ProgressReport;
   baseDir: NormalizedAbsolutePath;
   canAccessFileSystem: boolean;
@@ -112,10 +114,17 @@ export async function analyzeWithProgram(
   const foundProgramOptions: ProgramOptions[] = [];
   const processedTSConfigs: Set<NormalizedAbsolutePath> = new FileSystemSet();
   const tsconfigs = tsConfigStore.getTsConfigs();
+  const pendingProgramFiles = new FileSystemSet(
+    (programSelection?.isRecord()
+      ? Object.values(files).map(file => file.filePath)
+      : [...pendingFiles]
+    ).filter(file => isJsTsFile(file, jsTsConfigFields.shouldIgnoreParams)),
+  );
   const analysisContext: ProgramAnalysisContext = {
     files,
     results,
     pendingFiles,
+    pendingProgramFiles,
     progressReport,
     baseDir,
     canAccessFileSystem,
@@ -160,6 +169,7 @@ async function analyzeFilesFromDiscoveredPrograms(
     files,
     results,
     pendingFiles,
+    pendingProgramFiles,
     progressReport,
     baseDir,
     canAccessFileSystem,
@@ -172,11 +182,13 @@ async function analyzeFilesFromDiscoveredPrograms(
 
   // Process tsconfigs, discovering project references as we go. When a tsconfig has project
   // references, addDiscoveredTsConfig() extends this live iterable.
+  // Await each program: it claims pending files in config order and updates the options
+  // used for orphan programs. Running programs concurrently would change those selections.
   for (const tsConfig of tsconfigs) {
     if (isAnalysisCancelled()) {
       return;
     }
-    if (!pendingFiles.size) {
+    if (!pendingProgramFiles.size) {
       break;
     }
     if (processedTSConfigs.has(tsConfig)) {
@@ -188,6 +200,7 @@ async function analyzeFilesFromDiscoveredPrograms(
       tsConfig,
       results,
       pendingFiles,
+      pendingProgramFiles,
       foundProgramOptions,
       processedTSConfigs,
       progressReport,
@@ -205,6 +218,7 @@ async function analyzeFilesFromDiscoveredPrograms(
       files,
       results,
       pendingFiles,
+      pendingProgramFiles,
       foundProgramOptions,
       progressReport,
       baseDir,
@@ -225,6 +239,7 @@ async function analyzeFilesFromEntryPoint(
   files: AnalyzableFiles,
   results: ProjectAnalysisOutput,
   pendingFiles: Set<NormalizedAbsolutePath>,
+  pendingProgramFiles: Set<NormalizedAbsolutePath>,
   foundProgramOptions: ProgramOptions[],
   progressReport: ProgressReport,
   baseDir: NormalizedAbsolutePath,
@@ -235,9 +250,9 @@ async function analyzeFilesFromEntryPoint(
   entryPoints?: NormalizedAbsolutePath[],
 ) {
   const { jsSuffixes, tsSuffixes } = jsTsConfigFields.shouldIgnoreParams;
-  const rootNames: NormalizedAbsolutePath[] = (entryPoints ?? Array.from(pendingFiles)).filter(
-    file => isJsTsFile(file, { jsSuffixes, tsSuffixes }),
-  );
+  const rootNames: NormalizedAbsolutePath[] = (
+    entryPoints ?? Array.from(pendingProgramFiles)
+  ).filter(file => isJsTsFile(file, { jsSuffixes, tsSuffixes }));
   if (rootNames.length === 0) {
     return;
   }
@@ -249,7 +264,7 @@ async function analyzeFilesFromEntryPoint(
   ): Promise<void> => {
     // Completed roots can supply globals without an import from a pending file.
     const filesToAnalyze = groupRootNames.filter(file => pendingFiles.has(file));
-    if (filesToAnalyze.length === 0) {
+    if (filesToAnalyze.length === 0 && !programSelection?.isRecord()) {
       return;
     }
     programOptions.rootNames = groupRootNames;
@@ -270,10 +285,16 @@ async function analyzeFilesFromEntryPoint(
     const targetEsYear = tsTargetToEsYear(programOptions.options.target);
     telemetry.recordEcmaScriptVersion(detectedEsYear ?? undefined);
     programSelection?.recordOrphanGroup(groupRootNames, programOptions.options);
+    for (const file of groupRootNames) {
+      pendingProgramFiles.delete(file);
+    }
 
     for (const fileName of filesToAnalyze) {
       if (isAnalysisCancelled()) {
         return;
+      }
+      if (!pendingFiles.has(fileName)) {
+        continue;
       }
 
       await analyzeFile(
@@ -338,6 +359,7 @@ async function analyzeFilesFromTsConfig(
   tsconfig: NormalizedAbsolutePath,
   results: ProjectAnalysisOutput,
   pendingFiles: Set<NormalizedAbsolutePath>,
+  pendingProgramFiles: Set<NormalizedAbsolutePath>,
   foundProgramOptions: ProgramOptions[],
   processedTSConfigs: Set<NormalizedAbsolutePath>,
   progressReport: ProgressReport,
@@ -389,13 +411,19 @@ async function analyzeFilesFromTsConfig(
   telemetry.recordEcmaScriptVersion(detectedEsYear ?? undefined);
 
   // TypeScript normalizes file paths internally, so we can safely cast them
-  const filesToAnalyze = tsProgram
+  const programFiles = tsProgram
     .getSourceFiles()
     .map(sf => sourceFileStore.getFile(sf.fileName as NormalizedAbsolutePath)?.filePath)
     .filter(
       (fileName): fileName is NormalizedAbsolutePath =>
-        fileName !== undefined && pendingFiles.has(fileName),
+        fileName !== undefined && pendingProgramFiles.has(fileName),
     );
+
+  for (const fileName of programFiles) {
+    programSelection?.recordConfigured(fileName, tsconfig, programOptions.options);
+    pendingProgramFiles.delete(fileName);
+  }
+  const filesToAnalyze = programFiles.filter(file => pendingFiles.has(file));
 
   for (const reference of sanitizeProgramReferences(tsProgram)) {
     if (!processedTSConfigs.has(reference)) {
@@ -418,7 +446,6 @@ async function analyzeFilesFromTsConfig(
       return;
     }
 
-    programSelection?.recordConfigured(fileName, tsconfig, programOptions.options);
     await analyzeFile(
       fileName,
       files[fileName],
@@ -510,7 +537,9 @@ function restoreSelectedProgram(
   const programOptions = isConfigured(selection.program)
     ? createProgramOptions(
         selection.program.tsconfig,
-        undefined,
+        // Read outside TypeScript's config-error conversion so a missing observation
+        // retains its replay error and triggers source-only recovery.
+        decodeFileContent(fs.readFileSync(selection.program.tsconfig)),
         canAccessFileSystem,
         jsTsConfigFields.ecmaScriptVersion,
         baseDir,

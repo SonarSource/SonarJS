@@ -23,7 +23,7 @@ import {
   entriesOfFileResults,
   type ProjectAnalysisRecovery,
 } from './projectAnalysis.js';
-import { analyzeWithProgram } from './analyzeWithProgram.js';
+import { analyzeWithProgram, filesWithoutRecordedProgramOutcome } from './analyzeWithProgram.js';
 import { analyzeWithIncrementalProgram } from './analyzeWithIncrementalProgram.js';
 import { analyzeWithoutProgram } from './analyzeWithoutProgram.js';
 import { Linter } from './jsts/linter/linter.js';
@@ -130,7 +130,9 @@ async function analyzeProjectWithCancellation(
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ): Promise<ProjectAnalysisOutput> {
   const pendingFiles = new FileSystemSet(
-    Object.keys(sourceFileStore.getFiles()) as NormalizedAbsolutePath[],
+    Object.values(sourceFileStore.getFiles())
+      .filter(file => !file.skipAnalysis)
+      .map(file => file.filePath),
   );
   const results: ProjectAnalysisOutput = {
     files: createFileResults(),
@@ -227,7 +229,7 @@ async function analyzePendingProjectFiles(
 
   const progressReport = new ProgressReport(pendingFiles.size);
   try {
-    if (pendingFiles.size) {
+    if (pendingFiles.size || programSelection?.isRecord()) {
       if (jsTsConfigFields.disableTypeChecking) {
         info(
           'Type checking is disabled (sonar.javascript.disableTypeChecking=true). All files will be analyzed without type information.',
@@ -277,7 +279,16 @@ async function analyzePendingProjectFiles(
         jsTsConfigFields,
         incrementalResultsChannel,
       );
-      recordNoProgramOutcomes(noProgramFiles, programSelection);
+    }
+    if (programSelection?.isRecord()) {
+      recordNoProgramOutcomes(
+        filesWithoutRecordedProgramOutcome(
+          Object.keys(filesToAnalyze) as NormalizedAbsolutePath[],
+          programSelection,
+          jsTsConfigFields,
+        ),
+        programSelection,
+      );
     }
   } finally {
     progressReport.stop();

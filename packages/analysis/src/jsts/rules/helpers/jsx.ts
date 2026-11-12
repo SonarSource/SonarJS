@@ -22,7 +22,11 @@ import { getStaticExpressionValue, unwrapTypeScriptExpression } from './ast.js';
 type ArrayElement = NonNullable<TSESTree.ArrayExpression['elements'][number]>;
 
 export function getJsxShortCircuitNodes(logicalExpression: TSESTree.LogicalExpression) {
-  if (logicalExpression.parent?.type === 'JSXExpressionContainer') {
+  let parent: TSESTree.Node | undefined = logicalExpression.parent;
+  while (parent && unwrapTypeScriptExpression(parent) === logicalExpression) {
+    parent = parent.parent;
+  }
+  if (parent?.type === 'JSXExpressionContainer') {
     return flattenJsxShortCircuitNodes(logicalExpression, logicalExpression);
   } else {
     return null;
@@ -33,6 +37,7 @@ function flattenJsxShortCircuitNodes(
   root: TSESTree.LogicalExpression,
   node: TSESTree.Node,
 ): TSESTree.LogicalExpression[] | null {
+  node = unwrapTypeScriptExpression(node);
   if (
     node.type === 'ConditionalExpression' ||
     (node.type === 'LogicalExpression' && node.operator !== root.operator)

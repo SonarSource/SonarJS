@@ -20,9 +20,6 @@
 "vuetify:packages/vuetify/src/components/VList/VList.tsx": [
 194
 ],
-"vuetify:packages/vuetify/src/components/VList/VListChildren.tsx": [
-37
-],
 "vuetify:packages/vuetify/src/components/VNavigationDrawer/touch.ts": [
 59,
 97

@@ -25,13 +25,21 @@ import {
   isRequiredParserServices,
 } from '../helpers/parser-services.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { getSymbolAtLocation, isArray } from '../helpers/type.js';
+import { getSymbolAtLocation, getTypeFromTreeNode, isArrayLikeType } from '../helpers/type.js';
 import { localAncestorsChain } from '../helpers/ancestor.js';
-import { unwrapTypeScriptExpression } from '../helpers/ast.js';
-import { sortLike } from '../helpers/collection.js';
+import {
+  getStaticExpressionValue,
+  isInOptionalChain,
+  isTypeScriptExpressionWrapper,
+  unwrapTypeScriptExpression,
+} from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
-const arrayMutatingMethods = new Set(['reverse', "'reverse'", '"reverse"', ...sortLike]);
+const arrayMutatingMethods = new Set(['reverse', 'sort']);
+
+function isTransparentExpression(node: TSESTree.Node): boolean {
+  return node.type === 'ChainExpression' || isTypeScriptExpressionWrapper(node);
+}
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -51,17 +59,22 @@ export const rule: Rule.RuleModule = {
       CallExpression(node: estree.CallExpression) {
         const { callee } = node;
         if (callee.type === 'MemberExpression') {
-          const propertyText = context.sourceCode.getText(callee.property);
-          if (isArrayMutatingCall(callee, services, propertyText)) {
+          const method = getArrayMutatingMethod(callee);
+          if (method && isArrayMutatingCall(callee, services)) {
             const mutatedArray = callee.object;
+            const unwrappedMutatedArray = unwrapTypeScriptExpression(
+              mutatedArray as TSESTree.Expression,
+            );
 
             if (
-              isIdentifierOrPropertyAccessExpression(mutatedArray, services) &&
-              !isInSelfAssignment(mutatedArray, node) &&
+              isIdentifierOrPropertyAccessExpression(
+                unwrappedMutatedArray as estree.Node,
+                services,
+              ) &&
+              !isInSelfAssignment(unwrappedMutatedArray as estree.Node, node) &&
               !isForOfIterable(context, node) &&
               isForbiddenOperation(node)
             ) {
-              const method = formatMethod(propertyText);
               const suggestedMethod = method === 'sort' ? 'toSorted' : 'toReversed';
               context.report({
                 messageId: 'moveMethod',
@@ -77,7 +90,13 @@ export const rule: Rule.RuleModule = {
                       suggestedMethod,
                     },
                     fix: fixer => {
-                      const fixedPropertyText = propertyText.replace(method, suggestedMethod);
+                      const property = unwrapTypeScriptExpression(
+                        callee.property as TSESTree.Expression,
+                      );
+                      const propertyText = context.sourceCode.getText(property as estree.Node);
+                      const fixedPropertyText = callee.computed
+                        ? `${propertyText[0]}${suggestedMethod}${propertyText[0]}`
+                        : suggestedMethod;
                       return fixer.replaceText(callee.property, fixedPropertyText);
                     },
                   },
@@ -91,20 +110,28 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function formatMethod(mutatingMethod: string) {
-  if (mutatingMethod.startsWith('"') || mutatingMethod.startsWith("'")) {
-    return mutatingMethod.substring(1, mutatingMethod.length - 1);
-  } else {
-    return mutatingMethod;
+function getArrayMutatingMethod(memberExpression: estree.MemberExpression): string | undefined {
+  const { computed, property } = memberExpression;
+  let name: string | undefined;
+  if (computed) {
+    const unwrappedProperty = unwrapTypeScriptExpression(property as TSESTree.Expression);
+    name = getStaticExpressionValue(unwrappedProperty as estree.Expression);
+  } else if (property.type === 'Identifier') {
+    name = property.name;
   }
+  return name && arrayMutatingMethods.has(name) ? name : undefined;
 }
 
 function isArrayMutatingCall(
   memberExpression: estree.MemberExpression,
   services: RequiredParserServices,
-  propertyText: string,
 ) {
-  return arrayMutatingMethods.has(propertyText) && isArray(memberExpression.object, services);
+  const type = getTypeFromTreeNode(memberExpression.object, services);
+  const receiverType =
+    memberExpression.optional || isInOptionalChain(memberExpression.object as TSESTree.Node)
+      ? services.program.getTypeChecker().getNonNullableType(type)
+      : type;
+  return isArrayLikeType(receiverType, services);
 }
 
 function isIdentifierOrPropertyAccessExpression(
@@ -124,24 +151,32 @@ function isGetAccessor(node: estree.Node, services: RequiredParserServices): boo
 }
 
 function isInSelfAssignment(mutatedArray: estree.Node, node?: estree.Node): boolean {
-  const parent = (node as TSESTree.Node).parent;
+  let assignment = (node as TSESTree.Node).parent;
+  while (assignment && isTransparentExpression(assignment)) {
+    assignment = assignment.parent;
+  }
   return (
     // check assignment
-    parent?.type === 'AssignmentExpression' &&
-    parent.operator === '=' &&
-    parent.left.type === 'Identifier' &&
+    assignment?.type === 'AssignmentExpression' &&
+    assignment.operator === '=' &&
+    assignment.left.type === 'Identifier' &&
     mutatedArray.type === 'Identifier' &&
-    parent.left.name === mutatedArray.name
+    assignment.left.name === mutatedArray.name
   );
 }
 
 function isForOfIterable(context: Rule.RuleContext, node: estree.Node): boolean {
-  return context.sourceCode
-    .getAncestors(node)
-    .some(
-      ancestor =>
-        ancestor.type === 'ForOfStatement' && unwrapTypeScriptExpression(ancestor.right) === node,
+  return context.sourceCode.getAncestors(node).some(ancestor => {
+    if (ancestor.type !== 'ForOfStatement') {
+      return false;
+    }
+    const iterable = unwrapTypeScriptExpression(ancestor.right);
+    return (
+      iterable === node ||
+      (iterable.type === 'ChainExpression' &&
+        unwrapTypeScriptExpression(iterable.expression) === node)
     );
+  });
 }
 
 function isForbiddenOperation(node: estree.Node) {
@@ -155,7 +190,7 @@ function isStandaloneExpression(node: estree.Node) {
     returnIdx > -1 &&
     ancestors
       .slice(0, returnIdx)
-      .every(ancestor => ['ChainExpression', 'LogicalExpression'].includes(ancestor.type))
+      .every(ancestor => isTransparentExpression(ancestor) || ancestor.type === 'LogicalExpression')
   );
 }
 
@@ -166,10 +201,15 @@ function isReturnedExpression(node: estree.Node) {
     returnIdx > -1 &&
     ancestors
       .slice(0, returnIdx)
-      .every(ancestor =>
-        ['ArrayExpression', 'ObjectExpression', 'ConditionalExpression', 'SpreadElement'].includes(
-          ancestor.type,
-        ),
+      .every(
+        ancestor =>
+          isTransparentExpression(ancestor) ||
+          [
+            'ArrayExpression',
+            'ObjectExpression',
+            'ConditionalExpression',
+            'SpreadElement',
+          ].includes(ancestor.type),
       )
   );
 }

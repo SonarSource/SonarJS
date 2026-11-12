@@ -15,6 +15,11 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import fs from 'node:fs';
+import {
+  nativeFs,
+  writeFileWithNativePrimitives,
+  ARCHIVE_FILE_MODE,
+} from '../../../shared/src/fs-cache/archive-types.js';
 import path from 'node:path';
 import { gzipSync, gunzipSync } from 'node:zlib';
 import type ts from 'typescript';
@@ -279,8 +284,8 @@ export class ProgramSelectionArchive {
       },
     });
     const bytes = gzipSync(sonarjs.programselection.AnalysisMetadata.encode(metadata).finish());
-    fs.mkdirSync(path.dirname(this.archivePath), { recursive: true });
-    fs.writeFileSync(this.archivePath, bytes);
+    nativeFs.mkdirSync(path.dirname(this.archivePath), { recursive: true });
+    writeFileWithNativePrimitives(this.archivePath, bytes, ARCHIVE_FILE_MODE);
   }
 
   private addProgram(program: RecordedProgram): number {
@@ -316,7 +321,7 @@ export class ProgramSelectionArchive {
 
   private load(restoreOriginalPaths: boolean, contextMetadata?: string): void {
     const metadata = sonarjs.programselection.AnalysisMetadata.decode(
-      gunzipSync(fs.readFileSync(this.archivePath)),
+      gunzipSync(nativeFs.readFileSync(this.archivePath)),
     );
     if (metadata.programSelection?.magic !== MAGIC) {
       throw new Error(`Not a SonarJS analysis metadata archive: ${this.archivePath}`);

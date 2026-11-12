@@ -44,18 +44,34 @@ export type {
   NormalizedAbsolutePath,
 } from '../../../analysis/src/jsts/rules/helpers/files.js';
 
+const UTF16_BOM_HIGH_BYTE = 0xfe;
+const UTF16_BOM_LOW_BYTE = 0xff;
+
 /**
  * Asynchronous read of file contents from a file path
  *
- * The function gets rid of any Byte Order Marker (BOM)
- * present in the file's header.
+ * Detects UTF-8 and UTF-16 byte order marks, matching TypeScript's file reader.
+ * The returned text does not include the BOM.
  *
  * @param filePath the path of a file
  * @returns Promise which resolves with the content of the file
  */
 export async function readFile(filePath: NormalizedAbsolutePath) {
-  const fileContent = await fs.promises.readFile(filePath, { encoding: 'utf8' });
-  return stripBOM(fileContent);
+  return decodeFileContent(await fs.promises.readFile(filePath));
+}
+
+/** Decode without modifying the bytes retained by filesystem recording or replay. */
+export function decodeFileContent(content: Buffer): string {
+  if (content[0] === UTF16_BOM_HIGH_BYTE && content[1] === UTF16_BOM_LOW_BYTE) {
+    // As in TypeScript, ignore an incomplete trailing UTF-16 code unit.
+    return Buffer.from(content.subarray(2, content.length & ~1))
+      .swap16()
+      .toString('utf16le');
+  }
+  if (content[0] === UTF16_BOM_LOW_BYTE && content[1] === UTF16_BOM_HIGH_BYTE) {
+    return content.toString('utf16le', 2);
+  }
+  return stripBOM(content.toString('utf8'));
 }
 
 /**
