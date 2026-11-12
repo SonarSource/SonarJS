@@ -18,7 +18,11 @@
   "sqKey": "S9423",
   "scope": "Main",
   "quickfix": "infeasible",
-  "defaultQualityProfiles": [
-    "Sonar way"
-  ]
+  "defaultQualityProfiles": [],
+  "sonarWayRemoval": {
+    "candidateProfiles": [
+      "style"
+    ],
+    "rationale": "Users need !important for legitimate overrides of inline styles and third-party important declarations. A blanket restriction is better suited to teams choosing a stricter CSS convention than to the default quality profile."
+  }
 }
