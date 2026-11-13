@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { normalizePath } from './files.js';
+import { normalizePath } from '../../../shared/src/helpers/files.js';
 
 // Well-known naming conventions for directories that hold copied third-party code.
 const VENDOR_DIRECTORY_NAMES = new Set([
@@ -66,9 +66,26 @@ const JS_EXTENSION = '.js';
 
 // Named build variants that appear as tokens between '-' / '.' in library dist filenames.
 const LIBRARY_SUFFIX_KEYWORDS = new Set([
-  'amd', 'all', 'bundle', 'core', 'cjs', 'custom', 'debug', 'esm', 'full',
-  'global', 'min', 'module', 'nodes', 'pack', 'prod', 'runtime', 'slim',
-  'tsl', 'umd', 'webgpu',
+  'amd',
+  'all',
+  'bundle',
+  'core',
+  'cjs',
+  'custom',
+  'debug',
+  'esm',
+  'full',
+  'global',
+  'min',
+  'module',
+  'nodes',
+  'pack',
+  'prod',
+  'runtime',
+  'slim',
+  'tsl',
+  'umd',
+  'webgpu',
 ]);
 
 // A single suffix token that encodes a version number: semver-style (3, 3.7, 3.7.1)
@@ -107,7 +124,6 @@ export function isVendorFile(filePath: string): boolean {
   const segments = normalizePath(filePath).split('/');
   const basename = segments.at(-1) ?? '';
   return (
-    segments.some(s => VENDOR_DIRECTORY_NAMES.has(s.toLowerCase())) ||
-    isKnownLibraryFile(basename)
+    segments.some(s => VENDOR_DIRECTORY_NAMES.has(s.toLowerCase())) || isKnownLibraryFile(basename)
   );
 }

@@ -69,6 +69,7 @@ import {
 } from '../rules/helpers/module.js';
 import { parseInlineNPMImport } from '../rules/helpers/dependency-manifests/resolvers/npm-import.js';
 import { isTestCaseFile } from '../../common/rule-file-type.js';
+import { isVendorFile } from '../../common/vendor-file-pattern.js';
 
 interface InitializeParams {
   rules?: RuleConfig[];
@@ -366,14 +367,17 @@ export class Linter {
     const baseContext = {
       extensionName: extname(normalizePath(filePath)),
       fileType,
-      isTestCaseFile: isTestCaseFile(normalizedFilePath, Linter.testFileExtensions),
+      classification: {
+        isVendorFile: isVendorFile(normalizedFilePath),
+        isTestCaseFile: isTestCaseFile(normalizedFilePath, Linter.testFileExtensions),
+        isGeneratedSource,
+      },
       fileLanguage,
       analysisMode,
       detectedEsYear,
       targetEsYear,
       detectedModuleType,
       detectGeneratedCode: Linter.detectGeneratedCode,
-      isGeneratedSource,
     };
     const linterConfigKey = createLinterConfigKey(filePath, Linter.baseDir, baseContext);
     let baseRules = Linter.dependencyIndependentRulesCache.get(linterConfigKey);
@@ -513,14 +517,13 @@ function createLinterConfigKey(
   context: Pick<
     RuleFilterContext,
     | 'fileType'
-    | 'isTestCaseFile'
+    | 'classification'
     | 'fileLanguage'
     | 'analysisMode'
     | 'detectedEsYear'
     | 'targetEsYear'
     | 'detectedModuleType'
     | 'detectGeneratedCode'
-    | 'isGeneratedSource'
   >,
 ): string {
   // depending on the path, some rules may be enabled or disabled based on the dependencies found
@@ -529,6 +532,6 @@ function createLinterConfigKey(
     dirnamePath(normalizedPath),
     baseDir,
   );
-  const linterConfigKey = `${context.fileType}-${context.isTestCaseFile ? 'test-case' : 'no-test-case'}-${context.fileLanguage}-${context.analysisMode}-${extname(normalizedPath)}-${dependencyManifestDirName}`;
-  return `${linterConfigKey}:${context.detectedEsYear ?? 'esnext'}:${context.targetEsYear ?? 'target-unknown'}:${context.detectedModuleType ?? 'unknown'}:${context.detectGeneratedCode === false ? 'generated-off' : 'generated-on'}:${context.isGeneratedSource === true ? 'generated' : 'regular'}`;
+  const linterConfigKey = `${context.fileType}-${context.classification.isTestCaseFile ? 'test-case' : 'no-test-case'}-${context.fileLanguage}-${context.analysisMode}-${extname(normalizedPath)}-${dependencyManifestDirName}`;
+  return `${linterConfigKey}:${context.detectedEsYear ?? 'esnext'}:${context.targetEsYear ?? 'target-unknown'}:${context.detectedModuleType ?? 'unknown'}:${context.detectGeneratedCode === false ? 'generated-off' : 'generated-on'}:${context.classification.isGeneratedSource === true ? 'generated' : 'regular'}:${context.classification.isVendorFile ? 'vendor' : 'non-vendor'}`;
 }

@@ -53,11 +53,13 @@ export const rule: Rule.RuleModule = {
 };
 ```
 
-Do not check `context.filename` to decide whether a rule applies to test code, and do not
-import or reimplement the test-file classification in `common/rule-file-type.ts`.
-MAIN/TEST applicability is decided centrally before rules run: declare it through the RSPEC
-`scope` instead, plus `requiredTestCaseFile` in `meta.ts` for rules that only apply to files
-declaring test cases. See [`docs/test-file-classification.md`](../docs/test-file-classification.md).
+File classification and rule applicability must be handled centrally by the analysis pipeline
+and linter for every rule. Do not classify test, vendor, generated or other file categories
+inside a rule, whether through filenames, paths, content markers or classification helpers.
+Declare requirements through RSPEC `scope` and supported metadata such as `requiredTestCaseFile`,
+`skipOnVendorFile` and `skipOnGeneratedSource`. If a new category is needed, add central
+classification and linter filtering, including cache and inline-configuration coverage. See
+[`docs/file-classification.md`](../docs/file-classification.md) for the rule authoring contract.
 
 ## Testing
 

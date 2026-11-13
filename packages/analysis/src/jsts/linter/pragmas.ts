@@ -22,6 +22,7 @@ import { getExternalRuleDefinition } from '../rules/external/registry.js';
 import type { SonarMeta } from '../rules/helpers/generate-meta.js';
 import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import { materializeRuleOptions, mergeRuleOptions } from '../rules/helpers/configs.js';
+import { isVendorFile } from '../../common/vendor-file-pattern.js';
 
 const sonarRules = rules as Record<string, Rule.RuleModule>;
 
@@ -123,6 +124,7 @@ export function createOptions(
   patchInlineOptions: (config: { rules: Linter.RulesRecord }) => void;
 } {
   const mappedParentDirectives = new Set();
+  const vendorFile = isVendorFile(filename);
 
   return {
     filename,
@@ -183,6 +185,15 @@ export function createOptions(
             mapping,
             activeRules[ruleId],
           );
+        }
+      }
+      // Inline configuration is merged after rule selection. Keep vendor exclusions authoritative
+      // after alias remapping so a pragma cannot reactivate an ineligible rule.
+      if (vendorFile) {
+        for (const ruleId of Object.keys(patchedOptions)) {
+          if (getSonarMeta(ruleId)?.skipOnVendorFile) {
+            delete patchedOptions[ruleId];
+          }
         }
       }
       config.rules = patchedOptions;

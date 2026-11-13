@@ -45,21 +45,27 @@ function ruleMeta(requiredTestCaseFile?: boolean): SonarMeta {
 const baseContext: RuleFilterContext = {
   extensionName: '.js',
   fileType: 'TEST',
-  isTestCaseFile: false,
+  classification: {
+    isVendorFile: false,
+    isTestCaseFile: false,
+    isGeneratedSource: false,
+  },
   fileLanguage: 'js',
   analysisMode: 'DEFAULT',
   detectedEsYear: undefined,
   targetEsYear: undefined,
   detectedModuleType: undefined,
   detectGeneratedCode: true,
-  isGeneratedSource: false,
   dependencies: new Map(),
 };
 
 describe('filterTestCaseFile', () => {
   it('should keep rules requiring test-case files on test-case files', () => {
     expect(
-      filterTestCaseFile(ruleConfig, ruleMeta(true), { ...baseContext, isTestCaseFile: true }),
+      filterTestCaseFile(ruleConfig, ruleMeta(true), {
+        ...baseContext,
+        classification: { ...baseContext.classification, isTestCaseFile: true },
+      }),
     ).toBe(true);
   });
 

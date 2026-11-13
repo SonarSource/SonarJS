@@ -28,6 +28,7 @@ export type SonarMeta = {
   scope: 'All' | 'Main' | 'Tests';
   languages: ('ts' | 'js')[];
   skipOnGeneratedSource?: boolean;
+  skipOnVendorFile?: boolean;
   blacklistedExtensions?: string[];
   schema?: JSONSchema4;
   hasSecondaries?: boolean;

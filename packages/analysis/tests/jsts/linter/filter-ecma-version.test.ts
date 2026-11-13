@@ -32,14 +32,17 @@ const ruleConfig = {
 const baseContext: RuleFilterContext = {
   extensionName: '.ts',
   fileType: 'MAIN',
-  isTestCaseFile: false,
+  classification: {
+    isVendorFile: false,
+    isTestCaseFile: false,
+    isGeneratedSource: false,
+  },
   fileLanguage: 'ts',
   analysisMode: 'DEFAULT',
   detectedEsYear: 2019,
   targetEsYear: 2019,
   detectedModuleType: undefined,
   detectGeneratedCode: true,
-  isGeneratedSource: false,
   dependencies: new Map(),
 };
 
