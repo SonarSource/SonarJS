@@ -300,7 +300,7 @@ jobs:
 
       # PVF: publish the concrete deployed plugin version so pvf-comment.yml can dispatch a performance-validation run into peachee-js.
       - name: Prepare PVF candidate version
-        uses: SonarSource/core-languages-tooling-public/prepare-pvf@master
+        uses: SonarSource/core-languages-tooling-public/prepare-pvf@a04d15c9fe09880db6870b01875e184ed57ca242
         with:
           build-version: ${{ steps.config-maven.outputs.project-version }}
 
@@ -1540,7 +1540,7 @@ jobs:
       id-token: write # required for vault-action-wrapper in the shared slack-notify action
     steps:
       - name: Slack Notification
-        uses: SonarSource/core-languages-tooling-public/common-actions/slack-notify@v1
+        uses: SonarSource/core-languages-tooling-public/common-actions/slack-notify@a04d15c9fe09880db6870b01875e184ed57ca242
         with:
           slack-channel: squad-corelang-notifs
           branch-patterns: ${{ format('{0},branch-*,dogfood-*', github.event.repository.default_branch) }}
