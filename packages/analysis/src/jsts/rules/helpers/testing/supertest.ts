@@ -19,6 +19,7 @@ import {
   getUniqueWriteReference,
   getVariableFromName,
   isRequireModule,
+  resolveSingleWriteExpression,
   unwrapTypeScriptExpression,
 } from '../ast.js';
 import { getFullyQualifiedName } from '../module.js';
@@ -28,8 +29,11 @@ import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils
 import ts from 'typescript';
 
 export function isAssertion(context: Rule.RuleContext, node: estree.Node) {
-  const fqn = extractFQNForCallExpression(context, node);
-  return isFQNAssertion(fqn) || isLocalFactoryAssertion(context, node);
+  if (node.type !== 'CallExpression') {
+    return false;
+  }
+  const fqn = getFullyQualifiedName(context, node);
+  return isFQNAssertion(fqn) || new SupertestHelper(context).value(node).assertion;
 }
 
 export function isTSAssertion(
@@ -37,11 +41,37 @@ export function isTSAssertion(
   node: ts.Node,
   context: Rule.RuleContext,
 ) {
-  if (node.kind !== ts.SyntaxKind.CallExpression) {
+  if (!ts.isCallExpression(node)) {
     return false;
   }
   const fqn = getFullyQualifiedNameTS(services, node);
-  return isFQNAssertion(fqn) || isTSLocalFactoryAssertion(context, services, node);
+  if (isFQNAssertion(fqn)) {
+    return true;
+  }
+  const mapped = services.tsNodeToESTreeNodeMap.get(node);
+  if (mapped && isFQNAssertion(getFullyQualifiedName(context, mapped as estree.Node))) {
+    return true;
+  }
+  const value = mapped ? new SupertestHelper(context).value(mapped as estree.Node) : UNKNOWN;
+  return value.assertion || (!value.plugin && isTypedExpect(services, node));
+}
+
+function isTypedExpect(services: ParserServicesWithTypeInformation, node: ts.CallExpression) {
+  const callee = node.expression;
+  if (
+    ts.isCallChain(node) ||
+    !ts.isPropertyAccessExpression(callee) ||
+    callee.questionDotToken ||
+    callee.name.text !== 'expect'
+  ) {
+    return false;
+  }
+  const declaration = services.program.getTypeChecker().getResolvedSignature(node)?.declaration;
+  const filename = declaration?.getSourceFile().fileName.replaceAll('\\', '/');
+  return (
+    filename?.includes('/@types/supertest/') === true ||
+    filename?.includes('/node_modules/supertest/') === true
+  );
 }
 
 function isFQNAssertion(fqn: string | null | undefined) {
@@ -55,53 +85,145 @@ function isFQNAssertion(fqn: string | null | undefined) {
   return names.length >= 3 && names[0] === 'supertest' && names.at(-1) === 'expect';
 }
 
-function extractFQNForCallExpression(context: Rule.RuleContext, node: estree.Node) {
-  if (node.type !== 'CallExpression') {
-    return undefined;
-  }
-
-  return getFullyQualifiedName(context, node);
-}
+type RequestKind = 'agent' | 'test';
+type SupertestValue = { kind?: RequestKind; assertion: boolean; plugin?: boolean };
+type ParameterValues = ReadonlyMap<SupertestVariable, SupertestValue>;
+const UNKNOWN: SupertestValue = { assertion: false };
+const PLUGIN_REQUEST: SupertestValue = { assertion: false, plugin: true };
 
 /**
- * Recognize an assertion on a request from a local factory that directly returns a Supertest call.
- *
- * ```js
- * import request from 'supertest';
- * const http = () => request(app);
- * http().get('/').expect(200); // accepted
- *
- * const fakeHttp = () => fakeRequest(app);
- * fakeHttp().get('/').expect(200); // rejected
- * ```
- *
- * The factory has no parameters. The `http()` call has no arguments and uses a stable Supertest
- * import or `require('supertest')`. Agent factories must use a named `agent` import.
+ * Follow request values through simple local helpers. Argument facts belong to a call, not to the
+ * helper's AST: `check(realRequest)` must not make `check(fakeRequest)` an assertion in another test.
+ * Keep the fallback limited to single-expression helpers; types handle richer helpers.
  */
-function isLocalFactoryAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
-  const identifier = getFactoryIdentifier(node);
-  if (!identifier) {
-    return false;
-  }
-  const factory = resolveLocalFactory(context, identifier);
-  return factory !== undefined && isSupertestFactory(context, factory);
-}
+class SupertestHelper {
+  private readonly visiting = new Set<estree.Node>();
 
-function isSupertestFactory(context: Rule.RuleContext, factory: estree.Function): boolean {
-  if (factory.params.length !== 0 || factory.async || factory.generator) {
-    return false;
-  }
-  const returned = getReturnedCall(factory);
-  return returned !== undefined && isSupertestCall(context, returned);
-}
+  constructor(private readonly context: Rule.RuleContext) {}
 
-function getReturnedCall(factory: estree.Function): estree.CallExpression | undefined {
-  const expression = getReturnedExpression(factory);
-  if (!expression) {
-    return undefined;
+  value(node: estree.Node, argumentsByParameter: ParameterValues = new Map()): SupertestValue {
+    node = unwrapTypeScriptExpression(node);
+    if (this.visiting.has(node)) {
+      return UNKNOWN;
+    }
+    this.visiting.add(node);
+    try {
+      if (node.type === 'Identifier') {
+        return this.identifierValue(node, argumentsByParameter);
+      }
+      if (node.type !== 'CallExpression' || node.optional) {
+        return UNKNOWN;
+      }
+      return this.callValue(node, argumentsByParameter);
+    } finally {
+      this.visiting.delete(node);
+    }
   }
-  const returned = unwrapTypeScriptExpression(expression);
-  return returned.type === 'CallExpression' && !returned.optional ? returned : undefined;
+
+  private identifierValue(node: estree.Identifier, parameters: ParameterValues): SupertestValue {
+    const variable = getVariableFromName(this.context, node.name, node);
+    const parameterValue = variable ? parameters.get(variable) : undefined;
+    if (parameterValue) {
+      return { ...parameterValue, assertion: false };
+    }
+    const resolved = resolveSingleWriteExpression(this.context, node);
+    // An assertion in an initializer ran at initialization, not when the variable is read.
+    return resolved === node ? UNKNOWN : { ...this.value(resolved, parameters), assertion: false };
+  }
+
+  private callValue(node: estree.CallExpression, parameters: ParameterValues): SupertestValue {
+    if (isSupertestCall(this.context, node)) {
+      return { kind: 'agent', assertion: false };
+    }
+    const callee = unwrapTypeScriptExpression(node.callee);
+    if (callee.type === 'MemberExpression') {
+      return this.methodValue(callee, parameters);
+    }
+    if (callee.type !== 'Identifier' || node.arguments.some(arg => arg.type === 'SpreadElement')) {
+      return UNKNOWN;
+    }
+    const helper = resolveLocalHelper(this.context, callee);
+    return helper && !helper.async && !helper.generator
+      ? this.helperValue(helper, node, parameters)
+      : UNKNOWN;
+  }
+
+  private methodValue(
+    callee: estree.MemberExpression,
+    parameters: ParameterValues,
+  ): SupertestValue {
+    const method = callee.computed
+      ? resolveSingleWriteExpression(this.context, callee.property)
+      : callee.property;
+    let name: string | undefined;
+    if (!callee.computed && method.type === 'Identifier') {
+      name = method.name;
+    } else if (method.type === 'Literal' && typeof method.value === 'string') {
+      name = method.value;
+    }
+    // A plugin can replace expect; an unknown computed method could be use().
+    if (name === 'use') {
+      return PLUGIN_REQUEST;
+    }
+    if (callee.optional || name === undefined) {
+      return UNKNOWN;
+    }
+    const receiver = this.value(callee.object, parameters);
+    if (receiver.plugin) {
+      return receiver;
+    }
+    if (!receiver.kind || (name === 'expect' && receiver.kind !== 'test')) {
+      return UNKNOWN;
+    }
+    return { kind: 'test', assertion: receiver.assertion || name === 'expect' };
+  }
+
+  private helperValue(
+    helper: estree.Function,
+    call: estree.CallExpression,
+    outerParameters: ParameterValues,
+  ): SupertestValue {
+    const parameters = this.bindArguments(helper, call, outerParameters);
+    const returned = getReturnedExpression(helper);
+    if (returned) {
+      return this.value(returned, parameters);
+    }
+    // An assertion helper can return void; its result must not become a request value.
+    if (helper.body.type === 'BlockStatement' && helper.body.body.length === 1) {
+      const [statement] = helper.body.body;
+      if (statement.type === 'ExpressionStatement') {
+        return { assertion: this.value(statement.expression, parameters).assertion };
+      }
+    }
+    return UNKNOWN;
+  }
+
+  private bindArguments(
+    helper: estree.Function,
+    call: estree.CallExpression,
+    outerParameters: ParameterValues,
+  ): ParameterValues {
+    const parameters = new Map(outerParameters);
+    for (const [index, parameter] of helper.params.entries()) {
+      const binding = parameter.type === 'AssignmentPattern' ? parameter.left : parameter;
+      if (binding.type !== 'Identifier') {
+        continue;
+      }
+      const variable = getVariableFromName(this.context, binding.name, binding);
+      // Parameter reassignment invalidates its connection to the actual argument.
+      if (
+        !variable ||
+        variable.references.some(reference => reference.isWrite() && !reference.init)
+      ) {
+        continue;
+      }
+      const input =
+        call.arguments[index] ??
+        (parameter.type === 'AssignmentPattern' ? parameter.right : undefined);
+      parameters.set(variable, input ? this.value(input, outerParameters) : UNKNOWN);
+    }
+    return parameters;
+  }
 }
 
 function isSupertestCall(context: Rule.RuleContext, returned: estree.CallExpression): boolean {
@@ -198,66 +320,13 @@ function isStableSupertestRequire(context: Rule.RuleContext, node: estree.Node):
   );
 }
 
-function isTSLocalFactoryAssertion(
-  context: Rule.RuleContext,
-  services: ParserServicesWithTypeInformation,
-  node: ts.Node,
-): boolean {
-  const mapped = services.tsNodeToESTreeNodeMap.get(node);
-  return (
-    mapped?.type === 'CallExpression' &&
-    isLocalFactoryAssertion(context, mapped as estree.CallExpression)
-  );
-}
-
-/**
- * Extract `http` from `http().post('/').send(data).expect(201)`.
- * Require at least two methods, no optional chaining, and no arguments to `http()`.
- * Reject computed members such as `http()['post']('/').expect(201)` and `.use(...)` calls.
- */
-function getFactoryIdentifier(node: estree.Node): estree.Identifier | undefined {
-  if (node.type !== 'CallExpression') {
-    return undefined;
-  }
-  let current = node;
-  let methodCount = 0;
-  while (true) {
-    const callee = unwrapTypeScriptExpression(current.callee);
-    if (callee.type !== 'MemberExpression') {
-      break;
-    }
-    const object = unwrapTypeScriptExpression(callee.object);
-    if (
-      current.optional ||
-      callee.optional ||
-      callee.computed ||
-      callee.property.type !== 'Identifier' ||
-      object.type !== 'CallExpression' ||
-      (methodCount === 0 && callee.property.name !== 'expect') ||
-      // Plugins can replace expect.
-      callee.property.name === 'use'
-    ) {
-      return undefined;
-    }
-    methodCount++;
-    current = object;
-  }
-  const callee = unwrapTypeScriptExpression(current.callee);
-  return methodCount >= 2 &&
-    !current.optional &&
-    current.arguments.length === 0 &&
-    callee.type === 'Identifier'
-    ? callee
-    : undefined;
-}
-
 /**
  * Resolve `http()` only when `http` names one local function definition.
  * Accept `function http() { ... }` with no writes to `http`.
  * Accept `const http = () => ...` or `let http = function () { ... }` with one initializer write.
- * Reject imported functions, aliases, and reassigned factories.
+ * Reject imported functions, aliases, and reassigned helpers.
  */
-function resolveLocalFactory(
+function resolveLocalHelper(
   context: Rule.RuleContext,
   identifier: estree.Identifier,
 ): estree.Function | undefined {
@@ -287,8 +356,7 @@ function resolveLocalFactory(
 }
 
 /**
- * Accept an expression body or one `return request(app)` statement.
- * Reject setup statements and conditional returns, which do not identify one direct request call.
+ * Accept an expression body or one return statement. More complex control flow needs type information.
  */
 function getReturnedExpression(factory: estree.Function): estree.Expression | undefined {
   if (factory.body.type !== 'BlockStatement') {
