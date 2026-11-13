@@ -15,6 +15,8 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { readFile, writeFile } from 'node:fs/promises';
+import { basename } from 'node:path';
+import { format, resolveConfig } from 'prettier';
 import { comparisonReport } from './report.mjs';
 
 const [input, output] = process.argv.slice(2);
@@ -29,20 +31,25 @@ const oldControl = sum(before, 'ts6');
 const newControl = sum(after, 'ts6');
 const percent = ratio => `${((ratio - 1) * 100).toFixed(1)}%`;
 const seconds = ms => `${(ms / 1000).toFixed(3)} s`;
+const median = values => [...values].sort((a, b) => a - b)[Math.floor(values.length / 2)];
 const lines = [
   '# Vercel upstream upgrade comparison',
   '',
   `Measured ${after.date}, ${after.host}, Node ${after.node}.`,
-  `Generated from [the canonical JSON](${input.split('/').at(-1)}) by \`tools/compiler-comparison/upgrade-report.mjs\`.`,
+  `Generated from [the canonical JSON](${basename(input)}) by \`tools/compiler-comparison/upgrade-report.mjs\`.`,
   '',
   '| Input | Before | After |',
   '| --- | --- | --- |',
-  ...['version', 'revision', 'upstreamRevision', 'librariesVersion'].map(
-    key => `| Compiler ${key} | ${providers.before[key]} | ${providers.after[key]} |`,
-  ),
+  ...[
+    ['Vercel version', 'version'],
+    ['Vercel revision', 'revision'],
+    ['Microsoft source revision', 'upstreamRevision'],
+    ['Declaration libraries', 'librariesVersion'],
+    ['@scriptc/threads', 'threadsVersion'],
+  ].map(([label, key]) => `| ${label} | ${providers.before[key]} | ${providers.after[key]} |`),
   `| Analyzer commit | ${analyzerCommits.before} | ${analyzerCommits.after} |`,
   '',
-  'The analyzer implementation, rules, project sources and configurations are unchanged.',
+  'Rules, project sources and configurations are unchanged.',
   'The update changes the Vercel compiler, its supporting threads package, matching declaration',
   'libraries and provider compatibility code. It measures that complete update, rather than',
   'isolating the effect of the upstream checker alone.',
@@ -50,7 +57,7 @@ const lines = [
   `Each campaign uses ${after.repetitions} fresh sequential processes per provider/project, alternating`,
   'Vercel and TS6. The old campaign ran first, then the updated campaign. No builds or tests',
   'ran concurrently with timing. Analysis excludes Node/module startup. Project-tree hashes',
-  'and all timing/RSS samples are retained in the JSON.',
+  'and individual timing/peak-RSS measurements are retained in the JSON.',
   '',
   '| Project | Old Vercel | Updated Vercel | Time change | Old / TS6 | Updated / TS6 | Change normalized to TS6 |',
   '| --- | ---: | ---: | ---: | ---: | ---: | ---: |',
@@ -65,14 +72,35 @@ lines.push(
   '',
   `Sum of project medians: **${seconds(oldMs)} → ${seconds(newMs)} (${percent(newMs / oldMs)} analysis time)**.`,
   `The TS6 control changed by ${percent(newControl / oldControl)}; normalizing both campaigns to TS6 gives ${percent(newMs / newControl / (oldMs / oldControl))}.`,
+  'The updated provider shows no clear speedup for this in-process workload.',
   'These are sums of medians, not a timed combined analysis. Three repetitions and sequential',
   'campaigns do not establish statistical significance for small changes. Negative percentages',
   'mean less analysis time. The benchmark does not measure incremental edits or native executables.',
   '',
-  comparisonReport(after).replace(
-    '# Compiler provider comparison',
-    '## Updated provider against TS6',
-  ),
+  '## Old and updated provider memory',
+  '',
+  'Median analyzer Node maxRSS per project, reported by the operating system:',
+  '',
+  '| Project | Old Vercel MiB | Updated Vercel MiB |',
+  '| --- | ---: | ---: |',
+  ...after.projects.map(project => {
+    const old = before.projects.find(previous => previous.project === project.project);
+    const mib = p => (median(p.timings.candidate.nodePeakRssBytes) / 2 ** 20).toFixed(0);
+    return `| ${project.project} | ${mib(old)} | ${mib(project)} |`;
+  }),
+  '',
+  ...(evidence.exactFindingParityBetweenCandidates
+    ? ['The old and updated candidates produce exactly the same findings.', '']
+    : []),
+  comparisonReport({
+    ...after,
+    versions: { ...after.versions, vercel: providers.after.version },
+  })
+    .replace('# Compiler provider comparison', '## Updated provider against TS6')
+    .replace(
+      'Generated from the adjacent summary JSON by `tools/compiler-comparison/report.mjs`.',
+      'Generated from the `after` campaign in the canonical JSON using `tools/compiler-comparison/report.mjs`.',
+    ),
   'Regenerate this report after updating the canonical JSON:',
   '',
   '```sh',
@@ -80,4 +108,7 @@ lines.push(
   '```',
   '',
 );
-await writeFile(output, lines.join('\n'));
+await writeFile(
+  output,
+  await format(lines.join('\n'), { ...(await resolveConfig(output)), filepath: output }),
+);
