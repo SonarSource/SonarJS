@@ -1,0 +1,802 @@
+{
+  "analyzerCommits": {
+    "before": "9149c2544ba757e304c526c70fcdf71ad3d17b01",
+    "after": "e44b1115a5c90ab3d2ca722bff025e35e41cebf6"
+  },
+  "providers": {
+    "before": {
+      "version": "0.0.4",
+      "revision": "085c71ef7d10dcbe9f67fc38e5f1a778153f7151",
+      "upstreamRevision": "2bd066d87f5bafd315be9f40889d0a60b9e58e0b",
+      "librariesVersion": "7.0.0-dev.20260707.2",
+      "threadsVersion": "0.3.6"
+    },
+    "after": {
+      "version": "0.1.5",
+      "revision": "04f804ff133a832c1aa7b30c625869ab2566c73d",
+      "upstreamRevision": "3e9236361fa97a9e6c685f4833ac457ae2d8c50a",
+      "librariesVersion": "7.1.0-beta",
+      "threadsVersion": "0.4.8"
+    }
+  },
+  "corpus": {
+    "repository": "https://github.com/SonarSource/jsts-test-sources",
+    "revision": "81a52e2c0180fc6e555b2c3efc44729fb46539d9",
+    "trackedChanges": "",
+    "projectTrees": {
+      "backbone": {
+        "files": 106,
+        "sha256": "f98c8de4ae67cfee2459b0a275e3d5afdb490145e15bd24c25fd1e70dce66dbe"
+      },
+      "underscore": {
+        "files": 46,
+        "sha256": "54df6f3af47f85e2657d746e8a83867ef5ce4da1ca6eb74758f30f913683ce88"
+      },
+      "redux": {
+        "files": 133,
+        "sha256": "289dd4f6cacee533a547680aa36568eadc8f3416b2bec871180a63d2917cad27"
+      },
+      "ag-grid": {
+        "files": 496,
+        "sha256": "2770de8fcd2e6d8fec96b935a8125a626ae24f49a691a7deb30ef5171c3c65ce"
+      },
+      "rxjs": {
+        "files": 777,
+        "sha256": "04ddb1af5c771b7f94e6e5b84c599bf75272b6cad5ddded35115c8b24ce1676d"
+      }
+    }
+  },
+  "before": {
+    "candidateProvider": "vercel",
+    "date": "2026-11-13",
+    "host": "Darwin 25.5.0 arm64",
+    "corpusCommit": "81a52e2c0180fc6e555b2c3efc44729fb46539d9",
+    "versions": {
+      "ts6": "6.0.3",
+      "vercel": "./providers/vercel/runtime.cjs"
+    },
+    "node": "v24.16.0",
+    "repetitions": 3,
+    "projects": [
+      {
+        "project": "backbone",
+        "files": 23,
+        "ts6Issues": 648,
+        "candidateIssues": 648,
+        "identicalIssues": 648,
+        "missingIssues": 0,
+        "addedIssues": 0,
+        "timeRatio": 1.0662947610102547,
+        "timings": {
+          "ts6": {
+            "analysisMs": [1473.1754170000004, 1460.062583, 1420.89025],
+            "medianMs": 1460.062583,
+            "nodePeakRssBytes": [835010560, 737443840, 733429760],
+            "processTreeMemory": [
+              {
+                "sampleIntervalMs": 100,
+                "samples": 15,
+                "peakRssBytes": 925417472,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 15,
+                "peakRssBytes": 795312128,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 14,
+                "peakRssBytes": 783073280,
+                "peakGoRssBytes": 0
+              }
+            ],
+            "ipc": [null, null, null],
+            "errors": [],
+            "deterministic": true
+          },
+          "candidate": {
+            "analysisMs": [1556.8570829999999, 1545.7795, 1562.1799170000004],
+            "medianMs": 1556.8570829999999,
+            "nodePeakRssBytes": [769359872, 772964352, 771981312],
+            "processTreeMemory": [
+              {
+                "sampleIntervalMs": 100,
+                "samples": 16,
+                "peakRssBytes": 820822016,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 15,
+                "peakRssBytes": 817676288,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 16,
+                "peakRssBytes": 820740096,
+                "peakGoRssBytes": 0
+              }
+            ],
+            "ipc": [null, null, null],
+            "errors": [],
+            "deterministic": true
+          }
+        }
+      },
+      {
+        "project": "underscore",
+        "files": 17,
+        "ts6Issues": 348,
+        "candidateIssues": 348,
+        "identicalIssues": 348,
+        "missingIssues": 0,
+        "addedIssues": 0,
+        "timeRatio": 1.0684629165165251,
+        "timings": {
+          "ts6": {
+            "analysisMs": [1260.9606249999997, 1268.912667, 1255.432917],
+            "medianMs": 1260.9606249999997,
+            "nodePeakRssBytes": [703119360, 704856064, 716128256],
+            "processTreeMemory": [
+              {
+                "sampleIntervalMs": 100,
+                "samples": 13,
+                "peakRssBytes": 752402432,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 13,
+                "peakRssBytes": 755728384,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 13,
+                "peakRssBytes": 772390912,
+                "peakGoRssBytes": 0
+              }
+            ],
+            "ipc": [null, null, null],
+            "errors": [],
+            "deterministic": true
+          },
+          "candidate": {
+            "analysisMs": [1325.3170830000004, 1347.289667, 1355.2458339999998],
+            "medianMs": 1347.289667,
+            "nodePeakRssBytes": [724942848, 722190336, 719388672],
+            "processTreeMemory": [
+              {
+                "sampleIntervalMs": 100,
+                "samples": 13,
+                "peakRssBytes": 779026432,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 13,
+                "peakRssBytes": 768720896,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 13,
+                "peakRssBytes": 774619136,
+                "peakGoRssBytes": 0
+              }
+            ],
+            "ipc": [null, null, null],
+            "errors": [],
+            "deterministic": true
+          }
+        }
+      },
+      {
+        "project": "redux",
+        "files": 132,
+        "ts6Issues": 1801,
+        "candidateIssues": 1801,
+        "identicalIssues": 1801,
+        "missingIssues": 0,
+        "addedIssues": 0,
+        "timeRatio": 1.0268541595589222,
+        "timings": {
+          "ts6": {
+            "analysisMs": [2252.602208, 2283.578416, 2279.64375],
+            "medianMs": 2279.64375,
+            "nodePeakRssBytes": [922025984, 919666688, 913014784],
+            "processTreeMemory": [
+              {
+                "sampleIntervalMs": 100,
+                "samples": 23,
+                "peakRssBytes": 967344128,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 23,
+                "peakRssBytes": 966311936,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 23,
+                "peakRssBytes": 959496192,
+                "peakGoRssBytes": 0
+              }
+            ],
+            "ipc": [null, null, null],
+            "errors": [],
+            "deterministic": true
+          },
+          "candidate": {
+            "analysisMs": [2340.861667, 2342.884333, 2325.297625],
+            "medianMs": 2340.861667,
+            "nodePeakRssBytes": [928956416, 922206208, 919732224],
+            "processTreeMemory": [
+              {
+                "sampleIntervalMs": 100,
+                "samples": 23,
+                "peakRssBytes": 955924480,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 23,
+                "peakRssBytes": 949731328,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 23,
+                "peakRssBytes": 955711488,
+                "peakGoRssBytes": 0
+              }
+            ],
+            "ipc": [null, null, null],
+            "errors": [],
+            "deterministic": true
+          }
+        }
+      },
+      {
+        "project": "ag-grid",
+        "files": 163,
+        "ts6Issues": 6594,
+        "candidateIssues": 6594,
+        "identicalIssues": 6594,
+        "missingIssues": 0,
+        "addedIssues": 0,
+        "timeRatio": 1.0966883177639644,
+        "timings": {
+          "ts6": {
+            "analysisMs": [6385.598207999999, 6318.281792, 6319.3893339999995],
+            "medianMs": 6319.3893339999995,
+            "nodePeakRssBytes": [1175617536, 1281556480, 1175109632],
+            "processTreeMemory": [
+              {
+                "sampleIntervalMs": 100,
+                "samples": 63,
+                "peakRssBytes": 1216757760,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 63,
+                "peakRssBytes": 1331085312,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 63,
+                "peakRssBytes": 1233010688,
+                "peakGoRssBytes": 0
+              }
+            ],
+            "ipc": [null, null, null],
+            "errors": [],
+            "deterministic": true
+          },
+          "candidate": {
+            "analysisMs": [6887.878208, 6930.400457999999, 7003.547917],
+            "medianMs": 6930.400457999999,
+            "nodePeakRssBytes": [1223458816, 1169883136, 1255342080],
+            "processTreeMemory": [
+              {
+                "sampleIntervalMs": 100,
+                "samples": 68,
+                "peakRssBytes": 1281425408,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 69,
+                "peakRssBytes": 1209024512,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 69,
+                "peakRssBytes": 1271709696,
+                "peakGoRssBytes": 0
+              }
+            ],
+            "ipc": [null, null, null],
+            "errors": [],
+            "deterministic": true
+          }
+        }
+      },
+      {
+        "project": "rxjs",
+        "files": 730,
+        "ts6Issues": 6249,
+        "candidateIssues": 6249,
+        "identicalIssues": 6249,
+        "missingIssues": 0,
+        "addedIssues": 0,
+        "timeRatio": 1.0496533977635236,
+        "timings": {
+          "ts6": {
+            "analysisMs": [12612.557084, 11917.888792, 12205.542707999999],
+            "medianMs": 12205.542707999999,
+            "nodePeakRssBytes": [2295840768, 2301001728, 2260910080],
+            "processTreeMemory": [
+              {
+                "sampleIntervalMs": 100,
+                "samples": 125,
+                "peakRssBytes": 2351497216,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 118,
+                "peakRssBytes": 2342912000,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 121,
+                "peakRssBytes": 2305507328,
+                "peakGoRssBytes": 0
+              }
+            ],
+            "ipc": [null, null, null],
+            "errors": [],
+            "deterministic": true
+          },
+          "candidate": {
+            "analysisMs": [12811.589375, 12760.683917, 12900.235832999999],
+            "medianMs": 12811.589375,
+            "nodePeakRssBytes": [2573303808, 2656550912, 2667216896],
+            "processTreeMemory": [
+              {
+                "sampleIntervalMs": 100,
+                "samples": 127,
+                "peakRssBytes": 2617032704,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 126,
+                "peakRssBytes": 2714763264,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 128,
+                "peakRssBytes": 2725199872,
+                "peakGoRssBytes": 0
+              }
+            ],
+            "ipc": [null, null, null],
+            "errors": [],
+            "deterministic": true
+          }
+        }
+      }
+    ],
+    "differences": {
+      "backbone": {
+        "missing": [],
+        "added": []
+      },
+      "underscore": {
+        "missing": [],
+        "added": []
+      },
+      "redux": {
+        "missing": [],
+        "added": []
+      },
+      "ag-grid": {
+        "missing": [],
+        "added": []
+      },
+      "rxjs": {
+        "missing": [],
+        "added": []
+      }
+    }
+  },
+  "after": {
+    "candidateProvider": "vercel",
+    "date": "2026-11-13",
+    "host": "Darwin 25.5.0 arm64",
+    "corpusCommit": "81a52e2c0180fc6e555b2c3efc44729fb46539d9",
+    "versions": {
+      "ts6": "6.0.3",
+      "vercel": "./providers/vercel/runtime.cjs"
+    },
+    "node": "v24.16.0",
+    "repetitions": 3,
+    "projects": [
+      {
+        "project": "backbone",
+        "files": 23,
+        "ts6Issues": 648,
+        "candidateIssues": 648,
+        "identicalIssues": 648,
+        "missingIssues": 0,
+        "addedIssues": 0,
+        "timeRatio": 1.0661590799514529,
+        "timings": {
+          "ts6": {
+            "analysisMs": [1495.3878750000003, 1492.0829169999997, 1489.1927500000002],
+            "medianMs": 1492.0829169999997,
+            "nodePeakRssBytes": [748617728, 747012096, 746979328],
+            "processTreeMemory": [
+              {
+                "sampleIntervalMs": 100,
+                "samples": 15,
+                "peakRssBytes": 806240256,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 14,
+                "peakRssBytes": 795639808,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 15,
+                "peakRssBytes": 804782080,
+                "peakGoRssBytes": 0
+              }
+            ],
+            "ipc": [null, null, null],
+            "errors": [],
+            "deterministic": true
+          },
+          "candidate": {
+            "analysisMs": [1590.7977499999997, 1604.563334, 1579.243333],
+            "medianMs": 1590.7977499999997,
+            "nodePeakRssBytes": [782745600, 777076736, 771293184],
+            "processTreeMemory": [
+              {
+                "sampleIntervalMs": 100,
+                "samples": 16,
+                "peakRssBytes": 833503232,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 16,
+                "peakRssBytes": 826490880,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 16,
+                "peakRssBytes": 828899328,
+                "peakGoRssBytes": 0
+              }
+            ],
+            "ipc": [null, null, null],
+            "errors": [],
+            "deterministic": true
+          }
+        }
+      },
+      {
+        "project": "underscore",
+        "files": 17,
+        "ts6Issues": 348,
+        "candidateIssues": 348,
+        "identicalIssues": 348,
+        "missingIssues": 0,
+        "addedIssues": 0,
+        "timeRatio": 1.065416074000946,
+        "timings": {
+          "ts6": {
+            "analysisMs": [1307.400917, 1295.4977090000002, 1293.6096659999998],
+            "medianMs": 1295.4977090000002,
+            "nodePeakRssBytes": [705298432, 716374016, 716079104],
+            "processTreeMemory": [
+              {
+                "sampleIntervalMs": 100,
+                "samples": 13,
+                "peakRssBytes": 755564544,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 12,
+                "peakRssBytes": 762019840,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 12,
+                "peakRssBytes": 762527744,
+                "peakGoRssBytes": 0
+              }
+            ],
+            "ipc": [null, null, null],
+            "errors": [],
+            "deterministic": true
+          },
+          "candidate": {
+            "analysisMs": [1413.290916, 1378.7790420000001, 1380.244083],
+            "medianMs": 1380.244083,
+            "nodePeakRssBytes": [737116160, 732856320, 735690752],
+            "processTreeMemory": [
+              {
+                "sampleIntervalMs": 100,
+                "samples": 14,
+                "peakRssBytes": 786317312,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 14,
+                "peakRssBytes": 789528576,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 14,
+                "peakRssBytes": 790855680,
+                "peakGoRssBytes": 0
+              }
+            ],
+            "ipc": [null, null, null],
+            "errors": [],
+            "deterministic": true
+          }
+        }
+      },
+      {
+        "project": "redux",
+        "files": 132,
+        "ts6Issues": 1801,
+        "candidateIssues": 1801,
+        "identicalIssues": 1801,
+        "missingIssues": 0,
+        "addedIssues": 0,
+        "timeRatio": 1.0393016791873377,
+        "timings": {
+          "ts6": {
+            "analysisMs": [2384.2474999999995, 2331.1184169999997, 2362.839042],
+            "medianMs": 2362.839042,
+            "nodePeakRssBytes": [923779072, 923336704, 916144128],
+            "processTreeMemory": [
+              {
+                "sampleIntervalMs": 100,
+                "samples": 24,
+                "peakRssBytes": 969080832,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 23,
+                "peakRssBytes": 960937984,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 23,
+                "peakRssBytes": 942063616,
+                "peakGoRssBytes": 0
+              }
+            ],
+            "ipc": [null, null, null],
+            "errors": [],
+            "deterministic": true
+          },
+          "candidate": {
+            "analysisMs": [2455.7025840000006, 2462.080542, 2402.7220840000005],
+            "medianMs": 2455.7025840000006,
+            "nodePeakRssBytes": [926498816, 926334976, 920305664],
+            "processTreeMemory": [
+              {
+                "sampleIntervalMs": 100,
+                "samples": 25,
+                "peakRssBytes": 972980224,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 25,
+                "peakRssBytes": 980762624,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 24,
+                "peakRssBytes": 965443584,
+                "peakGoRssBytes": 0
+              }
+            ],
+            "ipc": [null, null, null],
+            "errors": [],
+            "deterministic": true
+          }
+        }
+      },
+      {
+        "project": "ag-grid",
+        "files": 163,
+        "ts6Issues": 6594,
+        "candidateIssues": 6594,
+        "identicalIssues": 6594,
+        "missingIssues": 0,
+        "addedIssues": 0,
+        "timeRatio": 1.0920453555007377,
+        "timings": {
+          "ts6": {
+            "analysisMs": [6355.817958999999, 6388.092541999999, 6390.851458000001],
+            "medianMs": 6388.092541999999,
+            "nodePeakRssBytes": [1287454720, 1174716416, 1208172544],
+            "processTreeMemory": [
+              {
+                "sampleIntervalMs": 100,
+                "samples": 63,
+                "peakRssBytes": 1329315840,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 63,
+                "peakRssBytes": 1215660032,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 64,
+                "peakRssBytes": 1266237440,
+                "peakGoRssBytes": 0
+              }
+            ],
+            "ipc": [null, null, null],
+            "errors": [],
+            "deterministic": true
+          },
+          "candidate": {
+            "analysisMs": [6976.086791, 6973.219084, 7082.471584000001],
+            "medianMs": 6976.086791,
+            "nodePeakRssBytes": [1247461376, 1243758592, 1146568704],
+            "processTreeMemory": [
+              {
+                "sampleIntervalMs": 100,
+                "samples": 69,
+                "peakRssBytes": 1305690112,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 69,
+                "peakRssBytes": 1300725760,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 70,
+                "peakRssBytes": 1173831680,
+                "peakGoRssBytes": 0
+              }
+            ],
+            "ipc": [null, null, null],
+            "errors": [],
+            "deterministic": true
+          }
+        }
+      },
+      {
+        "project": "rxjs",
+        "files": 730,
+        "ts6Issues": 6249,
+        "candidateIssues": 6249,
+        "identicalIssues": 6249,
+        "missingIssues": 0,
+        "addedIssues": 0,
+        "timeRatio": 1.0856983303016094,
+        "timings": {
+          "ts6": {
+            "analysisMs": [11925.642208000001, 12169.045583, 11890.579708],
+            "medianMs": 11925.642208000001,
+            "nodePeakRssBytes": [2297839616, 2298380288, 2297135104],
+            "processTreeMemory": [
+              {
+                "sampleIntervalMs": 100,
+                "samples": 118,
+                "peakRssBytes": 2342060032,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 121,
+                "peakRssBytes": 2342862848,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 118,
+                "peakRssBytes": 2342420480,
+                "peakGoRssBytes": 0
+              }
+            ],
+            "ipc": [null, null, null],
+            "errors": [],
+            "deterministic": true
+          },
+          "candidate": {
+            "analysisMs": [12864.978083, 13457.122041999999, 12947.649833],
+            "medianMs": 12947.649833,
+            "nodePeakRssBytes": [2593112064, 2583855104, 2595618816],
+            "processTreeMemory": [
+              {
+                "sampleIntervalMs": 100,
+                "samples": 128,
+                "peakRssBytes": 2634432512,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 133,
+                "peakRssBytes": 2619031552,
+                "peakGoRssBytes": 0
+              },
+              {
+                "sampleIntervalMs": 100,
+                "samples": 129,
+                "peakRssBytes": 2636562432,
+                "peakGoRssBytes": 0
+              }
+            ],
+            "ipc": [null, null, null],
+            "errors": [],
+            "deterministic": true
+          }
+        }
+      }
+    ],
+    "differences": {
+      "backbone": {
+        "missing": [],
+        "added": []
+      },
+      "underscore": {
+        "missing": [],
+        "added": []
+      },
+      "redux": {
+        "missing": [],
+        "added": []
+      },
+      "ag-grid": {
+        "missing": [],
+        "added": []
+      },
+      "rxjs": {
+        "missing": [],
+        "added": []
+      }
+    }
+  },
+  "exactFindingParityBetweenCandidates": true
+}

@@ -1,12 +1,6 @@
 {
-"ace:lib/ace/mode/html/saxparser.js": [
-286,
-5216
-],
 "ace:lib/ace/mode/javascript/jshint.js": [
 10684,
-11340,
-11352,
 15407
 ],
 "ace:src/document.js": [

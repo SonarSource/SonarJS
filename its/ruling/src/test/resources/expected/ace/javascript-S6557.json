@@ -17,11 +17,7 @@
 1873,
 4648,
 4653,
-6802,
-6858
-],
-"ace:lib/ace/mode/javascript/jshint.js": [
-13185
+6802
 ],
 "ace:lib/ace/mode/yaml/yaml-lint.js": [
 211,
@@ -46,9 +42,6 @@
 ],
 "ace:src/mode/_test/highlight_rules_test.js": [
 58
-],
-"ace:src/mode/folding/lua.js": [
-73
 ],
 "ace:src/mode/markdown_highlight_rules.js": [
 44

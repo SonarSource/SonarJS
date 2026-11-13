@@ -298,9 +298,17 @@
                 <exclude>tsgolint/**/*</exclude>
                 <!-- Adopted sources retain their upstream MIT license. -->
                 <exclude>packages/analysis/src/jsts/frontend/vendor/**/*</exclude>
+                <!-- Adapter provenance and MIT terms are in the adjacent NOTICE.md and LICENSE. -->
+                <exclude>packages/typescript/providers/vercel/modifiers.mjs</exclude>
+                <exclude>packages/typescript/providers/vercel/throwOnUnsupportedMembers.mjs</exclude>
+                <exclude>packages/typescript/providers/vercel/nativeCheckerAdapter.mjs</exclude>
+                <exclude>packages/typescript/providers/vercel/nativeTypeAdapter.mjs</exclude>
+                <exclude>packages/typescript/providers/vercel/nativeNodeAdapter.mjs</exclude>
+                <exclude>packages/typescript/providers/vercel/translateFlags.mjs</exclude>
                 <!-- Apache-licensed stateless syntax adoption; provenance is adjacent. -->
                 <exclude>packages/typescript/compat/syntax.cjs</exclude>
                 <!-- Generated -->
+                <exclude>packages/typescript/providers/vercel/runtime.cjs</exclude>
                 <exclude>**/bin/**/*</exclude>
                 <exclude>**/dist/**/*</exclude>
                 <exclude>**/lib/**/*</exclude>

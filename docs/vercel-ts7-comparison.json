@@ -1,0 +1,163 @@
+{
+  "corpus": {
+    "repository": "https://github.com/SonarSource/jsts-test-sources",
+    "revision": "81a52e2c0180fc6e555b2c3efc44729fb46539d9",
+    "trackedChanges": ""
+  },
+  "baseCommit": "8303fe267fdacbea3c42d20daacc136f9123e606",
+  "platform": {
+    "system": "Darwin",
+    "release": "25.5.0",
+    "machine": "arm64"
+  },
+  "results": {
+    "node": "v24.16.0",
+    "repetitions": 3,
+    "projects": [
+      {
+        "project": "underscore",
+        "files": 17,
+        "ts6Issues": 348,
+        "vercelIssues": 348,
+        "identicalIssues": 348,
+        "missingIssues": 0,
+        "addedIssues": 0,
+        "timeRatio": 1.0611345937806997,
+        "timings": {
+          "ts6": {
+            "analysisMs": [1300.0328330000002, 1395.4029579999997, 1304.3112920000003],
+            "medianMs": 1304.3112920000003,
+            "peakRssBytes": [726876160, 708837376, 704053248],
+            "errors": [],
+            "deterministic": true
+          },
+          "vercel": {
+            "analysisMs": [1387.982708, 1384.049833, 1383.9413750000003],
+            "medianMs": 1384.049833,
+            "peakRssBytes": [727859200, 727007232, 728367104],
+            "errors": [],
+            "deterministic": true
+          }
+        },
+        "inputTreeSha256": "54df6f3af47f85e2657d746e8a83867ef5ce4da1ca6eb74758f30f913683ce88",
+        "inputTreeFiles": 46
+      },
+      {
+        "project": "backbone",
+        "files": 23,
+        "ts6Issues": 648,
+        "vercelIssues": 648,
+        "identicalIssues": 648,
+        "missingIssues": 0,
+        "addedIssues": 0,
+        "timeRatio": 1.05874461486869,
+        "timings": {
+          "ts6": {
+            "analysisMs": [1502.6620830000002, 1538.625208, 1508.8652499999998],
+            "medianMs": 1508.8652499999998,
+            "peakRssBytes": [743456768, 735674368, 742326272],
+            "errors": [],
+            "deterministic": true
+          },
+          "vercel": {
+            "analysisMs": [1607.697959, 1584.8865, 1597.5029579999996],
+            "medianMs": 1597.5029579999996,
+            "peakRssBytes": [782417920, 776306688, 777273344],
+            "errors": [],
+            "deterministic": true
+          }
+        },
+        "inputTreeSha256": "f98c8de4ae67cfee2459b0a275e3d5afdb490145e15bd24c25fd1e70dce66dbe",
+        "inputTreeFiles": 106
+      },
+      {
+        "project": "redux",
+        "files": 132,
+        "ts6Issues": 1801,
+        "vercelIssues": 1801,
+        "identicalIssues": 1801,
+        "missingIssues": 0,
+        "addedIssues": 0,
+        "timeRatio": 1.0635634042915199,
+        "timings": {
+          "ts6": {
+            "analysisMs": [2316.073167, 2336.264375, 2345.1991249999996],
+            "medianMs": 2336.264375,
+            "peakRssBytes": [920797184, 913915904, 912834560],
+            "errors": [],
+            "deterministic": true
+          },
+          "vercel": {
+            "analysisMs": [2484.765292, 2472.861875, 2551.166375],
+            "medianMs": 2484.765292,
+            "peakRssBytes": [935149568, 932282368, 926728192],
+            "errors": [],
+            "deterministic": true
+          }
+        },
+        "inputTreeSha256": "289dd4f6cacee533a547680aa36568eadc8f3416b2bec871180a63d2917cad27",
+        "inputTreeFiles": 133
+      },
+      {
+        "project": "rxjs",
+        "files": 730,
+        "ts6Issues": 6249,
+        "vercelIssues": 6249,
+        "identicalIssues": 6249,
+        "missingIssues": 0,
+        "addedIssues": 0,
+        "timeRatio": 1.0700916884813818,
+        "timings": {
+          "ts6": {
+            "analysisMs": [12661.10525, 12414.012083, 12590.316499999999],
+            "medianMs": 12590.316499999999,
+            "peakRssBytes": [2270412800, 2324004864, 2134409216],
+            "errors": [],
+            "deterministic": true
+          },
+          "vercel": {
+            "analysisMs": [13813.964042, 13472.793042, 13461.299041],
+            "medianMs": 13472.793042,
+            "peakRssBytes": [2578497536, 2581938176, 2570059776],
+            "errors": [],
+            "deterministic": true
+          }
+        },
+        "inputTreeSha256": "04ddb1af5c771b7f94e6e5b84c599bf75272b6cad5ddded35115c8b24ce1676d",
+        "inputTreeFiles": 777
+      },
+      {
+        "project": "ag-grid",
+        "files": 163,
+        "ts6Issues": 6594,
+        "vercelIssues": 6594,
+        "identicalIssues": 6594,
+        "missingIssues": 0,
+        "addedIssues": 0,
+        "timeRatio": 1.1009767277113,
+        "timings": {
+          "ts6": {
+            "analysisMs": [6604.894, 6674.606, 6540.206333],
+            "medianMs": 6604.894,
+            "peakRssBytes": [1229864960, 1269661696, 1267089408],
+            "errors": [],
+            "deterministic": true
+          },
+          "vercel": {
+            "analysisMs": [7271.834583, 7228.5732499999995, 7367.374167],
+            "medianMs": 7271.834583,
+            "peakRssBytes": [1250836480, 1178353664, 1150287872],
+            "errors": [],
+            "deterministic": true
+          }
+        },
+        "inputTreeSha256": "2770de8fcd2e6d8fec96b935a8125a626ae24f49a691a7deb30ef5171c3c65ce",
+        "inputTreeFiles": 496
+      }
+    ]
+  },
+  "candidateCommit": "f7a40ca38d23eaaf9ab9496c535f831a7f8ce964",
+  "measuredAtUtc": "2026-10-21T09:05:07.201577+00:00",
+  "provider": "independent-vercel",
+  "reference": "explicit-ts6"
+}

@@ -126,6 +126,9 @@
 "Ghost:core/server/models/base/index.js": [
 57
 ],
+"Ghost:core/server/models/plugins/filter.js": [
+24
+],
 "Ghost:core/server/models/post.js": [
 341,
 354

@@ -3,10 +3,6 @@
 3178,
 6084
 ],
-"jshint:src/lex.js": [
-140,
-152
-],
 "jshint:src/scope-manager.js": [
 297
 ]

@@ -1,0 +1,259 @@
+{
+  "corpusRevision": "81a52e2c0180fc6e555b2c3efc44729fb46539d9",
+  "analyzerCommit": "f7a622a0f2550cef1d59423b88b19edee30cbdc9",
+  "projects": 59,
+  "files": 17522,
+  "findings": 625804,
+  "compilerFailures": 0,
+  "filesWithParsingErrors": 137,
+  "baselineRulingEntries": 626057,
+  "addedRulingEntries": 18,
+  "missingRulingEntries": 134,
+  "differences": [
+    {
+      "project": "Ghost",
+      "added": 1,
+      "missing": 0,
+      "rules": {
+        "javascript-S8907.json": {
+          "added": 1,
+          "missing": 0
+        }
+      }
+    },
+    {
+      "project": "TypeScript",
+      "added": 2,
+      "missing": 0,
+      "rules": {
+        "javascript-S7728.json": {
+          "added": 2,
+          "missing": 0
+        }
+      }
+    },
+    {
+      "project": "ace",
+      "added": 12,
+      "missing": 100,
+      "rules": {
+        "javascript-S131.json": {
+          "added": 1,
+          "missing": 0
+        },
+        "javascript-S1488.json": {
+          "added": 2,
+          "missing": 0
+        },
+        "javascript-S1874.json": {
+          "added": 0,
+          "missing": 5
+        },
+        "javascript-S2259.json": {
+          "added": 0,
+          "missing": 3
+        },
+        "javascript-S2819.json": {
+          "added": 1,
+          "missing": 0
+        },
+        "javascript-S3579.json": {
+          "added": 1,
+          "missing": 3
+        },
+        "javascript-S3758.json": {
+          "added": 0,
+          "missing": 2
+        },
+        "javascript-S3800.json": {
+          "added": 0,
+          "missing": 6
+        },
+        "javascript-S3801.json": {
+          "added": 1,
+          "missing": 0
+        },
+        "javascript-S6551.json": {
+          "added": 0,
+          "missing": 62
+        },
+        "javascript-S6557.json": {
+          "added": 0,
+          "missing": 3
+        },
+        "javascript-S6582.json": {
+          "added": 1,
+          "missing": 1
+        },
+        "javascript-S6594.json": {
+          "added": 0,
+          "missing": 8
+        },
+        "javascript-S7728.json": {
+          "added": 5,
+          "missing": 0
+        },
+        "javascript-S7729.json": {
+          "added": 0,
+          "missing": 3
+        },
+        "javascript-S7755.json": {
+          "added": 0,
+          "missing": 4
+        }
+      }
+    },
+    {
+      "project": "angular.js",
+      "added": 0,
+      "missing": 1,
+      "rules": {
+        "javascript-S3403.json": {
+          "added": 0,
+          "missing": 1
+        }
+      }
+    },
+    {
+      "project": "eigen",
+      "added": 0,
+      "missing": 3,
+      "rules": {
+        "typescript-S4325.json": {
+          "added": 0,
+          "missing": 3
+        }
+      }
+    },
+    {
+      "project": "jquery",
+      "added": 0,
+      "missing": 1,
+      "rules": {
+        "javascript-S3403.json": {
+          "added": 0,
+          "missing": 1
+        }
+      }
+    },
+    {
+      "project": "jshint",
+      "added": 0,
+      "missing": 6,
+      "rules": {
+        "javascript-S1874.json": {
+          "added": 0,
+          "missing": 3
+        },
+        "javascript-S6557.json": {
+          "added": 0,
+          "missing": 1
+        },
+        "javascript-S7755.json": {
+          "added": 0,
+          "missing": 2
+        }
+      }
+    },
+    {
+      "project": "p5.js",
+      "added": 1,
+      "missing": 13,
+      "rules": {
+        "javascript-S1488.json": {
+          "added": 1,
+          "missing": 0
+        },
+        "javascript-S1874.json": {
+          "added": 0,
+          "missing": 5
+        },
+        "javascript-S3402.json": {
+          "added": 0,
+          "missing": 1
+        },
+        "javascript-S3403.json": {
+          "added": 0,
+          "missing": 2
+        },
+        "javascript-S3525.json": {
+          "added": 0,
+          "missing": 1
+        },
+        "javascript-S3579.json": {
+          "added": 0,
+          "missing": 1
+        },
+        "javascript-S4139.json": {
+          "added": 0,
+          "missing": 1
+        },
+        "javascript-S9383.json": {
+          "added": 0,
+          "missing": 2
+        }
+      }
+    },
+    {
+      "project": "paper.js",
+      "added": 1,
+      "missing": 7,
+      "rules": {
+        "javascript-S2259.json": {
+          "added": 1,
+          "missing": 0
+        },
+        "javascript-S3403.json": {
+          "added": 0,
+          "missing": 4
+        },
+        "javascript-S4043.json": {
+          "added": 0,
+          "missing": 2
+        },
+        "javascript-S6551.json": {
+          "added": 0,
+          "missing": 1
+        }
+      }
+    },
+    {
+      "project": "router",
+      "added": 1,
+      "missing": 2,
+      "rules": {
+        "javascript-S4043.json": {
+          "added": 1,
+          "missing": 0
+        },
+        "javascript-S7729.json": {
+          "added": 0,
+          "missing": 2
+        }
+      }
+    },
+    {
+      "project": "sizzle",
+      "added": 0,
+      "missing": 1,
+      "rules": {
+        "javascript-S3403.json": {
+          "added": 0,
+          "missing": 1
+        }
+      }
+    }
+  ],
+  "counting": "Ruling entries compare rule, file and line; include parsing-error entries. Findings count excludes parsing errors. Concurrent correctness runs do not provide performance evidence.",
+  "independentProviderFollowUp": {
+    "analyzerCommit": "f7a40ca38d23eaaf9ab9496c535f831a7f8ce964",
+    "projects": 59,
+    "files": 17522,
+    "findings": 625804,
+    "compilerFailures": 0,
+    "filesWithParsingErrors": 137,
+    "addedVersusPreviousProviderSnapshots": 0,
+    "missingVersusPreviousProviderSnapshots": 0,
+    "unavailableCorpusProjects": ["eslint"]
+  }
+}
