@@ -1,9 +1,0 @@
-diff --git a/node_modules/postcss-less/lib/index.js b/node_modules/postcss-less/lib/index.js
---- a/node_modules/postcss-less/lib/index.js
-+++ b/node_modules/postcss-less/lib/index.js
-@@ -49,3 +49,5 @@ function parse(less, options) {
-+    node.source.input = input;
-+
-     node.source.start = {
-       column: newStartPosition.col,
-       line: newStartPosition.line,
