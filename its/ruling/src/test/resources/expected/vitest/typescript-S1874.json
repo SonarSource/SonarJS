@@ -4,6 +4,9 @@
 144,
 367
 ],
+"vitest:packages/expect/src/jest-extend.ts": [
+53
+],
 "vitest:packages/ui/node/index.ts": [
 69
 ],
@@ -21,6 +24,12 @@
 ],
 "vitest:packages/vitest/src/node/cache/results.ts": [
 32
+],
+"vitest:packages/vitest/src/node/cli/cli-config.ts": [
+369,
+384,
+397,
+742
 ],
 "vitest:packages/vitest/src/node/config/resolveConfig.ts": [
 647,

@@ -123,6 +123,9 @@
 "TypeScript:src/server/session.ts": [
 698
 ],
+"TypeScript:src/services/classifier.ts": [
+459
+],
 "TypeScript:src/services/codefixes/importFixes.ts": [
 441,
 442,
@@ -149,7 +152,11 @@
 "TypeScript:src/services/services.ts": [
 766,
 951,
-956
+956,
+1967,
+1968,
+1981,
+2002
 ],
 "TypeScript:src/services/shims.ts": [
 667,
