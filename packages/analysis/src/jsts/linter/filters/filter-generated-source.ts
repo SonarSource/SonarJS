@@ -17,5 +17,9 @@
 import type { RuleFilter } from './rule-filter.js';
 
 export const filterGeneratedSource: RuleFilter = (_config, meta, ctx) => {
-  return !ctx.detectGeneratedCode || !ctx.isGeneratedSource || meta?.skipOnGeneratedSource !== true;
+  return (
+    !ctx.detectGeneratedCode ||
+    !ctx.classification.isGeneratedSource ||
+    meta?.skipOnGeneratedSource !== true
+  );
 };

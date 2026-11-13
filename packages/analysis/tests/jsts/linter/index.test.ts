@@ -215,6 +215,67 @@ describe('Linter', () => {
     }
   });
 
+  for (const vendorFirst of [false, true]) {
+    it(`should cache vendor and non-vendor rule selection separately (vendor first: ${vendorFirst})`, async () => {
+      await Linter.initialize({
+        baseDir: normalizeToAbsolutePath(import.meta.dirname),
+        rules: ['S3504', 'S1116'].map(key => ({
+          key,
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        })),
+      });
+      const activeRules = (relativePath: string) =>
+        Object.keys(
+          Linter.getRulesForFile(
+            normalizeToAbsolutePath(path.join(import.meta.dirname, relativePath)),
+            'MAIN',
+            'DEFAULT',
+            'js',
+          ),
+        );
+      // Both classes share the same dependency directory and extension.
+      const paths = vendorFirst
+        ? ['src/jquery.js', 'src/app.js', 'src/jquery.js']
+        : ['src/app.js', 'src/jquery.js', 'src/other.js'];
+      for (const file of paths) {
+        expect(activeRules(file)).toEqual(
+          file === 'src/jquery.js' ? ['sonarjs/S1116'] : ['sonarjs/S3504', 'sonarjs/S1116'],
+        );
+      }
+      expect(activeRules('vendor/legacy.js')).toEqual(['sonarjs/S1116']);
+      expect(activeRules('lib/legacy.js')).toEqual(['sonarjs/S3504', 'sonarjs/S1116']);
+    });
+  }
+
+  for (const language of ['js', 'ts'] as const) {
+    it(`should suppress only S3504 when linting vendor ${language} files`, async () => {
+      await Linter.initialize({
+        baseDir: normalizeToAbsolutePath(import.meta.dirname),
+        rules: ['S3504', 'S1116'].map(key => ({
+          key,
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language,
+          analysisModes: ['DEFAULT'],
+        })),
+      });
+      for (const [relativePath, expectedRules] of [
+        [`vendor/legacy.${language}`, ['S1116']],
+        [`src/legacy.${language}`, ['S3504', 'S1116']],
+      ] as const) {
+        const filePath = normalizeToAbsolutePath(path.join(import.meta.dirname, relativePath));
+        const parsed = build(
+          await jsTsInput({ filePath, fileContent: 'var value = 1;;', language }),
+        );
+        const { issues } = Linter.lint(parsed, filePath, 'MAIN', 'CHANGED', 'DEFAULT', language);
+        expect(issues.map(issue => issue.ruleId).sort()).toEqual([...expectedRules].sort());
+      }
+    });
+  }
+
   it('should not invoke generated-source detector when generated-code detection is disabled', async ({
     mock,
   }) => {

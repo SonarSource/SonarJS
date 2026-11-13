@@ -18,7 +18,6 @@ import type { Rule } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
-import { isVendorFile } from '../helpers/vendor-file-pattern.js';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';
 
@@ -45,10 +44,6 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       },
     }),
     create(context) {
-      if (isVendorFile(context.physicalFilename)) {
-        return {};
-      }
-
       let totalDeclarations = 0;
       let varDeclarations = 0;
       const interceptedReports: Rule.ReportDescriptor[] = [];

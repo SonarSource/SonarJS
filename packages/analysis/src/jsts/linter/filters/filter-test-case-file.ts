@@ -17,4 +17,4 @@
 import type { RuleFilter } from './rule-filter.js';
 
 export const filterTestCaseFile: RuleFilter = (_config, meta, ctx) =>
-  meta?.requiredTestCaseFile !== true || ctx.isTestCaseFile;
+  meta?.requiredTestCaseFile !== true || ctx.classification.isTestCaseFile;

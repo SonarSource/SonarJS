@@ -32,14 +32,17 @@ const ruleConfig = {
 const baseContext: RuleFilterContext = {
   extensionName: '.ts',
   fileType: 'MAIN',
-  isTestCaseFile: false,
+  classification: {
+    isVendorFile: false,
+    isTestCaseFile: false,
+    isGeneratedSource: false,
+  },
   fileLanguage: 'ts',
   analysisMode: 'DEFAULT',
   detectedEsYear: undefined,
   targetEsYear: undefined,
   detectedModuleType: undefined,
   detectGeneratedCode: true,
-  isGeneratedSource: false,
   dependencies: new Map(),
 };
 
@@ -63,7 +66,7 @@ describe('filterGeneratedSource', () => {
     expect(
       filterGeneratedSource(ruleConfig, undefined, {
         ...baseContext,
-        isGeneratedSource: true,
+        classification: { ...baseContext.classification, isGeneratedSource: true },
       }),
     ).toBe(true);
   });
@@ -72,7 +75,7 @@ describe('filterGeneratedSource', () => {
     expect(
       filterGeneratedSource(ruleConfig, generatedSourceMeta, {
         ...baseContext,
-        isGeneratedSource: true,
+        classification: { ...baseContext.classification, isGeneratedSource: true },
       }),
     ).toBe(false);
   });
@@ -82,7 +85,7 @@ describe('filterGeneratedSource', () => {
       filterGeneratedSource(ruleConfig, generatedSourceMeta, {
         ...baseContext,
         detectGeneratedCode: false,
-        isGeneratedSource: true,
+        classification: { ...baseContext.classification, isGeneratedSource: true },
       }),
     ).toBe(true);
   });

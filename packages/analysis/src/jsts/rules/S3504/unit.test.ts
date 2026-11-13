@@ -20,29 +20,36 @@ import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/r
 import { rule } from './index.js';
 
 describe('S3504', () => {
-  it('should ignore vendor files', () => {
+  it('should report independently of filenames in the ESLint plugin', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 
     ruleTester.run('S3504 vendor paths', rule, {
-      valid: [
+      valid: [],
+      invalid: [
         {
           code: `var vendorValue = 1;`,
           filename: path.join('project', 'vendor', 'legacy.js'),
+          output: `let vendorValue = 1;`,
+          errors: 1,
         },
         {
           code: `var vendorValue = 1;`,
           filename: path.join('project', 'vendors', 'legacy.js'),
+          output: `let vendorValue = 1;`,
+          errors: 1,
         },
         {
           code: `var x = 1;`,
           filename: path.join('src', 'vs', 'base', 'common', 'semver', 'semver.js'),
+          output: `let x = 1;`,
+          errors: 1,
         },
         {
           code: `var DOMPurify = 1;`,
           filename: path.join('src', 'vs', 'base', 'browser', 'dompurify', 'dompurify.js'),
+          output: `let DOMPurify = 1;`,
+          errors: 1,
         },
-      ],
-      invalid: [
         {
           code: `var sourceValue = 1;`,
           filename: path.join('project', 'src', 'legacy.js'),

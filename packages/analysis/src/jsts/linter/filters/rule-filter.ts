@@ -27,14 +27,17 @@ import type { SonarMeta } from '../../rules/helpers/generate-meta.js';
 export interface RuleFilterContext {
   extensionName: string;
   fileType: FileType;
-  isTestCaseFile: boolean;
+  classification: {
+    isVendorFile: boolean;
+    isTestCaseFile: boolean;
+    isGeneratedSource: boolean;
+  };
   fileLanguage: JsTsLanguage;
   analysisMode: AnalysisMode;
   detectedEsYear: number | undefined;
   targetEsYear: number | undefined;
   detectedModuleType: ModuleType | undefined;
   detectGeneratedCode: boolean;
-  isGeneratedSource: boolean;
   dependencies: DependenciesList;
 }
 

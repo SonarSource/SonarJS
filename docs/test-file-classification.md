@@ -1,7 +1,7 @@
-# Test-File Classification for Rule Selection
+# File Classification for Rule Selection
 
 SonarJS decides which rules apply to a file before any rule runs. Rule implementations must not
-inspect `context.filename` to decide whether they apply to test code.
+inspect filenames to decide whether they apply to test or vendor code.
 
 ## Classifications
 
@@ -25,6 +25,22 @@ may be TEST, but are not test-case files.
 Both signals share canonical definitions in `rule-file-type.ts`: the test-related markers are the
 test-case markers plus `e2e` and `mock`, and suffixes come from the configured JS/TS suffixes,
 falling back to the defaults in `configuration.ts`.
+
+## Vendor Files
+
+The linter also derives `isVendorFile` from
+`packages/analysis/src/common/vendor-file-pattern.ts`. It recognizes directory segments such as
+`vendor`, `vendors`, `external`, `externals`, `contrib`, `third-party` and `thirdparty`, plus known
+JavaScript library distribution basenames and their supported version/build variants. A directory
+named after a library is not sufficient: `src/semver/index.js` remains ordinary source, while
+`src/semver/semver.js` is recognized as a library distribution.
+
+This signal affects only rule selection. It does not exclude files from analysis or change their
+MAIN/TEST classification, metrics or other artifacts. The existing filename patterns are unchanged.
+
+The linter groups `isVendorFile`, `isTestCaseFile` and `isGeneratedSource` under
+`RuleFilterContext.classification`. These signals describe the file; rule requirements remain in
+metadata. Configuration options such as `detectGeneratedCode` stay separate from classification.
 
 ## `ruleFileType` Precedence
 
@@ -57,8 +73,14 @@ Configuring `sonar.tests` does not turn off step 5 for files outside the test pa
   configuration cache key, so files sharing a directory and extension get different rule sets.
   Today this applies to S2187 only.
 
-Classification lives in `packages/analysis/src/common/rule-file-type.ts`, outside the rule helpers,
-because it is a rule-selection concern. Rules must not import it or reimplement it.
+- A rule that should not run on copied third-party code exports `skipOnVendorFile = true` from
+  its `meta.ts`. The `filterVendorFile` linter filter disables it for vendor files. Rules without
+  this flag, including bundle rules without Sonar metadata, remain eligible. Today this applies
+  to S3504 only. The vendor signal is part of the linter configuration cache key, so a library
+  distribution and ordinary source in the same directory cannot reuse the wrong rule set.
+
+Classification lives in `packages/analysis/src/common/`, outside the rule helpers, because it is a
+rule-selection concern. Rules must not import it or reimplement it.
 
 ## ESLint Plugin
 
@@ -66,3 +88,9 @@ because it is a rule-selection concern. Rules must not import it or reimplement 
 Plugin users scope test rules with ESLint `files`/`ignores` globs, as documented in the plugin
 README. A rule requiring test-case files would report every other file, so the plugin keeps it off
 in the `recommended` config: `generateMeta` sets `meta.docs.recommended` to `false` for it.
+
+The plugin also has no central vendor classification. S3504 (`sonarjs/no-var`) therefore runs on
+vendor files when enabled in ESLint; it no longer suppresses reports based on the filename. Plugin
+users can turn it off for their vendor paths with `files`/`ignores` configuration, as shown in the
+plugin README. SonarQube continues to skip S3504 on vendor files through metadata-driven filtering.
+The rule's ambient-declaration and var-heavy-file behavior is unchanged in both integrations.

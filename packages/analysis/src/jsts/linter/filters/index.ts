@@ -18,6 +18,7 @@
 import type { RuleFilter } from './rule-filter.js';
 import { filterFileType } from './filter-file-type.js';
 import { filterTestCaseFile } from './filter-test-case-file.js';
+import { filterVendorFile } from './filter-vendor-file.js';
 import { filterAnalysisMode } from './filter-analysis-mode.js';
 import { filterLanguage } from './filter-language.js';
 import { filterBlacklistedExtensions } from './filter-blacklisted-extensions.js';
@@ -38,6 +39,7 @@ export type { RuleFilterContext } from './rule-filter.js';
 export const DEPENDENCY_INDEPENDENT_RULE_FILTERS: readonly RuleFilter[] = [
   filterFileType,
   filterTestCaseFile,
+  filterVendorFile,
   filterAnalysisMode,
   filterLanguage,
   filterBlacklistedExtensions,

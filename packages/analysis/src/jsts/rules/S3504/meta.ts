@@ -18,4 +18,5 @@ export const implementation = 'decorated';
 export const eslintId = 'no-var';
 export const externalRules = [{ externalPlugin: 'eslint', externalRule: 'no-var' }];
 export const blacklistedExtensions = ['.htm', '.html'];
+export const skipOnVendorFile = true;
 export const quickFixMessage = "Replace 'var' with 'let'";

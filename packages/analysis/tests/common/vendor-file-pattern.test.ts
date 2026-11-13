@@ -17,7 +17,7 @@
 import assert from 'node:assert';
 import path from 'node:path';
 import { describe, it } from 'node:test';
-import { isVendorFile } from '../../../../src/jsts/rules/helpers/vendor-file-pattern.js';
+import { isVendorFile } from '../../src/common/vendor-file-pattern.js';
 
 describe('isVendorFile', () => {
   it('should recognize vendor directory segments', () => {
@@ -42,7 +42,7 @@ describe('isVendorFile', () => {
     const libraryFilePaths = [
       // bare name — jquery, lodash, moment, ...
       path.join('app', 'js', 'jquery.js'),
-      path.join('app', 'js', 'jQuery.js'),           // case-insensitive
+      path.join('app', 'js', 'jQuery.js'), // case-insensitive
       path.join('app', 'js', 'lodash.js'),
       path.join('app', 'js', 'moment.js'),
       path.join('app', 'js', 'backbone.js'),
@@ -62,11 +62,11 @@ describe('isVendorFile', () => {
       path.join('app', 'js', 'three.webgpu.js'),
       path.join('app', 'js', 'three.webgpu.nodes.min.js'),
       // library-specific variants (confirmed via CDN/unpkg)
-      path.join('app', 'js', 'handlebars.runtime.js'),       // Handlebars runtime-only build
-      path.join('app', 'js', 'handlebars.amd.js'),            // Handlebars AMD build
+      path.join('app', 'js', 'handlebars.runtime.js'), // Handlebars runtime-only build
+      path.join('app', 'js', 'handlebars.amd.js'), // Handlebars AMD build
       path.join('app', 'js', 'handlebars.runtime.amd.min.js'), // Handlebars runtime+AMD
-      path.join('app', 'js', 'highlight.pack.js'),            // Highlight.js v9 (renamed in v10)
-      path.join('app', 'js', 'bluebird.core.min.js'),         // Bluebird core build
+      path.join('app', 'js', 'highlight.pack.js'), // Highlight.js v9 (renamed in v10)
+      path.join('app', 'js', 'bluebird.core.min.js'), // Bluebird core build
       // DOMPurify ships its dist as purify.js
       path.join('app', 'js', 'purify.js'),
       path.join('app', 'js', 'purify.min.js'),
@@ -84,8 +84,8 @@ describe('isVendorFile', () => {
   it('should not suppress a library directory when the file has a different name', () => {
     // A library analyzing its own source must not have all its files suppressed.
     const ownSourcePaths = [
-      path.join('src', 'semver', 'index.js'),          // semver's own source: only semver.js is suppressed
-      path.join('src', 'jquery', 'src', 'core.js'),    // jQuery's own source
+      path.join('src', 'semver', 'index.js'), // semver's own source: only semver.js is suppressed
+      path.join('src', 'jquery', 'src', 'core.js'), // jQuery's own source
       path.join('src', 'lodash', 'array', 'chunk.js'), // Lodash's own source
     ];
 
@@ -118,4 +118,3 @@ describe('isVendorFile', () => {
     }
   });
 });
-
