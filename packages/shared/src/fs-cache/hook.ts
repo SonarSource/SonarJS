@@ -75,6 +75,11 @@ export function hasArchivedFileContent(fileName: string): boolean {
   return key !== undefined && activeArchive.get(key, 'readFile')?.ok === true;
 }
 
+/** File contents also establish the directories needed to resolve archived imports. */
+export function hasArchivedDirectory(directory: string): boolean {
+  return activeArchive?.mode === 'replay' && activeArchive.hasDirectoryWithFileContent(directory);
+}
+
 type FsError = Error & {
   code?: string;
   errno?: number;

@@ -36,8 +36,8 @@ Current orphan groups include eligible cached peers. Their ambient types can imp
 in a changed file compared with a request containing only cache misses. That broader root set
 and its improved findings are accepted. Fresh context adds source reads and compiler work solely
 for collection; a numeric time/memory budget remains open. The per-file cache trust boundary is
-unchanged: dependency-aware reanalysis remains in JS-2815, and wildcard ambient-package discovery
-remains in JS-2853. Fresh context does not re-run cached rules or promise fresh-full-analysis
+unchanged: dependency-aware reanalysis remains in JS-2815.
+Fresh context does not re-run cached rules or promise fresh-full-analysis
 findings for every SQAA request.
 
 After successful analysis and archive persistence, Node sets `context_recorded` in the final
@@ -128,6 +128,14 @@ filesystem archive format version; this does not guarantee that the current anal
 every operation it needs from an older context.
 An older snapshot may list unused configs without their contents. Optional config preloading
 does not require those observations; a missing selected config still triggers source-only recovery.
+
+The TypeScript compiler host delegates directory discovery and symlink resolution to TypeScript's
+host, including wildcard ambient type packages and pnpm's isolated dependency layout. Recording
+captures these filesystem observations for relocated replay. Successful archived file reads also
+prove that their ancestor directories exist when no directory stat was recorded; this does not
+synthesize stat metadata or enumerate unobserved directory contents. Request-only imports use a
+parent-directory index rebuilt with each supplied source context. Both indexes respect the
+recorded filesystem case semantics.
 
 Missing or old `{}` collector metadata and unrecorded program selections use source-only analysis.
 If replay fails with a missing filesystem observation or an unsupported filesystem operation,

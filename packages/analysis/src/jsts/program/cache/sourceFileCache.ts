@@ -14,7 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { FileSystemMap } from '../../../common/filesystem.js';
+import { FileSystemMap, FileSystemSet } from '../../../common/filesystem.js';
+import {
+  dirnamePath,
+  type NormalizedAbsolutePath,
+} from '../../../../../shared/src/helpers/files.js';
 import { debug } from '../../../../../shared/src/helpers/logging.js';
 import type ts from 'typescript';
 import { clearFileRepresentationCaches } from '../file-representation.js';
@@ -71,6 +75,7 @@ function parsedSourceFileCacheIdentity(
  * Current files context for lazy loading
  */
 let currentFilesByPath = new FileSystemMap<string, { fileContent?: string }>();
+const providedDirectories = new FileSystemSet<string>();
 let currentFilesContext: Record<string, { fileContent?: string }> | null = null;
 let sourceFilesContextVersion = 0;
 
@@ -80,7 +85,22 @@ let sourceFilesContextVersion = 0;
 export function setSourceFilesContext(files: Record<string, { fileContent?: string }>): void {
   currentFilesContext = files;
   currentFilesByPath = new FileSystemMap(Object.entries(files));
+  providedDirectories.clear();
+  for (const file of Object.keys(files)) {
+    for (
+      let directory = dirnamePath(file as NormalizedAbsolutePath);
+      !providedDirectories.has(directory);
+      directory = dirnamePath(directory)
+    ) {
+      providedDirectories.add(directory);
+    }
+  }
   sourceFilesContextVersion++;
+}
+
+/** Constant-time lookup for imports into directories supplied only by the request. */
+export function hasProvidedSourceDirectory(directory: string): boolean {
+  return providedDirectories.has(directory);
 }
 
 /** A new request can reuse the same files object with edited contents. */
@@ -200,6 +220,7 @@ export function clearSourceFileContentCache(): void {
   parsedSourceFileCache.clear();
   currentFilesContext = null;
   currentFilesByPath.clear();
+  providedDirectories.clear();
   sourceFilesContextVersion++;
   debug('Cleared source file content cache and parsed SourceFile cache');
 }

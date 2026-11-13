@@ -17,10 +17,10 @@
 import ts from 'typescript';
 import { readDirectory } from './filesystem.js';
 import { equivalentRepresentations, prepareFileRepresentation } from './file-representation.js';
-import path from 'node:path/posix';
 import {
   getSourceFileContentCache,
   getProvidedSourceFile,
+  hasProvidedSourceDirectory,
   getCachedSourceFile,
   setCachedSourceFile,
   invalidateParsedSourceFile,
@@ -29,13 +29,17 @@ import {
   normalizeToAbsolutePath,
   type NormalizedAbsolutePath,
 } from '../../../../shared/src/helpers/files.js';
-import { hasArchivedFileContent } from '../../../../shared/src/fs-cache/hook.js';
+import {
+  hasArchivedDirectory,
+  hasArchivedFileContent,
+} from '../../../../shared/src/fs-cache/hook.js';
 import {
   canonicalFileName,
   isFileSystemCaseSensitive,
   FileSystemMap,
   FileSystemSet,
   pathIsUnder,
+  pathsEqual,
 } from '../../common/filesystem.js';
 
 interface FsCall {
@@ -60,6 +64,9 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
   private readonly fileContents = new FileSystemMap<string, string>();
   private fsCallTracker: FsCall[] = [];
   private readonly baseHost: ts.CompilerHost;
+  private realBaseDir: NormalizedAbsolutePath | undefined;
+  private readonly resolvedFileNames = new FileSystemMap<string, NormalizedAbsolutePath>();
+  private readonly aliasesByResolvedFile = new FileSystemMap<string, FileSystemSet<string>>();
 
   constructor(
     private readonly compilerOptions: ts.CompilerOptions,
@@ -77,7 +84,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     if (content === undefined) {
       return false;
     }
-    const normalized = path.normalize(filePath);
+    const normalized = this.getResolvedFileName(filePath);
     const cache = getSourceFileContentCache();
     const oldContent = this.fileContents.get(normalized) ?? cache.get(normalized);
     this.fileContents.set(normalized, content);
@@ -110,7 +117,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
    * Get version string for a file (used by builder programs for change detection)
    */
   getFileVersion(fileName: string): string {
-    const normalized = path.normalize(fileName);
+    const normalized = this.getResolvedFileName(fileName);
     return (this.fileVersions.get(normalized) || 0).toString();
   }
 
@@ -146,14 +153,36 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
 
   // CompilerHost implementation - intercept file reads
 
+  /** Reuse only symlink identities already observed by TypeScript, without probing extra files. */
+  getResolvedFileName(fileName: string): NormalizedAbsolutePath {
+    const normalized = normalizeToAbsolutePath(fileName, this.baseDir);
+    return this.resolvedFileNames.get(normalized) ?? normalized;
+  }
+
+  private getProvidedFile(fileName: string): { fileContent?: string } | undefined {
+    const resolved = this.getResolvedFileName(fileName);
+    let provided = getProvidedSourceFile(resolved);
+    if (provided?.fileContent !== undefined) {
+      return provided;
+    }
+    for (const alias of this.aliasesByResolvedFile.get(resolved) ?? []) {
+      const candidate = getProvidedSourceFile(alias);
+      if (candidate?.fileContent !== undefined) {
+        return candidate;
+      }
+      provided ??= candidate;
+    }
+    return provided;
+  }
+
   readFile(fileName: string): string | undefined {
-    const normalized = path.normalize(fileName);
+    const normalized = this.getResolvedFileName(fileName);
     if (this.shouldSkipNodeModulesOutsideBaseDir(normalized)) {
       return;
     }
 
     const cache = getSourceFileContentCache();
-    const providedFile = getProvidedSourceFile(fileName);
+    const providedFile = this.getProvidedFile(fileName);
 
     // 1. For files in the current request context, always prefer request content.
     // This avoids serving stale contents from the global cache across requests.
@@ -189,7 +218,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
   }
 
   fileExists(fileName: string): boolean {
-    const normalized = path.normalize(fileName);
+    const normalized = this.getResolvedFileName(fileName);
     if (this.shouldSkipNodeModulesOutsideBaseDir(normalized)) {
       return false;
     }
@@ -203,7 +232,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     }
 
     // 2. Check files context
-    const providedFile = getProvidedSourceFile(fileName);
+    const providedFile = this.getProvidedFile(fileName);
     if (providedFile) {
       this.trackFsCall('fileExists-context', fileName);
       return true;
@@ -229,16 +258,16 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     onError?: (message: string) => void,
     shouldCreateNewSourceFile?: boolean,
   ): ts.SourceFile | undefined {
-    const normalized = path.normalize(fileName);
+    const normalized = this.getResolvedFileName(fileName);
     if (this.shouldSkipNodeModulesOutsideBaseDir(normalized)) {
       return;
     }
 
     // For files explicitly present in the current analysis context, make the
     // request content authoritative before looking up cached parsed ASTs.
-    const contextContent = getProvidedSourceFile(fileName)?.fileContent;
+    const contextContent = this.getProvidedFile(fileName)?.fileContent;
     if (contextContent !== undefined) {
-      this.updateFile(normalized as NormalizedAbsolutePath, contextContent);
+      this.updateFile(normalized, contextContent);
     }
 
     const currentVersion = this.fileVersions.get(normalized) || 0;
@@ -277,7 +306,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     contentHash: string,
     shouldCreateNewSourceFile?: boolean,
   ): ts.SourceFile {
-    const normalized = path.normalize(fileName);
+    const normalized = this.getResolvedFileName(fileName);
     const { jsx, importHelpers } = this.compilerOptions;
     const representation = prepareFileRepresentation(normalized, content, this.compilerOptions);
     const cacheOptions = { ...this.compilerOptions, scriptKind: representation.scriptKind };
@@ -347,6 +376,42 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     return this.baseDir;
   }
 
+  directoryExists(directory: string): boolean {
+    const normalized = normalizeToAbsolutePath(directory, this.baseDir);
+    if (this.shouldSkipNodeModulesOutsideBaseDir(normalized)) {
+      return false;
+    }
+    return (
+      (this.baseHost.directoryExists?.(normalized) ?? false) ||
+      hasProvidedSourceDirectory(normalized) ||
+      hasArchivedDirectory(normalized)
+    );
+  }
+
+  getDirectories(directory: string): string[] {
+    const normalized = normalizeToAbsolutePath(directory, this.baseDir);
+    if (this.shouldSkipNodeModulesOutsideBaseDir(normalized)) {
+      return [];
+    }
+    return this.baseHost.getDirectories?.(normalized) ?? [];
+  }
+
+  realpath(fileName: string): string {
+    const resolved = this.baseHost.realpath?.(fileName) ?? fileName;
+    const normalized = normalizeToAbsolutePath(fileName, this.baseDir);
+    const normalizedResolved = normalizeToAbsolutePath(resolved, this.baseDir);
+    if (!pathsEqual(normalized, normalizedResolved)) {
+      this.resolvedFileNames.set(normalized, normalizedResolved);
+      let aliases = this.aliasesByResolvedFile.get(normalizedResolved);
+      if (!aliases) {
+        aliases = new FileSystemSet();
+        this.aliasesByResolvedFile.set(normalizedResolved, aliases);
+      }
+      aliases.add(normalized);
+    }
+    return resolved;
+  }
+
   readDirectory(
     rootDir: string,
     extensions: readonly string[],
@@ -384,9 +449,13 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
       return false;
     }
     const canonical = canonicalFileName(fileName);
-    return (
-      (canonical.includes('/node_modules/') || canonical.endsWith('/node_modules')) &&
-      !pathIsUnder(fileName, this.baseDir)
-    );
+    if (
+      !(canonical.includes('/node_modules/') || canonical.endsWith('/node_modules')) ||
+      pathIsUnder(fileName, this.baseDir)
+    ) {
+      return false;
+    }
+    this.realBaseDir ??= normalizeToAbsolutePath(this.realpath(this.baseDir));
+    return !pathIsUnder(fileName, this.realBaseDir);
   }
 }

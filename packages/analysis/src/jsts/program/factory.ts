@@ -262,7 +262,7 @@ function updateCachedProgramFiles(
     return wasUpdated;
   }
   for (const [file, context] of Object.entries(filesContext ?? {})) {
-    if (!pathsEqual(file, sourceFile) && program.getSourceFile(file)) {
+    if (!pathsEqual(file, sourceFile) && program.getSourceFile(host.getResolvedFileName(file))) {
       wasUpdated =
         host.updateFile(file as NormalizedAbsolutePath, context.fileContent) || wasUpdated;
     }
