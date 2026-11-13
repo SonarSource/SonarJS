@@ -1,5 +1,9 @@
 # Vercel TS7 comparison evidence
 
+These measurements describe the original compiler pin. See the
+[upstream 7.1 beta refresh](vercel-ts7-upgrade-comparison.md) for a fresh comparison
+of the old and updated providers with unchanged analyzer and project sources.
+
 Local macOS arm64 run with Node v24.16.0, three fresh sequential processes per provider and project, alternating order. The runner reused the ruling configuration. Source revision and input-tree hashes, individual timings, peak RSS and determinism checks are in [vercel-ts7-comparison.json](vercel-ts7-comparison.json). No concurrent build or test workload ran during these measurements.
 
 | Project    | Files | Findings (each) | Exact matches | TS6 median | Vercel median | Ratio |

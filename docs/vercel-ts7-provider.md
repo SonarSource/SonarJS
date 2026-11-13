@@ -16,8 +16,13 @@ archive. `npm ci` builds the private provider with esbuild during postinstall.
 `npm run generate-meta` and `npm run compiler:check` also rebuild it, including after
 CI restores only `node_modules` from cache. Generated runtime and dependency metadata
 are excluded from Git. Analysis executes no Go compiler, scriptc executable or native binary. Declaration
-resources come from the pinned `@typescript/native-preview` distribution; its binary
-is not copied to the analyzer package.
+resources come from `typescript-go`, an alias of Microsoft's TypeScript 7.1 beta
+distribution. Preparation verifies its `gitHead` against Vercel's `upstream.json`
+and replaces the generated declaration directory so removed libraries cannot linger.
+Only declarations are copied to the analyzer package; its binary and API are unused.
+`@typescript/native-preview` remains a development dependency for building SonarJS.
+Reference-compiler build commands invoke `packages/typescript/tsc.cjs` explicitly,
+so the declaration distribution's `tsc` executable cannot shadow them.
 
 The source archive is a monorepo whose root lacks version/license metadata. The build
 copies the compiler workspace's identity into its installed root manifest and npm's
@@ -68,15 +73,21 @@ Changing the pin requires revalidating those private interfaces and source patch
   only for settings that were already inert in TS6; it preserves the rest of the
   config instead of selecting fallback options. Other unknown options still fail.
 - Asserted build-time source patches handle unknown file extensions (Vue), native
-  configuration host callbacks/extra extensions, legacy resolution and deprecated
+  configuration host callbacks/extra extensions, host-backed UNC paths, legacy resolution and deprecated
   interface heritage references. A stale patch fails the build. Constructor deprecation
   messages retain the classic contract. Parser diagnostics exclude program grammar
   checks and the obsolete import-assertion diagnostic so existing projects keep
   producing analyzable ASTs.
+- Upstream 7.1 rejects network paths before filesystem callbacks. Provider patches
+  retain SonarJS's existing support for UNC roots, config inheritance, path aliases
+  and references through its filesystem hosts. Upstream's implicit disk-access
+  guards remain intact. The existing shared UNC contract tests cover this behavior.
 - Compiler AST kinds, flags, lists, tokens, types, symbols and signatures are adapted
   with stable identities per program. JSDoc is kept out of the lexical token stream
   while remaining available to checker queries. Host content overlays take precedence;
   missing reads return `null` to deny the port's implicit filesystem fallback.
+  Unique-symbol types use the checker's stored name and escaping function; public
+  symbol ids no longer suffice to reconstruct well-known-symbol property keys.
 - Existing SonarJS program caches retain unchanged programs. A changed program is
   rebuilt, rather than reusing semantic views across generations. Existing references
   to an older program stay valid. This draft does not implement TS7 incremental builders.
@@ -115,7 +126,7 @@ same project root. Inputs and measured results are recorded in the accompanying
 
 The full bridge test suite covers the existing analyzer and rule fixtures. The
 shared conformance suite runs against both registered providers. Vercel-specific
-provider regression test blocks every TS6 SDK import while exercising Vercel
+provider regression test blocks TS6 and native TS7 SDK imports and compiler children/workers while exercising Vercel
 source files, configuration parsing, typed programs, host overlays, denied reads and
 successive edits. It also checks explicit reference selection, unknown-provider failure
 and declaration-resource selection across script targets.
@@ -132,6 +143,16 @@ This provider declares `tools/build-vercel-typescript.mjs` as its preparation sc
 and retains legacy module resolution. The shared policy therefore preserves its
 Classic/Node10 resolver. Existing project sources and recorded ruling expectations
 are unchanged by the rebase.
+
+## Upstream 7.1 beta refresh
+
+The November 2026 refresh uses Vercel 0.1.5, including its port of Microsoft's
+TypeScript 7.1 beta and subsequent checker fixes. The immutable source revision
+remains defined only by `tsc-ts-source` in package.json. It retains the existing
+synchronous JavaScript library API and the provider's private checker supplements.
+The seven source-module hooks assert their pinned text before applying patches.
+See [the upgrade comparison](vercel-ts7-upgrade-comparison.md) for fresh before/after
+measurements and their limitations; the original comparison remains historical evidence.
 
 ## Shared provider contract and lifetime
 

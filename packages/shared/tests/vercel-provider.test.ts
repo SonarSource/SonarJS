@@ -28,14 +28,24 @@ it('uses Vercel in process, preserves host overlays and denies implicit disk rea
     const Module = require('node:module');
     const load = Module._load;
     Module._load = function(name, ...args) {
-      if (/typescript-classic/.test(name)) throw new Error('TS6 runtime loaded: ' + name);
+      if (/^(typescript-classic|typescript-go|@typescript\/native-preview)(\/|$)/.test(name))
+        throw new Error('Another compiler SDK loaded: ' + name);
       return load.call(this, name, ...args);
     };
+    require('node:child_process').spawn = () => { throw new Error('Compiler child spawned'); };
+    require('node:worker_threads').Worker = class { constructor() { throw new Error('Compiler worker spawned'); } };
     const ts = require('./packages/typescript/index.cjs');
     const {CompilerContractError} = require('./packages/typescript/errors.cjs');
     assert.equal(ts.convertCompilerOptionsFromJson({target:'ES2020'}, '/virtual').options.target, ts.ScriptTarget.ES2020);
     assert.deepEqual(ts.parseConfigFileTextToJson('tsconfig.json', '{/*comment*/\"compilerOptions\":{\"strict\":true,},}').config, {compilerOptions:{strict:true}});
     assert.equal(ts.createSourceFile('test.ts', 'const x = 1;', ts.ScriptTarget.Latest).statements.length, 1);
+    const heritage = ts.createSourceFile('heritage.ts', 'type Ref = Base<string>; interface Derived extends ns.Base<string> {}', ts.ScriptTarget.Latest, true);
+    assert.equal(heritage.statements[0].type.typeName.text, 'Base');
+    const base = heritage.statements[1].heritageClauses[0].types[0];
+    assert.equal(base.kind, ts.SyntaxKind.ExpressionWithTypeArguments);
+    assert.equal(base.expression.kind, ts.SyntaxKind.PropertyAccessExpression);
+    assert.equal(base.expression.expression.text, 'ns');
+    assert.equal(base.expression.name.text, 'Base');
     const compilerHost = ts.createCompilerHost({noLib: true});
     compilerHost.readFile = () => 'const fromHost = 1;';
     assert.equal(compilerHost.getSourceFile('host.ts', ts.ScriptTarget.Latest).text, 'const fromHost = 1;');

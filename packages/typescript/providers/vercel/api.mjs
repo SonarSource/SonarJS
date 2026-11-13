@@ -19,7 +19,7 @@ export * from 'tsc-ts-source/packages/tsc-ts/src/library/index.ts';
 import * as api from 'tsc-ts-source/packages/tsc-ts/src/library/index.ts';
 import * as nav from 'tsc-ts-source/packages/tsc-ts/src/compiler/astnav.ts';
 import { diagnosticOf } from 'tsc-ts-source/packages/tsc-ts/src/library/diagnostics.ts';
-import { CheckFlags } from 'tsc-ts-source/packages/tsc-ts/src/compiler/symbol.ts';
+import { CheckFlags, escapeSymbolName } from 'tsc-ts-source/packages/tsc-ts/src/compiler/symbol.ts';
 import * as members from 'tsc-ts-source/packages/tsc-ts/src/compiler/checker-members.ts';
 import * as services from 'tsc-ts-source/packages/tsc-ts/src/compiler/checker-services.ts';
 import * as symbols from 'tsc-ts-source/packages/tsc-ts/src/compiler/checker-symbols.ts';
@@ -30,7 +30,7 @@ import * as contextual from 'tsc-ts-source/packages/tsc-ts/src/compiler/checker-
 import * as operators from 'tsc-ts-source/packages/tsc-ts/src/compiler/checker-type-operators.ts';
 import * as builder from 'tsc-ts-source/packages/tsc-ts/src/compiler/node-builder.ts';
 import { scanTokens } from 'tsc-ts-source/packages/tsc-ts/src/compiler/astnav.ts';
-export { CheckFlags, diagnosticOf };
+export { CheckFlags, diagnosticOf, escapeSymbolName };
 // Every program currently reparses its libraries. Do not let the compiler's
 // process-global sharing cache retain their ASTs and adapter closures forever.
 // Existing checkers keep their own globals and remain usable.

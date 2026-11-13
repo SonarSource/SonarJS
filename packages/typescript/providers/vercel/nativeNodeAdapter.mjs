@@ -82,7 +82,9 @@ const EAGER_KEYS = new Set(['end', 'flags', 'kind', 'pos']);
 const CLASSIC_ONLY_KEYS = [
   'default',
   'escapedText',
+  'expression',
   'modifierFlagsCache',
+  'name',
   'parent',
   'parseDiagnostics',
 ];

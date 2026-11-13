@@ -31,6 +31,7 @@
     "tools/compiler-provider-plugin.mjs",
     "packages/typescript/providers/classic.cjs",
     "tools/compiler-comparison/compare.mjs",
+    "tools/compiler-comparison/upgrade-report.mjs",
     "tools/compiler-comparison/worker.mts",
     "packages/typescript/providers/vercel/index.mjs",
     "packages/typescript/providers/vercel/legacyResolution.mjs"

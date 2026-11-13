@@ -16,7 +16,7 @@
  */
 import { build } from 'esbuild';
 import { existsSync, readFileSync } from 'node:fs';
-import { mkdir, writeFile, copyFile, readdir } from 'node:fs/promises';
+import { mkdir, writeFile, copyFile, readdir, rm } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { resolve } from 'node:path';
@@ -104,8 +104,35 @@ const result = await build({
               directoryCall,
               'const matched = this.readDirectory ? this.readDirectory(basePath, flattenExtensions(extensionsWithJson), specs.validatedExcludeSpecs, includes) : readDirectory(',
             );
+            // The analyzer's filesystem host supports UNC paths. Keep upstream's
+            // implicit disk-access guards; only remove config/loader rejection.
+            const networkValue = 'if (isNetworkPathValue(';
+            const networkSpec =
+              "if (basePath !== undefined && getNormalizedAbsolutePath(spec, basePath).startsWith('//'))";
+            if (text.split(networkValue).length !== 5 || !text.includes(networkSpec))
+              throw new Error('Pinned config network path patch is stale');
+            text = text.replaceAll(networkValue, 'if (false && isNetworkPathValue(');
+            text = text.replace(networkSpec, 'if (false)');
             return {
               contents: text + '\nexport { ConfigFileConverter, parseConfigText };',
+              loader: 'ts',
+            };
+          },
+        );
+        build.onLoad(
+          {
+            filter:
+              /tsc-ts-source[/\\]packages[/\\]tsc-ts[/\\]src[/\\]compiler[/\\](file-loader|program)\.ts$/,
+          },
+          ({ path }) => {
+            const text = readFileSync(path, 'utf8');
+            const before = path.endsWith('file-loader.ts')
+              ? 'if (isNetworkPath(fileName))'
+              : 'if (isNetworkPathValue(substitution, options.pathsBasePath ?? this.currentDirectory))';
+            if (text.split(before).length !== 2)
+              throw new Error('Pinned program network path patch is stale');
+            return {
+              contents: text.replace(before, before.replace('if (', 'if (false && ')),
               loader: 'ts',
             };
           },
@@ -172,13 +199,20 @@ await writeFile('target/vercel-typescript-metafile.json', JSON.stringify(result.
 
 // Declaration resources come from the pinned TS7 distribution, independently of TS6.
 const require = createRequire(import.meta.url);
+const upstream = JSON.parse(readFileSync('node_modules/tsc-ts-source/upstream.json', 'utf8'));
+const libraries = require('typescript-go/package.json');
+if (libraries.gitHead !== upstream.commit)
+  throw new Error(
+    'Vercel compiler and TypeScript declaration resources must use the same upstream revision',
+  );
 const librarySource = join(
   dirname(
-    require.resolve(`@typescript/native-preview-${process.platform}-${process.arch}/package.json`),
+    require.resolve(`@typescript/typescript-${process.platform}-${process.arch}/package.json`),
   ),
   'lib',
 );
 const libraryTarget = 'packages/typescript/providers/vercel/lib';
+await rm(libraryTarget, { recursive: true, force: true });
 await mkdir(libraryTarget, { recursive: true });
 for (const file of await readdir(librarySource)) {
   if (/^lib.*\.d\.ts$/.test(file))

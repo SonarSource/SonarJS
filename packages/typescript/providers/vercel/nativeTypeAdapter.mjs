@@ -1,5 +1,5 @@
 // Adapted from typescript-eslint native adapters; see NOTICE.md and LICENSE.
-import { symbolName, getJSDocTags, getTextOfJSDocComment } from './api.mjs';
+import { symbolName, getJSDocTags, getTextOfJSDocComment, escapeSymbolName } from './api.mjs';
 import { CheckFlags, ElementFlags, ObjectFlags, SymbolFlags, TypeFlags } from './api.mjs';
 import { CompilerContractError } from '../../errors.cjs';
 import { compilerCall, compilerMethods } from './contract.mjs';
@@ -329,14 +329,11 @@ function createNativeTypeAdapter({ checker, nodeAdapter }) {
     constraintType: type =>
       (type.objectFlags & ObjectFlags.Mapped) !== 0 ? wrapType(type.getConstraintType()) : void 0,
     default: type => (type.isTypeParameter() ? wrapType(type.getDefault()) : void 0),
-    // `UniqueESSymbolType` spells its name the way the checker does for the
-    // symbol's own property, which native only exposes piecewise.
     type: type =>
       type.isIndexType() || type.isStringMappingType() ? wrapType(type.getTarget()) : void 0,
-    escapedName: type => {
-      const symbol = type.flags & TypeFlags.UniqueESSymbol ? type.getSymbol() : void 0;
-      return symbol && `__@${symbol.name}@${symbol.id}`;
-    },
+    // The checker owns unique names; their ids need not match public symbol ids.
+    escapedName: type =>
+      type.flags & TypeFlags.UniqueESSymbol ? escapeSymbolName(type.name) : void 0,
     extendsType: type => (type.isConditionalType() ? wrapType(type.getExtendsType()) : void 0),
     freshType: type => (type.flags & TypeFlags.Freshable ? wrapType(type.getFreshType()) : void 0),
     indexType: type => (type.isIndexedAccessType() ? wrapType(type.getIndexType()) : void 0),

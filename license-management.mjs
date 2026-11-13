@@ -83,7 +83,9 @@ async function downloadLicenses() {
     for (const [packageName, info] of Object.entries(packages)) {
       if (
         platformPackages.has(packageName.substring(0, packageName.lastIndexOf('@'))) ||
-        packageName.startsWith('@typescript/native-preview')
+        packageName.startsWith('@typescript/native-preview') ||
+        packageName.startsWith('@typescript/typescript-') ||
+        packageName.startsWith('typescript-go@')
       )
         continue;
       // Download and save license file
@@ -163,17 +165,11 @@ async function main() {
     );
     for (const [source, name] of [
       [
-        path.join(
-          path.dirname(require.resolve('@typescript/native-preview/package.json')),
-          'LICENSE',
-        ),
+        path.join(path.dirname(require.resolve('typescript-go/package.json')), 'LICENSE'),
         'typescript-native-LICENSE.txt',
       ],
       [
-        path.join(
-          path.dirname(require.resolve('@typescript/native-preview/package.json')),
-          'NOTICE.txt',
-        ),
+        path.join(path.dirname(require.resolve('typescript-go/package.json')), 'NOTICE.txt'),
         'typescript-native-NOTICES.txt',
       ],
       ['node_modules/tsc-ts-source/LICENSE', 'vercel-tsc-ts-LICENSE.txt'],
