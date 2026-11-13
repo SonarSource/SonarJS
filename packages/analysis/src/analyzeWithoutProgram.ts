@@ -52,6 +52,7 @@ export async function analyzeWithoutProgram(
   for (const filename of filenames) {
     const relativePath = relative(baseDir, filename);
     if (
+      !jsTsConfigFields.disableTypeChecking &&
       isJsTsFile(filename, {
         jsSuffixes,
         tsSuffixes,

@@ -99,6 +99,30 @@ describe('SonarQube project analysis', () => {
     });
   });
 
+  for (const [directory, fileName] of [
+    ['basic', 'main.ts'],
+    ['no-tsconfig', 'orphan.ts'],
+  ] as const) {
+    it(`should not report missing type information when type checking is disabled (${directory})`, async context => {
+      const log = context.mock.method(console, 'log', () => {});
+      const baseDir = join(fixtures, directory);
+      const filePath = join(baseDir, fileName);
+      const configuration = await initForTest(
+        { baseDir, skipAst: false, disableTypeChecking: true },
+        { [filePath]: { filePath, fileContent: 'const value = 1;', fileType: 'MAIN' } },
+      );
+
+      const result = await analyzeProject({ rules: [], bundles: [] }, configuration);
+      const fileResult = result.files[normalizeToAbsolutePath(filePath)];
+
+      assert(fileResult && !('error' in fileResult) && 'ast' in fileResult && fileResult.ast);
+      expect(deserializeProtobuf(fileResult.ast).program?.body).toHaveLength(1);
+      const messages = log.mock.calls.map(call => String(call.arguments[0])).join('\n');
+      expect(messages).not.toContain('not part of any tsconfig.json');
+      expect(messages).not.toContain('JS/TS file analyzed without type-checking');
+    });
+  }
+
   it('should analyze files using tsconfig', async () => {
     const baseDir = join(fixtures, 'basic');
     const filePath = join(baseDir, 'main.ts');
