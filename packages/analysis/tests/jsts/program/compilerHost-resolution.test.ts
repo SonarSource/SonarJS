@@ -29,7 +29,8 @@ const { IncrementalCompilerHost } = await import('../../../src/jsts/program/comp
 const { clearSourceFileContentCache, setSourceFilesContext } =
   await import('../../../src/jsts/program/cache/sourceFileCache.js');
 const { isFileSystemCaseSensitive } = await import('../../../src/common/filesystem.js');
-const { normalizeToAbsolutePath } = await import('../../../../shared/src/helpers/files.js');
+const { normalizePath, normalizeToAbsolutePath } =
+  await import('../../../../shared/src/helpers/files.js');
 
 // Keep compiler-host resolution assertions independent of rules which tolerate missing types.
 describe('compiler host type resolution', () => {
@@ -45,7 +46,9 @@ describe('compiler host type resolution', () => {
 
   beforeEach(() => {
     clearSourceFileContentCache();
-    temporary = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'compiler-resolution-')));
+    temporary = fs.realpathSync.native(
+      fs.mkdtempSync(path.join(os.tmpdir(), 'compiler-resolution-')),
+    );
     root = normalizeToAbsolutePath(path.join(temporary, 'project'));
     fs.mkdirSync(root);
   });
@@ -85,7 +88,7 @@ describe('compiler host type resolution', () => {
       diagnostics: value.getSemanticDiagnostics(source).map(d => d.code),
       declarations: value
         .getSourceFiles()
-        .map(f => f.fileName.replace(root, ''))
+        .map(f => normalizePath(path.relative(root, f.fileName)))
         .filter(f => f.includes('query-core')),
     };
   }
@@ -319,6 +322,52 @@ describe('compiler host type resolution', () => {
     const host = new IncrementalCompilerHost(options, root, true);
     assert.deepEqual(result(program(options, host)).types, ['Promise<void>']);
   });
+
+  for (const [name, aliasPath, nativeRoot] of [
+    ['POSIX', '/workspace/project-link', '/workspace/project'],
+    ['Windows drive', 'C:/workspace/project-link', String.raw`C:\workspace\project`],
+    ['mixed separators', 'C:/workspace/project-link', String.raw`C:\workspace/project`],
+    ['UNC share', '//server/share/project-link', String.raw`\\server\share\project`],
+  ]) {
+    it(`normalizes the physical project root for ${name} paths`, t => {
+      const alias = normalizeToAbsolutePath(aliasPath);
+      const physicalRoot = normalizeToAbsolutePath(nativeRoot);
+      const dependency = `${physicalRoot}/node_modules/local/index.d.ts`;
+      const outside = `${physicalRoot}-sibling/node_modules/local/index.d.ts`;
+      const content = 'export declare const value: number;';
+      setSourceFilesContext({
+        [dependency]: { fileContent: content },
+        [outside]: { fileContent: content },
+      });
+      // These synthetic paths must not probe the native filesystem or a UNC server.
+      t.mock.method(ts.sys, 'directoryExists', () => false);
+      const host = new IncrementalCompilerHost(options, alias, true);
+      const realpath = t.mock.method(host, 'realpath', (file: string) => {
+        assert.equal(file, alias);
+        return nativeRoot;
+      });
+
+      assert.equal(host.directoryExists(path.posix.dirname(dependency)), true);
+      assert.equal(host.fileExists(dependency), true);
+      assert.equal(host.readFile(dependency), content);
+      const source = host.getSourceFile(dependency, ts.ScriptTarget.ESNext)!;
+      assert.equal(source.fileName, dependency);
+      assert.equal(source.text, content);
+      assert.equal(host.directoryExists(path.posix.dirname(outside)), false);
+      assert.deepEqual(host.getDirectories(path.posix.dirname(outside)), []);
+      assert.equal(host.fileExists(outside), false);
+      assert.equal(host.readFile(outside), undefined);
+      setSourceFilesContext({});
+      assert.equal(host.getSourceFile(dependency, ts.ScriptTarget.ESNext), source);
+      const editedContent = content.replace('number', 'string');
+      assert.equal(host.updateFile(normalizeToAbsolutePath(dependency), editedContent), true);
+      assert.equal(host.getFileVersion(dependency), '1');
+      const edited = host.getSourceFile(dependency, ts.ScriptTarget.ESNext)!;
+      assert.notEqual(edited, source);
+      assert.equal(edited.text, editedContent);
+      assert.equal(realpath.mock.callCount(), 1);
+    });
+  }
 
   for (const caseSensitivePaths of [false, true]) {
     it(`indexes request directories with recorded case semantics (${caseSensitivePaths}) and resets between requests`, () => {
