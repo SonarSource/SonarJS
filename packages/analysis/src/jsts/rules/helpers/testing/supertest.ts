@@ -122,8 +122,9 @@ class SupertestHelper {
 
   private identifierValue(node: estree.Identifier, parameters: ParameterValues): SupertestValue {
     const variable = getVariableFromName(this.context, node.name, node);
-    if (variable && parameters.has(variable)) {
-      return { ...parameters.get(variable)!, assertion: false };
+    const parameterValue = variable ? parameters.get(variable) : undefined;
+    if (parameterValue) {
+      return { ...parameterValue, assertion: false };
     }
     const resolved = resolveSingleWriteExpression(this.context, node);
     // An assertion in an initializer ran at initialization, not when the variable is read.
@@ -154,12 +155,12 @@ class SupertestHelper {
     const method = callee.computed
       ? resolveSingleWriteExpression(this.context, callee.property)
       : callee.property;
-    const name =
-      !callee.computed && method.type === 'Identifier'
-        ? method.name
-        : method.type === 'Literal' && typeof method.value === 'string'
-          ? method.value
-          : undefined;
+    let name: string | undefined;
+    if (!callee.computed && method.type === 'Identifier') {
+      name = method.name;
+    } else if (method.type === 'Literal' && typeof method.value === 'string') {
+      name = method.value;
+    }
     // A plugin can replace expect; an unknown computed method could be use().
     if (name === 'use') {
       return PLUGIN_REQUEST;

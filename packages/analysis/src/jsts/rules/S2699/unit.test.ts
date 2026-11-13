@@ -2142,6 +2142,10 @@ it('checks the response', async () => {
         "await check(request(app).get('/items'));",
       ),
       supertestFactoryTestCase(
+        'const check = (req, _ = (req = fakeRequest(app))) => req.expect(404);',
+        "await check(request(app).get('/items'));",
+      ),
+      supertestFactoryTestCase(
         'const pass = req => req;',
         "await pass(fakeRequest(app)).get('/items').expect(404);",
       ),
