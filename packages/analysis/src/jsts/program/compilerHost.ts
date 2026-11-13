@@ -21,6 +21,7 @@ import path from 'node:path/posix';
 import {
   getSourceFileContentCache,
   getProvidedSourceFile,
+  hasProvidedSourceDirectory,
   getCachedSourceFile,
   setCachedSourceFile,
   invalidateParsedSourceFile,
@@ -29,7 +30,10 @@ import {
   normalizeToAbsolutePath,
   type NormalizedAbsolutePath,
 } from '../../../../shared/src/helpers/files.js';
-import { hasArchivedFileContent } from '../../../../shared/src/fs-cache/hook.js';
+import {
+  hasArchivedDirectory,
+  hasArchivedFileContent,
+} from '../../../../shared/src/fs-cache/hook.js';
 import {
   canonicalFileName,
   isFileSystemCaseSensitive,
@@ -60,6 +64,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
   private readonly fileContents = new FileSystemMap<string, string>();
   private fsCallTracker: FsCall[] = [];
   private readonly baseHost: ts.CompilerHost;
+  private realBaseDir: string | undefined;
 
   constructor(
     private readonly compilerOptions: ts.CompilerOptions,
@@ -347,6 +352,30 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     return this.baseDir;
   }
 
+  directoryExists(directory: string): boolean {
+    const normalized = normalizeToAbsolutePath(directory, this.baseDir);
+    if (this.shouldSkipNodeModulesOutsideBaseDir(normalized)) {
+      return false;
+    }
+    return (
+      (this.baseHost.directoryExists?.(normalized) ?? false) ||
+      hasProvidedSourceDirectory(normalized) ||
+      hasArchivedDirectory(normalized)
+    );
+  }
+
+  getDirectories(directory: string): string[] {
+    const normalized = normalizeToAbsolutePath(directory, this.baseDir);
+    if (this.shouldSkipNodeModulesOutsideBaseDir(normalized)) {
+      return [];
+    }
+    return this.baseHost.getDirectories?.(normalized) ?? [];
+  }
+
+  realpath(fileName: string): string {
+    return this.baseHost.realpath?.(fileName) ?? fileName;
+  }
+
   readDirectory(
     rootDir: string,
     extensions: readonly string[],
@@ -386,7 +415,8 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     const canonical = canonicalFileName(fileName);
     return (
       (canonical.includes('/node_modules/') || canonical.endsWith('/node_modules')) &&
-      !pathIsUnder(fileName, this.baseDir)
+      !pathIsUnder(fileName, this.baseDir) &&
+      !pathIsUnder(fileName, (this.realBaseDir ??= this.realpath(this.baseDir)))
     );
   }
 }

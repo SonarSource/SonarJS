@@ -179,6 +179,7 @@ export class FsCacheArchive {
   entries: Map<string, CacheNode>;
   missingPaths: Set<string>;
   pathKeys: Map<string, string>;
+  private contentDirectories: Set<string> | undefined;
   dirty: boolean;
   cacheHits: number;
   cacheMisses: number;
@@ -266,6 +267,7 @@ export class FsCacheArchive {
     // Missing metadata keeps the old archive's exact-key semantics, independent of host OS.
     this.caseSensitivePaths = document.caseSensitivePaths ?? true;
     this.pathKeys.clear();
+    this.contentDirectories = undefined;
     for (const missingPath of document.missingPaths || []) {
       this.missingPaths.add(this.canonicalKey(missingPath));
     }
@@ -302,6 +304,30 @@ export class FsCacheArchive {
     this.pathKeys.set(filePath, key);
     this.pathKeys.set(normalizeForComparison(filePath), key);
     return key;
+  }
+
+  /** Successful file reads prove ancestor existence without inventing stat metadata. */
+  hasDirectoryWithFileContent(directory: string): boolean {
+    const key = this.keyFor(directory);
+    if (key === undefined) {
+      return false;
+    }
+    if (!this.contentDirectories) {
+      this.contentDirectories = new Set();
+      for (const [file, node] of this.entries) {
+        if (!node.content?.ok) {
+          continue;
+        }
+        for (
+          let parent = path.posix.dirname(file);
+          !this.contentDirectories.has(parent);
+          parent = path.posix.dirname(parent)
+        ) {
+          this.contentDirectories.add(parent);
+        }
+      }
+    }
+    return this.contentDirectories.has(key);
   }
 
   /** Preserve path-value spelling; only lookup keys should be case-folded. */
