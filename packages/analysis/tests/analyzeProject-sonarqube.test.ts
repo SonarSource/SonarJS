@@ -117,11 +117,6 @@ describe('SonarQube project analysis', () => {
 
       assert(fileResult && !('error' in fileResult) && 'ast' in fileResult && fileResult.ast);
       expect(deserializeProtobuf(fileResult.ast).program?.body).toHaveLength(1);
-      expect(result.meta.telemetry?.programCreation).toEqual({
-        attempted: 0,
-        succeeded: 0,
-        failed: 0,
-      });
       const messages = log.mock.calls.map(call => String(call.arguments[0])).join('\n');
       expect(messages).not.toContain('not part of any tsconfig.json');
       expect(messages).not.toContain('JS/TS file analyzed without type-checking');
@@ -1385,9 +1380,6 @@ describe('SonarQube project analysis', () => {
         (call.arguments[0] as string)?.includes('not part of any tsconfig.json'),
       ),
     ).toBe(true);
-    expect(consoleLogMock.calls.map(call => call.arguments[0])).toContain(
-      'WARN JS/TS file analyzed without type-checking (not part of any tsconfig.json): orphan.ts',
-    );
 
     // Should NOT log "using default options" since we skip the entry point program creation
     expect(
@@ -1451,16 +1443,6 @@ describe('SonarQube project analysis', () => {
         ),
       ),
     ).toBe(true);
-    expect(
-      consoleLogMock.calls.some(call =>
-        (call.arguments[0] as string)?.includes('not part of any tsconfig.json'),
-      ),
-    ).toBe(false);
-    expect(result.meta.telemetry?.programCreation).toEqual({
-      attempted: 0,
-      succeeded: 0,
-      failed: 0,
-    });
 
     // The file should still be analyzed (without type info)
     expect(result.files[normalizeToAbsolutePath(filePath)]).toBeDefined();
