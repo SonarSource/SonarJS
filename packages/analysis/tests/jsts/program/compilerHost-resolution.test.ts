@@ -29,6 +29,10 @@ const { IncrementalCompilerHost } = await import('../../../src/jsts/program/comp
 const { clearSourceFileContentCache, setSourceFilesContext } =
   await import('../../../src/jsts/program/cache/sourceFileCache.js');
 const { isFileSystemCaseSensitive } = await import('../../../src/common/filesystem.js');
+const { createOrGetCachedProgramForFile } = await import('../../../src/jsts/program/factory.js');
+const { getProgramCacheManager } = await import('../../../src/jsts/program/cache/programCache.js');
+const { createProgramOptionsFromJson } =
+  await import('../../../src/jsts/program/tsconfig/options.js');
 const { normalizePath, normalizeToAbsolutePath } =
   await import('../../../../shared/src/helpers/files.js');
 
@@ -45,6 +49,7 @@ describe('compiler host type resolution', () => {
   };
 
   beforeEach(() => {
+    getProgramCacheManager().clear();
     clearSourceFileContentCache();
     temporary = fs.realpathSync.native(
       fs.mkdtempSync(path.join(os.tmpdir(), 'compiler-resolution-')),
@@ -54,6 +59,7 @@ describe('compiler host type resolution', () => {
   });
 
   afterEach(() => {
+    getProgramCacheManager().clear();
     clearSourceFileContentCache();
     fs.rmSync(temporary, { recursive: true, force: true });
   });
@@ -323,12 +329,81 @@ describe('compiler host type resolution', () => {
     assert.deepEqual(result(program(options, host)).types, ['Promise<void>']);
   });
 
+  it('preserves request edits through a symlinked type root, including cached dependency updates', () => {
+    const physicalFile = write(
+      'custom-types/local/globals.ts',
+      'declare const localGlobal: number;',
+    );
+    write('custom-types/local/package.json', '{"name":"local","types":"globals.ts"}');
+    write('consumer.ts', 'void localGlobal;');
+    const alias = normalizeToAbsolutePath(path.join(temporary, 'project-link'));
+    fs.symlinkSync(root, alias, 'junction');
+    root = alias;
+    const file = normalizeToAbsolutePath('consumer.ts', root);
+    const dependency = `${root}/custom-types/local/globals.ts`;
+    const context = { [dependency]: { fileContent: 'declare const localGlobal: string;' } };
+    const configured = createProgramOptionsFromJson(
+      { ...options, types: ['local'], typeRoots: [`${root}/custom-types`] },
+      [file],
+      root,
+    );
+    const getProgram = () => createOrGetCachedProgramForFile(root, file, () => configured)!;
+
+    setSourceFilesContext(context);
+    const first = getProgram();
+    assert.deepEqual(result(first).types, ['string']);
+    assert.equal(first.getSourceFile(physicalFile)?.text, context[dependency].fileContent);
+    assert.equal(getProgram(), first);
+
+    context[dependency].fileContent = 'declare const localGlobal: boolean;';
+    setSourceFilesContext(context);
+    const edited = getProgram();
+    assert.notEqual(edited, first);
+    assert.deepEqual(result(edited).types, ['boolean']);
+    assert.equal(getProgram(), edited);
+
+    getProgramCacheManager().clear();
+    assert.deepEqual(result(getProgram()).types, ['boolean']);
+  });
+
   for (const [name, aliasPath, nativeRoot] of [
     ['POSIX', '/workspace/project-link', '/workspace/project'],
     ['Windows drive', 'C:/workspace/project-link', String.raw`C:\workspace\project`],
     ['mixed separators', 'C:/workspace/project-link', String.raw`C:\workspace/project`],
     ['UNC share', '//server/share/project-link', String.raw`\\server\share\project`],
   ]) {
+    it(`shares request content and versions across symlink aliases for ${name} paths`, t => {
+      const alias = normalizeToAbsolutePath(`${aliasPath}/globals.ts`);
+      const physical = normalizeToAbsolutePath(`${nativeRoot}/globals.ts`);
+      // Exercise native separators without touching nonexistent drives or network shares.
+      t.mock.method(
+        ts.sys as Required<typeof ts.sys>,
+        'realpath',
+        () => `${nativeRoot}/globals.ts`,
+      );
+      t.mock.method(ts.sys, 'readFile', () => {
+        assert.fail('Supplied content must not fall back to disk');
+      });
+      const host = new IncrementalCompilerHost(options, root);
+      host.realpath(alias);
+      setSourceFilesContext({ [alias]: { fileContent: 'declare const value: string;' } });
+      assert.equal(host.fileExists(physical), true);
+      const first = host.getSourceFile(physical, ts.ScriptTarget.ESNext)!;
+      assert.equal(first.text, 'declare const value: string;');
+
+      const edited = 'declare const value: boolean;';
+      setSourceFilesContext({ [alias]: { fileContent: edited } });
+      assert.equal(host.updateFile(alias, edited), true);
+      assert.equal(host.getFileVersion(alias), host.getFileVersion(physical));
+      const second = host.getSourceFile(physical, ts.ScriptTarget.ESNext)!;
+      assert.notEqual(second, first);
+      assert.equal(second.text, edited);
+
+      // Later requests can use the physical spelling while the program retains the alias.
+      setSourceFilesContext({ [physical]: { fileContent: '' } });
+      assert.equal(host.readFile(alias), '');
+    });
+
     it(`normalizes the physical project root for ${name} paths`, t => {
       const alias = normalizeToAbsolutePath(aliasPath);
       const physicalRoot = normalizeToAbsolutePath(nativeRoot);
