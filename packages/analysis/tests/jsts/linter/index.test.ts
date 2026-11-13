@@ -276,6 +276,51 @@ describe('Linter', () => {
     });
   }
 
+  for (const language of ['js', 'ts'] as const) {
+    for (const directive of [
+      'no-var: "error"',
+      'sonarjs/S3504: "error"',
+      'no-var: "error", sonarjs/S3504: "error"',
+    ]) {
+      it(`should preserve vendor exclusions with inline ${directive} in ${language}`, async () => {
+        await Linter.initialize({
+          baseDir: normalizeToAbsolutePath(import.meta.dirname),
+          rules: ['S3504', 'S1116'].map(key => ({
+            key,
+            configurations: [],
+            fileTypeTargets: ['MAIN'],
+            language,
+            analysisModes: ['DEFAULT'],
+          })),
+        });
+        for (const [relativePath, expectedRules] of [
+          [`vendor/legacy.${language}`, ['S1116']],
+          ['src/jquery.js', ['S1116']],
+          [`src/legacy.${language}`, ['S3504', 'S1116']],
+        ] as const) {
+          const filePath = normalizeToAbsolutePath(path.join(import.meta.dirname, relativePath));
+          const parsed = build(
+            await jsTsInput({
+              filePath,
+              fileContent: `/* eslint ${directive} */\nvar value = 1;;`,
+              language,
+            }),
+          );
+          const { issues, suppressedIssues } = Linter.lint(
+            parsed,
+            filePath,
+            'MAIN',
+            'CHANGED',
+            'DEFAULT',
+            language,
+          );
+          expect(issues.map(issue => issue.ruleId).sort()).toEqual([...expectedRules].sort());
+          expect(suppressedIssues).toEqual([]);
+        }
+      });
+    }
+  }
+
   it('should not invoke generated-source detector when generated-code detection is disabled', async ({
     mock,
   }) => {

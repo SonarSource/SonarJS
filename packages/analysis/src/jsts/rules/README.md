@@ -121,29 +121,6 @@ export default [
 ];
 ```
 
-### Vendor files
-
-`sonarjs/no-var` (S3504) no longer skips files based on vendor directory names or library filenames.
-SonarQube applies this classification when selecting rules, but the ESLint plugin does not. Turn
-the rule off for the third-party code in your project with a scoped configuration after
-`sonarjs.configs.recommended`:
-
-```javascript
-import sonarjs from 'eslint-plugin-sonarjs';
-export default [
-  sonarjs.configs.recommended,
-  {
-    files: ['**/vendor/**', '**/third-party/**', '**/jquery*.js'],
-    rules: {
-      'sonarjs/no-var': 'off',
-    },
-  },
-];
-```
-
-Adapt the paths to your project. To exclude vendor code from all rules, use an ESLint global
-`ignores` configuration instead.
-
 ### TypeScript ESLint parser
 
 Several rules are designed for linting both JavaScript and TypeScript code, and some even rely on type checking through TypeScript. Therefore, you will need to install the `@typescript-eslint/parser` dependency and [instruct ESLint to use this parser](https://eslint.org/docs/latest/use/configure/parser) through the `parserOptions` property.

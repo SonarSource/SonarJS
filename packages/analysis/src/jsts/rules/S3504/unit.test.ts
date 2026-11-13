@@ -20,7 +20,7 @@ import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/r
 import { rule } from './index.js';
 
 describe('S3504', () => {
-  it('should report independently of filenames in the ESLint plugin', () => {
+  it('should leave filename applicability to the central linter', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 
     ruleTester.run('S3504 vendor paths', rule, {
