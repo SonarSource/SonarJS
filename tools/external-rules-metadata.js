@@ -51,11 +51,16 @@ Object.entries(plugins).forEach(([pluginName, npmModuleName]) => {
   const plugin = require(npmModuleName);
   const rules = Object.entries(plugin.rules).map(([key, rule]) => {
     const ruleKey = `${pluginName}/${key}`;
+    const documentationUrl =
+      rule.meta.docs?.url ??
+      (pluginName === 'import'
+        ? `https://github.com/import-js/eslint-plugin-import/blob/v${require(`${npmModuleName}/package.json`).version}/docs/rules/${key}.md`
+        : `https://www.npmjs.com/package/${npmModuleName}`);
     return {
       key: ruleKey,
       name: rule.meta.docs?.description?.slice(0, MAX_RULE_NAME_LENGTH),
       type: rule.meta.type === 'problem' ? 'BUG' : undefined,
-      description: `See description of ESLint rule <code>${ruleKey}</code> at the <a href="${rule.meta.docs.url}">${npmModuleName} website</a>`,
+      description: `See description of ESLint rule <code>${ruleKey}</code> at the <a href="${documentationUrl}">${npmModuleName} website</a>`,
     };
   });
   saveMetadata(rules, pluginName);
