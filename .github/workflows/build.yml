@@ -892,6 +892,46 @@ jobs:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
+  bundled_node_minimal_ubuntu:
+    runs-on: warp-custom-ubuntu-24-04
+    name: Bundled Node on minimal Ubuntu
+    needs: [build]
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    permissions:
+      contents: read
+    steps:
+      - name: Download SonarJS artifacts
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: sonarjs-m2
+          path: sonarjs-artifacts
+      - name: Extract bundled Linux x64 Node
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import lzma
+          import os
+          from pathlib import Path
+          from zipfile import ZipFile
+
+          plugins = list(Path('sonarjs-artifacts').rglob('sonar-javascript-plugin-*-linux-x64.jar'))
+          if len(plugins) != 1:
+              raise RuntimeError(f'Expected one Linux x64 plugin, found {len(plugins)}')
+          runtime_dir = Path(os.environ['RUNNER_TEMP']) / 'bundled-node'
+          runtime_dir.mkdir()
+          node = runtime_dir / 'node'
+          with ZipFile(plugins[0]) as plugin:
+              node.write_bytes(lzma.decompress(plugin.read('linux-x64/node.xz')))
+          node.chmod(0o755)
+          PY
+      - name: Run bundled Node without additional system packages
+        shell: bash
+        run: |
+          docker run --rm --network none --platform linux/amd64 \
+            -v "$RUNNER_TEMP/bundled-node:/runtime:ro" \
+            ubuntu:24.04@sha256:73b999393d07f2bf65a40373778a44dc9a6d54ad7718d29247d8ff9413c4d6a8 \
+            /runtime/node --version
+
   plugin_qa_without_node:
     runs-on: sonar-m
     name: QA without Node on Ubuntu SQ:LATEST_RELEASE
@@ -1430,6 +1470,7 @@ jobs:
       - analyze_primary
       - test_eslint_plugin
       - plugin_qa_with_node
+      - bundled_node_minimal_ubuntu
       - plugin_qa_without_node
       - plugin_qa_fast_with_node
       - plugin_qa_fast_without_node
@@ -1500,6 +1541,7 @@ jobs:
       - analyze_primary
       - test_eslint_plugin
       - plugin_qa_with_node
+      - bundled_node_minimal_ubuntu
       - plugin_qa_without_node
       - plugin_qa_fast_with_node
       - plugin_qa_fast_without_node
