@@ -214,7 +214,7 @@
     "key": "import/no-import-module-exports",
     "name": "Forbid import statements with CommonJS module.exports.",
     "type": "BUG",
-    "description": "See description of ESLint rule <code>import/no-import-module-exports</code> at the <a href=\"undefined\">eslint-plugin-import website</a>"
+    "description": "See description of ESLint rule <code>import/no-import-module-exports</code> at the <a href=\"https://github.com/import-js/eslint-plugin-import/blob/v2.32.0/docs/rules/no-import-module-exports.md\">eslint-plugin-import website</a>"
   },
   {
     "key": "import/no-empty-named-blocks",
