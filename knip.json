@@ -14,6 +14,9 @@
   ],
   "project": ["packages/**/*.ts", "tools/**/*.ts"],
   "ignoreDependencies": [
+    "ajv",
+    "ajv-formats",
+    "ajv-formats-draft2019",
     "nyc",
     "@istanbuljs/esm-loader-hook",
     "esbuild",
