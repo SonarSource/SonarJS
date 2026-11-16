@@ -6,7 +6,9 @@ root=${2:?Pass the absolute directory containing runtimes/node-24 and runtimes/n
 mkdir -p "$root/results"
 
 docker pull --platform linux/amd64 "$image"
-docker image inspect "$image" --format '{{json .RepoDigests}}' | tee "$root/results/image-digests.json"
+docker image inspect "$image" --format '{{json .RepoDigests}}' \
+  | python3 -c 'import json, sys; print(json.dumps([value.rsplit("@", 1)[-1] for value in json.load(sys.stdin)]))' \
+  | tee "$root/results/image-digests.json"
 
 # Keep the unmodified image free of diagnostic package installations.
 docker run --rm --platform linux/amd64 --network none --user 0 \
