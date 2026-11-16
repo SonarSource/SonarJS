@@ -40,16 +40,31 @@ docker run --rm --platform linux/amd64 --network none --user 0 \
 # This is a fresh, disposable container from the same image. Install only
 # libatomic as the diagnostic intervention; do not update the base image.
 docker run --rm --platform linux/amd64 --user 0 \
-  --volume "$root/runtimes:/reproduction:ro" --entrypoint /bin/bash "$image" -c '
+  --volume "$root/runtimes:/reproduction:ro" \
+  --volume "$root/results:/evidence" --entrypoint /bin/bash "$image" -c '
     set -euo pipefail
-    rpm -qa | sort > /tmp/packages-before
+    rpm -qa | sort > /evidence/packages-before.txt
     dnf install -y libatomic
-    rpm -qa | sort > /tmp/packages-after
-    echo "Package changes:"
-    diff -u /tmp/packages-before /tmp/packages-after || test "$?" -eq 1
+    rpm -qa | sort > /evidence/packages-after.txt
     rpm -q libatomic
     ldd /reproduction/node-26
     test "$(/reproduction/node-26 --version)" = "v26.13.1"
     /reproduction/node-26 -e '\''const assert = require("node:assert/strict"); const { Worker } = require("node:worker_threads"); new Worker("require(\"node:worker_threads\").parentPort.postMessage(42)", { eval: true }).once("message", value => { assert.equal(value, 42); console.log("Node 26 worker thread completed"); });'\''
     echo "PASS: the same Node 26 binary starts after installing libatomic"
   ' 2>&1 | tee "$root/results/after-libatomic.log"
+
+python3 - "$root/results" <<'PY'
+from pathlib import Path
+import sys
+
+results = Path(sys.argv[1])
+before = set((results / 'packages-before.txt').read_text().splitlines())
+after = set((results / 'packages-after.txt').read_text().splitlines())
+added = sorted(after - before)
+removed = sorted(before - after)
+print('Added packages:', added)
+print('Removed packages:', removed)
+assert not removed, 'The control must not remove any packages'
+assert len(added) == 1 and added[0].startswith('libatomic-'), added
+print('PASS: libatomic was the only package changed')
+PY
