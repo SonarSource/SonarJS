@@ -928,6 +928,7 @@ jobs:
         name: Fix permissions for non-root QA
         run: |
           chown -R sonar:sonar "$GITHUB_WORKSPACE"
+          chown -R sonar:sonar "$ORCHESTRATOR_HOME"
           chown -R sonar:sonar "$RUNNER_TEMP/orchestrator-production-config"
           chown -R sonar:sonar /github/home
       - name: Run Plugin QA without Node
