@@ -80,15 +80,5 @@
 2223,
 2271,
 2315
-],
-"eigen:src/app/tests/MockRelayRenderer.tests.tsx": [
-27,
-39,
-56
-],
-"eigen:src/app/tests/renderRelayTree.tests.tsx": [
-17,
-31,
-72
 ]
 }
