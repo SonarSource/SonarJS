@@ -29,13 +29,14 @@ const SAFE_URL_PREFIXES = exclusions.safeUrlPrefixes.map(prefix =>
 // Extract the raw authority, skipping user information, even when a URL contains placeholders.
 // The explicit whitespace characters match Java's default \s.
 const CLEARTEXT_AUTHORITY = new RegExp(
-  String.raw`^(?:${CLEARTEXT_PROTOCOLS.map(protocol => protocol.slice(0, -3)).join('|')}):\/\/(?:[^@\t\n\v\f\r /?#]+@)?([^\t\n\v\f\r /?#]+)`,
+  String.raw`^(?:${CLEARTEXT_PROTOCOLS.map(protocol => protocol.replace('://', '')).join('|')}):\/\/(?:[^@\t\n\v\f\r /?#]+@)?([^\t\n\v\f\r /?#]+)`,
   'i',
 );
 
 // Commons calls String.strip(), whose whitespace definition differs from JavaScript's trim().
 const JAVA_WHITESPACE =
   /[\t-\r\u001c-\u0020\u1680\u2000-\u2006\u2008-\u200a\u2028\u2029\u205f\u3000]/;
+const JAVA_MAX_INTEGER = 2_147_483_647;
 
 /** Applies the Commons exclusions in Node.js; the npm package supplies data, not its Java matcher. */
 export function isSafeWithoutTls(value: string): boolean {
@@ -64,9 +65,9 @@ export function isSafeWithoutTls(value: string): boolean {
   return (
     singleLabel !== null &&
     !/^(?:\d+|0x[\da-f]+)$/i.test(singleLabel[1]) &&
-    Number(singleLabel[2] ?? 0) <= 2147483647 &&
+    Number(singleLabel[2] ?? 0) <= JAVA_MAX_INTEGER &&
     !/[\p{Cc}\p{Z}<>"\\^`{|}]|%(?![\da-f]{2})/iu.test(stripped) &&
-    !/[\[\]]/.test(match[0]) &&
+    !/[[\]]/.test(match[0]) &&
     !/#.*#/.test(stripped)
   );
 }
