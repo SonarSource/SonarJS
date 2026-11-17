@@ -906,7 +906,7 @@ jobs:
         name: Prepare minimal Ubuntu QA environment
         run: |
           apt-get update
-          apt-get install --no-install-recommends -y ca-certificates curl util-linux xz-utils
+          apt-get install --no-install-recommends -y ca-certificates curl unzip util-linux xz-utils
           rm -rf /var/lib/apt/lists/*
           # Elasticsearch refuses to run as root. Match Java's home to the Maven cache.
           useradd --no-create-home --home-dir /github/home --shell /bin/bash sonar
