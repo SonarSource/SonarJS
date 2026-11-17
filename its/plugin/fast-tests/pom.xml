@@ -27,7 +27,7 @@
     <dependency>
       <groupId>com.sonarsource.scanner.integrationtester</groupId>
       <artifactId>sonar-scanner-integration-tester</artifactId>
-      <version>1.6.0.1436</version>
+      <version>1.7.0.11463</version>
       <scope>test</scope>
     </dependency>
     <dependency>
