@@ -53,6 +53,14 @@ import {
   type RestoredProgramSelection,
 } from './program-selection/archive.js';
 
+// Loads JavaScript dependencies without type declarations, so that their types can be inferred.
+const MAX_NODE_MODULE_JS_DEPTH = 9;
+
+function createAnalysisProgram(programOptions: ProgramOptions): ts.Program {
+  programOptions.options.maxNodeModuleJsDepth = MAX_NODE_MODULE_JS_DEPTH;
+  return createStandardProgram(programOptions);
+}
+
 type ProgramAnalysisContext = {
   files: AnalyzableFiles;
   results: ProjectAnalysisOutput;
@@ -280,7 +288,7 @@ async function analyzeFilesFromEntryPoint(
     );
 
     telemetry.recordProgramCreationAttempt();
-    const tsProgram = createStandardProgram(programOptions);
+    const tsProgram = createAnalysisProgram(programOptions);
     const detectedEsYear = esLibToYear(programOptions.options.lib);
     const targetEsYear = tsTargetToEsYear(programOptions.options.target);
     telemetry.recordEcmaScriptVersion(detectedEsYear ?? undefined);
@@ -405,7 +413,7 @@ async function analyzeFilesFromTsConfig(
     baseDir,
     jsTsConfigFields.skipNodeModuleLookupOutsideBaseDir,
   );
-  const tsProgram = createStandardProgram(programOptions);
+  const tsProgram = createAnalysisProgram(programOptions);
   const detectedEsYear = esLibToYear(programOptions.options.lib);
   const targetEsYear = tsTargetToEsYear(programOptions.options.target);
   telemetry.recordEcmaScriptVersion(detectedEsYear ?? undefined);
@@ -558,7 +566,7 @@ function restoreSelectedProgram(
     baseDir,
     jsTsConfigFields.skipNodeModuleLookupOutsideBaseDir,
   );
-  const tsProgram = createStandardProgram(programOptions);
+  const tsProgram = createAnalysisProgram(programOptions);
   const detectedEsYear = esLibToYear(programOptions.options.lib) ?? undefined;
   const targetEsYear = tsTargetToEsYear(programOptions.options.target) ?? undefined;
   telemetry.recordEcmaScriptVersion(detectedEsYear);
