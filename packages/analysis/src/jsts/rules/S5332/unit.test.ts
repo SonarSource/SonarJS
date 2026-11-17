@@ -30,6 +30,13 @@ describe('S5332', () => {
           code: `fetch("HTTP://WWW.TOPOGRAFIX.COM/gpx/1/1");`,
         },
         {
+          // FN - accepted for Commons consistency: "http://www" is exempt before concatenation.
+          code: `
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www')
+        + '.google-analytics.com/ga.js';
+      `,
+        },
+        {
           code: `
       // Non sensitive url scheme
       url = "https://";
