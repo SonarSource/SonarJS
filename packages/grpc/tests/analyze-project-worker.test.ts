@@ -123,6 +123,127 @@ function createIncrementalEvent(event: WsIncrementalResult): AnalyzeProjectIncre
 }
 
 describe('analyze-project worker', () => {
+  it('replays alternating snapshots with identical paths in one worker', async () => {
+    const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'worker-snapshot-isolation-'));
+    const root = normalizeToAbsolutePath(path.join(temporary, 'project'));
+    const work = path.join(temporary, 'artifacts');
+    fs.mkdirSync(root);
+    fs.mkdirSync(work);
+    const sourcePath = normalizeToAbsolutePath(path.join(root, 'main.ts'));
+    const content =
+      "import { values } from './values';\n" +
+      "import { values as configured } from '@configured';\n" +
+      'values.sort();\nconfigured.sort();';
+    const numbers = 'export const values: number[] = [80, 3, 9];';
+    const customSort = 'export const values = { sort() {} };';
+    fs.writeFileSync(sourcePath, content);
+    fs.writeFileSync(path.join(root, 'configured-a.ts'), numbers);
+    fs.writeFileSync(path.join(root, 'configured-b.ts'), customSort);
+    const worker = new Worker(
+      path.resolve(import.meta.dirname, '../../../lib/grpc/src/analyze-project-worker.js'),
+      { workerData },
+    );
+    const { FileType, JsTsLanguage, AnalysisMode, FilesystemCacheMode } =
+      analyzeProjectProto.analyzeproject.v1;
+    const replayedIssues: unknown[] = [];
+    let sequence = 0;
+    const analyze = (snapshot: string, mode: number, issueCount: number) =>
+      new Promise<void>((resolve, reject) => {
+        const requestId = String(++sequence);
+        const timer = setTimeout(
+          () => finish(new Error(`Snapshot worker request ${requestId} timed out`)),
+          getWorkerRequestTimeout(sequence),
+        );
+        const onError = (error: Error) => finish(error);
+        const onMessage = (message: AnalyzeProjectWorkerOutMessage) => {
+          if (message.type !== 'unary-complete' || message.requestId !== requestId) return;
+          try {
+            if (message.result.type !== 'success' || !message.result.result) {
+              throw new Error(JSON.stringify(message.result));
+            }
+            const output = message.result.result;
+            const issues = output.files![sourcePath].issues!;
+            expect(issues.map(issue => issue.ruleId)).toEqual(Array(issueCount).fill('S2871'));
+            expect(output.meta?.warnings).toEqual([]);
+            if (mode === FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY) {
+              replayedIssues.push(issues);
+            }
+            finish();
+          } catch (error) {
+            finish(error as Error);
+          }
+        };
+        function finish(error?: Error) {
+          clearTimeout(timer);
+          worker.off('message', onMessage);
+          worker.off('error', onError);
+          if (error) reject(error);
+          else resolve();
+        }
+        worker.on('message', onMessage);
+        worker.once('error', onError);
+        worker.postMessage({
+          type: 'analyze-unary',
+          requestId,
+          request: {
+            configuration: { baseDir: root },
+            files: { [sourcePath]: { fileContent: content, fileType: FileType.FILE_TYPE_MAIN } },
+            rules: [
+              {
+                key: 'S2871',
+                configurations: [],
+                fileTypeTargets: [FileType.FILE_TYPE_MAIN],
+                language: JsTsLanguage.JS_TS_LANGUAGE_TS,
+                analysisModes: [AnalysisMode.ANALYSIS_MODE_DEFAULT],
+              },
+            ],
+            cssRules: [],
+            bundles: [],
+            rulesWorkdir: work,
+            filesystemCache: {
+              mode,
+              archivePath: path.join(work, `${snapshot}-filesystem.pb.gz`),
+              analysisMetadataPath: path.join(work, `${snapshot}-programs.pb.gz`),
+              contextMetadata: JSON.stringify({ configuration: { baseDir: root } }),
+            },
+          },
+        });
+      });
+
+    try {
+      for (const snapshot of ['a', 'b']) {
+        fs.writeFileSync(path.join(root, 'values.ts'), snapshot === 'a' ? numbers : customSort);
+        fs.writeFileSync(
+          path.join(root, 'tsconfig.json'),
+          JSON.stringify({
+            compilerOptions: {
+              baseUrl: '.',
+              paths: { '@configured': [`./configured-${snapshot}.ts`] },
+            },
+            files: ['main.ts'],
+          }),
+        );
+        await analyze(
+          snapshot,
+          FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD,
+          snapshot === 'a' ? 2 : 0,
+        );
+      }
+      fs.rmSync(root, { recursive: true });
+      for (const snapshot of ['a', 'b', 'a']) {
+        await analyze(
+          snapshot,
+          FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY,
+          snapshot === 'a' ? 2 : 0,
+        );
+      }
+      expect(replayedIssues[0]).toEqual(replayedIssues[2]);
+    } finally {
+      await worker.terminate();
+      fs.rmSync(temporary, { recursive: true, force: true });
+    }
+  });
+
   for (const origin of ['C:/ci/project', '//server/share/project', '/home/ci/project']) {
     it(`replays a ${origin} snapshot in the real worker without TypeScript or filesystem mocks`, async () => {
       const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'portable-worker-'));
