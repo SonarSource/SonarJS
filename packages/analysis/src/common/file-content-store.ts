@@ -21,8 +21,6 @@ type ContentFile = { fileContent?: string };
 type Entry = {
   content?: string;
   contentHash?: string;
-  file?: ContentFile;
-  fileScope?: object;
   data?: Map<symbol, unknown>;
 };
 
@@ -47,11 +45,8 @@ class FileContentStore {
     return entry;
   }
 
-  register(path: string, file: ContentFile, scope?: object): void {
+  register(path: string, file: ContentFile): void {
     const entry = this.entry(path);
-    if (scope) {
-      entry.fileScope = scope;
-    }
     if (this.bindings.get(file) === entry) {
       return;
     }
@@ -69,7 +64,6 @@ class FileContentStore {
         setContent(entry, content);
       },
     });
-    entry.file = file;
     this.bindings.set(file, entry);
   }
 
@@ -124,11 +118,6 @@ class FileContentStore {
         yield path;
       }
     }
-  }
-
-  getFile(path: string, scope: object): ContentFile | undefined {
-    const entry = this.entries.get(path);
-    return entry?.fileScope === scope ? entry.file : undefined;
   }
 
   delete(path: string): boolean {

@@ -23,6 +23,8 @@ import { createConfiguration } from '../src/common/configuration.js';
 import {
   initFileStoresForAnalysis,
   initFileStores,
+  dependencyManifestStore,
+  generatedSourceStore,
   sourceFileStore,
   tsConfigStore,
 } from '../src/file-stores/index.js';
@@ -31,6 +33,7 @@ import { createAnalyzableFiles } from '../src/projectAnalysis.js';
 import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
 import { FsCacheArchive } from '../../shared/src/fs-cache/archive.js';
 import { installFsCache } from '../../shared/src/fs-cache/hook.js';
+import { fileContentStore } from '../src/common/file-content-store.js';
 
 const cache = installFsCache();
 let temporary: string;
@@ -41,6 +44,111 @@ beforeEach(() => {
 afterEach(() => fs.rmSync(temporary, { recursive: true, force: true }));
 
 describe('file-store context reconciliation', () => {
+  it('releases rejected sources and temporary configs without reading unused candidates', async ({
+    mock,
+  }) => {
+    const rootDir = normalizeToAbsolutePath(temporary);
+    const rejected = ['vendor.min.js', 'vendor.min.css'].map(filename =>
+      normalizeToAbsolutePath(path.join(rootDir, filename)),
+    );
+    const temporaryConfig = normalizeToAbsolutePath(path.join(rootDir, 'codegen.json'));
+    const unused = normalizeToAbsolutePath(path.join(rootDir, 'unused.json'));
+    for (const file of rejected) fs.writeFileSync(file, '/* minified */');
+    fs.writeFileSync(temporaryConfig, '{"generates":{}}');
+    fs.writeFileSync(unused, '{}');
+    const read = mock.method(fs.promises, 'readFile');
+
+    await initFileStoresForAnalysis(createConfiguration({ baseDir: rootDir }));
+
+    expect(read.mock.calls.map(call => String(call.arguments[0])).sort()).toEqual(
+      [...rejected, temporaryConfig].sort(),
+    );
+    for (const file of rejected) {
+      expect(sourceFileStore.getFile(file)).toBeUndefined();
+      expect(fileContentStore.has(file)).toBe(false);
+    }
+    expect(fileContentStore.has(temporaryConfig)).toBe(false);
+    expect(fileContentStore.has(unused)).toBe(false);
+  });
+
+  it('shares manifest contents with a TSConfig consumer after one discovery read', async ({
+    mock,
+  }) => {
+    const rootDir = normalizeToAbsolutePath(temporary);
+    const filePath = normalizeToAbsolutePath(path.join(rootDir, 'package.json'));
+    fs.writeFileSync(filePath, '{}');
+    const read = mock.method(fs.promises, 'readFile');
+
+    await initFileStoresForAnalysis(
+      createConfiguration({ baseDir: rootDir, tsConfigPaths: ['package.json'] }),
+    );
+
+    expect(read.mock.calls.map(call => String(call.arguments[0]))).toEqual([filePath]);
+    const file = dependencyManifestStore.getPackageJsons().get(rootDir)!;
+    expect(file.fileContent).toBe('{}');
+    getTsConfigContentCache().set(filePath, { contents: '', missing: false });
+    expect(file.fileContent).toBe('');
+    expect(fileContentStore.get(filePath)).toBe('');
+    expect(sourceFileStore.getFile(filePath)).toBeUndefined();
+  });
+
+  for (const filename of ['source.ts', 'custom.json']) {
+    it(`shares one read with concurrent deferred consumers of ${filename}`, async ({ mock }) => {
+      const rootDir = normalizeToAbsolutePath(temporary);
+      const filePath = normalizeToAbsolutePath(path.join(rootDir, filename));
+      fs.writeFileSync(filePath, '{}');
+      const read = mock.method(fs.promises, 'readFile');
+      mock.method(generatedSourceStore, 'postProcess', async (_configuration, context) => {
+        const [first, second] = await Promise.all([
+          context.getFile(filePath),
+          context.getFile(filePath),
+        ]);
+        expect(first).toBe(second);
+        expect(first.fileContent).toBe('{}');
+        if (filename === 'source.ts') {
+          expect(first).toBe(sourceFileStore.getFile(filePath));
+        }
+      });
+
+      await initFileStoresForAnalysis(
+        createConfiguration({ baseDir: rootDir, tsConfigPaths: [filename] }),
+      );
+
+      expect(read.mock.calls.map(call => String(call.arguments[0]))).toEqual([filePath]);
+      expect(getTsConfigContentCache().get(filePath)?.contents).toBe('{}');
+    });
+  }
+
+  it('shares failed deferred reads across consumers without retrying during discovery', async ({
+    mock,
+  }) => {
+    const rootDir = normalizeToAbsolutePath(temporary);
+    const filePath = normalizeToAbsolutePath(path.join(rootDir, 'custom.json'));
+    fs.writeFileSync(filePath, '{}');
+    const failure = new Error('Simulated deferred read failure');
+    const read = mock.method(fs.promises, 'readFile', async () => {
+      throw failure;
+    });
+    mock.method(generatedSourceStore, 'postProcess', async (_configuration, context) => {
+      const results = await Promise.allSettled([
+        context.getFile(filePath),
+        context.getFile(filePath),
+      ]);
+      expect(results).toEqual([
+        { status: 'rejected', reason: failure },
+        { status: 'rejected', reason: failure },
+      ]);
+    });
+
+    await initFileStoresForAnalysis(
+      createConfiguration({ baseDir: rootDir, tsConfigPaths: ['custom.json'] }),
+    );
+
+    expect(read.mock.calls).toHaveLength(1);
+    expect(getTsConfigContentCache().has(filePath)).toBe(false);
+    expect(fileContentStore.has(filePath)).toBe(false);
+  });
+
   it('does not require unused config observations during replay discovery', async () => {
     const rootDir = normalizeToAbsolutePath(path.join(temporary, 'project'));
     fs.mkdirSync(rootDir);

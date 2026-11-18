@@ -14,8 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { FileSystemSet, pathsEqual } from '../common/filesystem.js';
-import { SourceFilesContext } from '../common/source-files-context.js';
+import { FileSystemMap, FileSystemSet, pathsEqual } from '../common/filesystem.js';
 import { fileContentStore } from '../common/file-content-store.js';
 import { SourceFileStore } from './source-files.js';
 import { DependencyManifestStore } from './dependency-manifests.js';
@@ -165,44 +164,53 @@ async function processPendingFileStores(
     request: store.wantsFile(filePath, configuration),
   }));
 
+  if (storeRequests.some(({ request }) => request === 'deferred-content')) {
+    context.retainFile(filePath);
+  }
+
   let sharedFile: File | undefined;
   for (const { store, request: storeWantsFile } of storeRequests) {
     if (storeWantsFile === 'content') {
       sharedFile ??= await context.getFile(filePath, fileContent);
       await store.processFile(filePath, configuration, sharedFile);
-    } else if (storeWantsFile === 'path') {
+    } else if (storeWantsFile === 'path' || storeWantsFile === 'deferred-content') {
       await store.processFile(filePath, configuration);
     }
   }
 }
 
 function createFileStoreContext(inputFiles?: AnalyzableFiles): FileStoreContext {
-  let provided: SourceFilesContext<AnalyzableFiles[NormalizedAbsolutePath]> | undefined;
-  if (inputFiles) {
-    provided = sourceFileStore.context;
-    if (inputFiles !== provided.files) {
-      provided = new SourceFilesContext();
-      provided.setFiles(inputFiles);
-    }
-  }
-  // Reuse contents read by this discovery walk, while reloading files after store invalidation.
-  const scope = {};
+  // Production discovery reuses the source store's authoritative input index.
+  const providedFiles =
+    inputFiles && inputFiles !== sourceFileStore.context.files
+      ? new FileSystemMap(Object.entries(inputFiles))
+      : undefined;
+  // An undefined entry marks an unread deferred path. Keep its first read (including
+  // pending and failed reads) only through postProcess, without promoting rejected sources.
+  const files = new FileSystemMap<NormalizedAbsolutePath, Promise<File> | undefined>();
+
   return {
-    async getFile(filePath, fileContent) {
-      const inputFile = provided?.getFile(filePath);
-      if (inputFile) {
-        fileContentStore.register(filePath, inputFile);
-        return inputFile;
+    retainFile(filePath) {
+      if (!files.has(filePath)) {
+        files.set(filePath, undefined);
       }
-      const cachedFile = fileContentStore.getFile(filePath, scope);
-      if (cachedFile?.fileContent !== undefined && fileContent === undefined) {
-        return Object.assign(cachedFile, { filePath }) as File;
+    },
+    getFile(filePath, fileContent) {
+      let file = files.get(filePath);
+      if (!file) {
+        const inputFile = providedFiles
+          ? providedFiles.get(filePath)
+          : inputFiles && sourceFileStore.context.getFile(filePath);
+        file = inputFile
+          ? Promise.resolve(inputFile)
+          : Promise.resolve(fileContent ?? readFile(filePath)).then(fileContent => ({
+              filePath,
+              fileContent,
+            }));
+        if (files.has(filePath)) {
+          files.set(filePath, file);
+        }
       }
-      const file = {
-        filePath,
-        fileContent: fileContent ?? (await readFile(filePath)),
-      };
-      fileContentStore.register(filePath, file, scope);
       return file;
     },
   };

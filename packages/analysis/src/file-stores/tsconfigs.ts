@@ -158,7 +158,7 @@ export class TsConfigStore implements FileStore {
 
   wantsFile(filename: NormalizedAbsolutePath, _configuration: Configuration) {
     return this.filenameMatchesProvidedTsConfig(filename) || this.filenameMatchesTsConfig(filename)
-      ? 'path'
+      ? 'deferred-content'
       : false;
   }
 
