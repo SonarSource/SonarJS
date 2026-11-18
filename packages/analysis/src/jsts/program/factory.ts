@@ -108,7 +108,9 @@ function createBuilderProgramAndHost(
  * @param programOptions - Program options from createProgramOptions()
  * @returns Standard TypeScript Program
  */
-export function createStandardProgram(programOptions: ProgramOptions): ts.Program {
+export function createStandardProgram(
+  programOptions: Omit<ProgramOptions, 'host'> & { host?: ts.CompilerHost },
+): ts.Program {
   const telemetryCollector = getOptionalProjectAnalysisTelemetryCollector();
   try {
     const program = ts.createProgram(programOptions);
@@ -155,7 +157,7 @@ export function createProgramFromSingleFile(
 
   // Override with a custom host for the single file
   const compilerHost = ts.createCompilerHost(programOptions.options);
-  const programOptionsWithCustomHost: ProgramOptions = {
+  const programOptionsWithCustomHost = {
     ...programOptions,
     rootNames: [fileName],
     host: {

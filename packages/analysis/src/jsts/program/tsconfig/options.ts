@@ -33,6 +33,7 @@ import { dirname } from 'node:path/posix';
 import { getTsConfigContentCache } from '../cache/tsconfigCache.js';
 import { isLastTsConfigCheck } from './utils.js';
 import { getCachedProgramOptions, setCachedProgramOptions } from '../cache/programOptionsCache.js';
+import { fileContentStore } from '../../../common/file-content-store.js';
 import { sourceFileStore } from '../../../file-stores/index.js';
 import {
   normalizeToAbsolutePath,
@@ -54,7 +55,8 @@ const VUE_COMPILER_OPTIONS = { allowNonTsExtensions: true } as const;
  * The brand ensures compile-time type safety, preventing raw compiler options
  * from being used where properly processed ProgramOptions are required.
  */
-export type ProgramOptions = ts.CreateProgramOptions & {
+export type ProgramOptions = Omit<ts.CreateProgramOptions, 'host'> & {
+  host?: never;
   missingTsConfig: boolean;
   [PROGRAM_OPTIONS_BRAND]: true;
 };
@@ -577,7 +579,7 @@ export function createProgramOptions(
       }
 
       // 3. Read from filesystem or sourceFileStore (depending on canAccessFileSystem)
-      const fileContents = baseParseConfigHost.readFile(file);
+      const fileContents = fileContentStore.get(file) ?? baseParseConfigHost.readFile(file);
 
       // 4. Handle missing extended tsconfig (return empty config)
       if (!fileContents && isLastTsConfigCheck(file)) {

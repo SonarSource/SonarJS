@@ -273,14 +273,14 @@ async function analyzeFilesFromEntryPoint(
     info(
       `Analyzing ${filesToAnalyze.length} file(s) using ${label} [lib: ${programOptions.options.lib?.join(', ')}]`,
     );
-    programOptions.host = new IncrementalCompilerHost(
+    const host = new IncrementalCompilerHost(
       programOptions.options,
       baseDir,
       jsTsConfigFields.skipNodeModuleLookupOutsideBaseDir,
     );
 
     telemetry.recordProgramCreationAttempt();
-    const tsProgram = createStandardProgram(programOptions);
+    const tsProgram = createStandardProgram({ ...programOptions, host });
     const detectedEsYear = esLibToYear(programOptions.options.lib);
     const targetEsYear = tsTargetToEsYear(programOptions.options.target);
     telemetry.recordEcmaScriptVersion(detectedEsYear ?? undefined);
@@ -400,12 +400,12 @@ async function analyzeFilesFromTsConfig(
   info(
     `Creating TypeScript(${ts.version}) program with configuration file ${tsconfig} [lib: ${programOptions.options.lib?.join(', ')}]`,
   );
-  programOptions.host = new IncrementalCompilerHost(
+  const host = new IncrementalCompilerHost(
     programOptions.options,
     baseDir,
     jsTsConfigFields.skipNodeModuleLookupOutsideBaseDir,
   );
-  const tsProgram = createStandardProgram(programOptions);
+  const tsProgram = createStandardProgram({ ...programOptions, host });
   const detectedEsYear = esLibToYear(programOptions.options.lib);
   const targetEsYear = tsTargetToEsYear(programOptions.options.target);
   telemetry.recordEcmaScriptVersion(detectedEsYear ?? undefined);
@@ -553,12 +553,12 @@ function restoreSelectedProgram(
     programOptions.options = selection.program.compilerOptions;
   }
   telemetry.recordCompilerOptions(programOptions.options);
-  programOptions.host = new IncrementalCompilerHost(
+  const host = new IncrementalCompilerHost(
     programOptions.options,
     baseDir,
     jsTsConfigFields.skipNodeModuleLookupOutsideBaseDir,
   );
-  const tsProgram = createStandardProgram(programOptions);
+  const tsProgram = createStandardProgram({ ...programOptions, host });
   const detectedEsYear = esLibToYear(programOptions.options.lib) ?? undefined;
   const targetEsYear = tsTargetToEsYear(programOptions.options.target) ?? undefined;
   telemetry.recordEcmaScriptVersion(detectedEsYear);

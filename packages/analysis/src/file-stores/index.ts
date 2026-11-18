@@ -14,7 +14,9 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { FileSystemMap, FileSystemSet, pathsEqual } from '../common/filesystem.js';
+import { FileSystemSet, pathsEqual } from '../common/filesystem.js';
+import { SourceFilesContext } from '../common/source-files-context.js';
+import { fileContentStore } from '../common/file-content-store.js';
 import { SourceFileStore } from './source-files.js';
 import { DependencyManifestStore } from './dependency-manifests.js';
 import { GeneratedSourceStore } from './generated-sources/index.js';
@@ -70,6 +72,9 @@ export async function initFileStoresForAnalysis(
 export async function initFileStores(configuration: Configuration, inputFiles?: AnalyzableFiles) {
   const { baseDir, canAccessFileSystem, jsTsExclusions } = configuration;
   const pendingStores: FileStore[] = [];
+  for (const path of configuration.fsEvents) {
+    fileContentStore.delete(path);
+  }
 
   for (const store of fileStores) {
     if (!(await store.isInitialized(configuration, inputFiles))) {
@@ -159,49 +164,45 @@ async function processPendingFileStores(
     store,
     request: store.wantsFile(filePath, configuration),
   }));
-  if (storeRequests.some(({ request }) => request === 'deferred-content')) {
-    context.retainFile(filePath);
-  }
 
   let sharedFile: File | undefined;
   for (const { store, request: storeWantsFile } of storeRequests) {
     if (storeWantsFile === 'content') {
       sharedFile ??= await context.getFile(filePath, fileContent);
       await store.processFile(filePath, configuration, sharedFile);
-    } else if (storeWantsFile === 'path' || storeWantsFile === 'deferred-content') {
+    } else if (storeWantsFile === 'path') {
       await store.processFile(filePath, configuration);
     }
   }
 }
 
 function createFileStoreContext(inputFiles?: AnalyzableFiles): FileStoreContext {
-  const providedFiles = new FileSystemMap(
-    Object.entries(inputFiles ?? {}) as [
-      NormalizedAbsolutePath,
-      AnalyzableFiles[NormalizedAbsolutePath],
-    ][],
-  );
-  const retainedPaths = new FileSystemSet<NormalizedAbsolutePath>();
-  const files = new FileSystemMap<NormalizedAbsolutePath, Promise<File>>();
-
+  let provided: SourceFilesContext<AnalyzableFiles[NormalizedAbsolutePath]> | undefined;
+  if (inputFiles) {
+    provided = sourceFileStore.context;
+    if (inputFiles !== provided.files) {
+      provided = new SourceFilesContext();
+      provided.setFiles(inputFiles);
+    }
+  }
+  // Reuse contents read by this discovery walk, while reloading files after store invalidation.
+  const scope = {};
   return {
-    retainFile(filePath) {
-      retainedPaths.add(filePath);
-    },
-    getFile(filePath, fileContent) {
-      let file = files.get(filePath);
-      if (!file) {
-        const inputFile = providedFiles.get(filePath);
-        file = inputFile
-          ? Promise.resolve(inputFile)
-          : Promise.resolve(fileContent ?? readFile(filePath)).then(fileContent => ({
-              filePath,
-              fileContent,
-            }));
-        if (retainedPaths.has(filePath)) {
-          files.set(filePath, file);
-        }
+    async getFile(filePath, fileContent) {
+      const inputFile = provided?.getFile(filePath);
+      if (inputFile) {
+        fileContentStore.register(filePath, inputFile);
+        return inputFile;
       }
+      const cachedFile = fileContentStore.getFile(filePath, scope);
+      if (cachedFile?.fileContent !== undefined && fileContent === undefined) {
+        return Object.assign(cachedFile, { filePath }) as File;
+      }
+      const file = {
+        filePath,
+        fileContent: fileContent ?? (await readFile(filePath)),
+      };
+      fileContentStore.register(filePath, file, scope);
       return file;
     },
   };

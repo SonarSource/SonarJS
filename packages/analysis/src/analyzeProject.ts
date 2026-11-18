@@ -208,7 +208,7 @@ async function analyzePendingProjectFiles(
     generatedSourceStore.observeGeneratedSources(configuration, filesToAnalyze),
   );
   const jsTsConfigFields = getJsTsConfigFields(configuration);
-  setSourceFilesContext(filesToAnalyze);
+  setSourceFilesContext(sourceFileStore.context);
   const { testFileExtensions } = getFilterPathParams(configuration);
   await Linter.initialize({
     rules,

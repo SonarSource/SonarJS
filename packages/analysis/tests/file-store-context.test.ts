@@ -22,6 +22,7 @@ import { expect } from 'expect';
 import { createConfiguration } from '../src/common/configuration.js';
 import {
   initFileStoresForAnalysis,
+  initFileStores,
   sourceFileStore,
   tsConfigStore,
 } from '../src/file-stores/index.js';
@@ -75,6 +76,20 @@ describe('file-store context reconciliation', () => {
     } finally {
       replay.end();
     }
+  });
+
+  it('reloads changed source contents when discovery is invalidated without file events', async () => {
+    const rootDir = normalizeToAbsolutePath(path.join(temporary, 'project'));
+    fs.mkdirSync(rootDir);
+    const source = normalizeToAbsolutePath(path.join(rootDir, 'source.ts'));
+    fs.writeFileSync(source, 'const value = 1;');
+    const configuration = createConfiguration({ baseDir: rootDir, sonarlint: true });
+    await initFileStoresForAnalysis(configuration);
+    expect(sourceFileStore.getFile(source)?.fileContent).toBe('const value = 1;');
+    fs.writeFileSync(source, 'const value = 2;');
+    sourceFileStore.clearCache();
+    await initFileStores(configuration);
+    expect(sourceFileStore.getFile(source)?.fileContent).toBe('const value = 2;');
   });
 
   it('keeps configuration discovery working when preloading a config fails', async ({ mock }) => {

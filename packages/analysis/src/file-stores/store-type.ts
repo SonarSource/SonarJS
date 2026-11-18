@@ -18,18 +18,10 @@ import type { File, NormalizedAbsolutePath } from '../../../shared/src/helpers/f
 import type { Configuration } from '../common/configuration.js';
 import type { AnalyzableFiles } from '../projectAnalysis.js';
 
-/**
- * `deferred-content` processes the path during the walk while preserving any shared content read
- * for a later request from `postProcess`.
- */
-export type FileProcessingMode = 'path' | 'content' | 'deferred-content';
+/** Path consumers can request shared contents lazily from postProcess. */
+export type FileProcessingMode = 'path' | 'content';
 
 export type FileStoreContext = {
-  /**
-   * Mark a file path so its content is cached on its first `getFile` call.
-   * Must be called before the first `getFile` call for that path.
-   */
-  retainFile(filePath: NormalizedAbsolutePath): void;
   getFile(filePath: NormalizedAbsolutePath, fileContent?: string): Promise<File>;
 };
 

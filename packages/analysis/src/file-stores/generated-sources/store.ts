@@ -177,7 +177,7 @@ export class GeneratedSourceStore implements FileStore {
     }
 
     if (shouldCaptureGeneratedSourceSnapshotPath(filename)) {
-      return 'deferred-content';
+      return 'path';
     }
 
     return isJsTsFile(filename, configuration) ? 'path' : false;

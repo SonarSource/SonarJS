@@ -32,6 +32,14 @@ import { joinPaths, normalizeToAbsolutePath } from '../../../../shared/src/helpe
 import { installFsCache } from '../../../../shared/src/fs-cache/hook.js';
 import { FsCacheArchive } from '../../../../shared/src/fs-cache/archive.js';
 
+function createTrackedHost(
+  options: ts.CompilerOptions,
+  baseDir: ReturnType<typeof normalizeToAbsolutePath>,
+  skipNodeModuleLookupOutsideBaseDir = false,
+): IncrementalCompilerHost {
+  return new IncrementalCompilerHost(options, baseDir, skipNodeModuleLookupOutsideBaseDir, true);
+}
+
 describe('IncrementalCompilerHost', () => {
   const baseDir = normalizeToAbsolutePath('/project');
   const compilerOptions: ts.CompilerOptions = { target: ts.ScriptTarget.ESNext };
@@ -165,7 +173,7 @@ describe('IncrementalCompilerHost', () => {
 
   describe('readFile', () => {
     it('should read from global cache first', () => {
-      const host = new IncrementalCompilerHost(compilerOptions, baseDir);
+      const host = createTrackedHost(compilerOptions, baseDir);
       const cache = getSourceFileContentCache();
       const content = 'cached content';
 
@@ -180,7 +188,7 @@ describe('IncrementalCompilerHost', () => {
     });
 
     it('should read from files context when not in cache', () => {
-      const host = new IncrementalCompilerHost(compilerOptions, baseDir);
+      const host = createTrackedHost(compilerOptions, baseDir);
       const content = 'context content';
 
       setSourceFilesContext({
@@ -212,7 +220,7 @@ describe('IncrementalCompilerHost', () => {
 
   describe('fileExists', () => {
     it('should return true for files in global cache', () => {
-      const host = new IncrementalCompilerHost(compilerOptions, baseDir);
+      const host = createTrackedHost(compilerOptions, baseDir);
       const cache = getSourceFileContentCache();
 
       cache.set(normalizeToAbsolutePath('/project/src/index.ts'), 'content');
@@ -223,11 +231,11 @@ describe('IncrementalCompilerHost', () => {
       expect(calls.some(c => c.op === 'fileExists-cache')).toBe(true);
     });
 
-    it('should return true for files in context', () => {
-      const host = new IncrementalCompilerHost(compilerOptions, baseDir);
+    it('should return true for files in context without loaded content', () => {
+      const host = createTrackedHost(compilerOptions, baseDir);
 
       setSourceFilesContext({
-        [normalizeToAbsolutePath('/project/src/index.ts')]: { fileContent: 'content' },
+        [normalizeToAbsolutePath('/project/src/index.ts')]: {},
       });
 
       expect(host.fileExists(normalizeToAbsolutePath('/project/src/index.ts'))).toBe(true);
@@ -237,7 +245,7 @@ describe('IncrementalCompilerHost', () => {
     });
 
     it('should query node_modules lookups outside baseDir', () => {
-      const host = new IncrementalCompilerHost(compilerOptions, baseDir);
+      const host = createTrackedHost(compilerOptions, baseDir);
       const outsideNodeModulesFile = normalizeToAbsolutePath(
         '/external/node_modules/pkg/index.d.ts',
       );
@@ -254,7 +262,7 @@ describe('IncrementalCompilerHost', () => {
     const includes = ['**/*'];
 
     it('should query disk for node_modules lookups outside baseDir by default', () => {
-      const host = new IncrementalCompilerHost(compilerOptions, baseDir);
+      const host = createTrackedHost(compilerOptions, baseDir);
 
       host.readDirectory('/external/node_modules/pkg', extensions, undefined, includes);
 
@@ -264,7 +272,7 @@ describe('IncrementalCompilerHost', () => {
     });
 
     it('should skip node_modules lookups outside baseDir', () => {
-      const host = new IncrementalCompilerHost(compilerOptions, baseDir, true);
+      const host = createTrackedHost(compilerOptions, baseDir, true);
 
       const files = host.readDirectory(
         '/external/node_modules/pkg',
@@ -280,7 +288,7 @@ describe('IncrementalCompilerHost', () => {
     });
 
     it('should not skip node_modules lookups under baseDir', () => {
-      const host = new IncrementalCompilerHost(compilerOptions, baseDir);
+      const host = createTrackedHost(compilerOptions, baseDir);
       const nodeModulesUnderBaseDir = joinPaths(baseDir, 'node_modules');
 
       host.readDirectory(nodeModulesUnderBaseDir, extensions, undefined, includes);
@@ -321,7 +329,7 @@ describe('IncrementalCompilerHost', () => {
             caseSensitivePaths: isFileSystemCaseSensitive(),
           });
           try {
-            const host = new IncrementalCompilerHost(options, directory);
+            const host = createTrackedHost(options, directory);
             const rootNames = importPath === 'local' ? [file] : [file, declaration];
             const program = ts.createProgram({ rootNames, options, host });
             expect(host.getSourceFile(declaration, ts.ScriptTarget.ESNext)).toBeDefined();
@@ -347,7 +355,7 @@ describe('IncrementalCompilerHost', () => {
           const nativeProgram = ts.createProgram({
             rootNames: [file],
             options,
-            host: new IncrementalCompilerHost(options, directory),
+            host: createTrackedHost(options, directory),
           });
           const expectedDiagnostics = nativeProgram
             .getSemanticDiagnostics()
@@ -367,7 +375,7 @@ describe('IncrementalCompilerHost', () => {
             const program = ts.createProgram({
               rootNames: [file],
               options,
-              host: new IncrementalCompilerHost(options, directory),
+              host: createTrackedHost(options, directory),
             });
             expect(program.getSemanticDiagnostics().map(({ code }) => code)).toEqual(
               expectedDiagnostics,
@@ -562,7 +570,7 @@ describe('IncrementalCompilerHost', () => {
 
   describe('FS call tracking', () => {
     it('should track filesystem calls', () => {
-      const host = new IncrementalCompilerHost(compilerOptions, baseDir);
+      const host = createTrackedHost(compilerOptions, baseDir);
       const cache = getSourceFileContentCache();
 
       cache.set(normalizeToAbsolutePath('/project/src/index.ts'), 'content');
@@ -576,7 +584,7 @@ describe('IncrementalCompilerHost', () => {
     });
 
     it('should clear tracking', () => {
-      const host = new IncrementalCompilerHost(compilerOptions, baseDir);
+      const host = createTrackedHost(compilerOptions, baseDir);
       const cache = getSourceFileContentCache();
 
       cache.set(normalizeToAbsolutePath('/project/src/index.ts'), 'content');

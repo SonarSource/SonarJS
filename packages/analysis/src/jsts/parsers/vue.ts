@@ -17,7 +17,7 @@
 import ts from 'typescript';
 import { parsersMap } from './eslint.js';
 import { buildVueParserOptions } from './options.js';
-import { FileSystemMap } from '../../common/filesystem.js';
+import { fileContentStore } from '../../common/file-content-store.js';
 import {
   prepareVueGenerics,
   applyVueGenericServices,
@@ -43,10 +43,8 @@ type VueScript = {
 };
 
 const projectionKey = Symbol('SonarJS Vue script');
-const projections = new FileSystemMap<
-  string,
-  { raw: string; scripts: Map<boolean, VueScript | undefined> }
->();
+const projectionsKey = Symbol('Vue projections');
+type Projections = { contentHash: string; scripts: Map<boolean, VueScript | undefined> };
 // Parser services require metadata on the exact SourceFile held by the Program.
 // The representation factory binds it for both newly parsed and cached instances.
 const sourceFileScripts = new WeakMap<ts.SourceFile, VueScript>();
@@ -56,7 +54,7 @@ export function isVueFile(file: string): boolean {
 }
 
 export function clearVueScriptCache(): void {
-  projections.clear();
+  fileContentStore.clearData(projectionsKey);
 }
 
 /**
@@ -65,10 +63,11 @@ export function clearVueScriptCache(): void {
  * Keep raw SFC contents authoritative elsewhere (CSS, locations, filesystem replay).
  */
 export function getVueScript(file: string, raw: string, jsx: boolean): VueScript | undefined {
-  let entry = projections.get(file);
-  if (entry?.raw !== raw) {
-    entry = { raw, scripts: new Map() };
-    projections.set(file, entry);
+  const contentHash = fileContentStore.contentHash(file, raw);
+  let entry = fileContentStore.getData<Projections>(file, projectionsKey);
+  if (entry?.contentHash !== contentHash) {
+    entry = { contentHash, scripts: new Map() };
+    fileContentStore.setData(file, projectionsKey, entry);
   }
   if (entry.scripts.has(jsx)) {
     return entry.scripts.get(jsx);

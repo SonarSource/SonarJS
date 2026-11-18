@@ -83,15 +83,3 @@ export function prepareFileRepresentation(
 export function clearFileRepresentationCaches(): void {
   clearVueScriptCache();
 }
-
-export function equivalentRepresentations(
-  previous: FileRepresentation | undefined,
-  current: FileRepresentation,
-): boolean {
-  return (
-    current.reusable &&
-    previous?.reusable === true &&
-    previous.text === current.text &&
-    previous.scriptKind === current.scriptKind
-  );
-}
