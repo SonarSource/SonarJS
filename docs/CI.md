@@ -9,7 +9,7 @@ It documents the cache/artifact model used by the workflow:
 - `orchestrator-cache` and `rule-api-cache` keep their existing ownership policies and use the same S3 transport
 - the local mise adapter disables upstream GitHub caching and restores its tool directory from S3
 - PVF and ruling reporting/snapshots retain their existing artifact channels and secondary workflows
-- the draft trial selects development storage through `CI_STORAGE_ENVIRONMENT`
+- generated-build storage reuses the standard production S3 cache bucket and OIDC/Cognito credentials
 
 This is the document to read first when you need to answer any of these questions quickly:
 
@@ -45,7 +45,7 @@ Generated-build data keeps its existing cache and artifact semantics on S3:
 - cache consumers explicitly set `save: false`; producer saves run only after job success
 - artifact consumers resolve the producer attempt recorded in the same run, including when only downstream jobs are retried
 - transferred archives are verified with SHA-256 before extraction
-- one-day S3 artifact expiry requires the companion bucket lifecycle deployment
+- artifact downloads expire after one day; physical objects follow the existing 30-day cache bucket lifecycle
 - PVF and ruling-specific artifacts and their secondary workflows are outside this migration
 
 ## Trigger Model And Global Controls
@@ -504,13 +504,13 @@ There is effectively no promotion of branch-produced file payloads back to the d
 
 ### 4. PR-specific state
 
-PR runs create caches scoped to the canonical `refs/pull/<number>/merge` ref. These caches cannot warm the default branch. Same-run artifacts are scoped to that ref and run ID, and expire after one day. A downstream retry can restore a successful producer's earlier attempt in the same run.
+PR runs create caches scoped to the canonical `refs/pull/<number>/merge` ref. These caches cannot warm the default branch. Same-run artifacts are scoped to that ref and run ID, and become unavailable for download after one day. Physical objects remain under the existing 30-day bucket lifecycle. A downstream retry can restore a successful producer's earlier attempt in the same run.
 
 The existing PR-close cleanup workflow remains unchanged and covers GitHub resources. It does not clean the new S3 namespace; that policy must be resolved before production rollout.
 
 ## S3 In This Workflow
 
-Generated-build caches and artifact handoffs use `SonarSource/gh-action_cache/s3`, pinned to the companion draft action. The draft selects development storage with `CI_STORAGE_ENVIRONMENT: dev` and starts with a cold cache namespace. Its scoped IAM and one-day artifact lifecycle require the companion infrastructure deployment.
+Generated-build caches and artifact handoffs use `SonarSource/gh-action_cache/s3`, pinned to the companion draft action. The draft reuses production cache storage with `CI_STORAGE_ENVIRONMENT: prod` and starts with a cold namespace under the existing branch-scoped permissions. No infrastructure deployment is required. Existing credentials permit fallback reads only from `main`, `master` and `branch-*`; other PR bases are skipped with a warning.
 
 PVF and ruling-specific snapshots and reports retain their existing GitHub artifact channels. Their secondary workflows are unchanged.
 
@@ -1026,7 +1026,7 @@ jobs:
       - uses: SonarSource/ci-github-actions/pr_cleanup@v2
 ```
 
-The workflow continues to clean PR-scoped GitHub caches and branch-run artifacts used by secondary workflows and previous builds. It does not remove the new generated-build S3 namespace. S3 caches currently follow the bucket's 30-day lifecycle; S3 build artifacts use a separate one-day lifecycle and reject expired manifests before download. PR-close cleanup parity is an open production-rollout requirement for this draft trial.
+The workflow continues to clean PR-scoped GitHub caches and branch-run artifacts used by secondary workflows and previous builds. It does not remove the new generated-build S3 namespace. S3 caches currently follow the bucket's 30-day lifecycle; S3 build artifacts reject manifests older than one day before payload download, while physical objects follow the same 30-day lifecycle. PR-close cleanup parity is an open production-rollout requirement for this draft trial.
 
 ## Mental Model Summary
 
