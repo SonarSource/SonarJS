@@ -81,6 +81,7 @@ Runner labels express relative size and environment, not a stable hardware contr
 | `github-windows-latest-s`                     | `populate_npm_cache_win`                                                                                                     | Small Windows cache producer                                                   |
 | `github-windows-latest-m`                     | `build_win`, `test_js_win`, Windows plugin QA jobs                                                                           | Medium Windows build/test jobs                                                 |
 | `warp-custom-ubuntu-24-04` + Alpine container | Alpine QA jobs                                                                                                               | Host runner plus containerized musl/Alpine validation                          |
+| `sonar-m-docker` + Ubuntu container           | `minimal_ubuntu_analyzer_check`                                                                                              | Optional single-analysis check in minimal `ubuntu:24.04`                       |
 
 ## High-Level Pipeline Map
 
@@ -265,6 +266,22 @@ runtime rather than the classifier-less JAR. In CI,
 version to populate that directory from the downloaded Maven artifacts. The without-Node CI jobs
 set `SONARJS_ARTIFACT` to `multi` (or `linux-x64-musl` on Alpine) to select the artifact under test.
 
+## Optional minimal Ubuntu verification
+
+`minimal_ubuntu_analyzer_check` runs on each non-fork pull request after the final SonarJS
+artifacts are built. Like the other artifact QA jobs, it requires internal build credentials,
+so fork pull requests skip it. It uses `sonar-m-docker` with a digest-pinned `ubuntu:24.04`
+container, installs only bootstrap tools and Java/Maven, and verifies that no system Node is
+available before analysis. The analysis checks compatibility with the minimal OS environment
+without making assumptions about specific system-library dependencies.
+
+The job runs only `EmbeddedNodeTest`, which analyzes a small JavaScript project with the final
+Linux x64 plugin and asserts successful use of the embedded Node runtime without analyzer errors.
+It uses the scanner integration tester rather than starting a full SonarQube server, so it does
+not need a dedicated Unix user or the consumer test plugins. `continue-on-error: true` keeps
+failures non-blocking; the job is excluded from promotion and failure-notification dependencies.
+The existing full/fast QA jobs keep their original runners and behavior.
+
 ## Job Index
 
 | Job                                  | Runner                     | Needs                                                                            | Condition                                                             |
@@ -288,6 +305,7 @@ set `SONARJS_ARTIFACT` to `multi` (or `linux-x64-musl` on Alpine) to select the 
 | `plugin_qa_fast_with_node`           | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
 | `plugin_qa_without_node`             | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
 | `plugin_qa_without_node_dev`         | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | nightly only                                                          |
+| `minimal_ubuntu_analyzer_check`      | `sonar-m-docker`           | `setup`, `get_build_number`, `build`                                             | non-fork PRs; non-blocking                                             |
 | `plugin_qa_without_node_alpine`      | `warp-custom-ubuntu-24-04` | `setup`, `get_build_number`, `build`                                             | nightly only                                                          |
 | `plugin_qa_fast_without_node`        | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
 | `plugin_qa_fast_without_node_dev`    | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | nightly only                                                          |
@@ -951,7 +969,7 @@ A job that does not need every tool restricts installation with `install_args` i
 | `build`, `build_win`, `prepare_rspec_rule_data`, `build_eslint_plugin`, `knip`, `analyze_primary`, `analyze_shadows`, Windows QA jobs, `js_ts_ruling`, `ruling`, `promote` (the `&mise` anchor) | _(none — installs everything)_ | needs Java, Maven, and Node                                                                                                                                |
 | `plugin_qa_with_node`, `plugin_qa_fast_with_node` (the `&mise_java_matrix_node` anchor)                                                                                                         | _(none — installs everything)_ | same as above, but Node's version is overridden per matrix leg (see below)                                                                                 |
 | `populate_npm_cache`, `populate_npm_cache_win`, `test_js`, `test_js_win`                                                                                                                        | _(none — installs everything)_ | same as `&mise`, but these steps carry their own `if: cache-hit != 'true'` guard, so they can't use the anchor and appear as separate inline steps instead |
-| `plugin_qa_without_node`, `plugin_qa_without_node_dev`, `plugin_qa_fast_without_node`, `plugin_qa_fast_without_node_dev` (the `&mise_java_only` anchor)                                         | `java maven`                   | Node must be absent so "QA without Node" actually tests without Node                                                                                       |
+| `plugin_qa_without_node`, `plugin_qa_without_node_dev`, `plugin_qa_fast_without_node`, `plugin_qa_fast_without_node_dev`, `minimal_ubuntu_analyzer_check` (the `&mise_java_only` anchor)                                         | `java maven`                   | Install no system Node so QA and the minimal Ubuntu check exercise the bundled runtime                                                                                       |
 | `plugin_qa_without_node_alpine`, `plugin_qa_fast_without_node_alpine` (the `&alpine_setup_maven` anchor)                                                                                        | `maven`                        | the Alpine container image already ships its own JDK; only Maven is missing                                                                                |
 | `test_eslint_plugin`, `js_ts_ruling_update`                                                                                                                                                     | `node`                         | These jobs only need Node, with the ESLint test version set by its matrix (see below)                                                                      |
 

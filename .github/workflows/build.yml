@@ -967,6 +967,42 @@ jobs:
           SONARJS_ARTIFACT: multi
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
+  minimal_ubuntu_analyzer_check:
+    name: Minimal Ubuntu analyzer verification (optional)
+    runs-on: sonar-m-docker
+    needs: [setup, get_build_number, build]
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false
+    continue-on-error: true
+    timeout-minutes: 20
+    container:
+      image: ubuntu:24.04@sha256:73b999393d07f2bf65a40373778a44dc9a6d54ad7718d29247d8ff9413c4d6a8
+    permissions: *read_permissions
+    env: *shared_build_number
+    steps:
+      - name: Prepare minimal Ubuntu environment
+        run: |
+          apt-get update
+          apt-get install --no-install-recommends -y ca-certificates curl unzip xz-utils
+          rm -rf /var/lib/apt/lists/*
+      - *checkout
+      - *mise_java_only
+      - *maven_cache_restore
+      - *download_sonarjs_m2
+      - *config_maven
+      - *get_licenses_token
+      - *configure_orchestrator
+      - name: Verify analyzer with bundled Node
+        run: |
+          # Ensure analysis exercises the bundled runtime without a system Node fallback.
+          if command -v node; then
+            echo 'The minimal Ubuntu environment must not supply system Node.' >&2
+            exit 1
+          fi
+          mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dtest=EmbeddedNodeTest -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify
+        env:
+          SONARSOURCE_QA: true
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+
   plugin_qa_without_node_alpine:
     runs-on: warp-custom-ubuntu-24-04
     name: QA without Node on Alpine SQ:LATEST_RELEASE

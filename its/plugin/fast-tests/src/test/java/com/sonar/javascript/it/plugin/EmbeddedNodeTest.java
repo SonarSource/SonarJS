@@ -54,7 +54,13 @@ class EmbeddedNodeTest {
 
     var result = ScannerRunner.run(SERVER_CONTEXT, build, ScannerRunnerConfig.builder().build());
 
-    assertThat(result.exitCode()).isEqualTo(0);
+    assertThat(result.exitCode())
+      .withFailMessage(
+        "Scanner exited with code %s. Output:%n%s",
+        result.exitCode(),
+        result.logOutput().stream().map(Log::message).toList()
+      )
+      .isEqualTo(0);
     assertThat(result.logOutput())
       .filteredOn(
         l ->
