@@ -5,7 +5,7 @@ on:
       suite:
         type: choice
         default: transfers
-        options: [transfers, s3]
+        options: [transfers, s3, repox]
 permissions:
   contents: read
   actions: read
@@ -14,7 +14,7 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 jobs:
   artifact:
-    if: inputs.suite != 's3'
+    if: inputs.suite == 'transfers'
     name: Artifact ${{ matrix.runner }} ${{ matrix.mode }}
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 25
@@ -106,7 +106,7 @@ jobs:
           du -sh "$RUNNER_TEMP/payload"
           find "$RUNNER_TEMP/payload" -type f -printf '%s %p\n' | sort -nr | head -15
   cache:
-    if: inputs.suite != 's3'
+    if: inputs.suite == 'transfers'
     name: Maven cache ${{ matrix.runner }}
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 15
@@ -150,3 +150,31 @@ jobs:
           path: ~/.m2/repository
           key: maven-Linux-2026-11-448452204a5426dd301a40813c3bfb5c38b8ddd54088eead2b29790d9232c354
           fail-on-cache-miss: true
+  repox:
+    if: inputs.suite == 'repox'
+    name: Download deployed plugin via Repox ${{ matrix.runner }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [sonar-m, warp-custom-ubuntu-24-04, warp-custom-windows-2022-m]
+    steps:
+      - name: Get production Edge reader
+        id: secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/artifactory-edge-prod/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
+      - name: Download exact deployed plugin classifiers
+        shell: bash
+        env:
+          ARTIFACTORY_ACCESS_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
+        run: |
+          for classifier in '' '-multi' '-win-x64' '-linux-x64' '-linux-x64-musl'; do
+            curl --fail --silent --show-error --retry 2 \
+              --header "Authorization: Bearer $ARTIFACTORY_ACCESS_TOKEN" \
+              --output "$RUNNER_TEMP/plugin$classifier.jar" \
+              --write-out "Plugin $classifier: %{size_download} bytes, %{time_total}s, %{speed_download} bytes/sec\n" \
+              "https://repox-internal.sonar.build/artifactory/sonarsource-qa/org/sonarsource/javascript/sonar-javascript-plugin/14.6.0.46552/sonar-javascript-plugin-14.6.0.46552$classifier.jar"
+          done
