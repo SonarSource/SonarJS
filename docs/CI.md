@@ -44,7 +44,7 @@ Generated-build data keeps its existing cache and artifact semantics on S3:
 - NPM registry authentication is configured explicitly in `build.yml` through Vault-fetched Artifactory tokens
 - cache consumers explicitly set `save: false`; producer saves run only after job success
 - artifact consumers resolve the producer attempt recorded in the same run, including when only downstream jobs are retried
-- transferred archives are verified with SHA-256 before extraction
+- artifact payloads are verified with SHA-256 before extraction
 - artifact downloads expire after one day; physical objects follow the existing 30-day cache bucket lifecycle
 - PVF and ruling-specific artifacts and their secondary workflows are outside this migration
 

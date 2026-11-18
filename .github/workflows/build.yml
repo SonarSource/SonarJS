@@ -140,7 +140,7 @@ jobs:
         with:
           version: 2026.10.20
           cache: false
-      - uses: SonarSource/ci-github-actions/config-npm@v1
+      - uses: SonarSource/ci-github-actions/config-npm@v2
         with:
           repox-url: https://repox.jfrog.io
           artifactory-reader-role: private-reader
@@ -186,7 +186,7 @@ jobs:
           version: 2026.10.20
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
       - if: steps.cache.outputs.cache-hit != 'true'
-        uses: SonarSource/ci-github-actions/config-npm@v1
+        uses: SonarSource/ci-github-actions/config-npm@v2
         with:
           repox-url: https://repox-internal.sonar.build
           artifactory-reader-role: private-reader
@@ -467,7 +467,7 @@ jobs:
       - *mise
       - *npm_cache
       - &config_npm_edge
-        uses: SonarSource/ci-github-actions/config-npm@v1
+        uses: SonarSource/ci-github-actions/config-npm@v2
         with:
           repox-url: https://repox-internal.sonar.build
           artifactory-reader-role: private-reader
