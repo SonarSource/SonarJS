@@ -15,8 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import ts from 'typescript';
-import { hash } from 'node:crypto';
-import { fileContentStore } from '../../common/file-content-store.js';
+import { fileContentStore, hashContent } from '../../common/file-content-store.js';
 import { readDirectory } from './filesystem.js';
 import { prepareFileRepresentation } from './file-representation.js';
 import {
@@ -305,7 +304,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     const representation = prepareFileRepresentation(file, content, this.compilerOptions);
     // Invalid projections must remain non-reusable, even when their generated text is empty.
     const state = {
-      representation: `${representation.scriptKind ?? -1}:${hash('sha256', representation.text)}:${representation.reusable ? '' : rawHash}`,
+      representation: `${representation.scriptKind ?? -1}:${hashContent(representation.text)}:${representation.reusable ? '' : rawHash}`,
     };
     states.set(key, { rawHash, state });
     return state;

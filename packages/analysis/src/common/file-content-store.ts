@@ -14,8 +14,13 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { hash } from 'node:crypto';
+import { createHash } from 'node:crypto';
 import { FileSystemMap } from './filesystem.js';
+
+/** Preserve every JavaScript code unit; UTF-8 replaces distinct unpaired surrogates. */
+export function hashContent(content: string): string {
+  return createHash('sha256').update(content, 'utf16le').digest('hex');
+}
 
 type ContentFile = { fileContent?: string };
 type Entry = {
@@ -75,9 +80,9 @@ class FileContentStore {
   contentHash(path: string, content: string): string {
     const entry = this.entries.get(path);
     if (entry?.content === content) {
-      return (entry.contentHash ??= hash('sha256', content));
+      return (entry.contentHash ??= hashContent(content));
     }
-    return hash('sha256', content);
+    return hashContent(content);
   }
 
   has(path: string): boolean {
