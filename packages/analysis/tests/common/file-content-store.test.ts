@@ -117,12 +117,4 @@ describe('shared file contents', () => {
     second.fileContent = 'next';
     expect(fileContentStore.get(path)).toBe('next');
   });
-
-  it('does not retain filesystem traces in production hosts', () => {
-    fileContentStore.set(path, '{}');
-    const host = new IncrementalCompilerHost({}, baseDir);
-    host.readFile(path);
-    host.fileExists(path);
-    expect(host.getTrackedFsCalls()).toEqual([]);
-  });
 });

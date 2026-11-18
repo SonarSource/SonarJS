@@ -44,12 +44,6 @@ import {
   pathsEqual,
 } from '../../common/filesystem.js';
 
-interface FsCall {
-  op: string;
-  file: string;
-  timestamp: number;
-}
-
 type FileState = { version?: number; representation: string };
 // Share initial identities across hosts; only edited hosts need their own versioned state.
 const representationStatesKey = Symbol('compiler representation states');
@@ -59,7 +53,6 @@ type RepresentationStates = Map<ts.JsxEmit | undefined, { rawHash: string; state
  * Custom CompilerHost that allows:
  * - Reading file contents from global cache (lazy loading)
  * - Parsing and caching TypeScript SourceFile ASTs globally (shared across programs)
- * - Tracking filesystem calls from TypeScript
  * - Incremental file updates for builder programs
  */
 export class IncrementalCompilerHost implements ts.CompilerHost {
@@ -67,7 +60,6 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
   // Used by TypeScript's builder programs for change detection.
   private readonly fileStates = new FileSystemMap<string, FileState>();
   private readonly modifiedFiles = new FileSystemSet<string>();
-  private fsCallTracker: FsCall[] = [];
   private readonly baseHost: ts.CompilerHost;
   private realBaseDir: NormalizedAbsolutePath | undefined;
   private readonly resolvedFileNames = new FileSystemMap<string, NormalizedAbsolutePath>();
@@ -77,7 +69,6 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     private readonly compilerOptions: ts.CompilerOptions,
     private readonly baseDir: NormalizedAbsolutePath,
     private readonly skipNodeModuleLookupOutsideBaseDir = false,
-    private readonly trackFileSystemCalls = false,
   ) {
     this.baseHost = ts.createCompilerHost(compilerOptions, true);
   }
@@ -188,7 +179,6 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     // 1. For files in the current request context, always prefer request content.
     // This avoids serving stale contents from the global cache across requests.
     if (typeof providedFile?.fileContent === 'string') {
-      this.trackFsCall('readFile-context', fileName);
       const content = providedFile.fileContent;
       if (cache.get(normalized) !== content) {
         cache.set(normalized, content);
@@ -198,12 +188,10 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
 
     // 2. For files outside the request context, use the global cache.
     if (cache.has(normalized)) {
-      this.trackFsCall('readFile-cache', fileName);
       return cache.get(normalized);
     }
 
     // 3. Fallback to real filesystem (and cache it)
-    this.trackFsCall('readFile-disk', fileName);
     const content = this.baseHost.readFile(fileName);
     if (content !== undefined) {
       cache.set(normalized, content);
@@ -228,14 +216,12 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
 
     // 1. Check global cache
     if (cache.has(normalized)) {
-      this.trackFsCall('fileExists-cache', fileName);
       return true;
     }
 
     // 2. Check files context
     const providedFile = this.getProvidedFile(fileName);
     if (providedFile) {
-      this.trackFsCall('fileExists-context', fileName);
       return true;
     }
 
@@ -243,13 +229,11 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     // a source from the request context without ever making a stat call, while its
     // content is still present in the replay archive.
     if (hasArchivedFileContent(fileName)) {
-      this.trackFsCall('fileExists-archive-content', fileName);
       return true;
     }
 
     // 3. Fallback to filesystem
     // TODO: Consider caching negative results to avoid repeated filesystem checks for missing files
-    this.trackFsCall('fileExists-disk', fileName);
     return this.baseHost.fileExists(fileName);
   }
 
@@ -276,7 +260,6 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     const content = this.readFile(fileName);
     let sourceFile: (ts.SourceFile & { version?: string }) | undefined;
     if (content === undefined) {
-      this.trackFsCall('getSourceFile-disk-fallback', fileName);
       sourceFile = this.baseHost.getSourceFile(
         fileName,
         languageVersionOrOptions,
@@ -370,26 +353,6 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     return sourceFile;
   }
 
-  private trackFsCall(op: string, file: string): void {
-    if (this.trackFileSystemCalls) {
-      this.fsCallTracker.push({ op, file, timestamp: Date.now() });
-    }
-  }
-
-  /**
-   * Get all tracked filesystem calls (for debugging/monitoring)
-   */
-  getTrackedFsCalls(): FsCall[] {
-    return this.fsCallTracker;
-  }
-
-  /**
-   * Clear filesystem call tracking
-   */
-  clearTracking(): void {
-    this.fsCallTracker = [];
-  }
-
   getDefaultLibLocation(): string {
     return this.baseHost.getDefaultLibLocation!();
   }
@@ -453,11 +416,9 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
   ): string[] {
     const normalizedRootDir = normalizeToAbsolutePath(rootDir, this.baseDir);
     if (this.shouldSkipNodeModulesOutsideBaseDir(normalizedRootDir)) {
-      this.trackFsCall('readDirectory-node_modules-skip', rootDir);
       return [];
     }
 
-    this.trackFsCall('readDirectory-disk', rootDir);
     return readDirectory(rootDir, extensions, excludes, includes, depth);
   }
 
