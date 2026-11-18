@@ -846,15 +846,15 @@ Repox is the repository manager behind both npm and Maven flows here.
 
 #### npm
 
-`populate_npm_cache` runs `config-npm` with `repox-url: https://repox-internal.dev.sonar.build`. It:
+`populate_npm_cache` and the ESLint build/test jobs run `config-npm` with the production Edge URL defined by `NPM_REPOX_URL` in `build.yml`. Its canonical hostname matches Edge's npm tarball URLs, so npm sends the reader token for both metadata and package downloads. It:
 
-- fetches a `private-reader` token issued by the Edge (`development/artifactory-edge-dev` on `https://vault.dev.sonar.build`)
-- points `npm` at `https://repox-internal.dev.sonar.build/artifactory/api/npm/npm`
+- fetches a `private-reader` token issued by the production Edge (`development/artifactory-edge-prod` on `https://vault.sonar.build`)
+- points `npm` at `$NPM_REPOX_URL/artifactory/api/npm/npm`
 - fetches npmjs lockfile tarballs through Edge at install time. The workflow sets `NPM_CONFIG_REPLACE_REGISTRY_HOST=npmjs`, so npm replaces the public registry host with the configured Edge registry on Linux and Windows.
 
 The committed root `package-lock.json` uses `https://registry.npmjs.org/` for public dependencies. Keep new entries on npmjs, including when resolving lockfile conflicts. `.npmrc` keeps the public npm defaults, and both the npm configuration and npm datasource overrides in `.github/renovate.json` use npmjs. Public source installations therefore need no SonarSource credentials or internal registry access.
 
-`populate_npm_cache_win` cannot run `config-npm` because mise has no jfrog-cli backend on Windows. It fetches the same Edge `private-reader` token from Vault and sets the npm registry with `npm config set`.
+`populate_npm_cache_win` cannot run `config-npm` because mise has no jfrog-cli backend on Windows. It fetches the same Edge `private-reader` token from Vault and derives both the npm registry and token scope from `NPM_REPOX_URL` with `npm config set`.
 
 The ESLint plugin build (extra `builtin-modules` install) and the ESLint plugin tests (no lockfile) run the same `config-npm` step. Its root `package.json` version rewrite doesn't affect the plugin tarball, whose version comes from `.pmgrc.toml`.
 

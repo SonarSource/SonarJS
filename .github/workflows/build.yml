@@ -18,6 +18,8 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  # Match the canonical host used by Edge's npm tarball URLs.
+  NPM_REPOX_URL: https://repox.sonar.build
   # Keep public lockfile URLs on npmjs; CI selects the registry at install time.
   NPM_CONFIG_REPLACE_REGISTRY_HOST: npmjs
   NPM_CONFIG_LOGLEVEL: ${{ inputs.validate-registry-routing && 'http' || 'notice' }}
@@ -182,7 +184,7 @@ jobs:
       - if: steps.cache.outputs.cache-hit != 'true'
         uses: SonarSource/ci-github-actions/config-npm@v2
         with:
-          repox-url: https://repox-internal.sonar.build
+          repox-url: ${{ env.NPM_REPOX_URL }}
           artifactory-reader-role: private-reader
           disable-caching: 'true'
       - &npm_cache_install
@@ -215,8 +217,8 @@ jobs:
         env:
           ARTIFACTORY_ACCESS_TOKEN: ${{ steps.secrets.outputs.vault && fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN || '' }}
         run: |
-          npm config set "//repox-internal.sonar.build/artifactory/api/npm/:_authToken=${ARTIFACTORY_ACCESS_TOKEN}"
-          npm config set registry https://repox-internal.sonar.build/artifactory/api/npm/npm/
+          npm config set "${NPM_REPOX_URL#https:}/artifactory/api/npm/:_authToken=${ARTIFACTORY_ACCESS_TOKEN}"
+          npm config set registry "${NPM_REPOX_URL}/artifactory/api/npm/npm/"
       - *npm_cache_install
 
   build:
@@ -424,7 +426,7 @@ jobs:
       - &config_npm_edge
         uses: SonarSource/ci-github-actions/config-npm@v2
         with:
-          repox-url: https://repox-internal.sonar.build
+          repox-url: ${{ env.NPM_REPOX_URL }}
           artifactory-reader-role: private-reader
           disable-caching: 'true'
       - *download_rspec_rule_data
