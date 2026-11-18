@@ -22,7 +22,7 @@ runs:
     # Also used when save is disabled.
     - name: Restore Rule API cache (restore only)
       if: github.ref_name != github.event.repository.default_branch || inputs.save != 'true'
-      uses: SonarSource/gh-action_cache/s3@6999c4d123fe070b1f78215fa3376f9b2b6b5d32 # S3 CI storage
+      uses: SonarSource/gh-action_cache/s3@d8acebf7a4f9bb88e7213390dcb55c1d10fa26f8 # S3 CI storage
       with:
         operation: cache
         environment: ${{ env.CI_STORAGE_ENVIRONMENT }}
@@ -35,7 +35,7 @@ runs:
     # clone contents evolve independently of the SonarJS source tree.
     - name: Cache Rule API data (default branch)
       if: github.ref_name == github.event.repository.default_branch && inputs.save == 'true'
-      uses: SonarSource/gh-action_cache/s3@6999c4d123fe070b1f78215fa3376f9b2b6b5d32 # S3 CI storage
+      uses: SonarSource/gh-action_cache/s3@d8acebf7a4f9bb88e7213390dcb55c1d10fa26f8 # S3 CI storage
       with:
         operation: cache
         environment: ${{ env.CI_STORAGE_ENVIRONMENT }}

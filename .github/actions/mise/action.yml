@@ -27,7 +27,7 @@ runs:
       run: node "$GITHUB_ACTION_PATH/key.mjs"
     - name: Restore toolchain cache and register its owner
       if: inputs.cache == 'true'
-      uses: SonarSource/gh-action_cache/s3@6999c4d123fe070b1f78215fa3376f9b2b6b5d32 # S3 CI storage
+      uses: SonarSource/gh-action_cache/s3@d8acebf7a4f9bb88e7213390dcb55c1d10fa26f8 # S3 CI storage
       with:
         operation: cache
         environment: ${{ env.CI_STORAGE_ENVIRONMENT }}
