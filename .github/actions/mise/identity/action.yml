@@ -1,0 +1,8 @@
+name: Compute mise cache identity
+description: Compute the toolchain identity using the runner JavaScript runtime before tools are installed
+outputs:
+  key:
+    description: Hash of the requested toolchain and its configuration
+runs:
+  using: node24
+  main: key.mjs

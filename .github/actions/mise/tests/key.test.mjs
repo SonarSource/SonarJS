@@ -25,7 +25,7 @@ function key(overrides = {}) {
   const temporary = mkdtempSync(path.join(os.tmpdir(), 'mise-key-test-'));
   try {
     const output = path.join(temporary, 'output');
-    execFileSync(process.execPath, [new URL('../key.mjs', import.meta.url).pathname], {
+    execFileSync(process.execPath, [new URL('../identity/key.mjs', import.meta.url).pathname], {
       env: {
         ...process.env,
         MISE_VERSION_INPUT: '2026.10.20',

@@ -19,12 +19,11 @@ runs:
     - name: Compute toolchain cache identity
       id: identity
       if: inputs.cache == 'true'
-      shell: bash
+      uses: ./.github/actions/mise/identity
       env:
         MISE_VERSION_INPUT: ${{ inputs.version }}
         MISE_INSTALL_INPUT: ${{ inputs.install_args }}
         MISE_CONFIG_HASH: ${{ hashFiles('mise.toml', 'mise.lock', 'mise.local.toml', '.mise.toml', '.mise/config.toml', '.config/mise/config.toml', '.tool-versions') }}
-      run: node "$GITHUB_ACTION_PATH/key.mjs"
     - name: Restore toolchain cache and register its owner
       if: inputs.cache == 'true'
       uses: SonarSource/gh-action_cache/s3@d8acebf7a4f9bb88e7213390dcb55c1d10fa26f8 # S3 CI storage
