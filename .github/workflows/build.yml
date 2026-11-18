@@ -893,23 +893,13 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_without_node:
-    runs-on: sonar-m-docker
+    runs-on: sonar-m
     name: QA without Node on Ubuntu SQ:LATEST_RELEASE
     needs: [setup, get_build_number, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    container: &ubuntu_qa_container
-      image: ubuntu:24.04@sha256:73b999393d07f2bf65a40373778a44dc9a6d54ad7718d29247d8ff9413c4d6a8
     permissions: *read_permissions
     env: *shared_build_number
     steps:
-      - &ubuntu_prepare_qa
-        name: Prepare minimal Ubuntu QA environment
-        run: |
-          apt-get update
-          apt-get install --no-install-recommends -y ca-certificates curl unzip util-linux xz-utils
-          rm -rf /var/lib/apt/lists/*
-          # Elasticsearch refuses to run as root. Match Java's home to the Maven cache.
-          useradd --no-create-home --home-dir /github/home --shell /bin/bash sonar
       - *checkout
       - &mise_java_only
         name: Setup Java and Maven
@@ -923,19 +913,25 @@ jobs:
       - *config_maven
       - *get_licenses_token
       - *configure_orchestrator
-      - uses: ./.github/actions/orchestrator-cache
-      - &ubuntu_fix_qa_permissions
-        name: Fix permissions for non-root QA
+      - &remove_node_from_path
+        name: Disable existing node
+        shell: bash
         run: |
-          chown -R sonar:sonar "$GITHUB_WORKSPACE"
-          chown -R sonar:sonar "$ORCHESTRATOR_HOME"
-          chown -R sonar:sonar "$RUNNER_TEMP/orchestrator-production-config"
-          chown -R sonar:sonar /github/home
+          node --version
+
+          function node() {
+            echo "node is disabled"
+            exit 0
+          }
+          export -f node
+
+          node
+      - uses: ./.github/actions/orchestrator-cache
       - name: Run Plugin QA without Node
         run: |
-          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
-          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
-          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
+          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: multi
@@ -943,15 +939,13 @@ jobs:
 
   # DEV tests run only on nightly schedule to avoid constant downloads
   plugin_qa_without_node_dev:
-    runs-on: sonar-m-docker
+    runs-on: sonar-m
     name: QA without Node on Ubuntu SQ:DEV
     needs: [setup, get_build_number, build]
     if: github.event_name == 'schedule'
-    container: *ubuntu_qa_container
     permissions: *read_permissions
     env: *shared_build_number
     steps:
-      - *ubuntu_prepare_qa
       - *checkout
       - *mise_java_only
       - *maven_cache_restore
@@ -959,18 +953,54 @@ jobs:
       - *config_maven
       - *get_licenses_token
       - *configure_orchestrator
+      - *remove_node_from_path
       - uses: ./.github/actions/orchestrator-cache
         with:
           enabled: 'false'
-      - *ubuntu_fix_qa_permissions
       - name: Run Plugin QA without Node (DEV)
         run: |
-          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
-          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=DEV -B -e -V verify surefire-report:report
-          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=DEV -B -e -V verify surefire-report:report
+          mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
+          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=DEV -B -e -V verify surefire-report:report
+          mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=DEV -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: multi
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+
+  minimal_ubuntu_analyzer_check:
+    name: Minimal Ubuntu analyzer verification (optional)
+    runs-on: sonar-m-docker
+    needs: [setup, get_build_number, build]
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false
+    continue-on-error: true
+    timeout-minutes: 20
+    container:
+      image: ubuntu:24.04@sha256:73b999393d07f2bf65a40373778a44dc9a6d54ad7718d29247d8ff9413c4d6a8
+    permissions: *read_permissions
+    env: *shared_build_number
+    steps:
+      - name: Prepare minimal Ubuntu environment
+        run: |
+          apt-get update
+          apt-get install --no-install-recommends -y ca-certificates curl unzip xz-utils
+          rm -rf /var/lib/apt/lists/*
+      - *checkout
+      - *mise_java_only
+      - *maven_cache_restore
+      - *download_sonarjs_m2
+      - *config_maven
+      - *get_licenses_token
+      - *configure_orchestrator
+      - name: Verify analyzer with bundled Node
+        run: |
+          # Fail if setup starts supplying Node or libatomic and masks a runtime dependency.
+          if command -v node || ldconfig -p | grep -F 'libatomic.so'; then
+            echo 'The minimal Ubuntu environment must not supply Node or libatomic.' >&2
+            exit 1
+          fi
+          mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dtest=EmbeddedNodeTest -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify
+        env:
+          SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_without_node_alpine:
@@ -1030,15 +1060,13 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_fast_without_node:
-    runs-on: sonar-m-docker
+    runs-on: sonar-m
     name: Fast QA without Node on Ubuntu SQ:LATEST_RELEASE
     needs: [setup, get_build_number, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    container: *ubuntu_qa_container
     permissions: *read_permissions
     env: *shared_build_number
     steps:
-      - *ubuntu_prepare_qa
       - *checkout
       - *mise_java_only
       - *maven_cache_restore
@@ -1046,14 +1074,14 @@ jobs:
       - *config_maven
       - *get_licenses_token
       - *configure_orchestrator
+      - *remove_node_from_path
       - uses: ./.github/actions/orchestrator-cache
         with:
           key-prefix: orchestrator-production-fast
-      - *ubuntu_fix_qa_permissions
       - name: Run Fast Plugin QA without Node
         run: |
-          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin
-          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dtest=!EslintCustomRulesTest -B -e -V verify surefire-report:report
+          mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin
+          mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dtest=!EslintCustomRulesTest -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: multi
@@ -1061,15 +1089,13 @@ jobs:
 
   # DEV tests run only on nightly schedule to avoid constant downloads
   plugin_qa_fast_without_node_dev:
-    runs-on: sonar-m-docker
+    runs-on: sonar-m
     name: Fast QA without Node on Ubuntu SQ:DEV
     needs: [setup, get_build_number, build]
     if: github.event_name == 'schedule'
-    container: *ubuntu_qa_container
     permissions: *read_permissions
     env: *shared_build_number
     steps:
-      - *ubuntu_prepare_qa
       - *checkout
       - *mise_java_only
       - *maven_cache_restore
@@ -1077,14 +1103,14 @@ jobs:
       - *config_maven
       - *get_licenses_token
       - *configure_orchestrator
+      - *remove_node_from_path
       - uses: ./.github/actions/orchestrator-cache
         with:
           enabled: 'false'
-      - *ubuntu_fix_qa_permissions
       - name: Run Fast Plugin QA without Node (DEV)
         run: |
-          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin
-          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=DEV -Dtest=!EslintCustomRulesTest -B -e -V verify surefire-report:report
+          mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin
+          mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=DEV -Dtest=!EslintCustomRulesTest -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: multi

@@ -225,14 +225,20 @@ test('updater failures gate promotion and reach the protected-branch failure not
   for (const job of ['promote', 'notify-build-failure', 'releasability']) {
     assert.ok(ancestors(job).has('js_ts_ruling_update'), `${job} must observe updater failures`);
   }
+  for (const [name, job] of Object.entries(jobs)) {
+    if (job['continue-on-error'] === true) {
+      assert.ok(!ancestors('promote').has(name), `${name} must not gate promotion`);
+      assert.ok(!ancestors('notify-build-failure').has(name), `${name} must not notify failures`);
+    }
+  }
   assert.match(jobs.promote.if, /!failure\(\)/);
   assert.match(jobs['notify-build-failure'].if, /always\(\)/);
   assert.match(jobs['notify-build-failure'].if, /&& failure\(\)/);
-  // Notification dependencies must cover every Build job, even independent leaf jobs.
+  // Notification dependencies cover every required Build job, including independent leaves.
   assert.deepEqual(
     dependencies('notify-build-failure').sort(),
     Object.keys(jobs)
-      .filter(name => name !== 'notify-build-failure')
+      .filter(name => name !== 'notify-build-failure' && jobs[name]['continue-on-error'] !== true)
       .sort(),
   );
 });
