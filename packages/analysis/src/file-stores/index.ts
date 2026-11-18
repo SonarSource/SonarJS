@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { FileSystemMap, FileSystemSet, pathsEqual } from '../common/filesystem.js';
+import { fileContentStore } from '../common/file-content-store.js';
 import { SourceFileStore } from './source-files.js';
 import { DependencyManifestStore } from './dependency-manifests.js';
 import { GeneratedSourceStore } from './generated-sources/index.js';
@@ -70,6 +71,9 @@ export async function initFileStoresForAnalysis(
 export async function initFileStores(configuration: Configuration, inputFiles?: AnalyzableFiles) {
   const { baseDir, canAccessFileSystem, jsTsExclusions } = configuration;
   const pendingStores: FileStore[] = [];
+  for (const path of configuration.fsEvents) {
+    fileContentStore.delete(path);
+  }
 
   for (const store of fileStores) {
     if (!(await store.isInitialized(configuration, inputFiles))) {
@@ -159,6 +163,7 @@ async function processPendingFileStores(
     store,
     request: store.wantsFile(filePath, configuration),
   }));
+
   if (storeRequests.some(({ request }) => request === 'deferred-content')) {
     context.retainFile(filePath);
   }
@@ -175,30 +180,34 @@ async function processPendingFileStores(
 }
 
 function createFileStoreContext(inputFiles?: AnalyzableFiles): FileStoreContext {
-  const providedFiles = new FileSystemMap(
-    Object.entries(inputFiles ?? {}) as [
-      NormalizedAbsolutePath,
-      AnalyzableFiles[NormalizedAbsolutePath],
-    ][],
-  );
-  const retainedPaths = new FileSystemSet<NormalizedAbsolutePath>();
-  const files = new FileSystemMap<NormalizedAbsolutePath, Promise<File>>();
+  // Production discovery reuses the source store's authoritative input index.
+  const providedFiles =
+    inputFiles && inputFiles !== sourceFileStore.context.files
+      ? new FileSystemMap(Object.entries(inputFiles))
+      : undefined;
+  // An undefined entry marks an unread deferred path. Keep its first read (including
+  // pending and failed reads) only through postProcess, without promoting rejected sources.
+  const files = new FileSystemMap<NormalizedAbsolutePath, Promise<File> | undefined>();
 
   return {
     retainFile(filePath) {
-      retainedPaths.add(filePath);
+      if (!files.has(filePath)) {
+        files.set(filePath, undefined);
+      }
     },
     getFile(filePath, fileContent) {
       let file = files.get(filePath);
       if (!file) {
-        const inputFile = providedFiles.get(filePath);
+        const inputFile = providedFiles
+          ? providedFiles.get(filePath)
+          : inputFiles && sourceFileStore.context.getFile(filePath);
         file = inputFile
           ? Promise.resolve(inputFile)
           : Promise.resolve(fileContent ?? readFile(filePath)).then(fileContent => ({
               filePath,
               fileContent,
             }));
-        if (retainedPaths.has(filePath)) {
+        if (files.has(filePath)) {
           files.set(filePath, file);
         }
       }

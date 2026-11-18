@@ -14,26 +14,41 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { FileSystemMap } from '../../../common/filesystem.js';
+import { fileContentStore } from '../../../common/file-content-store.js';
 import { debug } from '../../../../../shared/src/helpers/logging.js';
 
-/**
- * Global cache for tsconfig file contents to avoid repeated disk reads
- * Persists across analysis runs (especially useful for SonarLint)
- */
-const tsconfigContentCache = new FileSystemMap<string, { contents: string; missing: boolean }>();
+const tsconfigKey = Symbol('tsconfig missing status');
+const tsconfigContentCache = {
+  get(path: string): { contents: string; missing: boolean } | undefined {
+    const missing = fileContentStore.getData<boolean>(path, tsconfigKey);
+    const contents = missing ? '{}' : fileContentStore.get(path);
+    if (missing === undefined || contents === undefined) {
+      return undefined;
+    }
+    return { contents, missing };
+  },
+  has(path: string): boolean {
+    return this.get(path) !== undefined;
+  },
+  set(path: string, value: { contents: string; missing: boolean }): void {
+    if (!value.missing) {
+      fileContentStore.set(path, value.contents);
+    }
+    fileContentStore.setData(path, tsconfigKey, value.missing);
+  },
+  get size(): number {
+    return [...fileContentStore.pathsWithData(tsconfigKey)].length;
+  },
+};
 
-/**
- * Get the tsconfig content cache (for parser access)
- */
+/** A TSConfig view over the shared contents; missing configs retain only their sentinel metadata. */
 export function getTsConfigContentCache(): typeof tsconfigContentCache {
   return tsconfigContentCache;
 }
 
-/**
- * Clear the tsconfig content cache (called when tsconfig files change)
- */
 export function clearTsConfigContentCache(): void {
-  tsconfigContentCache.clear();
+  for (const path of fileContentStore.pathsWithData(tsconfigKey)) {
+    fileContentStore.delete(path);
+  }
   debug('Cleared tsconfig content cache');
 }

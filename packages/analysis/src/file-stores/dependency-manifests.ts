@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { fileContentStore } from '../common/file-content-store.js';
 import { FileSystemMap, pathsEqual } from '../common/filesystem.js';
 import { debug } from '../../../shared/src/helpers/logging.js';
 import type { FileStore } from './store-type.js';
@@ -121,6 +122,7 @@ export class DependencyManifestStore implements FileStore {
     if (!this.baseDir) {
       throw new Error(UNINITIALIZED_ERROR);
     }
+    fileContentStore.register(filename, file!);
     const manifestName = getPreloadableDependencyManifestName(filename)!;
     this.manifestsByName[manifestName].set(dirnamePath(filename), file!);
   }

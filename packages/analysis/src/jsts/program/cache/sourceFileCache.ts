@@ -14,23 +14,14 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { FileSystemMap, FileSystemSet } from '../../../common/filesystem.js';
-import {
-  dirnamePath,
-  type NormalizedAbsolutePath,
-} from '../../../../../shared/src/helpers/files.js';
+import { fileContentStore } from '../../../common/file-content-store.js';
+import { SourceFilesContext } from '../../../common/source-files-context.js';
 import { debug } from '../../../../../shared/src/helpers/logging.js';
 import type ts from 'typescript';
-import { clearFileRepresentationCaches } from '../file-representation.js';
 
+type ParsedSourceFiles = Map<string, { contentHash: string; sourceFile: ts.SourceFile }>;
 /**
- * Global cache for source file contents
- * Lazily populated when CompilerHost needs files
- */
-const sourceFileContentCache = new FileSystemMap<string, string>();
-
-/**
- * Global cache for parsed TypeScript SourceFile ASTs
+ * Parsed TypeScript SourceFile ASTs owned by each shared file-content entry
  *
  * This cache stores parsed ASTs keyed by fileName, scalar parse options, jsx, jsxImportSource,
  * importHelpers and scriptKind.
@@ -43,10 +34,7 @@ const sourceFileContentCache = new FileSystemMap<string, string>();
  * Sharing a SourceFile between programs with different values for these options causes
  * internal TypeScript assertion failures (e.g. in getSuggestionDiagnostics).
  */
-const parsedSourceFileCache = new FileSystemMap<
-  string, // normalized file path
-  Map<string, { contentHash: string; sourceFile: ts.SourceFile }> // compound key → entry
->();
+const parsedSourcesKey = Symbol('parsed source files');
 
 type ParsedSourceFileOptions = Pick<
   ts.CompilerOptions,
@@ -71,59 +59,40 @@ function parsedSourceFileCacheIdentity(
   return `${options.languageVersion}:${options.impliedNodeFormat ?? -1}:${options.jsDocParsingMode ?? -1}:${jsx ?? -1}:${importHelpers ? 1 : 0}:${compilerOptions?.moduleDetection ?? -1}:${compilerOptions?.module ?? -1}:${compilerOptions?.scriptKind ?? -1}:${compilerOptions?.jsxImportSource ?? ''}`;
 }
 
-/**
- * Current files context for lazy loading
- */
-let currentFilesByPath = new FileSystemMap<string, { fileContent?: string }>();
-const providedDirectories = new FileSystemSet<string>();
-let currentFilesContext: Record<string, { fileContent?: string }> | null = null;
+let currentContext: SourceFilesContext | undefined;
 let sourceFilesContextVersion = 0;
 
-/**
- * Set the current files context for lazy loading
- */
-export function setSourceFilesContext(files: Record<string, { fileContent?: string }>): void {
-  currentFilesContext = files;
-  currentFilesByPath = new FileSystemMap(Object.entries(files));
-  providedDirectories.clear();
-  for (const file of Object.keys(files)) {
-    for (
-      let directory = dirnamePath(file as NormalizedAbsolutePath);
-      !providedDirectories.has(directory);
-      directory = dirnamePath(directory)
-    ) {
-      providedDirectories.add(directory);
-    }
+/** Reuse the source store's index in production; standalone callers can supply a record. */
+export function setSourceFilesContext(
+  files: SourceFilesContext | Record<string, { fileContent?: string }>,
+): void {
+  if (files instanceof SourceFilesContext) {
+    currentContext = files;
+  } else {
+    currentContext = new SourceFilesContext();
+    currentContext.setFiles(files);
   }
   sourceFilesContextVersion++;
 }
 
-/** Constant-time lookup for imports into directories supplied only by the request. */
 export function hasProvidedSourceDirectory(directory: string): boolean {
-  return providedDirectories.has(directory);
+  return currentContext?.hasDirectory(directory) ?? false;
 }
 
-/** A new request can reuse the same files object with edited contents. */
 export function getSourceFilesContextVersion(): number {
   return sourceFilesContextVersion;
 }
 
-/**
- * Get the source file content cache (for CompilerHost access)
- */
-export function getSourceFileContentCache(): Map<string, string> {
-  return sourceFileContentCache;
+export function getSourceFileContentCache(): typeof fileContentStore {
+  return fileContentStore;
 }
 
-/**
- * Get the current files context (for CompilerHost access)
- */
 export function getCurrentFilesContext(): Record<string, { fileContent?: string }> | null {
-  return currentFilesContext;
+  return currentContext?.files ?? null;
 }
 
 export function getProvidedSourceFile(file: string): { fileContent?: string } | undefined {
-  return currentFilesByPath.get(file);
+  return currentContext?.getFile(file);
 }
 
 /**
@@ -144,7 +113,7 @@ export function getCachedSourceFile(
   importHelpers = false,
   compilerOptions?: ParsedSourceFileOptions,
 ): ts.SourceFile | undefined {
-  const fileCache = parsedSourceFileCache.get(fileName);
+  const fileCache = fileContentStore.getData<ParsedSourceFiles>(fileName, parsedSourcesKey);
   if (!fileCache) {
     return undefined;
   }
@@ -185,10 +154,10 @@ export function setCachedSourceFile(
   importHelpers = false,
   compilerOptions?: ParsedSourceFileOptions,
 ): void {
-  let fileCache = parsedSourceFileCache.get(fileName);
+  let fileCache = fileContentStore.getData<ParsedSourceFiles>(fileName, parsedSourcesKey);
   if (!fileCache) {
     fileCache = new Map();
-    parsedSourceFileCache.set(fileName, fileCache);
+    fileContentStore.setData(fileName, parsedSourcesKey, fileCache);
   }
 
   const key = parsedSourceFileCacheIdentity(
@@ -208,19 +177,15 @@ export function setCachedSourceFile(
  * @param fileName Normalized file path
  */
 export function invalidateParsedSourceFile(fileName: string): void {
-  parsedSourceFileCache.delete(fileName);
+  fileContentStore.deleteData(fileName, parsedSourcesKey);
 }
 
 /**
  * Clear the source file content cache and parsed SourceFile cache
  */
 export function clearSourceFileContentCache(): void {
-  clearFileRepresentationCaches();
-  sourceFileContentCache.clear();
-  parsedSourceFileCache.clear();
-  currentFilesContext = null;
-  currentFilesByPath.clear();
-  providedDirectories.clear();
+  fileContentStore.clear();
+  currentContext = undefined;
   sourceFilesContextVersion++;
   debug('Cleared source file content cache and parsed SourceFile cache');
 }

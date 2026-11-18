@@ -234,6 +234,28 @@ describe('simulateFromInputFiles', () => {
     expect(mockStore1.receivedFiles[0]?.fileContent).toEqual('console.log("shared");');
   });
 
+  it('should preserve supplied empty contents and identity without reading disk', async ({
+    mock,
+  }) => {
+    const store = new MockFileStore('content');
+    const configuration = createConfiguration({
+      baseDir: normalizeToAbsolutePath('/project'),
+    });
+    const filePath = normalizeToAbsolutePath('/project/source.ts');
+    const { files } = await sanitizeInputFiles(
+      { [filePath]: { filePath, fileType: 'MAIN', fileContent: '' } },
+      configuration,
+    );
+    const read = mock.method(fs.promises, 'readFile');
+
+    await simulateFromInputFiles(files, configuration, [store]);
+
+    expect(store.receivedFiles).toEqual([files[filePath]]);
+    expect(store.receivedFiles[0]).toBe(files[filePath]);
+    expect(store.receivedFiles[0]?.fileContent).toBe('');
+    expect(read.mock.calls).toHaveLength(0);
+  });
+
   it('should skip files for stores that do not want them', async () => {
     class FilteringMockStore extends MockFileStore {
       override wantsFile(

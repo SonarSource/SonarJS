@@ -34,7 +34,10 @@ import { getProgramCacheManager } from '../src/jsts/program/cache/programCache.j
 import { getSourceFileContentCache } from '../src/jsts/program/cache/sourceFileCache.js';
 import { Linter } from '../src/jsts/linter/linter.js';
 import { getCurrentFileModuleReferences } from '../src/jsts/rules/helpers/module.js';
-import { clearProgramOptionsCache } from '../src/jsts/program/cache/programOptionsCache.js';
+import {
+  getCachedProgramOptions,
+  clearProgramOptionsCache,
+} from '../src/jsts/program/cache/programOptionsCache.js';
 import { sanitizeInputFiles, type ProjectAnalysisFileInput } from '../src/common/input-sanitize.js';
 import {
   createConfigurationFromInput,
@@ -179,6 +182,9 @@ describe('SonarQube project analysis', () => {
 
     // The last SourceCode contains parser services that reference the whole TypeScript Program.
     // It must not remain live while the next SQAA request loads another archive and program.
+    const cachedOptions = getCachedProgramOptions(join(baseDir, 'tsconfig.json'));
+    expect(cachedOptions).toBeDefined();
+    expect(cachedOptions).not.toHaveProperty('host');
     expect(moduleReferences?.size).toBe(0);
     expect(getSourceFileContentCache().size).toBe(0);
     expect(

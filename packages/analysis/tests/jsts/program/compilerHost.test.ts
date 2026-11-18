@@ -19,7 +19,7 @@ import { describe, it, beforeEach } from 'node:test';
 import { expect } from 'expect';
 import ts from 'typescript';
 import path from 'node:path';
-import { readFileSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import fs, { readFileSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import os from 'node:os';
 import { IncrementalCompilerHost } from '../../../src/jsts/program/compilerHost.js';
 import {
@@ -164,7 +164,8 @@ describe('IncrementalCompilerHost', () => {
   });
 
   describe('readFile', () => {
-    it('should read from global cache first', () => {
+    it('should read from global cache without querying disk', ({ mock }) => {
+      const read = mock.method(ts.sys, 'readFile');
       const host = new IncrementalCompilerHost(compilerOptions, baseDir);
       const cache = getSourceFileContentCache();
       const content = 'cached content';
@@ -175,25 +176,38 @@ describe('IncrementalCompilerHost', () => {
 
       expect(result).toBe(content);
 
-      const calls = host.getTrackedFsCalls();
-      expect(calls.some(c => c.op === 'readFile-cache')).toBe(true);
+      expect(read.mock.calls).toHaveLength(0);
     });
 
-    it('should read from files context when not in cache', () => {
+    it('should read from files context when not in cache without querying disk', ({ mock }) => {
+      const read = mock.method(ts.sys, 'readFile');
       const host = new IncrementalCompilerHost(compilerOptions, baseDir);
       const content = 'context content';
 
       setSourceFilesContext({
         [normalizeToAbsolutePath('/project/src/index.ts')]: { fileContent: content },
       });
+      getSourceFileContentCache().delete(normalizeToAbsolutePath('/project/src/index.ts'));
 
       const result = host.readFile(normalizeToAbsolutePath('/project/src/index.ts'));
 
       expect(result).toBe(content);
 
-      const calls = host.getTrackedFsCalls();
-      expect(calls.some(c => c.op === 'readFile-context')).toBe(true);
+      expect(read.mock.calls).toHaveLength(0);
     });
+
+    for (const content of ['const value = 1;', '']) {
+      it(`should read an uncached file only once: ${JSON.stringify(content)}`, ({ mock }) => {
+        const read = mock.method(ts.sys, 'readFile', () => content);
+        const host = new IncrementalCompilerHost(compilerOptions, baseDir);
+        const file = normalizeToAbsolutePath('/project/src/index.ts');
+
+        expect(host.readFile(file)).toBe(content);
+        expect(host.readFile(file)).toBe(content);
+        expect(getSourceFileContentCache().get(file)).toBe(content);
+        expect(read.mock.calls.map(call => call.arguments)).toEqual([[file]]);
+      });
+    }
 
     it('should cache content read from context', () => {
       const host = new IncrementalCompilerHost(compilerOptions, baseDir);
@@ -211,7 +225,8 @@ describe('IncrementalCompilerHost', () => {
   });
 
   describe('fileExists', () => {
-    it('should return true for files in global cache', () => {
+    it('should return true for files in global cache without querying disk', ({ mock }) => {
+      const exists = mock.method(ts.sys, 'fileExists');
       const host = new IncrementalCompilerHost(compilerOptions, baseDir);
       const cache = getSourceFileContentCache();
 
@@ -219,24 +234,26 @@ describe('IncrementalCompilerHost', () => {
 
       expect(host.fileExists(normalizeToAbsolutePath('/project/src/index.ts'))).toBe(true);
 
-      const calls = host.getTrackedFsCalls();
-      expect(calls.some(c => c.op === 'fileExists-cache')).toBe(true);
+      expect(exists.mock.calls).toHaveLength(0);
     });
 
-    it('should return true for files in context', () => {
+    it('should return true for files in context without loaded content or disk access', ({
+      mock,
+    }) => {
+      const exists = mock.method(ts.sys, 'fileExists');
       const host = new IncrementalCompilerHost(compilerOptions, baseDir);
 
       setSourceFilesContext({
-        [normalizeToAbsolutePath('/project/src/index.ts')]: { fileContent: 'content' },
+        [normalizeToAbsolutePath('/project/src/index.ts')]: {},
       });
 
       expect(host.fileExists(normalizeToAbsolutePath('/project/src/index.ts'))).toBe(true);
 
-      const calls = host.getTrackedFsCalls();
-      expect(calls.some(c => c.op === 'fileExists-context')).toBe(true);
+      expect(exists.mock.calls).toHaveLength(0);
     });
 
-    it('should query node_modules lookups outside baseDir', () => {
+    it('should query node_modules lookups outside baseDir', ({ mock }) => {
+      const exists = mock.method(ts.sys, 'fileExists', () => false);
       const host = new IncrementalCompilerHost(compilerOptions, baseDir);
       const outsideNodeModulesFile = normalizeToAbsolutePath(
         '/external/node_modules/pkg/index.d.ts',
@@ -244,8 +261,7 @@ describe('IncrementalCompilerHost', () => {
 
       expect(host.fileExists(outsideNodeModulesFile)).toBe(false);
 
-      const calls = host.getTrackedFsCalls();
-      expect(calls.some(c => c.op === 'fileExists-disk')).toBe(true);
+      expect(exists.mock.calls.map(call => call.arguments)).toEqual([[outsideNodeModulesFile]]);
     });
   });
 
@@ -253,17 +269,25 @@ describe('IncrementalCompilerHost', () => {
     const extensions = ['.ts', '.d.ts'];
     const includes = ['**/*'];
 
-    it('should query disk for node_modules lookups outside baseDir by default', () => {
+    it('should query disk for node_modules lookups outside baseDir by default', ({ mock }) => {
+      const read = mock.method(fs, 'readdirSync', () => []);
       const host = new IncrementalCompilerHost(compilerOptions, baseDir);
 
-      host.readDirectory('/external/node_modules/pkg', extensions, undefined, includes);
+      const files = host.readDirectory(
+        '/external/node_modules/pkg',
+        extensions,
+        undefined,
+        includes,
+      );
 
-      const calls = host.getTrackedFsCalls();
-      expect(calls.some(c => c.op === 'readDirectory-node_modules-skip')).toBe(false);
-      expect(calls.some(c => c.op === 'readDirectory-disk')).toBe(true);
+      expect(files).toEqual([]);
+      expect(read.mock.calls.map(call => call.arguments[0])).toEqual([
+        '/external/node_modules/pkg',
+      ]);
     });
 
-    it('should skip node_modules lookups outside baseDir', () => {
+    it('should skip node_modules lookups outside baseDir', ({ mock }) => {
+      const read = mock.method(fs, 'readdirSync', () => []);
       const host = new IncrementalCompilerHost(compilerOptions, baseDir, true);
 
       const files = host.readDirectory(
@@ -274,20 +298,17 @@ describe('IncrementalCompilerHost', () => {
       );
 
       expect(files).toEqual([]);
-      const calls = host.getTrackedFsCalls();
-      expect(calls.some(c => c.op === 'readDirectory-node_modules-skip')).toBe(true);
-      expect(calls.some(c => c.op === 'readDirectory-disk')).toBe(false);
+      expect(read.mock.calls).toHaveLength(0);
     });
 
-    it('should not skip node_modules lookups under baseDir', () => {
-      const host = new IncrementalCompilerHost(compilerOptions, baseDir);
+    it('should not skip node_modules lookups under baseDir', ({ mock }) => {
+      const read = mock.method(fs, 'readdirSync', () => []);
+      const host = new IncrementalCompilerHost(compilerOptions, baseDir, true);
       const nodeModulesUnderBaseDir = joinPaths(baseDir, 'node_modules');
 
       host.readDirectory(nodeModulesUnderBaseDir, extensions, undefined, includes);
 
-      const calls = host.getTrackedFsCalls();
-      expect(calls.some(c => c.op === 'readDirectory-node_modules-skip')).toBe(false);
-      expect(calls.some(c => c.op === 'readDirectory-disk')).toBe(true);
+      expect(read.mock.calls.map(call => call.arguments[0])).toEqual([nodeModulesUnderBaseDir]);
     });
   });
 
@@ -557,36 +578,6 @@ describe('IncrementalCompilerHost', () => {
 
       // createHash uses the data as fileName to get version
       expect(host.createHash(normalizeToAbsolutePath('/project/src/index.ts'))).toBe('1');
-    });
-  });
-
-  describe('FS call tracking', () => {
-    it('should track filesystem calls', () => {
-      const host = new IncrementalCompilerHost(compilerOptions, baseDir);
-      const cache = getSourceFileContentCache();
-
-      cache.set(normalizeToAbsolutePath('/project/src/index.ts'), 'content');
-
-      host.readFile(normalizeToAbsolutePath('/project/src/index.ts'));
-      host.fileExists(normalizeToAbsolutePath('/project/src/index.ts'));
-
-      const calls = host.getTrackedFsCalls();
-      expect(calls.length).toBeGreaterThanOrEqual(2);
-      expect(calls.every(c => c.timestamp > 0)).toBe(true);
-    });
-
-    it('should clear tracking', () => {
-      const host = new IncrementalCompilerHost(compilerOptions, baseDir);
-      const cache = getSourceFileContentCache();
-
-      cache.set(normalizeToAbsolutePath('/project/src/index.ts'), 'content');
-      host.readFile(normalizeToAbsolutePath('/project/src/index.ts'));
-
-      expect(host.getTrackedFsCalls().length).toBeGreaterThan(0);
-
-      host.clearTracking();
-
-      expect(host.getTrackedFsCalls()).toHaveLength(0);
     });
   });
 

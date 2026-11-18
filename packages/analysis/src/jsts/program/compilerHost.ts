@@ -15,8 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import ts from 'typescript';
+import { fileContentStore, hashContent } from '../../common/file-content-store.js';
 import { readDirectory } from './filesystem.js';
-import { equivalentRepresentations, prepareFileRepresentation } from './file-representation.js';
+import { prepareFileRepresentation } from './file-representation.js';
 import {
   getSourceFileContentCache,
   getProvidedSourceFile,
@@ -42,27 +43,22 @@ import {
   pathsEqual,
 } from '../../common/filesystem.js';
 
-interface FsCall {
-  op: string;
-  file: string;
-  timestamp: number;
-}
+type FileState = { version?: number; representation: string };
+// Share initial identities across hosts; only edited hosts need their own versioned state.
+const representationStatesKey = Symbol('compiler representation states');
+type RepresentationStates = Map<ts.JsxEmit | undefined, { rawHash: string; state: FileState }>;
 
 /**
  * Custom CompilerHost that allows:
  * - Reading file contents from global cache (lazy loading)
  * - Parsing and caching TypeScript SourceFile ASTs globally (shared across programs)
- * - Tracking filesystem calls from TypeScript
  * - Incremental file updates for builder programs
  */
 export class IncrementalCompilerHost implements ts.CompilerHost {
   // Map from normalized file path to version number (incremented on file changes).
   // Used by TypeScript's builder programs for change detection.
-  private readonly fileVersions = new FileSystemMap<string, number>();
+  private readonly fileStates = new FileSystemMap<string, FileState>();
   private readonly modifiedFiles = new FileSystemSet<string>();
-  // Each host must detect edits independently of other Programs' cache updates.
-  private readonly fileContents = new FileSystemMap<string, string>();
-  private fsCallTracker: FsCall[] = [];
   private readonly baseHost: ts.CompilerHost;
   private realBaseDir: NormalizedAbsolutePath | undefined;
   private readonly resolvedFileNames = new FileSystemMap<string, NormalizedAbsolutePath>();
@@ -86,25 +82,20 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     }
     const normalized = this.getResolvedFileName(filePath);
     const cache = getSourceFileContentCache();
-    const oldContent = this.fileContents.get(normalized) ?? cache.get(normalized);
-    this.fileContents.set(normalized, content);
-    cache.set(normalized, content);
-
-    if (oldContent === content) {
-      return false; // No change
-    }
-
-    const previous =
-      oldContent === undefined
+    const previous = this.fileStates.get(normalized);
+    const oldContent = cache.get(normalized);
+    const previousIdentity =
+      previous?.representation ??
+      (oldContent === undefined
         ? undefined
-        : prepareFileRepresentation(normalized, oldContent, this.compilerOptions);
-    const current = prepareFileRepresentation(normalized, content, this.compilerOptions);
-    if (equivalentRepresentations(previous, current)) {
-      // Raw edits still need analysis; an unchanged compiler representation can
-      // retain its SourceFile and semantic Program.
+        : this.representationIdentity(normalized, oldContent).representation);
+    cache.set(normalized, content);
+    const representation = this.representationIdentity(normalized, content);
+    if (previousIdentity === representation.representation) {
+      this.fileStates.set(normalized, previous ?? representation);
       return false;
     }
-    this.fileVersions.set(normalized, (this.fileVersions.get(normalized) || 0) + 1);
+    this.fileStates.set(normalized, { ...representation, version: (previous?.version ?? 0) + 1 });
     this.modifiedFiles.add(normalized);
 
     // Invalidate global parsed SourceFile cache for this file (all targets)
@@ -118,7 +109,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
    */
   getFileVersion(fileName: string): string {
     const normalized = this.getResolvedFileName(fileName);
-    return (this.fileVersions.get(normalized) || 0).toString();
+    return (this.fileStates.get(normalized)?.version ?? 0).toString();
   }
 
   /**
@@ -187,7 +178,6 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     // 1. For files in the current request context, always prefer request content.
     // This avoids serving stale contents from the global cache across requests.
     if (typeof providedFile?.fileContent === 'string') {
-      this.trackFsCall('readFile-context', fileName);
       const content = providedFile.fileContent;
       if (cache.get(normalized) !== content) {
         cache.set(normalized, content);
@@ -197,14 +187,12 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
 
     // 2. For files outside the request context, use the global cache.
     if (cache.has(normalized)) {
-      this.trackFsCall('readFile-cache', fileName);
       return cache.get(normalized);
     }
 
     // 3. Fallback to real filesystem (and cache it)
-    this.trackFsCall('readFile-disk', fileName);
     const content = this.baseHost.readFile(fileName);
-    if (content) {
+    if (content !== undefined) {
       cache.set(normalized, content);
 
       // Update files object if entry already exists (keep cache and files in sync).
@@ -227,14 +215,12 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
 
     // 1. Check global cache
     if (cache.has(normalized)) {
-      this.trackFsCall('fileExists-cache', fileName);
       return true;
     }
 
     // 2. Check files context
     const providedFile = this.getProvidedFile(fileName);
     if (providedFile) {
-      this.trackFsCall('fileExists-context', fileName);
       return true;
     }
 
@@ -242,13 +228,11 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     // a source from the request context without ever making a stat call, while its
     // content is still present in the replay archive.
     if (hasArchivedFileContent(fileName)) {
-      this.trackFsCall('fileExists-archive-content', fileName);
       return true;
     }
 
     // 3. Fallback to filesystem
     // TODO: Consider caching negative results to avoid repeated filesystem checks for missing files
-    this.trackFsCall('fileExists-disk', fileName);
     return this.baseHost.fileExists(fileName);
   }
 
@@ -270,12 +254,11 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
       this.updateFile(normalized, contextContent);
     }
 
-    const currentVersion = this.fileVersions.get(normalized) || 0;
+    const currentVersion = this.fileStates.get(normalized)?.version ?? 0;
     const contentHash = currentVersion.toString();
     const content = this.readFile(fileName);
     let sourceFile: (ts.SourceFile & { version?: string }) | undefined;
     if (content === undefined) {
-      this.trackFsCall('getSourceFile-disk-fallback', fileName);
       sourceFile = this.baseHost.getSourceFile(
         fileName,
         languageVersionOrOptions,
@@ -283,7 +266,14 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
         shouldCreateNewSourceFile,
       );
     } else {
-      this.fileContents.set(normalized, content);
+      const identity = this.representationIdentity(normalized, content);
+      const previous = this.fileStates.get(normalized);
+      if (previous?.representation !== identity.representation) {
+        this.fileStates.set(
+          normalized,
+          currentVersion === 0 ? identity : { ...identity, version: currentVersion },
+        );
+      }
       sourceFile = this.getParsedSourceFile(
         fileName,
         content,
@@ -296,6 +286,28 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
       sourceFile.version = contentHash;
     }
     return sourceFile;
+  }
+
+  /** Each host retains only its last representation identity, independently of shared updates. */
+  private representationIdentity(file: string, content: string): FileState {
+    const rawHash = fileContentStore.contentHash(file, content);
+    let states = fileContentStore.getData<RepresentationStates>(file, representationStatesKey);
+    if (!states) {
+      states = new Map();
+      fileContentStore.setData(file, representationStatesKey, states);
+    }
+    const key = this.compilerOptions.jsx;
+    const cached = states.get(key);
+    if (cached?.rawHash === rawHash) {
+      return cached.state;
+    }
+    const representation = prepareFileRepresentation(file, content, this.compilerOptions);
+    // Invalid projections must remain non-reusable, even when their generated text is empty.
+    const state = {
+      representation: `${representation.scriptKind ?? -1}:${hashContent(representation.text)}:${representation.reusable ? '' : rawHash}`,
+    };
+    states.set(key, { rawHash, state });
+    return state;
   }
 
   /** Reuse a parsed representation only when both its options and text match. */
@@ -338,24 +350,6 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
       cacheOptions,
     );
     return sourceFile;
-  }
-
-  private trackFsCall(op: string, file: string): void {
-    this.fsCallTracker.push({ op, file, timestamp: Date.now() });
-  }
-
-  /**
-   * Get all tracked filesystem calls (for debugging/monitoring)
-   */
-  getTrackedFsCalls(): FsCall[] {
-    return this.fsCallTracker;
-  }
-
-  /**
-   * Clear filesystem call tracking
-   */
-  clearTracking(): void {
-    this.fsCallTracker = [];
   }
 
   getDefaultLibLocation(): string {
@@ -421,11 +415,9 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
   ): string[] {
     const normalizedRootDir = normalizeToAbsolutePath(rootDir, this.baseDir);
     if (this.shouldSkipNodeModulesOutsideBaseDir(normalizedRootDir)) {
-      this.trackFsCall('readDirectory-node_modules-skip', rootDir);
       return [];
     }
 
-    this.trackFsCall('readDirectory-disk', rootDir);
     return readDirectory(rootDir, extensions, excludes, includes, depth);
   }
 

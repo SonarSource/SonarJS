@@ -276,6 +276,44 @@ describe('self-contained PR context', () => {
     expect(selection(pr).hasSelection(file('cached.ts'))).toBe(true);
   });
 
+  it('records source deletion with unchanged glob config when every remaining file is cached', async () => {
+    const remaining = file('cached.ts');
+    const deleted = file('changed.ts');
+    const content = 'const values: number[] = [80, 3, 9]; values.sort();';
+    fs.writeFileSync(remaining, content);
+    fs.writeFileSync(deleted, 'export const deleted = true;');
+    fs.unlinkSync(file('values.ts'));
+    fs.writeFileSync(file('tsconfig.json'), JSON.stringify({ include: ['*.ts'] }));
+    const branch = request('branch');
+    delete branch.files![file('values.ts')];
+    await analyze(branch);
+    expect(selection(branch).getRestoredSelections([remaining])[0].rootNames.sort()).toEqual(
+      [remaining, deleted].sort(),
+    );
+
+    fs.unlinkSync(deleted);
+    const pr = prRequest('pr', true);
+    delete pr.files![deleted];
+    delete pr.files![file('values.ts')];
+    const lint = mock.method(Linter, 'lint');
+    const result = await analyze(pr);
+    expect(result.files).toEqual({});
+    expect(lint.mock.callCount()).toBe(0);
+    expect(result.meta?.telemetry?.programCreation?.attempted).toBe(1);
+    expect(result.meta?.contextRecorded).toBe(true);
+    expect(result.meta?.warnings).toEqual([]);
+    const metadata = selection(pr);
+    expect(metadata.getRestoredSelections([remaining])[0].rootNames).toEqual([remaining]);
+    expect(metadata.hasSelection(deleted)).toBe(false);
+    expect(archive(pr).get('changed.ts', 'readFile')?.ok).not.toBe(true);
+    fs.rmSync(project, { recursive: true });
+
+    lint.mock.restore();
+    const replayed = await replay(pr, remaining, content);
+    expect(replayed.files![remaining].issues!.map(issue => issue.ruleId)).toEqual(['S2871']);
+    expect(replayed.meta?.warnings).toEqual([]);
+  });
+
   it('records no-program outcomes for cached files when orphan programs are disabled', async () => {
     fs.unlinkSync(file('tsconfig.json'));
     const pr = prRequest('pr', true);

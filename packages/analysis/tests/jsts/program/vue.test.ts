@@ -484,6 +484,40 @@ function compare(label: string) { return "100" < label; }
     expect(await identifierTypes(scriptEdit, updated)).toContain('string');
   });
 
+  for (const extension of ['ts', 'vue']) {
+    for (const [before, after] of [
+      [0xd800, 0xd801],
+      [0xdc00, 0xdc01],
+      [0xd800, 0xfffd],
+    ]) {
+      it(`refreshes ${extension} programs for distinct UTF-16 code units ${before.toString(16)} and ${after.toString(16)}`, () => {
+        const sourcePath = normalizeToAbsolutePath(`/vue-project/source.${extension}`);
+        const source = (codeUnit: number) => {
+          const script = `export const value = "${String.fromCharCode(codeUnit)}";`;
+          return extension === 'vue' ? `<script lang="ts">${script}</script>` : script;
+        };
+        const getProgram = () =>
+          createOrGetCachedProgramForFile(baseDir, sourcePath, () =>
+            createProgramOptionsFromJson({ noLib: true }, [sourcePath], baseDir),
+          )!;
+        setSourceFilesContext({ [sourcePath]: { fileContent: source(before) } });
+        const initial = getProgram();
+
+        setSourceFilesContext({ [sourcePath]: { fileContent: source(after) } });
+        const updated = getProgram();
+
+        expect(updated).not.toBe(initial);
+        const sourceFile = updated.getSourceFile(sourcePath)!;
+        const declaration = sourceFile.statements
+          .filter(ts.isVariableStatement)
+          .flatMap(statement => statement.declarationList.declarations)
+          .find(declaration => declaration.name.getText() === 'value')!;
+        const type = updated.getTypeChecker().getTypeAtLocation(declaration.name);
+        expect((type as ts.StringLiteralType).value).toBe(String.fromCharCode(after));
+      });
+    }
+  }
+
   it('refreshes unchanged Vue scripts when a supplied imported dependency changes', async () => {
     const dep = normalizeToAbsolutePath('/vue-project/dep.ts');
     const raw = '<script lang="ts">import { n } from "./dep"; n;</script>';

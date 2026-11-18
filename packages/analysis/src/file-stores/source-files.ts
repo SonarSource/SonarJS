@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { FileSystemMap, FileSystemSet, pathsEqual } from '../common/filesystem.js';
+import { FileSystemSet, pathsEqual } from '../common/filesystem.js';
 import {
   type AnalyzableFiles,
   createAnalyzableFiles,
@@ -38,6 +38,7 @@ import {
 import { filterPathAndGetFileType, isDirectoryExcluded } from '../common/filter/filter-path.js';
 import { getFileTypeForRules } from '../common/rule-file-type.js';
 import { dirname } from 'node:path/posix';
+import { SourceFilesContext } from '../common/source-files-context.js';
 import type { FileType } from '../contracts/file.js';
 
 export const UNINITIALIZED_ERROR = 'Files cache has not been initialized. Call loadFiles() first.';
@@ -71,11 +72,7 @@ export class SourceFileStore implements FileStore {
   private analyzableFilesConfigKey: string | undefined = undefined;
   private readonly ignoredPaths = new FileSystemSet<string>();
   private pendingFileTypes: ResolvedFileTypes | undefined = undefined;
-  private files: AnalyzableFiles | undefined = undefined;
-  private filesByPath = new FileSystemMap<
-    NormalizedAbsolutePath,
-    AnalyzableFiles[NormalizedAbsolutePath]
-  >();
+  readonly context = new SourceFilesContext<AnalyzableFiles[NormalizedAbsolutePath]>();
   private readonly directoryIndex = new DirectoryIndex();
 
   /**
@@ -86,28 +83,22 @@ export class SourceFileStore implements FileStore {
     if (inputFiles) {
       this.clearCache();
       this.setup(configuration);
-      this.files = inputFiles;
-      this.filesByPath = new FileSystemMap(
-        Object.entries(inputFiles) as [
-          NormalizedAbsolutePath,
-          AnalyzableFiles[NormalizedAbsolutePath],
-        ][],
-      );
+      this.context.setFiles(inputFiles);
       this.directoryIndex.buildFromFiles(Object.keys(inputFiles) as NormalizedAbsolutePath[]);
       return true;
     }
-    return this.files !== undefined;
+    return this.context.files !== null;
   }
 
   getFile(filePath: NormalizedAbsolutePath) {
-    return this.filesByPath.get(filePath);
+    return this.context.getFile(filePath);
   }
 
   getFiles() {
-    if (!this.files) {
+    if (!this.context.files) {
       throw new Error(UNINITIALIZED_ERROR);
     }
-    return this.files;
+    return this.context.files as AnalyzableFiles;
   }
 
   /**
@@ -135,8 +126,7 @@ export class SourceFileStore implements FileStore {
     this.baseDir = undefined;
     this.canAccessFileSystem = undefined;
     this.analyzableFilesConfigKey = undefined;
-    this.files = undefined;
-    this.filesByPath.clear();
+    this.context.clear();
     this.ignoredPaths.clear();
     this.pendingFileTypes = undefined;
     this.directoryIndex.clear();
@@ -146,8 +136,7 @@ export class SourceFileStore implements FileStore {
     this.baseDir = configuration.baseDir;
     this.canAccessFileSystem = configuration.canAccessFileSystem;
     this.analyzableFilesConfigKey = getAnalyzableFilesConfigKey(configuration);
-    this.files = createAnalyzableFiles();
-    this.filesByPath.clear();
+    this.context.setFiles(createAnalyzableFiles());
   }
 
   wantsFile(filename: NormalizedAbsolutePath, configuration: Configuration) {
@@ -187,7 +176,7 @@ export class SourceFileStore implements FileStore {
         JSTS_ANALYSIS_DEFAULTS.fileStatus,
       );
       this.getFiles()[filename] = analyzableFile;
-      this.filesByPath.set(filename, analyzableFile);
+      this.context.addFile(filename, analyzableFile);
       this.directoryIndex.addFile(filename);
     }
   }

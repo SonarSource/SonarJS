@@ -38,6 +38,8 @@ import {
   createConfigurationFromInput,
   type ConfigurationInput,
 } from '../src/common/configuration.js';
+import { fileContentStore } from '../src/common/file-content-store.js';
+import { getTsConfigContentCache } from '../src/jsts/program/cache/tsconfigCache.js';
 
 async function initForTest(
   configOptions: ConfigurationInput,
@@ -85,6 +87,115 @@ describe('SonarLint tsconfig change detection', () => {
     // Clean up temp directory
     await rm(tempDir, { recursive: true, force: true });
   });
+
+  it('rebinds a reused input object after file invalidation', async () => {
+    const sourcePath = normalizeToAbsolutePath(filePath);
+    await writeFile(tsconfigPath, JSON.stringify({ files: ['file.ts'] }));
+    await writeFile(filePath, 'export const value = 0;');
+    let configuration = createConfigurationFromInput({ baseDir: tempDir, sonarlint: true });
+    const { files } = await sanitizeInputFiles(
+      { [filePath]: { filePath, fileContent: 'export const value = 1;' } },
+      configuration,
+    );
+    const input = { ...files[sourcePath] };
+    files[sourcePath] = input;
+
+    for (const value of [1, 2]) {
+      const content = `export const value = ${value};`;
+      input.fileContent = content;
+      configuration = createConfigurationFromInput({
+        baseDir: tempDir,
+        sonarlint: true,
+        fsEvents: value === 1 ? [] : [filePath],
+      });
+      await initFileStoresForAnalysis(configuration, files);
+      await analyzeProject({ rules, bundles: [] }, configuration);
+
+      expect(sourceFileStore.getFile(sourcePath)).toBe(input);
+      expect(input.fileContent).toBe(content);
+      expect(fileContentStore.get(sourcePath)).toBe(content);
+      const cached = getProgramCacheManager().findProgramForFile(sourcePath);
+      expect(cached?.program.getProgram().getSourceFile(sourcePath)?.text).toBe(content);
+    }
+
+    input.fileContent = 'export const value = 3;';
+    expect(fileContentStore.get(sourcePath)).toBe(input.fileContent);
+    expect(getProgramCacheManager().findProgramForFile(sourcePath)?.host.readFile(sourcePath)).toBe(
+      input.fileContent,
+    );
+  });
+
+  for (const extended of ['./tsconfig.base.json', '@test/config/tsconfig.json']) {
+    it(`refreshes ${extended} through missing, created, deleted and recreated states`, async ({
+      mock,
+    }) => {
+      const packageConfig = !extended.startsWith('.');
+      const baseConfig = normalizeToAbsolutePath(
+        join(tempDir, packageConfig ? `node_modules/${extended}` : extended),
+      );
+      if (packageConfig) {
+        await mkdir(join(tempDir, 'node_modules/@test/config'), { recursive: true });
+      }
+      const fileContent = 'export const value = 1;';
+      await writeFile(filePath, fileContent);
+      await writeFile(tsconfigPath, JSON.stringify({ extends: extended, files: ['file.ts'] }));
+      const cache = getTsConfigContentCache();
+      const writes = mock.method(cache, 'set');
+      let missingPaths: string[] = [];
+
+      for (const strict of [undefined, true, undefined, false]) {
+        const missing = strict === undefined;
+        const contents = JSON.stringify({ compilerOptions: { strict } });
+        if (missing) {
+          await rm(baseConfig, { force: true });
+        } else {
+          await writeFile(baseConfig, contents);
+        }
+        const firstWrite = writes.mock.callCount();
+        const configuration = await initForTest(
+          { baseDir: tempDir, sonarlint: true, fsEvents: [baseConfig, tsconfigPath] },
+          { [filePath]: { filePath, fileContent } },
+        );
+        const result = await analyzeProject({ rules, bundles: [] }, configuration);
+        const cached = getProgramCacheManager().findProgramForFile(filePath);
+        expect(cached).toBeDefined();
+
+        if (missing) {
+          expect(cache.get(baseConfig)).toBeUndefined();
+          missingPaths = writes.mock.calls
+            .slice(firstWrite)
+            .filter(call => call.arguments[1].missing)
+            .map(call => call.arguments[0]);
+          expect(missingPaths).toHaveLength(packageConfig ? 1 : 0);
+          for (const path of missingPaths) {
+            expect(cache.get(path)).toEqual({ contents: '{}', missing: true });
+          }
+          // Relative missing configs use fallback options; unresolved packages retain a sentinel.
+          expect(getCachedProgramOptions(tsconfigPath)?.missingTsConfig).toBe(
+            packageConfig ? true : undefined,
+          );
+        } else {
+          expect(cache.get(baseConfig)).toEqual({ contents, missing: false });
+          expect(getCachedProgramOptions(tsconfigPath)?.missingTsConfig).toBe(false);
+          expect(cached?.program.getCompilerOptions().strict).toBe(strict);
+          for (const path of missingPaths) {
+            expect(cache.get(path)).toBeUndefined();
+          }
+        }
+        expect(result.meta.warnings).toEqual(
+          missing
+            ? [
+                expect.stringContaining(
+                  packageConfig
+                    ? 'At least one referenced/extended tsconfig.json could not be resolved'
+                    : 'Failed to parse TSConfig file',
+                ),
+              ]
+            : [],
+        );
+      }
+    });
+  }
 
   it('should log one missing-config warning with fresh and cached program options', async ({
     mock,
