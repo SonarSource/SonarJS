@@ -36,9 +36,9 @@ runs:
     # Also used when save is disabled
     - name: Restore Orchestrator cache (restore only)
       if: inputs.enabled == 'true' && github.event_name != 'pull_request' && (github.ref_name != github.event.repository.default_branch || inputs.save != 'true')
-      uses: SonarSource/gh-action_cache/s3@b9c3f8c51c34c59f5aba6d2f9f64f0ea16724c07 # S3 CI storage
+      uses: SonarSource/gh-action_cache@da52788bfbfec68c93480aaeef112f040f0691b0 # S3 CI storage
       with:
-        operation: cache
+        import-github-cache: 'false'
         environment: ${{ env.CI_STORAGE_ENVIRONMENT }}
         save: 'false'
         path: ${{ env.ORCHESTRATOR_HOME }}
@@ -48,9 +48,9 @@ runs:
     # Full cache on default branch (save enabled) - uses run_id for rolling cache
     - name: Cache Orchestrator (default branch)
       if: inputs.enabled == 'true' && github.event_name != 'pull_request' && github.ref_name == github.event.repository.default_branch && inputs.save == 'true'
-      uses: SonarSource/gh-action_cache/s3@b9c3f8c51c34c59f5aba6d2f9f64f0ea16724c07 # S3 CI storage
+      uses: SonarSource/gh-action_cache@da52788bfbfec68c93480aaeef112f040f0691b0 # S3 CI storage
       with:
-        operation: cache
+        import-github-cache: 'false'
         environment: ${{ env.CI_STORAGE_ENVIRONMENT }}
         save: 'true'
         path: ${{ env.ORCHESTRATOR_HOME }}

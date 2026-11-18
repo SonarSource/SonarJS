@@ -22,7 +22,7 @@ import { fileURLToPath } from 'node:url';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const versions = JSON.parse(readFileSync(path.join(root, '.github/ci-storage.json'), 'utf8'));
 const refs = new Map([
-  ['SonarSource/gh-action_cache/s3', versions.actionRef],
+  ['SonarSource/gh-action_cache', versions.actionRef],
   ['SonarSource/ci-github-actions/config-npm', versions.npmSetupRef],
 ]);
 for (const ref of refs.values()) {

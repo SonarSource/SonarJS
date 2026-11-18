@@ -5,7 +5,7 @@ This document explains the main GitHub Actions pipeline in
 
 It documents the cache/artifact model used by the workflow:
 
-- generated-build caches and same-run artifact handoffs in `build.yml` use the S3-only shared storage action
+- generated-build caches and same-run artifact handoffs in `build.yml` use the shared cache action with GitHub cache import disabled
 - `orchestrator-cache` and `rule-api-cache` keep their existing ownership policies and use the same S3 transport
 - the local mise adapter disables upstream GitHub caching and restores its tool directory from S3
 - PVF and ruling reporting/snapshots retain their existing artifact channels and secondary workflows
@@ -504,13 +504,13 @@ There is effectively no promotion of branch-produced file payloads back to the d
 
 ### 4. PR-specific state
 
-PR runs create caches scoped to the canonical `refs/pull/<number>/merge` ref. These caches cannot warm the default branch. Same-run artifacts are scoped to that ref and run ID, and become unavailable for download after one day. Physical objects remain under the existing 30-day bucket lifecycle. A downstream retry can restore a successful producer's earlier attempt in the same run.
+PR runs use the common action's existing head-branch namespace and IAM scope. Same-run artifacts additionally include the run ID and producer attempt. The producer exposes a concrete `artifact-key` as a job output, which consumers retain on retries. Downloads validate identity, size, SHA-256 and one-day availability before extraction. Physical objects follow the existing 30-day bucket lifecycle.
 
-The existing PR-close cleanup workflow remains unchanged and covers GitHub resources. It does not clean the new S3 namespace; that policy must be resolved before production rollout.
+The existing PR-close cleanup workflow remains unchanged and covers GitHub resources. It does not clean the S3 objects; that policy must be resolved before production rollout.
 
 ## S3 In This Workflow
 
-Generated-build caches and artifact handoffs use `SonarSource/gh-action_cache/s3`, pinned to the companion draft action. The draft reuses production cache storage with `CI_STORAGE_ENVIRONMENT: prod` and starts with a cold namespace under the existing branch-scoped permissions. No infrastructure deployment is required. Existing credentials permit fallback reads only from `main`, `master` and `branch-*`; other PR bases are skipped with a warning.
+Generated-build caches and artifact handoffs use `SonarSource/gh-action_cache`, pinned to the companion draft action. The draft reuses production cache storage with `CI_STORAGE_ENVIRONMENT: prod`, the existing branch-scoped namespace, and standard OIDC/Cognito credentials. No infrastructure deployment is required. The common action retains its default/maintenance-branch cache fallback. Explicit `save` controls preserve producer ownership; `import-github-cache: false` prevents GitHub cache transfers. Artifacts use `operation: upload`/`download` on the same action and require the producer's job-output key. A small packaging adapter reuses the existing backend for every transfer.
 
 PVF and ruling-specific snapshots and reports retain their existing GitHub artifact channels. Their secondary workflows are unchanged.
 
@@ -911,7 +911,7 @@ These are the most important reusable components in the current pipeline.
 
 | Action | Purpose | Storage behavior |
 | --- | --- | --- |
-| `SonarSource/gh-action_cache/s3` | generated-build caches and artifacts | explicit cache owners; current-run artifacts |
+| `SonarSource/gh-action_cache` | generated-build caches and artifacts | explicit cache owners; current-run artifacts |
 | `./.github/actions/mise` | provision Java, Maven and Node | S3 tool directory cache; upstream caching disabled |
 | `./.github/actions/orchestrator-cache` | Orchestrator distribution cache policy | S3 with existing monthly rolling keys |
 | `./.github/actions/rule-api-cache` | Rule API cache policy | S3 with existing rolling keys |
@@ -1026,7 +1026,7 @@ jobs:
       - uses: SonarSource/ci-github-actions/pr_cleanup@v2
 ```
 
-The workflow continues to clean PR-scoped GitHub caches and branch-run artifacts used by secondary workflows and previous builds. It does not remove the new generated-build S3 namespace. S3 caches currently follow the bucket's 30-day lifecycle; S3 build artifacts reject manifests older than one day before payload download, while physical objects follow the same 30-day lifecycle. PR-close cleanup parity is an open production-rollout requirement for this draft trial.
+The workflow continues to clean PR-scoped GitHub caches and branch-run artifacts used by secondary workflows and previous builds. It does not remove the generated-build S3 objects. S3 caches currently follow the bucket's 30-day lifecycle; S3 build artifacts reject metadata older than one day after restore and before extraction, while physical objects follow the same 30-day lifecycle. PR-close cleanup parity is an open production-rollout requirement for this draft trial.
 
 ## Mental Model Summary
 
@@ -1060,6 +1060,6 @@ Pull-request QA runs use an isolated Orchestrator home under the runner temporar
 The shared storage and npm setup commit pins are owned by `.github/ci-storage.json`.
 GitHub requires literal `uses` references, so run `node tools/update-ci-storage.mjs` after changing that file;
 `node tools/update-ci-storage.mjs --check` verifies that all generated references agree.
-The S3-only transport is a separate namespace and starts cold. Cache objects keep the bucket's existing 30-day lifecycle.
-PR-close cleanup remains unchanged in this scoped experiment; it does not remove the new S3 cache namespace.
+The transport reuses the common action's existing cache namespace. Cache and artifact objects keep the bucket's existing 30-day lifecycle.
+PR-close cleanup remains unchanged in this scoped experiment; it does not remove the generated-build S3 objects.
 The experiment must resolve that cleanup policy before production rollout.
