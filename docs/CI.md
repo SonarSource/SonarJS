@@ -81,6 +81,7 @@ Runner labels express relative size and environment, not a stable hardware contr
 | `github-windows-latest-s`                     | `populate_npm_cache_win`                                                                                                     | Small Windows cache producer                                                   |
 | `github-windows-latest-m`                     | `build_win`, `test_js_win`, Windows plugin QA jobs                                                                           | Medium Windows build/test jobs                                                 |
 | `warp-custom-ubuntu-24-04` + Alpine container | Alpine QA jobs                                                                                                               | Host runner plus containerized musl/Alpine validation                          |
+| `sonar-m-docker` + Ubuntu container           | Ubuntu "without Node" QA jobs (full/fast, LATEST_RELEASE/DEV)                                                                 | Containerized minimal `ubuntu:24.04` to expose missing bundled-Node system libraries |
 
 ## High-Level Pipeline Map
 
@@ -286,11 +287,11 @@ set `SONARJS_ARTIFACT` to `multi` (or `linux-x64-musl` on Alpine) to select the 
 | `analyze_shadows`                    | `sonar-m`                  | `setup`, `get_build_number`, `test_js`, `build`                                  | nightly only                                                          |
 | `plugin_qa_with_node`                | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
 | `plugin_qa_fast_with_node`           | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
-| `plugin_qa_without_node`             | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
-| `plugin_qa_without_node_dev`         | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | nightly only                                                          |
+| `plugin_qa_without_node`             | `sonar-m-docker`           | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
+| `plugin_qa_without_node_dev`         | `sonar-m-docker`           | `setup`, `get_build_number`, `build`                                             | nightly only                                                          |
 | `plugin_qa_without_node_alpine`      | `warp-custom-ubuntu-24-04` | `setup`, `get_build_number`, `build`                                             | nightly only                                                          |
-| `plugin_qa_fast_without_node`        | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
-| `plugin_qa_fast_without_node_dev`    | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | nightly only                                                          |
+| `plugin_qa_fast_without_node`        | `sonar-m-docker`           | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
+| `plugin_qa_fast_without_node_dev`    | `sonar-m-docker`           | `setup`, `get_build_number`, `build`                                             | nightly only                                                          |
 | `plugin_qa_fast_without_node_alpine` | `warp-custom-ubuntu-24-04` | `setup`, `get_build_number`, `build`                                             | nightly only                                                          |
 | `plugin_qa_win`                      | `github-windows-latest-m`  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
 | `plugin_qa_sonarlint_win`            | `github-windows-latest-m`  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
