@@ -167,7 +167,7 @@ jobs:
       - &npm_cache_probe
         name: Check NPM dependencies cache
         id: cache
-        uses: SonarSource/gh-action_cache/s3@7262005c47b9806f7e957cb1b7af6706424747a7 # S3 CI storage
+        uses: SonarSource/gh-action_cache/s3@0da7f87ae8451c939e0ba1acd3923ca16b56b386 # S3 CI storage
         with:
           operation: cache
           environment: ${{ env.CI_STORAGE_ENVIRONMENT }}
@@ -241,7 +241,7 @@ jobs:
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
       - &npm_cache
         name: Restore NPM dependencies
-        uses: SonarSource/gh-action_cache/s3@7262005c47b9806f7e957cb1b7af6706424747a7 # S3 CI storage
+        uses: SonarSource/gh-action_cache/s3@0da7f87ae8451c939e0ba1acd3923ca16b56b386 # S3 CI storage
         with:
           operation: cache
           environment: ${{ env.CI_STORAGE_ENVIRONMENT }}
@@ -251,14 +251,14 @@ jobs:
           fail-on-cache-miss: true
       - &download_rspec_rule_data
         name: Download prepared RSPEC rule data
-        uses: SonarSource/gh-action_cache/s3@7262005c47b9806f7e957cb1b7af6706424747a7 # S3 CI storage
+        uses: SonarSource/gh-action_cache/s3@0da7f87ae8451c939e0ba1acd3923ca16b56b386 # S3 CI storage
         with:
           operation: download
           environment: ${{ env.CI_STORAGE_ENVIRONMENT }}
           name: rspec-rule-data-${{ github.sha }}
           path: sonar-plugin
       - name: Restore and save Maven cache
-        uses: SonarSource/gh-action_cache/s3@7262005c47b9806f7e957cb1b7af6706424747a7 # S3 CI storage
+        uses: SonarSource/gh-action_cache/s3@0da7f87ae8451c939e0ba1acd3923ca16b56b386 # S3 CI storage
         with:
           operation: cache
           environment: ${{ env.CI_STORAGE_ENVIRONMENT }}
@@ -268,7 +268,7 @@ jobs:
           restore-keys: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-
       - &cyclonedx_cli_cache
         name: Cache CycloneDX CLI
-        uses: SonarSource/gh-action_cache/s3@7262005c47b9806f7e957cb1b7af6706424747a7 # S3 CI storage
+        uses: SonarSource/gh-action_cache/s3@0da7f87ae8451c939e0ba1acd3923ca16b56b386 # S3 CI storage
         with:
           operation: cache
           environment: ${{ env.CI_STORAGE_ENVIRONMENT }}
@@ -306,7 +306,7 @@ jobs:
 
       - name: Upload generated dependency licenses
         if: github.event_name == 'schedule'
-        uses: SonarSource/gh-action_cache/s3@7262005c47b9806f7e957cb1b7af6706424747a7 # S3 CI storage
+        uses: SonarSource/gh-action_cache/s3@0da7f87ae8451c939e0ba1acd3923ca16b56b386 # S3 CI storage
         with:
           operation: upload
           environment: ${{ env.CI_STORAGE_ENVIRONMENT }}
@@ -324,7 +324,7 @@ jobs:
           build-version: ${{ steps.config-maven.outputs.project-version }}
 
       - name: Upload SonarJS artifacts
-        uses: SonarSource/gh-action_cache/s3@7262005c47b9806f7e957cb1b7af6706424747a7 # S3 CI storage
+        uses: SonarSource/gh-action_cache/s3@0da7f87ae8451c939e0ba1acd3923ca16b56b386 # S3 CI storage
         with:
           operation: upload
           environment: ${{ env.CI_STORAGE_ENVIRONMENT }}
@@ -332,7 +332,7 @@ jobs:
           path: ~/.m2/repository/org/sonarsource/javascript
           retention-days: 1
       - name: Upload Maven target artifacts
-        uses: SonarSource/gh-action_cache/s3@7262005c47b9806f7e957cb1b7af6706424747a7 # S3 CI storage
+        uses: SonarSource/gh-action_cache/s3@0da7f87ae8451c939e0ba1acd3923ca16b56b386 # S3 CI storage
         with:
           operation: upload
           environment: ${{ env.CI_STORAGE_ENVIRONMENT }}
@@ -343,7 +343,7 @@ jobs:
           retention-days: 1
       - &upload_jacoco_xml_reports
         name: Upload JaCoCo XML reports
-        uses: SonarSource/gh-action_cache/s3@7262005c47b9806f7e957cb1b7af6706424747a7 # S3 CI storage
+        uses: SonarSource/gh-action_cache/s3@0da7f87ae8451c939e0ba1acd3923ca16b56b386 # S3 CI storage
         with:
           operation: upload
           environment: ${{ env.CI_STORAGE_ENVIRONMENT }}
@@ -369,7 +369,7 @@ jobs:
       - *download_rspec_rule_data
       - name: Restore Maven cache
         if: github.ref_name != github.event.repository.default_branch
-        uses: SonarSource/gh-action_cache/s3@7262005c47b9806f7e957cb1b7af6706424747a7 # S3 CI storage
+        uses: SonarSource/gh-action_cache/s3@0da7f87ae8451c939e0ba1acd3923ca16b56b386 # S3 CI storage
         with:
           operation: cache
           environment: ${{ env.CI_STORAGE_ENVIRONMENT }}
@@ -379,7 +379,7 @@ jobs:
           restore-keys: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-
       - name: Restore and save Maven cache
         if: github.ref_name == github.event.repository.default_branch
-        uses: SonarSource/gh-action_cache/s3@7262005c47b9806f7e957cb1b7af6706424747a7 # S3 CI storage
+        uses: SonarSource/gh-action_cache/s3@0da7f87ae8451c939e0ba1acd3923ca16b56b386 # S3 CI storage
         with:
           operation: cache
           environment: ${{ env.CI_STORAGE_ENVIRONMENT }}
@@ -406,7 +406,7 @@ jobs:
       - *npm_cache
       - &maven_cache_restore
         name: Restore Maven cache
-        uses: SonarSource/gh-action_cache/s3@7262005c47b9806f7e957cb1b7af6706424747a7 # S3 CI storage
+        uses: SonarSource/gh-action_cache/s3@0da7f87ae8451c939e0ba1acd3923ca16b56b386 # S3 CI storage
         with:
           operation: cache
           environment: ${{ env.CI_STORAGE_ENVIRONMENT }}
@@ -434,7 +434,7 @@ jobs:
             -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1)
           echo "hash=$HASH" >> "$GITHUB_OUTPUT"
       - name: Upload prepared RSPEC rule data
-        uses: SonarSource/gh-action_cache/s3@7262005c47b9806f7e957cb1b7af6706424747a7 # S3 CI storage
+        uses: SonarSource/gh-action_cache/s3@0da7f87ae8451c939e0ba1acd3923ca16b56b386 # S3 CI storage
         with:
           operation: upload
           environment: ${{ env.CI_STORAGE_ENVIRONMENT }}
@@ -470,7 +470,7 @@ jobs:
         if: github.event_name == 'schedule'
         run: npm run count-rules
       - name: Upload ESLint plugin tarball
-        uses: SonarSource/gh-action_cache/s3@7262005c47b9806f7e957cb1b7af6706424747a7 # S3 CI storage
+        uses: SonarSource/gh-action_cache/s3@0da7f87ae8451c939e0ba1acd3923ca16b56b386 # S3 CI storage
         with:
           operation: upload
           environment: ${{ env.CI_STORAGE_ENVIRONMENT }}
@@ -480,7 +480,7 @@ jobs:
           retention-days: 1
       - name: Upload generated README files
         if: github.event_name == 'schedule'
-        uses: SonarSource/gh-action_cache/s3@7262005c47b9806f7e957cb1b7af6706424747a7 # S3 CI storage
+        uses: SonarSource/gh-action_cache/s3@0da7f87ae8451c939e0ba1acd3923ca16b56b386 # S3 CI storage
         with:
           operation: upload
           environment: ${{ env.CI_STORAGE_ENVIRONMENT }}
@@ -504,7 +504,7 @@ jobs:
       - *checkout
       - *download_rspec_rule_data
       - name: Download generated README files
-        uses: SonarSource/gh-action_cache/s3@7262005c47b9806f7e957cb1b7af6706424747a7 # S3 CI storage
+        uses: SonarSource/gh-action_cache/s3@0da7f87ae8451c939e0ba1acd3923ca16b56b386 # S3 CI storage
         with:
           operation: download
           environment: ${{ env.CI_STORAGE_ENVIRONMENT }}
@@ -513,7 +513,7 @@ jobs:
       - name: Remove tracked dependency licenses
         run: rm -rf licenses sonar-plugin/sonar-javascript-plugin/src/main/resources/licenses
       - name: Download generated dependency licenses
-        uses: SonarSource/gh-action_cache/s3@7262005c47b9806f7e957cb1b7af6706424747a7 # S3 CI storage
+        uses: SonarSource/gh-action_cache/s3@0da7f87ae8451c939e0ba1acd3923ca16b56b386 # S3 CI storage
         with:
           operation: download
           environment: ${{ env.CI_STORAGE_ENVIRONMENT }}
@@ -578,7 +578,7 @@ jobs:
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           install_args: node
       - name: Download ESLint plugin tarball
-        uses: SonarSource/gh-action_cache/s3@7262005c47b9806f7e957cb1b7af6706424747a7 # S3 CI storage
+        uses: SonarSource/gh-action_cache/s3@0da7f87ae8451c939e0ba1acd3923ca16b56b386 # S3 CI storage
         with:
           operation: download
           environment: ${{ env.CI_STORAGE_ENVIRONMENT }}
@@ -624,7 +624,7 @@ jobs:
     steps:
       - name: Restore JS coverage cache
         id: cache
-        uses: SonarSource/gh-action_cache/s3@7262005c47b9806f7e957cb1b7af6706424747a7 # S3 CI storage
+        uses: SonarSource/gh-action_cache/s3@0da7f87ae8451c939e0ba1acd3923ca16b56b386 # S3 CI storage
         with:
           operation: cache
           environment: ${{ env.CI_STORAGE_ENVIRONMENT }}
@@ -641,7 +641,7 @@ jobs:
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
       - name: Restore NPM dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: SonarSource/gh-action_cache/s3@7262005c47b9806f7e957cb1b7af6706424747a7 # S3 CI storage
+        uses: SonarSource/gh-action_cache/s3@0da7f87ae8451c939e0ba1acd3923ca16b56b386 # S3 CI storage
         with:
           operation: cache
           environment: ${{ env.CI_STORAGE_ENVIRONMENT }}
@@ -651,7 +651,7 @@ jobs:
           fail-on-cache-miss: true
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Download prepared RSPEC rule data
-        uses: SonarSource/gh-action_cache/s3@7262005c47b9806f7e957cb1b7af6706424747a7 # S3 CI storage
+        uses: SonarSource/gh-action_cache/s3@0da7f87ae8451c939e0ba1acd3923ca16b56b386 # S3 CI storage
         with:
           operation: download
           environment: ${{ env.CI_STORAGE_ENVIRONMENT }}
@@ -673,7 +673,7 @@ jobs:
             fi
           done
       - name: Upload JS coverage reports
-        uses: SonarSource/gh-action_cache/s3@7262005c47b9806f7e957cb1b7af6706424747a7 # S3 CI storage
+        uses: SonarSource/gh-action_cache/s3@0da7f87ae8451c939e0ba1acd3923ca16b56b386 # S3 CI storage
         with:
           operation: upload
           environment: ${{ env.CI_STORAGE_ENVIRONMENT }}
@@ -692,7 +692,7 @@ jobs:
     steps:
       - name: Check JS test results marker (Windows)
         id: cache
-        uses: SonarSource/gh-action_cache/s3@7262005c47b9806f7e957cb1b7af6706424747a7 # S3 CI storage
+        uses: SonarSource/gh-action_cache/s3@0da7f87ae8451c939e0ba1acd3923ca16b56b386 # S3 CI storage
         with:
           operation: cache
           environment: ${{ env.CI_STORAGE_ENVIRONMENT }}
@@ -710,7 +710,7 @@ jobs:
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
       - name: Restore NPM dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: SonarSource/gh-action_cache/s3@7262005c47b9806f7e957cb1b7af6706424747a7 # S3 CI storage
+        uses: SonarSource/gh-action_cache/s3@0da7f87ae8451c939e0ba1acd3923ca16b56b386 # S3 CI storage
         with:
           operation: cache
           environment: ${{ env.CI_STORAGE_ENVIRONMENT }}
@@ -720,7 +720,7 @@ jobs:
           fail-on-cache-miss: true
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Download prepared RSPEC rule data
-        uses: SonarSource/gh-action_cache/s3@7262005c47b9806f7e957cb1b7af6706424747a7 # S3 CI storage
+        uses: SonarSource/gh-action_cache/s3@0da7f87ae8451c939e0ba1acd3923ca16b56b386 # S3 CI storage
         with:
           operation: download
           environment: ${{ env.CI_STORAGE_ENVIRONMENT }}
@@ -756,7 +756,7 @@ jobs:
       - *maven_cache_restore
       - &download_js_coverage_reports
         name: Download JS coverage reports
-        uses: SonarSource/gh-action_cache/s3@7262005c47b9806f7e957cb1b7af6706424747a7 # S3 CI storage
+        uses: SonarSource/gh-action_cache/s3@0da7f87ae8451c939e0ba1acd3923ca16b56b386 # S3 CI storage
         with:
           operation: download
           environment: ${{ env.CI_STORAGE_ENVIRONMENT }}
@@ -765,14 +765,14 @@ jobs:
       - *validate_js_coverage_reports
       - &download_maven_targets
         name: Download Maven target artifacts
-        uses: SonarSource/gh-action_cache/s3@7262005c47b9806f7e957cb1b7af6706424747a7 # S3 CI storage
+        uses: SonarSource/gh-action_cache/s3@0da7f87ae8451c939e0ba1acd3923ca16b56b386 # S3 CI storage
         with:
           operation: download
           environment: ${{ env.CI_STORAGE_ENVIRONMENT }}
           name: maven-targets-${{ github.sha }}
       - &download_jacoco_xml_reports
         name: Download JaCoCo XML reports
-        uses: SonarSource/gh-action_cache/s3@7262005c47b9806f7e957cb1b7af6706424747a7 # S3 CI storage
+        uses: SonarSource/gh-action_cache/s3@0da7f87ae8451c939e0ba1acd3923ca16b56b386 # S3 CI storage
         with:
           operation: download
           environment: ${{ env.CI_STORAGE_ENVIRONMENT }}
@@ -885,7 +885,7 @@ jobs:
       - *maven_cache_restore
       - &download_sonarjs_m2
         name: Download SonarJS artifacts
-        uses: SonarSource/gh-action_cache/s3@7262005c47b9806f7e957cb1b7af6706424747a7 # S3 CI storage
+        uses: SonarSource/gh-action_cache/s3@0da7f87ae8451c939e0ba1acd3923ca16b56b386 # S3 CI storage
         with:
           operation: download
           environment: ${{ env.CI_STORAGE_ENVIRONMENT }}
