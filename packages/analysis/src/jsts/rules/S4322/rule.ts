@@ -23,7 +23,7 @@ import type { RuleContext } from '../helpers/type.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getMainFunctionTokenLocation } from '../helpers/location.js';
 import { getParent } from '../helpers/ancestor.js';
-import { isUndefined } from '../helpers/ast.js';
+import { getReturnedExpression, isUndefined } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 type FunctionLikeDeclaration = TSESTree.FunctionDeclaration | TSESTree.FunctionExpression;
@@ -57,8 +57,7 @@ function checkFunctionLikeDeclaration(
     return;
   }
 
-  const body = functionDeclaration.body;
-  const returnedExpression = getReturnedExpression(body);
+  const returnedExpression = getReturnedExpression(functionDeclaration);
   if (!returnedExpression) {
     return;
   }
@@ -75,18 +74,6 @@ function checkFunctionLikeDeclaration(
   } else if (isNegation(returnedExpression) && isNegation(returnedExpression.argument)) {
     checkCastedType(functionDeclaration, returnedExpression.argument.argument, context);
   }
-}
-
-function getReturnedExpression(
-  block?: TSESTree.BlockStatement | null,
-): TSESTree.Expression | undefined | null {
-  if (block?.body.length === 1) {
-    const statement = block.body[0];
-    if (statement.type === 'ReturnStatement') {
-      return statement.argument;
-    }
-  }
-  return undefined;
 }
 
 function isInequalityBinaryExpression(

@@ -758,6 +758,64 @@ export function resolveFunction(
   }
 }
 
+/**
+ * Resolve a call target only when it names one local function definition.
+ * Accept a function declaration with no writes to its binding.
+ * Accept a function expression or arrow with one initializer write.
+ * Reject imported functions, aliases, and reassigned helpers.
+ */
+export function resolveLocalHelper(
+  context: Rule.RuleContext,
+  identifier: estree.Identifier,
+): estree.Function | undefined {
+  const variable = getVariableFromName(context, identifier.name, identifier);
+  if (variable?.defs.length !== 1) {
+    return undefined;
+  }
+  const definition = variable.defs[0];
+  if (
+    definition.type === 'FunctionName' &&
+    definition.node.type === 'FunctionDeclaration' &&
+    !variable.references.some(reference => reference.isWrite())
+  ) {
+    return definition.node;
+  }
+  if (definition.type === 'Variable') {
+    const initializer = (definition.node as estree.VariableDeclarator).init;
+    if (
+      (initializer?.type === 'FunctionExpression' ||
+        initializer?.type === 'ArrowFunctionExpression') &&
+      getUniqueWriteReference(variable) === initializer
+    ) {
+      return initializer;
+    }
+  }
+  return undefined;
+}
+
+/**
+ * Accept an expression body or one return statement. More complex control flow needs type information.
+ */
+export function getReturnedExpression(factory: estree.Function): estree.Expression | undefined;
+export function getReturnedExpression(
+  factory: TSESTree.FunctionLike,
+): TSESTree.Expression | undefined;
+export function getReturnedExpression(
+  factory: estree.Function | TSESTree.FunctionLike,
+): estree.Expression | TSESTree.Expression | undefined {
+  const body = factory.body;
+  if (!body) {
+    return undefined;
+  }
+  if (body.type !== 'BlockStatement') {
+    return body as estree.Expression | TSESTree.Expression;
+  }
+  const [statement] = body.body;
+  return body.body.length === 1 && statement.type === 'ReturnStatement'
+    ? (statement.argument ?? undefined)
+    : undefined;
+}
+
 export function checkSensitiveCall(
   context: Rule.RuleContext,
   callExpression: estree.CallExpression,

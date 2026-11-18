@@ -13,3 +13,10 @@ describe('cypress', () => {
     cy.get('.app').should('exist'); // Compliant
   });
 });
+
+const getTable = () => cy.getByDataCy('table');
+getTable().should('be.visible'); // Noncompliant {{Move this assertion into a test case or a lifecycle hook.}}
+
+it('asserts on a returned Cypress chain', () => {
+  getTable().should('be.visible'); // Compliant
+});
