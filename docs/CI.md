@@ -504,7 +504,7 @@ There is effectively no promotion of branch-produced file payloads back to the d
 
 ### 4. PR-specific state
 
-PR runs use the common action's existing head-branch namespace and IAM scope. Same-run artifacts additionally include the run ID and producer attempt. The producer exposes a concrete `artifact-key` as a job output, which consumers retain on retries. Downloads validate identity, size, SHA-256 and one-day availability before extraction. Physical objects follow the existing 30-day bucket lifecycle.
+PR cache keys nest the canonical PR ref inside the common action's existing head-branch IAM scope. Same-run artifacts additionally include the run ID and producer attempt. The producer exposes a concrete `artifact-key` as a job output, which consumers retain on retries. Downloads validate identity, size, SHA-256 and one-day availability before extraction. Physical objects follow the existing 30-day bucket lifecycle.
 
 The existing PR-close cleanup workflow remains unchanged and covers GitHub resources. It does not clean the S3 objects; that policy must be resolved before production rollout.
 
