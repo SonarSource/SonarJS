@@ -271,8 +271,9 @@ set `SONARJS_ARTIFACT` to `multi` (or `linux-x64-musl` on Alpine) to select the 
 `minimal_ubuntu_analyzer_check` runs on each non-fork pull request after the final SonarJS
 artifacts are built. Like the other artifact QA jobs, it requires internal build credentials,
 so fork pull requests skip it. It uses `sonar-m-docker` with a digest-pinned `ubuntu:24.04`
-container, installs only bootstrap tools and Java/Maven, and verifies that no system Node or
-`libatomic` is available before analysis.
+container, installs only bootstrap tools and Java/Maven, and verifies that no system Node is
+available before analysis. The analysis checks compatibility with the minimal OS environment
+without making assumptions about specific system-library dependencies.
 
 The job runs only `EmbeddedNodeTest`, which analyzes a small JavaScript project with the final
 Linux x64 plugin and asserts successful use of the embedded Node runtime without analyzer errors.
