@@ -125,6 +125,11 @@ permissions:
   actions: read
 jobs:
   ruling-diff-comment:
+    permissions:
+      contents: read
+      pull-requests: write
+      actions: read
+      id-token: write
     if: github.event_name != 'pull_request' || (github.event.pull_request.head.repo.fork == false && github.actor != 'dependabot[bot]')
     runs-on: sonar-xs
     # Share the mutation lock with the updater and close/merge cleanup. Keep pending work.
@@ -139,10 +144,11 @@ jobs:
           ref: ${{ inputs.head-sha || github.sha }}
           fetch-depth: 2
           submodules: true
-      - uses: jdx/mise-action@d5574b52816a478f9d4e6529a3f6ff17a8a36785 # v5.2.8
+      - uses: SonarSource/mise-action-wrapper@65aa289d3f408f4999d13a52a14cde4f54b48442 # 2.0.0
         with:
           version: 2026.10.20
           install_args: node
+          persist_github_token: false
       - name: Report results from the tested tree
         uses: ./.github/actions/ruling_bot/report
         with:

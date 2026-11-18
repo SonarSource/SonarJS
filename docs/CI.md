@@ -400,7 +400,7 @@ That is exactly artifact semantics, not cache semantics.
 | Owner                     | Path or payload        | Backend                       | Why it exists                                                                                                                                                                         |
 | ------------------------- | ---------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `get-build-number` action | `.build_number.txt`    | GitHub cache                  | Reuse one build number across reruns of the same workflow run                                                                                                                         |
-| `jdx/mise-action`         | tool/runtime downloads | action-managed cache behavior | Reuses provisioned Java/Maven/Node toolchains; mostly action-managed, but a few jobs pass an explicit `cache_key` — see [Toolchain Provisioning (mise)](#toolchain-provisioning-mise) |
+| `SonarSource/mise-action-wrapper`         | tool/runtime downloads | action-managed cache behavior | Reuses provisioned Java/Maven/Node toolchains; mostly action-managed, but a few jobs pass an explicit `cache_key` — see [Toolchain Provisioning (mise)](#toolchain-provisioning-mise) |
 
 ### Cache policies
 
@@ -937,7 +937,7 @@ These are the most important reusable components in the current pipeline.
 | Action                                                     | Approx. uses in `build.yml` | Purpose                                                                            | Cache / artifact relevance                             |
 | ---------------------------------------------------------- | --------------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------ |
 | `actions/checkout`                                         | 28                          | source checkout                                                                    | none                                                   |
-| `jdx/mise-action`                                          | 26                          | provision Java, Maven, Node                                                        | action-managed runtime cache behavior                  |
+| `SonarSource/mise-action-wrapper`                                          | 26                          | provision Java, Maven, Node                                                        | action-managed runtime cache behavior                  |
 | `actions/download-artifact`                                | 28                          | same-run file handoff                                                              | run-local artifact consumption                         |
 | `SonarSource/vault-action-wrapper`                         | 18                          | credentials from Vault                                                             | none directly, but enables Repox/RSPEC/Sonar access    |
 | `SonarSource/ci-github-actions/config-maven`               | 17                          | Maven + Repox setup                                                                | built-in caching disabled in this workflow             |
@@ -948,7 +948,7 @@ These are the most important reusable components in the current pipeline.
 | `SonarSource/ci-github-actions/get-build-number`           | 1                           | stable build number                                                                | internally uses GitHub cache                           |
 | `./.github/actions/ruling_bot`                             | 1                           | repo-owned fix-PR automation for sonar-lits result trees                           | control-plane encapsulation, no direct cache semantics |
 | `./.github/actions/rule-api-cache`                         | 1                           | repo-owned rule-api cache policy                                                   | official GitHub cache, rolling prefix                  |
-| `peter-evans/create-pull-request`                          | 1                           | nightly generated-files PR                                                         | none                                                   |
+| `step-security/create-pull-request`                          | 1                           | nightly generated-files PR                                                         | none                                                   |
 | `SonarSource/unified-dogfooding-actions/run-iris`          | 1                           | nightly cross-platform comparison                                                  | none                                                   |
 | `SonarSource/ci-github-actions/promote`                    | 1                           | Artifactory/Repox promotion                                                        | downstream of all build/test gates                     |
 | `SonarSource/gh-action_releasability/releasability-status` | 1                           | releasability commit status                                                        | none                                                   |
@@ -964,7 +964,7 @@ maven = "3.9"
 node = "24.11.1"
 ```
 
-Every `jdx/mise-action` step in `build.yml` picks this up automatically — **no job in `build.yml` passes its own `mise_toml` input.** Passing that input would overwrite the tracked file on the runner (`mise-action` writes it to `mise.toml` in the working directory), which is exactly what jobs used to do before this file existed, each restating the same three versions inline.
+Every `SonarSource/mise-action-wrapper` step in `build.yml` picks this up automatically — **no job in `build.yml` passes its own `mise_toml` input.** Passing that input would overwrite the tracked file on the runner (`mise-action` writes it to `mise.toml` in the working directory), which is exactly what jobs used to do before this file existed, each restating the same three versions inline.
 
 ### Installing only a subset of tools
 
@@ -991,7 +991,7 @@ plugin_qa_with_node:
     BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
     MISE_NODE_VERSION: ${{ matrix.node-version }}
   steps:
-    - uses: jdx/mise-action@...
+    - uses: SonarSource/mise-action-wrapper@65aa289d3f408f4999d13a52a14cde4f54b48442 # 2.0.0
       with:
         cache_key: '{{default}}-{{env.MISE_NODE_VERSION}}'
 ```
