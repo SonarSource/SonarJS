@@ -26,7 +26,7 @@ import { rule } from '../rule.js';
 const filename = join(import.meta.dirname, 'fixtures', 'cb.fixture.js');
 
 function testCase(helper: string, assertion = "getTable().should('be.visible');") {
-  return `describe('Wallets', () => {
+  return `describe('Tables', () => {
     ${helper}
     it('renders', () => { ${assertion} });
   });`;
@@ -68,6 +68,11 @@ describe('S2699 Cypress helpers', () => {
             },
           ]),
         invalid: [
+          // Known false positive: object methods returning Cypress chains are not resolved.
+          testCase(
+            "const page = { getTable() { return cy.get('table'); } };",
+            "page.getTable().should('be.visible');",
+          ),
           testCase("const getTable = () => cy.get('table');", 'getTable().click();'),
           testCase('const getTable = () => unrelated();'),
           testCase('const getTable = () => ({ should() {} });'),

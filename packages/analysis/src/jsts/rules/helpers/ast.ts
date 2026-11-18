@@ -796,12 +796,22 @@ export function resolveLocalHelper(
 /**
  * Accept an expression body or one return statement. More complex control flow needs type information.
  */
-export function getReturnedExpression(factory: estree.Function): estree.Expression | undefined {
-  if (factory.body.type !== 'BlockStatement') {
-    return factory.body;
+export function getReturnedExpression(factory: estree.Function): estree.Expression | undefined;
+export function getReturnedExpression(
+  factory: TSESTree.FunctionLike,
+): TSESTree.Expression | undefined;
+export function getReturnedExpression(
+  factory: estree.Function | TSESTree.FunctionLike,
+): estree.Expression | TSESTree.Expression | undefined {
+  const body = factory.body;
+  if (!body) {
+    return undefined;
   }
-  const [statement] = factory.body.body;
-  return factory.body.body.length === 1 && statement.type === 'ReturnStatement'
+  if (body.type !== 'BlockStatement') {
+    return body as estree.Expression | TSESTree.Expression;
+  }
+  const [statement] = body.body;
+  return body.body.length === 1 && statement.type === 'ReturnStatement'
     ? (statement.argument ?? undefined)
     : undefined;
 }

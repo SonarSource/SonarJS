@@ -18,9 +18,11 @@ import path from 'node:path';
 
 import { Linter, Rule } from 'eslint';
 import type estree from 'estree';
+import type { TSESTree } from '@typescript-eslint/utils';
 import parser from '@typescript-eslint/parser';
 import {
   getProperty,
+  getReturnedExpression,
   getUniqueWriteUsageOrNode,
   resolveSingleWriteExpression,
 } from '../../../../src/jsts/rules/helpers/ast.js';
@@ -28,6 +30,16 @@ import {
 import { describe, test } from 'node:test';
 import { expect } from 'expect';
 import { parseJavaScriptSourceFile } from '../../tools/helpers/parsing.js';
+
+describe('getReturnedExpression', () => {
+  test('handles TypeScript declarations without a body', () => {
+    const declaration = parser.parse('declare function factory(): void;')
+      .body[0] as TSESTree.TSDeclareFunction;
+
+    expect(declaration.type).toBe('TSDeclareFunction');
+    expect(getReturnedExpression(declaration)).toBeUndefined();
+  });
+});
 
 describe('getProperty', () => {
   const cases = [
