@@ -26,7 +26,7 @@ runs:
         MISE_CONFIG_HASH: ${{ hashFiles('mise.toml', 'mise.lock', 'mise.local.toml', '.mise.toml', '.mise/config.toml', '.config/mise/config.toml', '.tool-versions') }}
     - name: Restore toolchain cache and register its owner
       if: inputs.cache == 'true'
-      uses: SonarSource/gh-action_cache@febbf1be393785d9cd59323713e65298d55d50cf # S3 CI storage
+      uses: SonarSource/gh-action_cache@cd388764d68ce28f47cc197b1329cb836459d327 # S3 CI storage
       with:
         import-github-cache: 'false'
         environment: ${{ env.CI_STORAGE_ENVIRONMENT }}
