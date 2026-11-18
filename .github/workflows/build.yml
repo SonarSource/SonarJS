@@ -20,6 +20,8 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
   # Match the canonical host used by Edge's npm tarball URLs.
   NPM_REPOX_URL: https://repox.sonar.build
+  # Some Edge metadata still contains tarball URLs on this hostname.
+  NPM_REPOX_LEGACY_URL: https://repox-internal.sonar.build
   # Keep public lockfile URLs on npmjs; CI selects the registry at install time.
   NPM_CONFIG_REPLACE_REGISTRY_HOST: npmjs
   NPM_CONFIG_LOGLEVEL: ${{ inputs.validate-registry-routing && 'http' || 'notice' }}
@@ -187,6 +189,23 @@ jobs:
           repox-url: ${{ env.NPM_REPOX_URL }}
           artifactory-reader-role: private-reader
           disable-caching: 'true'
+      - &config_npm_legacy_auth
+        name: Authenticate legacy Edge tarball URLs
+        if: env.CONFIG_NPM_COMPLETED != ''
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const os = require('node:os');
+          const configPath = path.join(os.homedir(), '.npmrc');
+          const authScope = url => `${url.replace(/^https:/, '')}/artifactory/api/npm/:_authToken=`;
+          const source = authScope(process.env.NPM_REPOX_URL);
+          const target = authScope(process.env.NPM_REPOX_LEGACY_URL);
+          const auth = fs.readFileSync(configPath, 'utf8').split(/\r?\n/).findLast(line => line.startsWith(source));
+          if (!auth) throw new Error('Missing canonical Edge npm credentials');
+          fs.appendFileSync(configPath, `${target}${auth.slice(source.length)}\n`);
+          NODE
       - &npm_cache_install
         if: steps.cache.outputs.cache-hit != 'true'
         name: Install NPM dependencies
@@ -218,6 +237,7 @@ jobs:
           ARTIFACTORY_ACCESS_TOKEN: ${{ steps.secrets.outputs.vault && fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN || '' }}
         run: |
           npm config set "${NPM_REPOX_URL#https:}/artifactory/api/npm/:_authToken=${ARTIFACTORY_ACCESS_TOKEN}"
+          npm config set "${NPM_REPOX_LEGACY_URL#https:}/artifactory/api/npm/:_authToken=${ARTIFACTORY_ACCESS_TOKEN}"
           npm config set registry "${NPM_REPOX_URL}/artifactory/api/npm/npm/"
       - *npm_cache_install
 
@@ -429,6 +449,7 @@ jobs:
           repox-url: ${{ env.NPM_REPOX_URL }}
           artifactory-reader-role: private-reader
           disable-caching: 'true'
+      - *config_npm_legacy_auth
       - *download_rspec_rule_data
       - name: Build ESLint plugin
         run: npm run eslint-plugin:build
@@ -550,6 +571,7 @@ jobs:
             exit 1
           fi
       - *config_npm_edge
+      - *config_npm_legacy_auth
       - name: Test ESLint Plugin
         run: |
           cd its/eslint${{ matrix.eslint-version }}-plugin-sonarjs
