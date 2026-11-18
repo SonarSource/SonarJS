@@ -21,11 +21,11 @@ const tsconfigKey = Symbol('tsconfig missing status');
 const tsconfigContentCache = {
   get(path: string): { contents: string; missing: boolean } | undefined {
     const missing = fileContentStore.getData<boolean>(path, tsconfigKey);
-    const contents = fileContentStore.get(path);
-    if (missing === undefined || (!missing && contents === undefined)) {
+    const contents = missing ? '{}' : fileContentStore.get(path);
+    if (missing === undefined || contents === undefined) {
       return undefined;
     }
-    return { contents: missing ? '{}' : contents!, missing };
+    return { contents, missing };
   },
   has(path: string): boolean {
     return this.get(path) !== undefined;

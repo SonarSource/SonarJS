@@ -80,7 +80,8 @@ class FileContentStore {
   contentHash(path: string, content: string): string {
     const entry = this.entries.get(path);
     if (entry?.content === content) {
-      return (entry.contentHash ??= hashContent(content));
+      entry.contentHash ??= hashContent(content);
+      return entry.contentHash;
     }
     return hashContent(content);
   }
@@ -104,7 +105,8 @@ class FileContentStore {
 
   setData<T>(path: string, key: symbol, value: T): void {
     const entry = this.entry(path);
-    (entry.data ??= new Map()).set(key, value);
+    entry.data ??= new Map();
+    entry.data.set(key, value);
   }
 
   deleteData(path: string, key: symbol): void {
