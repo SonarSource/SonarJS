@@ -16,9 +16,11 @@
  */
 import type { Rule } from 'eslint';
 import {
+  getReturnedExpression,
   getUniqueWriteReference,
   getVariableFromName,
   isRequireModule,
+  resolveLocalHelper,
   resolveSingleWriteExpression,
   unwrapTypeScriptExpression,
 } from '../ast.js';
@@ -318,52 +320,4 @@ function isStableSupertestRequire(context: Rule.RuleContext, node: estree.Node):
     references !== undefined &&
     !references.some(reference => reference.identifier.name === 'require' && reference.isWrite())
   );
-}
-
-/**
- * Resolve `http()` only when `http` names one local function definition.
- * Accept `function http() { ... }` with no writes to `http`.
- * Accept `const http = () => ...` or `let http = function () { ... }` with one initializer write.
- * Reject imported functions, aliases, and reassigned helpers.
- */
-function resolveLocalHelper(
-  context: Rule.RuleContext,
-  identifier: estree.Identifier,
-): estree.Function | undefined {
-  const variable = getVariableFromName(context, identifier.name, identifier);
-  if (variable?.defs.length !== 1) {
-    return undefined;
-  }
-  const definition = variable.defs[0];
-  if (
-    definition.type === 'FunctionName' &&
-    definition.node.type === 'FunctionDeclaration' &&
-    !variable.references.some(reference => reference.isWrite())
-  ) {
-    return definition.node;
-  }
-  if (definition.type === 'Variable') {
-    const initializer = (definition.node as estree.VariableDeclarator).init;
-    if (
-      (initializer?.type === 'FunctionExpression' ||
-        initializer?.type === 'ArrowFunctionExpression') &&
-      getUniqueWriteReference(variable) === initializer
-    ) {
-      return initializer;
-    }
-  }
-  return undefined;
-}
-
-/**
- * Accept an expression body or one return statement. More complex control flow needs type information.
- */
-function getReturnedExpression(factory: estree.Function): estree.Expression | undefined {
-  if (factory.body.type !== 'BlockStatement') {
-    return factory.body;
-  }
-  const [statement] = factory.body.body;
-  return factory.body.body.length === 1 && statement.type === 'ReturnStatement'
-    ? (statement.argument ?? undefined)
-    : undefined;
 }

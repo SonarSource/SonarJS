@@ -15,7 +15,15 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type estree from 'estree';
-import { isIdentifier } from '../ast.js';
+import type { Rule } from 'eslint';
+import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
+import {
+  getReturnedExpression,
+  getVariableFromName,
+  isIdentifier,
+  resolveLocalHelper,
+  resolveSingleWriteExpression,
+} from '../ast.js';
 import ts from 'typescript';
 
 const ASSERTION_METHODS = ['should', 'and'];
@@ -26,7 +34,7 @@ const ASSERTION_METHODS = ['should', 'and'];
  *   cy.contains('text').and('have.attr', 'href')
  *   cy.intercept(...).as(...); cy.wait('@alias').its('foo').should(...)
  */
-export function isAssertion(node: estree.Node): boolean {
+export function isAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
   if (node.type !== 'CallExpression') {
     return false;
   }
@@ -36,10 +44,16 @@ export function isAssertion(node: estree.Node): boolean {
   if (!isIdentifier(node.callee.property, ...ASSERTION_METHODS)) {
     return false;
   }
-  return chainStartsWithCy(node.callee.object);
+  return (
+    chainStartsWithCy(node.callee.object) || resolvesToCy(context, node.callee.object, new Set())
+  );
 }
 
-export function isTSAssertion(node: ts.Node): boolean {
+export function isTSAssertion(
+  services: ParserServicesWithTypeInformation,
+  node: ts.Node,
+  context: Rule.RuleContext,
+): boolean {
   if (node.kind !== ts.SyntaxKind.CallExpression) {
     return false;
   }
@@ -51,7 +65,11 @@ export function isTSAssertion(node: ts.Node): boolean {
   if (!ASSERTION_METHODS.includes(member.name.text)) {
     return false;
   }
-  return tsChainStartsWithCy(member.expression);
+  if (tsChainStartsWithCy(member.expression)) {
+    return true;
+  }
+  const mapped = services.tsNodeToESTreeNodeMap.get(node);
+  return mapped !== undefined && isAssertion(context, mapped as estree.Node);
 }
 
 export function chainStartsWithCy(node: estree.Node): boolean {
@@ -84,4 +102,41 @@ function tsChainStartsWithCy(node: ts.Node): boolean {
     return tsChainStartsWithCy((node as ts.NonNullExpression).expression);
   }
   return false;
+}
+
+/** Follow stable local aliases and simple factory returns without treating selection as assertion. */
+function resolvesToCy(
+  context: Rule.RuleContext,
+  node: estree.Node,
+  visiting: Set<estree.Node>,
+): boolean {
+  node = resolveSingleWriteExpression(context, node);
+  if (visiting.has(node)) {
+    return false;
+  }
+  visiting.add(node);
+  if (isIdentifier(node, 'cy')) {
+    return !getVariableFromName(context, node.name, node)?.defs.length;
+  }
+  if (node.type === 'MemberExpression') {
+    return resolvesToCy(context, node.object, visiting);
+  }
+  if (node.type === 'ChainExpression') {
+    return resolvesToCy(context, node.expression, visiting);
+  }
+  if (node.type !== 'CallExpression') {
+    return false;
+  }
+  if (node.callee.type === 'MemberExpression') {
+    return resolvesToCy(context, node.callee.object, visiting);
+  }
+  if (node.callee.type !== 'Identifier') {
+    return false;
+  }
+  const helper = resolveLocalHelper(context, node.callee);
+  if (!helper || helper.async || helper.generator) {
+    return false;
+  }
+  const returned = getReturnedExpression(helper);
+  return returned !== undefined && resolvesToCy(context, returned, visiting);
 }

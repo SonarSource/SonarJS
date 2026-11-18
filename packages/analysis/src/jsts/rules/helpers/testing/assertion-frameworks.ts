@@ -126,8 +126,8 @@ const assertionFrameworks = {
     // file never imports the package.
     imports: [],
     dependencies: ['cypress'],
-    isAssertion: (_context, node) => Cypress.isAssertion(node),
-    isTSAssertion: (_services, node) => Cypress.isTSAssertion(node),
+    isAssertion: Cypress.isAssertion,
+    isTSAssertion: Cypress.isTSAssertion,
   },
   globalExpect: {
     imports: ['bun:test', '@playwright/test'],

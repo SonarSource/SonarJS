@@ -15,36 +15,53 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type estree from 'estree';
+import type { Rule } from 'eslint';
+import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 import { isAssertion, isTSAssertion } from '../../../../src/jsts/rules/helpers/testing/cypress.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import ts from 'typescript';
 
+const context = { sourceCode: { getScope: () => null } } as unknown as Rule.RuleContext;
+const services = {
+  tsNodeToESTreeNodeMap: new Map(),
+} as unknown as ParserServicesWithTypeInformation;
+
 describe('Cypress.js', () => {
   it('should recognize Cypress assertions', () => {
-    expect(isAssertion(call(member(cyCommand('get'), 'should')))).toEqual(true);
-    expect(isAssertion(call(member(call(member(cyCommand('get'), 'should')), 'and')))).toEqual(
-      true,
-    );
-    expect(isAssertion(call(member(chain(cyCommand('get')), 'should')))).toEqual(true);
+    expect(isAssertion(context, call(member(cyCommand('get'), 'should')))).toEqual(true);
+    expect(
+      isAssertion(context, call(member(call(member(cyCommand('get'), 'should')), 'and'))),
+    ).toEqual(true);
+    expect(isAssertion(context, call(member(chain(cyCommand('get')), 'should')))).toEqual(true);
   });
 
   it('should not recognize other calls as Cypress assertions', () => {
-    expect(isAssertion(identifier('cy'))).toEqual(false);
-    expect(isAssertion(call(member(cyCommand('get'), 'should', true)))).toEqual(false);
-    expect(isAssertion(call(member(cyCommand('get'), 'click')))).toEqual(false);
-    expect(isAssertion(call(member(command(identifier('foo'), 'get'), 'should')))).toEqual(false);
+    expect(isAssertion(context, identifier('cy'))).toEqual(false);
+    expect(isAssertion(context, call(member(cyCommand('get'), 'should', true)))).toEqual(false);
+    expect(isAssertion(context, call(member(cyCommand('get'), 'click')))).toEqual(false);
+    expect(isAssertion(context, call(member(command(identifier('foo'), 'get'), 'should')))).toEqual(
+      false,
+    );
   });
 
   it('should recognize TypeScript Cypress assertions', () => {
-    expect(isTSAssertion(tsExpression(`cy.get('.greeting').should('be.visible')`))).toEqual(true);
-    expect(isTSAssertion(tsExpression(`cy.get('.greeting')!.should('be.visible')`))).toEqual(true);
+    expect(
+      isTSAssertion(services, tsExpression(`cy.get('.greeting').should('be.visible')`), context),
+    ).toEqual(true);
+    expect(
+      isTSAssertion(services, tsExpression(`cy.get('.greeting')!.should('be.visible')`), context),
+    ).toEqual(true);
   });
 
   it('should not recognize other TypeScript calls as Cypress assertions', () => {
-    expect(isTSAssertion(ts.factory.createIdentifier('cy'))).toEqual(false);
-    expect(isTSAssertion(tsExpression(`cy.get('.greeting').click()`))).toEqual(false);
-    expect(isTSAssertion(tsExpression(`foo.get('.greeting').should('be.visible')`))).toEqual(false);
+    expect(isTSAssertion(services, ts.factory.createIdentifier('cy'), context)).toEqual(false);
+    expect(isTSAssertion(services, tsExpression(`cy.get('.greeting').click()`), context)).toEqual(
+      false,
+    );
+    expect(
+      isTSAssertion(services, tsExpression(`foo.get('.greeting').should('be.visible')`), context),
+    ).toEqual(false);
   });
 });
 
