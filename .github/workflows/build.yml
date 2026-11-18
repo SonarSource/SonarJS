@@ -5,7 +5,7 @@ on:
       suite:
         type: choice
         default: transfers
-        options: [transfers, s3, repox]
+        options: [transfers, s3, repox, repox-qa]
 permissions:
   contents: read
   actions: read
@@ -104,7 +104,7 @@ jobs:
         shell: bash
         run: |
           du -sh "$RUNNER_TEMP/payload"
-          find "$RUNNER_TEMP/payload" -type f -printf '%s %p\n' | sort -nr | head -15
+          find "$RUNNER_TEMP/payload" -type f -printf '%s %p\n' | sort -nr | sed -n '1,15p'
   cache:
     if: inputs.suite == 'transfers'
     name: Maven cache ${{ matrix.runner }}
@@ -178,3 +178,50 @@ jobs:
               --write-out "Plugin $classifier: %{size_download} bytes, %{time_total}s, %{speed_download} bytes/sec\n" \
               "https://repox-internal.sonar.build/artifactory/sonarsource-qa/org/sonarsource/javascript/sonar-javascript-plugin/14.6.0.46552/sonar-javascript-plugin-14.6.0.46552$classifier.jar"
           done
+  repox_qa:
+    if: inputs.suite == 'repox-qa'
+    name: Resolve QA dependencies from Repox without GitHub artifacts
+    runs-on: sonar-m
+    timeout-minutes: 15
+    env:
+      BUILD_NUMBER: '46552'
+      SONARSOURCE_QA: 'true'
+      MAVEN_ARGS: -Dlicense.skip=true
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 0a1c6cce4eb0cadb17b03f1a0c6e42364089bfe4
+      - uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b
+        with:
+          version: 2026.10.20
+          cache_save: false
+          install_args: java maven
+      - uses: SonarSource/gh-action_cache@10fff0296bfc17164fb1ed6473f7238df3430ebf
+        with:
+          backend: s3
+          import-github-cache: 'false'
+          path: ~/.m2/repository
+          key: maven-Linux-2026-11-448452204a5426dd301a40813c3bfb5c38b8ddd54088eead2b29790d9232c354
+          fail-on-cache-miss: true
+      - name: Confirm SonarJS reactor artifacts are absent
+        run: test ! -d "$HOME/.m2/repository/org/sonarsource/javascript"
+      - uses: SonarSource/ci-github-actions/config-maven@v2
+        with:
+          repox-url: https://repox-internal.sonar.build
+          artifactory-reader-role: private-reader
+          disable-caching: 'true'
+      - name: Resolve and compile all three QA test modules
+        run: |
+          for module in tests fast-tests sonarlint-tests; do
+            time mvn -f "its/plugin/$module/pom.xml" -DskipTests test-compile
+          done
+      - name: Verify plugin JARs match the original GitHub artifact
+        run: |
+          cd sonar-plugin/sonar-javascript-plugin/target
+          sha256sum -c <<'CHECKSUMS'
+          4f3a49e3c87ca1c5055dece6e81a99f7e43b73625997dac89128bac412e63de1  sonar-javascript-plugin-14.6.0.46552.jar
+          439eace998bd7e643f3a322e4bbeb5dc4fdf448339bb3280e9f36a415ba96dfe  sonar-javascript-plugin-14.6.0.46552-multi.jar
+          266de0a174b72251eca78b8aa5050389d24fb31a54d1f7f722caa2eddb45c430  sonar-javascript-plugin-14.6.0.46552-win-x64.jar
+          1f882116d9317eeea667ccccd9583259991192b5c996480c99e0d09405b2ec80  sonar-javascript-plugin-14.6.0.46552-linux-x64.jar
+          9233b726014cdc6e1379db1a4aca0614f01df960e37534ceaefce27e2ec0536a  sonar-javascript-plugin-14.6.0.46552-linux-x64-musl.jar
+          CHECKSUMS
