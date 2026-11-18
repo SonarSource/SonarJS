@@ -54,7 +54,7 @@ import {
 } from './program-selection/archive.js';
 
 // Loads JavaScript dependencies without type declarations, so that their types can be inferred.
-const MAX_NODE_MODULE_JS_DEPTH = 9;
+const MAX_NODE_MODULE_JS_DEPTH = 4;
 
 function createAnalysisProgram(programOptions: ProgramOptions): ts.Program {
   programOptions.options.maxNodeModuleJsDepth = MAX_NODE_MODULE_JS_DEPTH;
