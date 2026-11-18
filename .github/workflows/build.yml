@@ -1,13 +1,20 @@
 name: CI transfer benchmark
 on:
   workflow_dispatch:
+    inputs:
+      suite:
+        type: choice
+        default: transfers
+        options: [transfers, s3]
 permissions:
   contents: read
   actions: read
+  id-token: write
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 jobs:
   artifact:
+    if: inputs.suite != 's3'
     name: Artifact ${{ matrix.runner }} ${{ matrix.mode }}
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 25
@@ -99,6 +106,7 @@ jobs:
           du -sh "$RUNNER_TEMP/payload"
           find "$RUNNER_TEMP/payload" -type f -printf '%s %p\n' | sort -nr | head -15
   cache:
+    if: inputs.suite != 's3'
     name: Maven cache ${{ matrix.runner }}
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 15
@@ -109,6 +117,36 @@ jobs:
     steps:
       - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
         with:
+          path: ~/.m2/repository
+          key: maven-Linux-2026-11-448452204a5426dd301a40813c3bfb5c38b8ddd54088eead2b29790d9232c354
+          fail-on-cache-miss: true
+  s3_seed:
+    if: inputs.suite == 's3'
+    name: Import Maven cache into S3
+    runs-on: sonar-m
+    timeout-minutes: 15
+    steps:
+      - uses: SonarSource/gh-action_cache@10fff0296bfc17164fb1ed6473f7238df3430ebf
+        with:
+          backend: s3
+          path: ~/.m2/repository
+          key: maven-Linux-2026-11-448452204a5426dd301a40813c3bfb5c38b8ddd54088eead2b29790d9232c354
+          fail-on-cache-miss: true
+  s3_restore:
+    if: inputs.suite == 's3'
+    needs: s3_seed
+    name: Warm S3 restore ${{ matrix.runner }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [sonar-m, warp-custom-ubuntu-24-04]
+    steps:
+      - uses: SonarSource/gh-action_cache@10fff0296bfc17164fb1ed6473f7238df3430ebf
+        with:
+          backend: s3
+          import-github-cache: 'false'
           path: ~/.m2/repository
           key: maven-Linux-2026-11-448452204a5426dd301a40813c3bfb5c38b8ddd54088eead2b29790d9232c354
           fail-on-cache-miss: true
