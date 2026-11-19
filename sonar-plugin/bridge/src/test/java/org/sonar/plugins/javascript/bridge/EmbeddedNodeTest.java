@@ -124,6 +124,16 @@ class EmbeddedNodeTest {
     assertThat(embeddedNode.isAvailable()).isFalse();
   }
 
+  @Test
+  void should_fall_back_to_host_node_when_resource_fetcher_is_unavailable() throws Exception {
+    var env = linuxX64Environment(tempDir);
+
+    var embeddedNode = new UnavailableEmbeddedNode(successfulProcessWrapper(), env);
+    embeddedNode.deploy();
+
+    assertThat(embeddedNode.isAvailable()).isFalse();
+  }
+
   private Path copyTestResource(String classpathResource, String fileName) throws Exception {
     var target = tempDir.resolve("resource-fetcher-downloads").resolve(fileName);
     copyTestResourceTo(classpathResource, target);

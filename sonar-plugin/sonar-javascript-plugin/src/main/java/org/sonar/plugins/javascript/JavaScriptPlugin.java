@@ -45,6 +45,7 @@ import org.sonar.plugins.javascript.bridge.NodeDeprecationWarning;
 import org.sonar.plugins.javascript.bridge.RulesBundles;
 import org.sonar.plugins.javascript.bridge.ScannerEmbeddedNode;
 import org.sonar.plugins.javascript.bridge.SonarLintEmbeddedNode;
+import org.sonar.plugins.javascript.bridge.UnavailableEmbeddedNode;
 import org.sonar.plugins.javascript.external.TslintReportSensor;
 import org.sonar.plugins.javascript.lcov.CoverageSensor;
 import org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl;
@@ -179,7 +180,7 @@ public class JavaScriptPlugin implements Plugin {
       JsTsChecks.class,
       AnalysisWarningsWrapper.class,
       AnalysisProcessor.class,
-      ScannerEmbeddedNode.class,
+      scannerEmbeddedNodeClass(),
       SonarLintEmbeddedNode.class,
       Environment.class
     );
@@ -428,6 +429,23 @@ public class JavaScriptPlugin implements Plugin {
    */
   private static String getHTMLMarkup(String markdownMarkup) {
     return markdownMarkup.replace("\n", "<br>").replaceAll("`(.*?)`", "<code>$1</code>");
+  }
+
+  /**
+   * The embedded Node.js runtime is fetched through the Plugin API's {@code ResourceFetcher}, which older hosts
+   * (SonarQube servers and scanners) don't provide. Registering {@link ScannerEmbeddedNode} there would make
+   * the whole scanner-side container fail to start, so fall back to a variant without embedded runtime.
+   */
+  private static Class<?> scannerEmbeddedNodeClass() {
+    try {
+      Class.forName("org.sonar.api.scanner.ResourceFetcher");
+      return ScannerEmbeddedNode.class;
+    } catch (ClassNotFoundException e) {
+      LOG.debug(
+        "ResourceFetcher is not available, the embedded Node.js runtime cannot be fetched."
+      );
+      return UnavailableEmbeddedNode.class;
+    }
   }
 
   static class SonarLintPluginAPIManager {
