@@ -95,3 +95,23 @@ jobs:
           cp -R "$repository"/. "$HOME/.m2/repository/"
           echo "BENCH npm_directory_bytes=$(du -sb node_modules | cut -f1)"
           echo "BENCH maven_directory_bytes=$(du -sb "$HOME/.m2/repository" | cut -f1)"
+      - name: Measure npm with its default audit behavior
+        if: inputs.restore-only == true
+        shell: bash
+        run: |
+          set -euo pipefail
+          start=$(node -p 'Date.now()')
+          npm ci --cache="$RUNNER_TEMP/edge-npm-audit" --timing
+          elapsed=$(( $(node -p 'Date.now()') - start ))
+          echo "BENCH npm_edge_with_audit os=$RUNNER_OS milliseconds=$elapsed"
+          node <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+          const logs = path.join(process.env.RUNNER_TEMP, 'edge-npm-audit', '_logs');
+          for (const file of fs.readdirSync(logs).filter(file => file.endsWith('-timing.json'))) {
+            const { timers } = JSON.parse(fs.readFileSync(path.join(logs, file), 'utf8'));
+            const phases = Object.fromEntries(Object.entries(timers).filter(([key]) =>
+              key.startsWith('reify:') || key.startsWith('audit') || key === 'reify'));
+            console.log('BENCH npm_phases ' + JSON.stringify(phases));
+          }
+          NODE
