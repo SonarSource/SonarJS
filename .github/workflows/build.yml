@@ -969,9 +969,9 @@ jobs:
 
   minimal_ubuntu_analyzer_check:
     name: Minimal Ubuntu analyzer verification (optional)
-    runs-on: sonar-m-docker
+    runs-on: warp-custom-ubuntu-24-04
     needs: [setup, get_build_number, build]
-    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     continue-on-error: true
     timeout-minutes: 20
     container:
