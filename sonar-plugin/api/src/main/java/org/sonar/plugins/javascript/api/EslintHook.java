@@ -53,6 +53,17 @@ public interface EslintHook {
   }
 
   /**
+   * Requests JavaScript dependency inference to this depth in node_modules.
+   * A positive value overrides the project setting while this hook is enabled for the analysis
+   * mode. Zero leaves the project setting unchanged. Multiple requests use the greatest depth.
+   * Requests are aggregated into the analysis configuration, not individual rule configurations.
+   * This does not enable type checking when it is explicitly disabled, or affect SonarLint.
+   */
+  default int maxNodeModuleJsDepth() {
+    return 0;
+  }
+
+  /**
    * Whether the hook should be executed on the JS side.
    */
   default boolean isEnabled() {

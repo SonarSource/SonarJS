@@ -26,7 +26,7 @@ import path from 'node:path';
 import { gunzipSync, gzipSync } from 'node:zlib';
 import ts from 'typescript';
 import { escape } from 'minimatch';
-import { createConfiguration } from '../src/common/configuration.js';
+import { createConfiguration, getJsTsConfigFields } from '../src/common/configuration.js';
 import { ProgramSelectionArchive } from '../src/program-selection/archive.js';
 import { sonarjs } from '../src/program-selection/analysis-metadata-proto.js';
 import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
@@ -299,6 +299,34 @@ describe('ProgramSelectionArchive', () => {
     expect(replay.restoredConfiguration()?.ecmaScriptVersion).toBeNull();
     expect(replay.restoredConfiguration()).not.toHaveProperty('canAccessFileSystem');
     expect(replay.restoredConfiguration()).not.toHaveProperty('baseDir');
+  });
+
+  it('keeps current analysis compiler requirements out of stale context configuration', context => {
+    const root = normalizeToAbsolutePath(fs.mkdtempSync(path.join(os.tmpdir(), 'metadata-depth-')));
+    context.after(() => fs.rmSync(root, { recursive: true, force: true }));
+    const metadataPath = path.join(root, 'analysis-metadata.pb.gz');
+    new ProgramSelectionArchive(metadataPath, root, 'record').end();
+    const replay = new ProgramSelectionArchive(
+      metadataPath,
+      root,
+      'replay',
+      false,
+      JSON.stringify({ configuration: { baseDir: root, maxNodeModuleJsDepth: 9 } }),
+    );
+    const restored = replay.restoredConfiguration();
+    expect(restored).not.toHaveProperty('maxNodeModuleJsDepth');
+    for (const maxNodeModuleJsDepth of [undefined, 0, 4]) {
+      // Mirror the request handler's merge: replayed settings must not replace this requirement.
+      const configuration = createConfiguration({
+        baseDir: root,
+        maxNodeModuleJsDepth,
+        ...restored,
+      });
+      expect(configuration.maxNodeModuleJsDepth).toBe(maxNodeModuleJsDepth);
+      expect(getJsTsConfigFields(configuration).maxNodeModuleJsDepth).toBe(
+        maxNodeModuleJsDepth || undefined,
+      );
+    }
   });
 
   it('deduplicates configured programs and restores project-relative paths', () => {

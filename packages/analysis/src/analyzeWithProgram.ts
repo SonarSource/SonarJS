@@ -42,6 +42,7 @@ import {
 import { getProgramCacheManager } from './jsts/program/cache/programCache.js';
 import { clearSourceFileContentCache } from './jsts/program/cache/sourceFileCache.js';
 import { createStandardProgram } from './jsts/program/factory.js';
+import { withNodeModuleJsDepth } from './jsts/program/tsconfig/node-module-depth.js';
 import { sanitizeProgramReferences } from './jsts/program/tsconfig/utils.js';
 import {
   getProjectAnalysisTelemetryCollector,
@@ -267,6 +268,7 @@ async function analyzeFilesFromEntryPoint(
     if (filesToAnalyze.length === 0 && !programSelection?.isRecord()) {
       return;
     }
+    programOptions = withNodeModuleJsDepth(programOptions, jsTsConfigFields.maxNodeModuleJsDepth);
     programOptions.rootNames = groupRootNames;
     telemetry.recordCompilerOptions(programOptions.options);
 
@@ -392,6 +394,7 @@ async function analyzeFilesFromTsConfig(
     return;
   }
 
+  programOptions = withNodeModuleJsDepth(programOptions, jsTsConfigFields.maxNodeModuleJsDepth);
   foundProgramOptions.push(programOptions);
   telemetry.recordCompilerOptions(programOptions.options);
 
@@ -552,15 +555,19 @@ function restoreSelectedProgram(
     reportMissingExtendedTsConfig(selection.program.tsconfig, programOptions, context.results.meta);
     programOptions.options = selection.program.compilerOptions;
   }
-  telemetry.recordCompilerOptions(programOptions.options);
+  const effectiveProgramOptions = withNodeModuleJsDepth(
+    programOptions,
+    jsTsConfigFields.maxNodeModuleJsDepth,
+  );
+  telemetry.recordCompilerOptions(effectiveProgramOptions.options);
   const host = new IncrementalCompilerHost(
-    programOptions.options,
+    effectiveProgramOptions.options,
     baseDir,
     jsTsConfigFields.skipNodeModuleLookupOutsideBaseDir,
   );
-  const tsProgram = createStandardProgram({ ...programOptions, host });
-  const detectedEsYear = esLibToYear(programOptions.options.lib) ?? undefined;
-  const targetEsYear = tsTargetToEsYear(programOptions.options.target) ?? undefined;
+  const tsProgram = createStandardProgram({ ...effectiveProgramOptions, host });
+  const detectedEsYear = esLibToYear(effectiveProgramOptions.options.lib) ?? undefined;
+  const targetEsYear = tsTargetToEsYear(effectiveProgramOptions.options.target) ?? undefined;
   telemetry.recordEcmaScriptVersion(detectedEsYear);
   return { tsProgram, detectedEsYear, targetEsYear };
 }

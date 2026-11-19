@@ -848,6 +848,57 @@ class WebSensorTest {
   }
 
   @Test
+  void should_send_dependency_depth_once_in_configuration_and_clear_a_disabled_request() {
+    var checks = mock(JsTsChecks.class);
+    when(checks.enabledEslintRules()).thenReturn(List.of());
+    when(checks.requestedMaxNodeModuleJsDepth(any())).thenReturn(4, 0);
+    var sensor = createSensor(
+      checks,
+      new AnalysisConsumers(),
+      null,
+      new WebSensorModuleConfiguration()
+    );
+    var handler = executeSensorAndCaptureHandler(sensor, context);
+
+    var enabled = handler.getRequest();
+    assertThat(enabled.getConfiguration().hasMaxNodeModuleJsDepth()).isTrue();
+    assertThat(enabled.getConfiguration().getMaxNodeModuleJsDepth()).isEqualTo(4);
+    assertThat(enabled.getRulesList()).isEmpty();
+    assertThat(handler.getRequest().getConfiguration().hasMaxNodeModuleJsDepth()).isFalse();
+  }
+
+  @Test
+  void should_omit_dependency_depth_without_an_enabled_request() {
+    assertThat(
+      executeSensorAndCaptureHandler(createSensor(), context)
+        .getRequest()
+        .getConfiguration()
+        .hasMaxNodeModuleJsDepth()
+    ).isFalse();
+  }
+
+  @Test
+  void should_not_collect_dependency_depth_requests_on_sonarlint() {
+    setSonarLintRuntime(context);
+    var checks = mock(JsTsChecks.class);
+    when(checks.enabledEslintRules()).thenReturn(List.of());
+    when(checks.requestedMaxNodeModuleJsDepth(any())).thenReturn(4);
+    var sensor = createSensor(
+      checks,
+      new AnalysisConsumers(),
+      new FSListenerImpl(),
+      new WebSensorModuleConfiguration()
+    );
+    assertThat(
+      executeSensorAndCaptureHandler(sensor, context)
+        .getRequest()
+        .getConfiguration()
+        .hasMaxNodeModuleJsDepth()
+    ).isFalse();
+    verify(checks, never()).requestedMaxNodeModuleJsDepth(any());
+  }
+
+  @Test
   void should_send_skipNodeModuleLookupOutsideBaseDir_false_by_default() {
     assertThat(
       executeSensorAndCaptureHandler(createSensor(), context)

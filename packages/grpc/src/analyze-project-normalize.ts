@@ -113,6 +113,7 @@ function createConfigurationFromProto(configuration: ProjectConfiguration | null
     canAccessFileSystem: optionalBoolean(configuration.canAccessFileSystem),
     createTSProgramForOrphanFiles: optionalBoolean(configuration.createTsProgramForOrphanFiles),
     disableTypeChecking: optionalBoolean(configuration.disableTypeChecking),
+    maxNodeModuleJsDepth: normalizeMaxNodeModuleJsDepth(configuration.maxNodeModuleJsDepth),
     skipNodeModuleLookupOutsideBaseDir: optionalBoolean(
       configuration.skipNodeModuleLookupOutsideBaseDir,
     ),
@@ -178,6 +179,18 @@ function normalizeJsTsRules(rules: JsTsRule[] | null | undefined): JsTsRuleConfi
       blacklistedExtensions: [...(rule.blacklistedExtensions ?? [])],
     };
   });
+}
+
+function normalizeMaxNodeModuleJsDepth(depth: number | null | undefined) {
+  if (depth == null) {
+    return undefined;
+  }
+  if (!Number.isInteger(depth) || depth < 0 || depth > 0x7fffffff) {
+    throw new InvalidAnalyzeProjectRequestError(
+      'configuration.max_node_module_js_depth must be a non-negative int32',
+    );
+  }
+  return depth;
 }
 
 function normalizeCssRules(rules: CssRule[] | null | undefined): CssRuleConfig[] {

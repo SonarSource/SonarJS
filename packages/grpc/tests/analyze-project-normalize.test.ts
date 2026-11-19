@@ -23,7 +23,10 @@ import {
   InvalidAnalyzeProjectRequestError,
   normalizeAnalyzeProjectRequest,
 } from '../src/analyze-project-normalize.js';
-import { createConfiguration } from '../../analysis/src/common/configuration.js';
+import {
+  createConfiguration,
+  getJsTsConfigFields,
+} from '../../analysis/src/common/configuration.js';
 import {
   dependencyManifestStore,
   generatedSourceStore,
@@ -64,6 +67,70 @@ function stringList(values: string[]) {
 }
 
 describe('normalizeAnalyzeProjectRequest', () => {
+  for (const maxNodeModuleJsDepth of [undefined, 0, 4, 0x7fffffff]) {
+    it(`preserves optional analysis node_modules depth ${maxNodeModuleJsDepth} through protobuf`, async () => {
+      const baseDir = await createBaseDir();
+      const { AnalyzeProjectRequest } = sonarjs.analyzeproject.v1;
+      const request = AnalyzeProjectRequest.decode(
+        AnalyzeProjectRequest.encode({
+          configuration: { baseDir, canAccessFileSystem: false, maxNodeModuleJsDepth },
+          files: {},
+          rules: [
+            {
+              key: 'custom/api-usages',
+              language: JsTsLanguage.JS_TS_LANGUAGE_TS,
+            },
+          ],
+        }).finish(),
+      );
+      expect(request.configuration?.maxNodeModuleJsDepth ?? undefined).toBe(maxNodeModuleJsDepth);
+      expect(Object.hasOwn(request.configuration!, 'maxNodeModuleJsDepth')).toBe(
+        maxNodeModuleJsDepth !== undefined,
+      );
+
+      const normalized = await normalizeAnalyzeProjectRequest(request);
+      expect(normalized.configuration.maxNodeModuleJsDepth).toBe(maxNodeModuleJsDepth);
+      expect(normalized.rules[0]).not.toHaveProperty('maxNodeModuleJsDepth');
+      expect(request.rules[0]).not.toHaveProperty('maxNodeModuleJsDepth');
+      expect(normalized.configuration).not.toHaveProperty('collectExternalApiUsages');
+      expect(request.configuration).not.toHaveProperty('collectExternalApiUsages');
+    });
+  }
+
+  for (const maxNodeModuleJsDepth of ['4', -1, 1.5, NaN, Infinity, -Infinity, 0x80000000]) {
+    it(`rejects invalid analysis node_modules depth ${maxNodeModuleJsDepth}`, async () => {
+      const baseDir = await createBaseDir();
+      const normalize = () =>
+        normalizeAnalyzeProjectRequest({
+          configuration: { baseDir, canAccessFileSystem: false, maxNodeModuleJsDepth } as never,
+          files: {},
+        });
+      await expect(normalize()).rejects.toThrow(InvalidAnalyzeProjectRequestError);
+      await expect(normalize()).rejects.toThrow(
+        'configuration.max_node_module_js_depth must be a non-negative int32',
+      );
+    });
+  }
+
+  it('accepts protobuf null depth as absent and preserves the SonarLint guard', async () => {
+    const baseDir = await createBaseDir();
+    const absent = await normalizeAnalyzeProjectRequest({
+      configuration: { baseDir, canAccessFileSystem: false, maxNodeModuleJsDepth: null },
+      files: {},
+    });
+    expect(absent.configuration.maxNodeModuleJsDepth).toBeUndefined();
+    const sonarlint = await normalizeAnalyzeProjectRequest({
+      configuration: {
+        baseDir,
+        sonarlint: true,
+        canAccessFileSystem: false,
+        maxNodeModuleJsDepth: 4,
+      },
+      files: {},
+    });
+    expect(getJsTsConfigFields(sonarlint.configuration).maxNodeModuleJsDepth).toBeUndefined();
+  });
+
   it('should normalize explicit files, paths, rules and protobuf values', async () => {
     const baseDir = await createBaseDir();
     const mainFile = join(baseDir, 'src', 'main.ts');

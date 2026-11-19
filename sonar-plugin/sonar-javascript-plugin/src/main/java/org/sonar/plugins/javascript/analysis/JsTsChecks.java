@@ -34,6 +34,7 @@ import org.sonar.api.scanner.ScannerSide;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
+import org.sonar.plugins.javascript.api.AnalysisMode;
 import org.sonar.plugins.javascript.api.CustomRuleRepository;
 import org.sonar.plugins.javascript.api.EslintHook;
 import org.sonar.plugins.javascript.api.EslintHookRegistrar;
@@ -156,9 +157,8 @@ public class JsTsChecks {
     // - They are NOT added to eslintKeyToRuleKey (cannot raise issues)
     // - Use case: data collection for cross-file analysis (e.g., architecture IR generation)
     for (var registrar : eslintHookRegistrars) {
-      registrar.register(
-        ((language, hook) ->
-          eslintHooksByLanguage.computeIfAbsent(language, it -> new HashSet<>()).add(hook))
+      registrar.register((language, hook) ->
+        eslintHooksByLanguage.computeIfAbsent(language, it -> new HashSet<>()).add(hook)
       );
     }
 
@@ -358,6 +358,22 @@ public class JsTsChecks {
 
     // Combine both sources - all will be sent to the bridge for execution
     return Stream.concat(eslintRules, eslintHooks).toList();
+  }
+
+  /** Aggregate compiler requirements separately from per-rule execution configuration. */
+  int requestedMaxNodeModuleJsDepth(AnalysisMode analysisMode) {
+    return Stream.concat(all(), eslintHooksByLanguage.values().stream().flatMap(Set::stream))
+      .filter(EslintHook::isEnabled)
+      .filter(hook -> hook.analysisModes().contains(analysisMode))
+      .mapToInt(hook -> {
+        int depth = hook.maxNodeModuleJsDepth();
+        if (depth < 0) {
+          throw new IllegalArgumentException("maxNodeModuleJsDepth must be non-negative");
+        }
+        return depth;
+      })
+      .max()
+      .orElse(0);
   }
 
   static class LanguageAndRepository {

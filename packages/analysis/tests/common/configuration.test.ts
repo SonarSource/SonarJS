@@ -23,6 +23,8 @@ import { installFsCache } from '../../../shared/src/fs-cache/hook.js';
 import { setArchivedFileSystemCaseSensitivity } from '../../src/jsts/rules/helpers/filesystem-case.js';
 import {
   createConfiguration,
+  createConfigurationFromInput,
+  getJsTsConfigFields,
   isAlsoCssFile,
   isAnalyzableFile,
   isHtmlFile,
@@ -31,6 +33,61 @@ import {
 import { normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
 
 describe('createConfiguration', () => {
+  for (const maxNodeModuleJsDepth of [undefined, 0, 4, 0x7fffffff]) {
+    it(`preserves optional analysis node_modules depth ${maxNodeModuleJsDepth}`, () => {
+      const input = { baseDir: '/path/to/project', maxNodeModuleJsDepth };
+      for (const create of [createConfiguration, createConfigurationFromInput]) {
+        const configuration = create(input);
+        expect(configuration.maxNodeModuleJsDepth).toBe(maxNodeModuleJsDepth);
+        expect(getJsTsConfigFields(configuration).maxNodeModuleJsDepth).toBe(
+          maxNodeModuleJsDepth || undefined,
+        );
+      }
+    });
+  }
+
+  for (const maxNodeModuleJsDepth of ['4', -1, 0.5, NaN, Infinity, -Infinity, 0x80000000, null]) {
+    it(`rejects invalid analysis node_modules depth ${maxNodeModuleJsDepth}`, () => {
+      const input = { baseDir: '/path/to/project', maxNodeModuleJsDepth };
+      expect(() => createConfiguration(input)).toThrow(
+        'maxNodeModuleJsDepth must be a non-negative int32',
+      );
+      expect(() => createConfigurationFromInput(input as never)).toThrow(
+        'maxNodeModuleJsDepth must be a non-negative int32',
+      );
+    });
+  }
+
+  it('leaves normal project defaults unchanged when analysis depth is omitted', () => {
+    const configuration = createConfiguration({ baseDir: '/path/to/project' });
+    expect(configuration.maxNodeModuleJsDepth).toBeUndefined();
+    expect(configuration.disableTypeChecking).toBe(false);
+    expect(configuration.createTSProgramForOrphanFiles).toBe(true);
+  });
+
+  it('does not apply analysis depth to SonarLint, including already constructed configurations', () => {
+    const configuration = createConfiguration({
+      baseDir: '/path/to/project',
+      sonarlint: true,
+      maxNodeModuleJsDepth: 4,
+    });
+    expect(configuration.maxNodeModuleJsDepth).toBe(4);
+    expect(getJsTsConfigFields(configuration).maxNodeModuleJsDepth).toBeUndefined();
+    expect(
+      getJsTsConfigFields({ ...configuration, maxNodeModuleJsDepth: 6 }).maxNodeModuleJsDepth,
+    ).toBeUndefined();
+  });
+
+  it('ignores the retired external API inventory configuration', () => {
+    const baseDir = '/path/to/project';
+    const configuration = createConfiguration({ baseDir, collectExternalApiUsages: true });
+    expect(configuration).not.toHaveProperty('collectExternalApiUsages');
+    expect(getJsTsConfigFields(configuration)).not.toHaveProperty('collectExternalApiUsages');
+    expect(createConfigurationFromInput({ baseDir })).not.toHaveProperty(
+      'collectExternalApiUsages',
+    );
+  });
+
   it('honors literal scanner directory exclusions without hardcoding a directory name', () => {
     const root = normalizeToAbsolutePath('/ci/project');
     const configuration = createConfiguration({
