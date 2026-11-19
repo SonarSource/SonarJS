@@ -121,7 +121,7 @@ jobs:
           env -i PATH="$PATH" npm ci --registry=https://registry.npmjs.org/ \
             --userconfig="$RUNNER_TEMP/public-user.npmrc" \
             --globalconfig="$RUNNER_TEMP/public-global.npmrc" \
-            --cache="$RUNNER_TEMP/public-npm-cache" --loglevel=http --no-audit --no-fund
+            --cache="$RUNNER_TEMP/public-npm-cache" --no-audit --no-fund
 
   validate_saas_npm_install:
     name: Validate release npm install through SaaS without publishing
@@ -182,7 +182,6 @@ jobs:
       - if: steps.cache.outputs.cache-hit != 'true'
         uses: SonarSource/ci-github-actions/config-npm@v2
         with:
-          repox-url: https://repox-internal.sonar.build
           artifactory-reader-role: private-reader
           disable-caching: 'true'
       - &npm_cache_install
@@ -215,8 +214,8 @@ jobs:
         env:
           ARTIFACTORY_ACCESS_TOKEN: ${{ steps.secrets.outputs.vault && fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN || '' }}
         run: |
-          npm config set "//repox-internal.sonar.build/artifactory/api/npm/:_authToken=${ARTIFACTORY_ACCESS_TOKEN}"
-          npm config set registry https://repox-internal.sonar.build/artifactory/api/npm/npm/
+          npm config set "//repox.sonar.build/artifactory/api/npm/:_authToken=${ARTIFACTORY_ACCESS_TOKEN}"
+          npm config set registry https://repox.sonar.build/artifactory/api/npm/npm/
       - *npm_cache_install
 
   build:
@@ -263,7 +262,6 @@ jobs:
         id: config-maven
         uses: SonarSource/ci-github-actions/config-maven@v2
         with:
-          repox-url: https://repox-internal.dev.sonar.build
           artifactory-reader-role: private-reader
           disable-caching: 'true'
       - id: deployer-secrets
@@ -424,7 +422,6 @@ jobs:
       - &config_npm_edge
         uses: SonarSource/ci-github-actions/config-npm@v2
         with:
-          repox-url: https://repox-internal.sonar.build
           artifactory-reader-role: private-reader
           disable-caching: 'true'
       - *download_rspec_rule_data
@@ -838,7 +835,7 @@ jobs:
           config_dir="$RUNNER_TEMP/orchestrator-production-config"
           mkdir -p "$config_dir"
           printf '%s\n' \
-            'orchestrator.artifactory.url=https://repox-internal.sonar.build/artifactory' \
+            'orchestrator.artifactory.url=https://repox.sonar.build/artifactory' \
             "orchestrator.artifactory.accessToken=$ORCHESTRATOR_ACCESS_TOKEN" > "$config_dir/orchestrator.properties"
           config_path="$config_dir/orchestrator.properties"
           if [[ "$RUNNER_OS" == Windows ]]; then
