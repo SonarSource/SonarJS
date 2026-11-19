@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.sonarsource.javascript</groupId>
+    <artifactId>sonar-plugin</artifactId>
+    <version>${revision}</version>
+  </parent>
+
+  <artifactId>sonar-javascript-plugin-zip</artifactId>
+  <packaging>sonar-plugin-zip</packaging>
+
+  <name>SonarQube JavaScript :: Plugin ZIP</name>
+  <description>
+    On-demand resources ZIP (JS-2714 / SC-49784): the final sonar-javascript-plugin JAR under plugin/, and the
+    per-platform Node.js runtime binaries under resources/, fetched on demand at analysis time.
+  </description>
+
+  <dependencies>
+    <!--
+      Exactly one dependency of type sonar-plugin is required: the ZIP wraps its JAR. Being a separate module,
+      it is only built once the reactor has completely finished building the plugin module, including the
+      maven-shade-plugin execution that rewrites its JAR in place, so no execution ordering needs managing.
+    -->
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>sonar-javascript-plugin</artifactId>
+      <version>${project.version}</version>
+      <type>sonar-plugin</type>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.sonarsource.sonar-packaging-maven-plugin</groupId>
+        <artifactId>sonar-packaging-maven-plugin</artifactId>
+        <!-- Pre-release build of the plugin: switch to a released version once available -->
+        <version>2.1.0.13092</version>
+        <extensions>true</extensions>
+        <configuration>
+          <resourcesDirectory>${project.build.directory}/downloads/runtimes</resourcesDirectory>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>unpack-node-runtimes</id>
+            <phase>${node.resources.phase}</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.sonarsource.nodejs</groupId>
+                  <artifactId>nodejs-runtime</artifactId>
+                  <version>${nodejs.runtime.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${project.build.directory}/downloads</outputDirectory>
+                  <includes>**/*.xz,**/version.txt</includes>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>enforce-plugin-size</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <phase>verify</phase>
+            <configuration>
+              <rules>
+                <!--
+                  Loose bound: the ZIP contains the slim plugin jar plus all 6 platforms' Node.js runtime
+                  binaries, so it should land somewhere around 100-250MB. Its only job is to catch a gross
+                  regression (resources missing/empty, or an unexpectedly huge file), not to pin an exact size.
+                -->
+                <requireFilesSize>
+                  <minsize>80000000</minsize>
+                  <maxsize>250000000</maxsize>
+                  <files>
+                    <file>${project.build.directory}/${project.build.finalName}.zip</file>
+                  </files>
+                </requireFilesSize>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

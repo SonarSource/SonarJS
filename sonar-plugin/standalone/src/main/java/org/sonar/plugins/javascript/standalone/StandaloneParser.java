@@ -37,10 +37,10 @@ import org.sonar.plugins.javascript.bridge.BridgeServerConfig;
 import org.sonar.plugins.javascript.bridge.BridgeServerImpl;
 import org.sonar.plugins.javascript.bridge.BundleImpl;
 import org.sonar.plugins.javascript.bridge.ESTreeFactory;
-import org.sonar.plugins.javascript.bridge.EmbeddedNode;
 import org.sonar.plugins.javascript.bridge.Environment;
 import org.sonar.plugins.javascript.bridge.NodeDeprecationWarning;
 import org.sonar.plugins.javascript.bridge.RulesBundles;
+import org.sonar.plugins.javascript.bridge.SonarLintEmbeddedNode;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
 import org.sonar.plugins.javascript.nodejs.NodeCommandBuilder;
 import org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl;
@@ -80,7 +80,7 @@ public class StandaloneParser implements AutoCloseable {
       new RulesBundles(),
       new NodeDeprecationWarning(new AnalysisWarningsWrapper()),
       temporaryFolder,
-      new EmbeddedNode(processWrapper, new Environment(builder.configuration))
+      new SonarLintEmbeddedNode(processWrapper, new Environment(builder.configuration))
     );
     parserConfigurationBuilder = AnalyzeProjectMessages.newProjectConfigurationBuilder(
       baseDir,

@@ -189,32 +189,29 @@ public abstract class EmbeddedNode {
       return;
     }
     try {
-      var is = openResource(platform.archiveResourcePath());
-
-      if (is == null) {
-        if (LOG.isDebugEnabled()) {
-          LOG.debug("Embedded node not found for platform {}", platform);
+      try (var is = openResource(platform.archiveResourcePath())) {
+        if (is == null) {
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Embedded node not found for platform {}", platform);
+          }
+          return;
         }
-        return;
-      }
 
-      var targetRuntime = deployLocation.resolve(platform.binary());
+        var targetRuntime = deployLocation.resolve(platform.binary());
 
-      var targetDirectory = targetRuntime.getParent();
-      var targetVersion = targetDirectory.resolve(VERSION_FILENAME);
-      LOG.info(
-        "Deploy location {}, tagetRuntime: {},  version: {}",
-        deployLocation,
-        targetRuntime,
-        targetVersion
-      );
-      // we assume that since the archive exists, the version file must as well
-      var versionIs = openResource(platform.versionResourcePath());
-
-      if (Files.exists(targetVersion) && !isDifferent(versionIs, targetVersion)) {
-        LOG.debug("Skipping node deploy. Deployed node has latest version.");
-      } else {
-        extractWithLocking(is, targetRuntime, targetDirectory);
+        var targetDirectory = targetRuntime.getParent();
+        var targetVersion = targetDirectory.resolve(VERSION_FILENAME);
+        LOG.info(
+          "Deploy location {}, tagetRuntime: {},  version: {}",
+          deployLocation,
+          targetRuntime,
+          targetVersion
+        );
+        if (Files.exists(targetVersion) && !isDifferent(targetVersion)) {
+          LOG.debug("Skipping node deploy. Deployed node has latest version.");
+        } else {
+          extractWithLocking(is, targetRuntime, targetDirectory);
+        }
       }
       // we try to run 'node -v' to test that node is working
       var detected = NodeVersion.getVersion(processWrapper, binary().toString());
@@ -248,9 +245,12 @@ public abstract class EmbeddedNode {
     }
   }
 
-  private static boolean isDifferent(InputStream newVersionIs, Path currentVersionPath)
-    throws IOException {
-    var newVersionString = new String(newVersionIs.readAllBytes(), StandardCharsets.UTF_8);
+  private boolean isDifferent(Path currentVersionPath) throws IOException {
+    // we assume that since the archive exists, the version file must as well
+    String newVersionString;
+    try (var newVersionIs = openResource(platform.versionResourcePath())) {
+      newVersionString = new String(newVersionIs.readAllBytes(), StandardCharsets.UTF_8);
+    }
     var currentVersionString = Files.readString(currentVersionPath);
     LOG.debug(
       "Currently installed Node.js version: {}. Available version in analyzer: {}",
@@ -282,8 +282,9 @@ public abstract class EmbeddedNode {
         try {
           LOG.debug("Lock acquired for extraction");
           extract(source, targetRuntime);
-          var versionIs = openResource(platform.versionResourcePath());
-          Files.copy(versionIs, deployLocation.resolve(VERSION_FILENAME), REPLACE_EXISTING);
+          try (var versionIs = openResource(platform.versionResourcePath())) {
+            Files.copy(versionIs, deployLocation.resolve(VERSION_FILENAME), REPLACE_EXISTING);
+          }
         } finally {
           lock.release();
         }

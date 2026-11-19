@@ -264,7 +264,7 @@ Local runs discover the built JAR in `sonar-plugin/sonar-javascript-plugin/targe
 `SONARSOURCE_QA=true` activates the existing Maven copy step, which uses the inherited project
 version to populate that directory from the downloaded Maven artifacts. The plugin ships a
 single classifier-less JAR; its embedded Node.js runtime is fetched on demand from the
-`sonar-javascript-plugin-<version>.zip` resources artifact (see
+`sonar-javascript-plugin-zip-<version>.zip` resources artifact (see
 [`On-demand resources ZIP`](BUILD.md#on-demand-resources-zip-js-2714--sc-49784) in `BUILD.md`),
 so the without-Node CI jobs no longer need to select a classifier to test that path.
 
