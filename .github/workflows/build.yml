@@ -1,6 +1,10 @@
 name: Dependency transfer benchmark
 on:
   workflow_dispatch:
+    inputs:
+      restore-only:
+        type: boolean
+        default: false
 permissions:
   id-token: write
   contents: read
@@ -65,6 +69,7 @@ jobs:
           key: dependency-benchmark-maven-${{ runner.os }}-v1
           path: ~/.m2/repository
       - name: Compare dependency acquisition costs
+        if: inputs.restore-only != true
         shell: bash
         env:
           NPM_S3_HIT: ${{ steps.npm_cache.outputs.cache-hit }}
