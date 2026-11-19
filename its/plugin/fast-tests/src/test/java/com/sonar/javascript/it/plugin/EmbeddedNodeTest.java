@@ -33,7 +33,8 @@ class EmbeddedNodeTest {
   private static final SonarServerContext SERVER_CONTEXT = SonarScannerIntegrationHelper.getContext(
     List.of(JavaScriptLanguage.KEY),
     List.of(SonarScannerIntegrationHelper.getJavascriptPlugin()),
-    List.of(Path.of("src", "test", "resources", "eslint-based-rules.xml"))
+    List.of(Path.of("src", "test", "resources", "eslint-based-rules.xml")),
+    SonarScannerIntegrationHelper.getEmbeddedNodeRuntimeResources()
   );
 
   @Test
@@ -53,6 +54,14 @@ class EmbeddedNodeTest {
       )
       .isEqualTo(0);
     assertThat(result.logOutput())
+      .describedAs(
+        "Scanner output:%n%s",
+        result
+          .logOutput()
+          .stream()
+          .map(l -> l.level() + " " + l.message())
+          .toList()
+      )
       .filteredOn(
         l ->
           l.level().equals(Log.Level.INFO) && l.message().equals("Using embedded Node.js runtime.")

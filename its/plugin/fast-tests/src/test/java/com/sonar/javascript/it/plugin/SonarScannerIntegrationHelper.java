@@ -25,7 +25,11 @@ import com.sonarsource.scanner.integrationtester.dsl.ActiveRule;
 import com.sonarsource.scanner.integrationtester.dsl.EngineVersion;
 import com.sonarsource.scanner.integrationtester.dsl.SonarProjectContext;
 import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
+import com.sonarsource.scanner.integrationtester.dsl.StaticResource;
 import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
@@ -37,6 +41,8 @@ import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 
 public final class SonarScannerIntegrationHelper {
+
+  private static final String JAVASCRIPT_PLUGIN_KEY = "javascript";
 
   static final String LITS_VERSION = "0.12.0.5861";
 
@@ -57,9 +63,19 @@ public final class SonarScannerIntegrationHelper {
     List<Location> pluginLocations,
     List<Path> profiles
   ) {
+    return getContext(languages, pluginLocations, profiles, List.of());
+  }
+
+  public static SonarServerContext getContext(
+    List<String> languages,
+    List<Location> pluginLocations,
+    List<Path> profiles,
+    List<StaticResource> staticResources
+  ) {
     var builder = SonarServerContext.builder()
       .withProduct(SonarServerContext.Product.SERVER)
-      .withEngineVersion(getEngineVersion());
+      .withEngineVersion(getEngineVersion())
+      .withStaticResources(staticResources);
     for (var pluginLocation : pluginLocations) {
       builder.withPlugin(pluginLocation);
     }
@@ -111,6 +127,41 @@ public final class SonarScannerIntegrationHelper {
       new File("../../../sonar-plugin/sonar-javascript-plugin/target"),
       "sonar-javascript-plugin-*.jar"
     );
+  }
+
+  /**
+   * The Node.js runtimes shipped in the on-demand resources ZIP, served the way SonarQube Server serves the static
+   * resources of a plugin ({@code GET /static/javascript/<platform>/...}), so that the scanner can fetch them through
+   * {@code ResourceFetcher}. They are looked up in the unpacked ZIP of the QA profile first, then in the output of a
+   * local build of the ZIP module.
+   */
+  public static List<StaticResource> getEmbeddedNodeRuntimeResources() {
+    var runtimesDirectory = List.of(
+      Path.of("target", "sonar-javascript-plugin", "resources"),
+      Path.of("../../../sonar-plugin/sonar-javascript-plugin-zip/target/downloads/runtimes")
+    )
+      .stream()
+      .filter(Files::isDirectory)
+      .findFirst()
+      .orElseThrow(() ->
+        new IllegalStateException(
+          "Node.js runtimes not found: build the sonar-javascript-plugin-zip module first."
+        )
+      );
+    try (var files = Files.walk(runtimesDirectory)) {
+      return files
+        .filter(Files::isRegularFile)
+        .map(file ->
+          StaticResource.ofPlugin(
+            JAVASCRIPT_PLUGIN_KEY,
+            runtimesDirectory.relativize(file).toString().replace(File.separatorChar, '/'),
+            file
+          )
+        )
+        .toList();
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
   }
 
   public static MavenLocation getYamlPlugin() {
