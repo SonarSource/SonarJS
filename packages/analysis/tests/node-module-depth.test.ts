@@ -110,6 +110,7 @@ describe('analysis-level node_modules inference depth', () => {
     'merged',
     'restored-configured',
     'restored-orphan',
+    'restored-merged',
     'sonarlint-configured',
   ] as const) {
     for (const maxNodeModuleJsDepth of [undefined, 0, 4]) {
@@ -120,6 +121,7 @@ describe('analysis-level node_modules inference depth', () => {
         context.after(() => fs.rmSync(baseDir, { recursive: true, force: true }));
         const configured = !scenario.endsWith('orphan');
         const sonarlint = scenario === 'sonarlint-configured';
+        const merged = scenario.endsWith('merged');
         const main = normalizeToAbsolutePath('main.js', baseDir);
         const orphan = normalizeToAbsolutePath('orphan.js', baseDir);
         fs.writeFileSync(main, 'const value = 1;;');
@@ -132,9 +134,9 @@ describe('analysis-level node_modules inference depth', () => {
             }),
           );
         }
-        if (scenario === 'merged') fs.writeFileSync(orphan, 'const other = 2;;');
+        if (merged) fs.writeFileSync(orphan, 'const other = 2;;');
         const inputFiles = Object.fromEntries(
-          [main, ...(scenario === 'merged' ? [orphan] : [])].map(filePath => [
+          [main, ...(merged ? [orphan] : [])].map(filePath => [
             filePath,
             { filePath, fileType: 'MAIN' as const },
           ]),
@@ -156,11 +158,14 @@ describe('analysis-level node_modules inference depth', () => {
           const archive = new ProgramSelectionArchive(archivePath, baseDir, 'record');
           await analyzeProject(
             { ...input, programSelection: archive },
-            { ...configuration, maxNodeModuleJsDepth: maxNodeModuleJsDepth ? 2 : undefined },
+            { ...configuration, maxNodeModuleJsDepth: 2 },
           );
           archive.end();
           await initialize();
         }
+        const replay = scenario.startsWith('restored')
+          ? new ProgramSelectionArchive(archivePath, baseDir, 'replay')
+          : undefined;
         const observed: (number | undefined)[] = [];
         const lint = Linter.lint;
         context.mock.method(Linter, 'lint', (...args: Parameters<typeof Linter.lint>) => {
@@ -171,18 +176,22 @@ describe('analysis-level node_modules inference depth', () => {
         await analyzeProject(
           {
             ...input,
-            ...(scenario.startsWith('restored')
-              ? { programSelection: new ProgramSelectionArchive(archivePath, baseDir, 'replay') }
-              : {}),
+            ...(replay ? { programSelection: replay } : {}),
           },
           configuration,
         );
-        expect(observed).toHaveLength(scenario === 'merged' ? 2 : 1);
+        expect(observed).toHaveLength(merged ? 2 : 1);
         expect(observed).toEqual(
           Array(observed.length).fill(
             (!sonarlint && maxNodeModuleJsDepth) || (configured ? 1 : undefined),
           ),
         );
+        if (replay) {
+          const recordedDepths = replay
+            .getRestoredSelections([main, ...(merged ? [orphan] : [])])
+            .map(selection => selection.program.compilerOptions.maxNodeModuleJsDepth);
+          expect(recordedDepths).toEqual(Array(merged ? 2 : 1).fill(configured ? 1 : undefined));
+        }
       });
     }
   }

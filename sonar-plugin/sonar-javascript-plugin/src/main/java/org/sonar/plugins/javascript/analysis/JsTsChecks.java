@@ -364,7 +364,12 @@ public class JsTsChecks {
   int requestedMaxNodeModuleJsDepth(AnalysisMode analysisMode) {
     return Stream.concat(all(), eslintHooksByLanguage.values().stream().flatMap(Set::stream))
       .filter(EslintHook::isEnabled)
-      .filter(hook -> hook.analysisModes().contains(analysisMode))
+      // Changed and added files run DEFAULT hooks even in SKIP_UNCHANGED analyses.
+      .filter(
+        hook ->
+          hook.analysisModes().contains(analysisMode) ||
+          hook.analysisModes().contains(AnalysisMode.DEFAULT)
+      )
       .mapToInt(hook -> {
         int depth = hook.maxNodeModuleJsDepth();
         if (depth < 0) {

@@ -29,14 +29,18 @@ public int maxNodeModuleJsDepth() {
 ```
 
 The default is `0` (no override). SonarJS aggregates the largest positive request among enabled
-checks/hooks compatible with the current analysis mode in Java, then sends it once in the analysis
-`ProjectConfiguration`. It is not part of `EslintRule`, `JsTsRule`, or the Node `RuleConfig`.
+checks/hooks that can run in the current analysis in Java, then sends it once in the analysis
+`ProjectConfiguration`. `DEFAULT` hooks also contribute during `SKIP_UNCHANGED` analyses because they
+run on changed and added files. Hooks supporting only `SKIP_UNCHANGED` do not contribute to a full
+`DEFAULT` analysis. The request is not part of `EslintRule`, `JsTsRule`, or the Node `RuleConfig`.
 The request overrides `maxNodeModuleJsDepth` from the
 project's tsconfig for configured, orphan/merged and restored scanner programs, without changing
 cached tsconfig options. It does not override `sonar.javascript.disableTypeChecking=true`, and it
 does not apply to SonarLint. When the hook is absent or disabled, ordinary compiler behavior is
-preserved. This option controls inference from JavaScript in `node_modules`, not declaration-file
-resolution or a general recursion limit for TypeScript types.
+preserved. Recorded program selections retain the baseline compiler options, without the hook
+override; replay applies only the current analysis's request, including when it is absent or zero.
+This option controls inference from JavaScript in `node_modules`, not declaration-file resolution
+or a general recursion limit for TypeScript types.
 
 For cross-plugin data collection, prefer a directly registered `EslintHookRegistrar` and a packaged
 `Bundle`. The hook can use the existing parser services and write versioned artifacts into an

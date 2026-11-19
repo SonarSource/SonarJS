@@ -120,6 +120,36 @@ class JsTsChecksTest {
   }
 
   @Test
+  void default_hooks_keep_their_depth_request_in_skip_unchanged_analyses() {
+    var hook = new TestEslintHook();
+    var checks = new JsTsChecks(checkFactory("repo", "customcheck"), new EslintHookRegistrar[] {
+      hook,
+    });
+
+    assertThat(checks.requestedMaxNodeModuleJsDepth(AnalysisMode.SKIP_UNCHANGED)).isEqualTo(4);
+    assertThat(checks.requestedMaxNodeModuleJsDepth(AnalysisMode.DEFAULT)).isEqualTo(4);
+    hook.enabled = false;
+    assertThat(checks.requestedMaxNodeModuleJsDepth(AnalysisMode.SKIP_UNCHANGED)).isZero();
+  }
+
+  @Test
+  void skip_unchanged_depth_includes_default_hooks_with_a_larger_request() {
+    var defaultHook = new TestEslintHook();
+    defaultHook.depth = 9;
+    var skipUnchangedHook = new TestEslintHook();
+    skipUnchangedHook.modes = List.of(AnalysisMode.SKIP_UNCHANGED);
+    var checks = new JsTsChecks(checkFactory("repo", "customcheck"), new EslintHookRegistrar[] {
+      defaultHook,
+      skipUnchangedHook,
+    });
+
+    assertThat(checks.requestedMaxNodeModuleJsDepth(AnalysisMode.SKIP_UNCHANGED)).isEqualTo(9);
+    defaultHook.modes = List.of();
+    assertThat(checks.requestedMaxNodeModuleJsDepth(AnalysisMode.SKIP_UNCHANGED)).isEqualTo(4);
+    assertThat(checks.requestedMaxNodeModuleJsDepth(AnalysisMode.DEFAULT)).isZero();
+  }
+
+  @Test
   void should_accept_the_largest_int32_dependency_depth() {
     var hook = new TestEslintHook();
     hook.depth = Integer.MAX_VALUE;
