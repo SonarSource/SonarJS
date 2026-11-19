@@ -14,7 +14,7 @@ on:
         type: boolean
         default: false
   schedule:
-    - cron: '0 0 * * *'  # Nightly for analysis, IRIS, and generated file freshness
+    - cron: '0 0 * * *' # Nightly for analysis, IRIS, and generated file freshness
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
@@ -156,19 +156,19 @@ jobs:
     needs: [setup, get_build_number]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
-    env: &shared_build_number
-      # Reuse the build number minted once in get_build_number everywhere workflow metadata is configured or promoted.
+    env:
+      &shared_build_number # Reuse the build number minted once in get_build_number everywhere workflow metadata is configured or promoted.
       BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
     steps:
-      # Producer jobs need a lookup-only probe that still saves a freshly populated cache at job end.
-      - &npm_cache_probe
-        name: Check NPM dependencies cache
+      - &npm_cache_restore
+        name: Restore NPM dependencies cache
         id: cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: SonarSource/gh-action_cache@10fff0296bfc17164fb1ed6473f7238df3430ebf # v1.7.5
         with:
+          backend: ${{ github.event_name == 'merge_group' && 'github' || 's3' }}
+          import-github-cache: false
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
-          lookup-only: true
       - &npm_cache_checkout
         name: Checkout source code
         if: steps.cache.outputs.cache-hit != 'true'
@@ -197,7 +197,7 @@ jobs:
     permissions: *read_permissions
     env: *shared_build_number
     steps:
-      - *npm_cache_probe
+      - *npm_cache_restore
       - *npm_cache_checkout
       - *npm_cache_mise
       - if: steps.cache.outputs.cache-hit != 'true'
@@ -225,6 +225,8 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     env: *shared_build_number
+    outputs:
+      storage-key: ${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - *checkout
       - &mise
@@ -234,8 +236,10 @@ jobs:
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
       - &npm_cache
         name: Restore NPM dependencies
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: SonarSource/gh-action_cache@10fff0296bfc17164fb1ed6473f7238df3430ebf # v1.7.5
         with:
+          backend: ${{ github.event_name == 'merge_group' && 'github' || 's3' }}
+          import-github-cache: false
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
           fail-on-cache-miss: true
@@ -246,15 +250,19 @@ jobs:
           name: rspec-rule-data-${{ github.sha }}
           path: sonar-plugin
       - name: Restore and save Maven cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: SonarSource/gh-action_cache@10fff0296bfc17164fb1ed6473f7238df3430ebf # v1.7.5
         with:
+          backend: ${{ github.event_name == 'merge_group' && 'github' || 's3' }}
+          import-github-cache: false
           path: ~/.m2/repository
           key: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-${{ needs.setup.outputs.maven-hash }}
           restore-keys: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-
       - &cyclonedx_cli_cache
         name: Cache CycloneDX CLI
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: SonarSource/gh-action_cache@10fff0296bfc17164fb1ed6473f7238df3430ebf # v1.7.5
         with:
+          backend: ${{ github.event_name == 'merge_group' && 'github' || 's3' }}
+          import-github-cache: false
           path: ~/.cache/cyclonedx-cli
           key: cyclonedx-cli-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('tools/merge-cyclonedx-bom.sh') }}
       - &config_maven
@@ -302,13 +310,39 @@ jobs:
         with:
           build-version: ${{ steps.config-maven.outputs.project-version }}
 
+      # Merge queue refs cannot write S3; those runs keep the GitHub artifact handoff.
+      # S3 restores archives in place. Use a relative staging path across Linux and Windows.
+      - name: Stage SonarJS artifacts for S3
+        if: github.event_name != 'merge_group'
+        run: cp -R ~/.m2/repository/org/sonarsource/javascript .ci-sonarjs-m2
+      - name: Share SonarJS artifacts through S3
+        if: github.event_name != 'merge_group'
+        uses: SonarSource/gh-action_cache@10fff0296bfc17164fb1ed6473f7238df3430ebf # v1.7.5
+        with:
+          backend: s3
+          import-github-cache: false
+          fallback-to-default-branch: false
+          enableCrossOsArchive: true
+          path: .ci-sonarjs-m2
+          key: sonarjs-m2-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Share Maven targets through S3
+        if: github.event_name != 'merge_group'
+        uses: SonarSource/gh-action_cache@10fff0296bfc17164fb1ed6473f7238df3430ebf # v1.7.5
+        with:
+          backend: s3
+          import-github-cache: false
+          fallback-to-default-branch: false
+          path: '**/target/'
+          key: maven-targets-${{ github.run_id }}-${{ github.run_attempt }}
       - name: Upload SonarJS artifacts
+        if: github.event_name == 'merge_group'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: sonarjs-m2
           path: ~/.m2/repository/org/sonarsource/javascript
           retention-days: 1
       - name: Upload Maven target artifacts
+        if: github.event_name == 'merge_group'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: maven-targets-${{ github.sha }}
@@ -323,8 +357,10 @@ jobs:
           name: jacoco-xml-reports-${{ github.sha }}
           path: sonar-plugin/**/target/site/jacoco/jacoco.xml
           retention-days: 1
-      # Keep locally built SonarJS artifacts out of the post-job cache save.
-      - name: Clean up SonarJS artifacts before cache save
+      # Keep locally built SonarJS artifacts out of dependency cache post-job saves.
+      - &clean_sonarjs_m2
+        name: Clean up SonarJS artifacts before cache save
+        shell: bash
         run: rm -rf ~/.m2/repository/org/sonarsource/javascript
 
   # Windows builds and tests
@@ -340,17 +376,11 @@ jobs:
       - *mise
       - *npm_cache
       - *download_rspec_rule_data
-      - name: Restore Maven cache
-        if: github.ref_name != github.event.repository.default_branch
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.m2/repository
-          key: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-${{ needs.setup.outputs.maven-hash }}
-          restore-keys: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-
       - name: Restore and save Maven cache
-        if: github.ref_name == github.event.repository.default_branch
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: SonarSource/gh-action_cache@10fff0296bfc17164fb1ed6473f7238df3430ebf # v1.7.5
         with:
+          backend: ${{ github.event_name == 'merge_group' && 'github' || 's3' }}
+          import-github-cache: false
           path: ~/.m2/repository
           key: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-${{ needs.setup.outputs.maven-hash }}
           restore-keys: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-
@@ -358,6 +388,7 @@ jobs:
       - *config_maven
       - name: Build and test Maven (no deploy)
         run: mvn verify -Psbom -T1C
+      - *clean_sonarjs_m2
 
   prepare_rspec_rule_data:
     runs-on: sonar-xs
@@ -373,8 +404,10 @@ jobs:
       - *npm_cache
       - &maven_cache_restore
         name: Restore Maven cache
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: SonarSource/gh-action_cache@10fff0296bfc17164fb1ed6473f7238df3430ebf # v1.7.5
         with:
+          backend: ${{ github.event_name == 'merge_group' && 'github' || 's3' }}
+          import-github-cache: false
           path: ~/.m2/repository
           key: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-${{ needs.setup.outputs.maven-hash }}
           restore-keys: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-
@@ -407,6 +440,7 @@ jobs:
             sonar-plugin/css/src/main/resources/org/sonar/l10n/css/rules/css
             sonar-plugin/css/src/main/resources/rspec.sha
           retention-days: 1
+      - *clean_sonarjs_m2
 
   build_eslint_plugin:
     runs-on: warp-custom-ubuntu-24-04
@@ -575,8 +609,10 @@ jobs:
     steps:
       - name: Restore JS coverage cache
         id: cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: SonarSource/gh-action_cache@10fff0296bfc17164fb1ed6473f7238df3430ebf # v1.7.5
         with:
+          backend: ${{ github.event_name == 'merge_group' && 'github' || 's3' }}
+          import-github-cache: false
           path: coverage/js
           key: js-coverage-${{ runner.os }}-${{ needs.setup.outputs.js-files-hash }}-${{ needs.prepare_rspec_rule_data.outputs.test-input-hash }}
       - name: Checkout source code
@@ -589,8 +625,10 @@ jobs:
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
       - name: Restore NPM dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: SonarSource/gh-action_cache@10fff0296bfc17164fb1ed6473f7238df3430ebf # v1.7.5
         with:
+          backend: ${{ github.event_name == 'merge_group' && 'github' || 's3' }}
+          import-github-cache: false
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
           fail-on-cache-miss: true
@@ -631,13 +669,14 @@ jobs:
     needs: [setup, populate_npm_cache_win, prepare_rspec_rule_data]
     permissions: *read_permissions
     steps:
-      - name: Check JS test results marker (Windows)
+      - name: Restore JS test results marker (Windows)
         id: cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: SonarSource/gh-action_cache@10fff0296bfc17164fb1ed6473f7238df3430ebf # v1.7.5
         with:
+          backend: ${{ github.event_name == 'merge_group' && 'github' || 's3' }}
+          import-github-cache: false
           path: .js-test-marker-win
           key: js-test-win-${{ runner.os }}-${{ needs.setup.outputs.js-files-hash }}-${{ needs.prepare_rspec_rule_data.outputs.test-input-hash }}
-          lookup-only: true
       - name: Checkout source code
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -648,8 +687,10 @@ jobs:
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
       - name: Restore NPM dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: SonarSource/gh-action_cache@10fff0296bfc17164fb1ed6473f7238df3430ebf # v1.7.5
         with:
+          backend: ${{ github.event_name == 'merge_group' && 'github' || 's3' }}
+          import-github-cache: false
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
           fail-on-cache-miss: true
@@ -694,8 +735,20 @@ jobs:
           name: js-coverage-reports-${{ github.sha }}
           path: coverage/js
       - *validate_js_coverage_reports
+      - &restore_maven_targets
+        name: Restore Maven targets from S3
+        if: github.event_name != 'merge_group'
+        uses: SonarSource/gh-action_cache@10fff0296bfc17164fb1ed6473f7238df3430ebf # v1.7.5
+        with:
+          backend: s3
+          import-github-cache: false
+          fallback-to-default-branch: false
+          fail-on-cache-miss: true
+          path: '**/target/'
+          key: maven-targets-${{ needs.build.outputs.storage-key }}
       - &download_maven_targets
         name: Download Maven target artifacts
+        if: github.event_name == 'merge_group'
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: maven-targets-${{ github.sha }}
@@ -734,6 +787,7 @@ jobs:
           fi
 
           mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.1.0.4751:sonar $SONAR_ARGS
+      - *clean_sonarjs_m2
 
   analyze_shadows:
     runs-on: sonar-m
@@ -757,6 +811,7 @@ jobs:
       - *maven_cache_restore
       - *download_js_coverage_reports
       - *validate_js_coverage_reports
+      - *restore_maven_targets
       - *download_maven_targets
       - *download_jacoco_xml_reports
       - *config_maven
@@ -789,6 +844,7 @@ jobs:
           fi
 
           mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.1.0.4751:sonar $SONAR_ARGS
+      - *clean_sonarjs_m2
 
   plugin_qa_with_node:
     runs-on: sonar-m
@@ -811,8 +867,28 @@ jobs:
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           cache_key: '{{default}}-{{env.MISE_NODE_VERSION}}'
       - *maven_cache_restore
+      - &restore_sonarjs_m2
+        name: Restore SonarJS artifacts from S3
+        if: github.event_name != 'merge_group'
+        uses: SonarSource/gh-action_cache@10fff0296bfc17164fb1ed6473f7238df3430ebf # v1.7.5
+        with:
+          backend: s3
+          import-github-cache: false
+          fallback-to-default-branch: false
+          enableCrossOsArchive: true
+          fail-on-cache-miss: true
+          path: .ci-sonarjs-m2
+          key: sonarjs-m2-${{ needs.build.outputs.storage-key }}
+      - &install_sonarjs_m2
+        name: Install restored SonarJS artifacts
+        if: github.event_name != 'merge_group'
+        shell: bash
+        run: |
+          mkdir -p ~/.m2/repository/org/sonarsource/javascript
+          cp -R .ci-sonarjs-m2/. ~/.m2/repository/org/sonarsource/javascript/
       - &download_sonarjs_m2
         name: Download SonarJS artifacts
+        if: github.event_name == 'merge_group'
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: sonarjs-m2
@@ -845,8 +921,6 @@ jobs:
           echo "ORCHESTRATOR_CONFIG_URL=file://$config_path" >> "$GITHUB_ENV"
       - &orchestrator_cache_restore
         uses: ./.github/actions/orchestrator-cache
-        with:
-          save: 'false'
       - name: Run Plugin QA
         run: |
           mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
@@ -855,6 +929,7 @@ jobs:
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+      - *clean_sonarjs_m2
 
   plugin_qa_fast_with_node:
     runs-on: sonar-m
@@ -872,6 +947,8 @@ jobs:
       - *checkout
       - *mise_java_matrix_node
       - *maven_cache_restore
+      - *restore_sonarjs_m2
+      - *install_sonarjs_m2
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
@@ -880,7 +957,6 @@ jobs:
         uses: ./.github/actions/orchestrator-cache
         with:
           key-prefix: orchestrator-production-fast
-          save: 'false'
       - name: Run Fast Plugin QA
         run: |
           mvn package -f its/plugin/plugins/pom.xml
@@ -888,6 +964,7 @@ jobs:
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+      - *clean_sonarjs_m2
 
   plugin_qa_without_node:
     runs-on: sonar-m
@@ -906,6 +983,8 @@ jobs:
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           install_args: java maven
       - *maven_cache_restore
+      - *restore_sonarjs_m2
+      - *install_sonarjs_m2
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
@@ -933,6 +1012,7 @@ jobs:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: multi
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+      - *clean_sonarjs_m2
 
   # DEV tests run only on nightly schedule to avoid constant downloads
   plugin_qa_without_node_dev:
@@ -946,6 +1026,8 @@ jobs:
       - *checkout
       - *mise_java_only
       - *maven_cache_restore
+      - *restore_sonarjs_m2
+      - *install_sonarjs_m2
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
@@ -963,6 +1045,7 @@ jobs:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: multi
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+      - *clean_sonarjs_m2
 
   minimal_ubuntu_analyzer_check:
     name: Minimal Ubuntu analyzer verification (optional)
@@ -979,11 +1062,13 @@ jobs:
       - name: Prepare minimal Ubuntu environment
         run: |
           apt-get update
-          apt-get install --no-install-recommends -y ca-certificates curl unzip xz-utils
+          apt-get install --no-install-recommends -y ca-certificates curl jq unzip xz-utils zstd
           rm -rf /var/lib/apt/lists/*
       - *checkout
       - *mise_java_only
       - *maven_cache_restore
+      - *restore_sonarjs_m2
+      - *install_sonarjs_m2
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
@@ -999,6 +1084,7 @@ jobs:
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+      - *clean_sonarjs_m2
 
   plugin_qa_without_node_alpine:
     runs-on: warp-custom-ubuntu-24-04
@@ -1018,7 +1104,7 @@ jobs:
       - *checkout
       - &alpine_install_deps
         name: Install dependencies
-        run: apk add --no-cache bash curl util-linux
+        run: apk add --no-cache bash curl jq util-linux tar zstd
       - name: Create non-root user
         run: |
           # Elasticsearch refuses to run as root. Create a non-root user for the QA steps.
@@ -1034,6 +1120,8 @@ jobs:
           cache_save: true
           install_args: maven
       - *maven_cache_restore
+      - *restore_sonarjs_m2
+      - *install_sonarjs_m2
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
@@ -1055,6 +1143,7 @@ jobs:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: linux-x64-musl
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+      - *clean_sonarjs_m2
 
   plugin_qa_fast_without_node:
     runs-on: sonar-m
@@ -1067,6 +1156,8 @@ jobs:
       - *checkout
       - *mise_java_only
       - *maven_cache_restore
+      - *restore_sonarjs_m2
+      - *install_sonarjs_m2
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
@@ -1083,6 +1174,7 @@ jobs:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: multi
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+      - *clean_sonarjs_m2
 
   # DEV tests run only on nightly schedule to avoid constant downloads
   plugin_qa_fast_without_node_dev:
@@ -1096,6 +1188,8 @@ jobs:
       - *checkout
       - *mise_java_only
       - *maven_cache_restore
+      - *restore_sonarjs_m2
+      - *install_sonarjs_m2
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
@@ -1112,6 +1206,7 @@ jobs:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: multi
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+      - *clean_sonarjs_m2
 
   plugin_qa_fast_without_node_alpine:
     runs-on: warp-custom-ubuntu-24-04
@@ -1128,6 +1223,8 @@ jobs:
       - *alpine_install_deps
       - *alpine_setup_maven
       - *maven_cache_restore
+      - *restore_sonarjs_m2
+      - *install_sonarjs_m2
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
@@ -1142,6 +1239,7 @@ jobs:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: linux-x64-musl
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+      - *clean_sonarjs_m2
 
   plugin_qa_win:
     runs-on: warp-custom-windows-2022-m
@@ -1162,13 +1260,13 @@ jobs:
       - *checkout
       - *mise
       - *maven_cache_restore
+      - *restore_sonarjs_m2
+      - *install_sonarjs_m2
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
       - *configure_orchestrator
       - uses: ./.github/actions/orchestrator-cache
-        with:
-          save: ${{ matrix.group == 1 }}
       - name: Run Plugin QA on Windows
         shell: bash
         run: |
@@ -1187,6 +1285,7 @@ jobs:
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+      - *clean_sonarjs_m2
 
   plugin_qa_sonarlint_win:
     runs-on: warp-custom-windows-2022-m
@@ -1199,6 +1298,8 @@ jobs:
       - *checkout
       - *mise
       - *maven_cache_restore
+      - *restore_sonarjs_m2
+      - *install_sonarjs_m2
       - *download_sonarjs_m2
       - *config_maven
       - name: Run Plugin QA on Windows
@@ -1207,6 +1308,7 @@ jobs:
           mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
+      - *clean_sonarjs_m2
 
   plugin_qa_win_fast_with_node:
     runs-on: warp-custom-windows-2022-m
@@ -1227,6 +1329,8 @@ jobs:
       - *checkout
       - *mise
       - *maven_cache_restore
+      - *restore_sonarjs_m2
+      - *install_sonarjs_m2
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
@@ -1234,7 +1338,6 @@ jobs:
       - uses: ./.github/actions/orchestrator-cache
         with:
           key-prefix: orchestrator-production-fast
-          save: ${{ matrix.group == 1 }}
       - name: Run Fast Plugin QA on Windows
         shell: bash
         run: |
@@ -1253,6 +1356,7 @@ jobs:
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+      - *clean_sonarjs_m2
 
   js_ts_ruling:
     runs-on: sonar-xl
@@ -1406,6 +1510,8 @@ jobs:
       - *checkout_with_submodules
       - *mise
       - *maven_cache_restore
+      - *restore_sonarjs_m2
+      - *install_sonarjs_m2
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
@@ -1426,6 +1532,7 @@ jobs:
         with:
           name: ruling-differences
           path: its/ruling/target/actual/
+      - *clean_sonarjs_m2
 
   # IRIS tasks (nightly only)
   run_iris:
