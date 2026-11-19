@@ -81,7 +81,7 @@ Runner labels express relative size and environment, not a stable hardware contr
 | `github-windows-latest-s`                     | `populate_npm_cache_win`                                                                                                     | Small Windows cache producer                                                   |
 | `github-windows-latest-m`                     | `build_win`, `test_js_win`, Windows plugin QA jobs                                                                           | Medium Windows build/test jobs                                                 |
 | `warp-custom-ubuntu-24-04` + Alpine container | Alpine QA jobs                                                                                                               | Host runner plus containerized musl/Alpine validation                          |
-| `sonar-m-docker` + Ubuntu container           | `minimal_ubuntu_analyzer_check`                                                                                              | Optional single-analysis check in minimal `ubuntu:24.04`                       |
+| `warp-custom-ubuntu-24-04` + Ubuntu container           | `minimal_ubuntu_analyzer_check`                                                                                              | Optional single-analysis check in minimal `ubuntu:24.04`                       |
 
 ## High-Level Pipeline Map
 
@@ -271,10 +271,15 @@ set `SONARJS_ARTIFACT` to `multi` (or `linux-x64-musl` on Alpine) to select the 
 `minimal_ubuntu_analyzer_check` runs on non-fork pull requests and all non-PR workflow runs
 (pushes, merge queues, nightly schedules, and manual runs) after the final SonarJS artifacts
 are built. Like the other artifact QA jobs, it requires internal build credentials,
-so fork pull requests skip it. It uses `sonar-m-docker` with a digest-pinned `ubuntu:24.04`
+so fork pull requests skip it. It uses `warp-custom-ubuntu-24-04` with a digest-pinned `ubuntu:24.04`
 container, installs only bootstrap tools and Java/Maven, and verifies that no system Node is
 available before analysis. The analysis checks compatibility with the minimal OS environment
 without making assumptions about specific system-library dependencies.
+The WarpBuild runner hosts Docker; the analyzer runs inside the Ubuntu container, whose
+libraries are isolated from the host. This follows the [runner policy](https://xtranet-sonarsource.atlassian.net/wiki/spaces/Platform/pages/3694231566)
+for Docker jobs. The [sidecar runner approach](https://xtranet-sonarsource.atlassian.net/wiki/spaces/Platform/pages/4403003406)
+is intended for service containers and requires consultation for custom job images; this
+check needs no service containers.
 
 The job runs only `EmbeddedNodeTest`, which analyzes a small JavaScript project with the final
 Linux x64 plugin and asserts successful use of the embedded Node runtime without analyzer errors.
@@ -306,7 +311,7 @@ The existing full/fast QA jobs keep their original runners and behavior.
 | `plugin_qa_fast_with_node`           | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
 | `plugin_qa_without_node`             | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
 | `plugin_qa_without_node_dev`         | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | nightly only                                                          |
-| `minimal_ubuntu_analyzer_check`      | `sonar-m-docker`           | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs; non-blocking                                             |
+| `minimal_ubuntu_analyzer_check`      | `warp-custom-ubuntu-24-04`           | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs; non-blocking                                             |
 | `plugin_qa_without_node_alpine`      | `warp-custom-ubuntu-24-04` | `setup`, `get_build_number`, `build`                                             | nightly only                                                          |
 | `plugin_qa_fast_without_node`        | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
 | `plugin_qa_fast_without_node_dev`    | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | nightly only                                                          |
