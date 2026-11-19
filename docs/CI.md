@@ -7,7 +7,7 @@ It documents the cache/artifact model used by the workflow:
 
 - generated-build caches and same-run artifact handoffs in `build.yml` use the shared cache action with GitHub cache import disabled
 - `orchestrator-cache` and `rule-api-cache` keep their existing ownership policies and use the same S3 transport
-- the local mise adapter disables upstream GitHub caching and restores its tool directory from S3
+- external actions retain their existing caching behavior, including mise tool provisioning and npm setup
 - PVF and ruling reporting/snapshots retain their existing artifact channels and secondary workflows
 - generated-build storage reuses the standard production S3 cache bucket and OIDC/Cognito credentials
 
@@ -47,6 +47,7 @@ Generated-build data keeps its existing cache and artifact semantics on S3:
 - artifact payloads are verified with SHA-256 before extraction
 - artifact downloads expire after one day; physical objects follow the existing 30-day cache bucket lifecycle
 - PVF and ruling-specific artifacts and their secondary workflows are outside this migration
+- external action implementations and their internal caches are outside this migration
 
 ## Trigger Model And Global Controls
 
@@ -392,7 +393,7 @@ That is exactly artifact semantics, not cache semantics.
 
 | Owner                     | Path or payload        | Backend                       | Why it exists                                                                                                                                                                         |
 | ------------------------- | ---------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| local `mise` adapter | tool/runtime downloads | S3 | Reuses provisioned toolchains; identity includes configuration, tool subset, Node overrides, platform, architecture, and the pinned mise binary |
+| `jdx/mise-action`         | tool/runtime downloads | action-managed cache behavior | Reuses provisioned Java/Maven/Node toolchains; mostly action-managed, but a few jobs pass an explicit `cache_key` — see [Toolchain Provisioning (mise)](#toolchain-provisioning-mise) |
 
 ### Cache policies
 
@@ -912,10 +913,10 @@ These are the most important reusable components in the current pipeline.
 | Action | Purpose | Storage behavior |
 | --- | --- | --- |
 | `SonarSource/gh-action_cache` | generated-build caches and artifacts | explicit cache owners; current-run artifacts |
-| `./.github/actions/mise` | provision Java, Maven and Node | S3 tool directory cache; upstream caching disabled |
+| `jdx/mise-action` | provision Java, Maven and Node | existing action-managed caching |
 | `./.github/actions/orchestrator-cache` | Orchestrator distribution cache policy | S3 with existing monthly rolling keys |
 | `./.github/actions/rule-api-cache` | Rule API cache policy | S3 with existing rolling keys |
-| `SonarSource/ci-github-actions/config-npm` | npm and Repox setup | built-in caching disabled, including tool setup |
+| `SonarSource/ci-github-actions/config-npm` | npm and Repox setup | existing `disable-caching` input retained; internal tool setup behavior unchanged |
 | `SonarSource/ci-github-actions/config-maven` | Maven and Repox setup | built-in caching disabled |
 | `SonarSource/ci-github-actions/get-build-number` | stable build number | Git ref counter; one number propagated to consumers |
 | `actions/upload-artifact`, `actions/download-artifact` | ruling snapshots and reports | existing secondary artifact channels |
@@ -934,7 +935,7 @@ maven = "3.9"
 node = "24.11.1"
 ```
 
-The local mise adapter and the unchanged ruling updater mise step pick this up automatically — **no job in `build.yml` passes its own `mise_toml` input.** Passing that input would overwrite the tracked file on the runner (`mise-action` writes it to `mise.toml` in the working directory), which is exactly what jobs used to do before this file existed, each restating the same three versions inline.
+Every `jdx/mise-action` step in `build.yml` picks this up automatically — **no job in `build.yml` passes its own `mise_toml` input.** Passing that input would overwrite the tracked file on the runner (`mise-action` writes it to `mise.toml` in the working directory), which is exactly what jobs used to do before this file existed, each restating the same three versions inline.
 
 ### Installing only a subset of tools
 
@@ -961,15 +962,17 @@ plugin_qa_with_node:
     BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
     MISE_NODE_VERSION: ${{ matrix.node-version }}
   steps:
-    - uses: ./.github/actions/mise
+    - uses: jdx/mise-action@...
       with:
-        version: 2026.10.20
+        cache_key: '{{default}}-{{env.MISE_NODE_VERSION}}'
 ```
 
 Two rules — getting the first one wrong is a silent _correctness_ bug; getting the second one wrong is only a _cache-efficiency_ problem, but both are worth getting right:
 
 1. **Declare the env var at job level, not on the mise-action step.** This one has no safety net — get it wrong and there is no test failure to catch it. `mise-action` puts mise's shim directory on `PATH` for every later step in the job (not just its own). Those shims resolve the tool version at invocation time from whatever's in the environment then. A step-scoped `env:` on the mise-action step only exists while that one step runs, so every subsequent step (npm scripts, the Maven QA run, ...) would silently fall back to `mise.toml`'s default version instead of the matrix leg's.
-2. **Include version overrides in the toolchain cache identity.** The local adapter hashes sorted `MISE_*_VERSION` overrides and `MISE_ENV`, along with configuration, requested tool subset, pinned mise binary, platform, architecture and a 30-day period. Matrix legs requesting different Node versions therefore use different caches; identical toolsets can share an entry. The adapter calls upstream mise with `cache: false` so only S3 restores the tool directory.
+2. **Pass an explicit `cache_key` that includes the env var.** `mise-action`'s default cache key is `{{cache_key_prefix}}-{{platform}}-{{version}}[-{{mise_env}}][-{{install_args_hash}}][-{{bootstrap_hash}}]-{{file_hash}}` (`{{version}}` here is the pinned _mise binary_ version, e.g. `2026.8.14` — not a provisioned tool's version) — `file_hash` is a hash of the mise config files, and nothing in that template reflects a `MISE_<TOOL>_VERSION` override. Since `mise.toml` is now identical across every matrix leg, legs with a _different_ Node version would resolve to the same default key and fight over one shared cache entry unless `cache_key` folds the env var in explicitly (as shown above). Getting this wrong doesn't break the override itself — `mise install` still installs the version `MISE_NODE_VERSION` asks for regardless of what the restored cache contained — it just means wasted downloads and cache churn between legs. Two legs that happen to want the _same_ Node version (e.g. `test_eslint_plugin`'s `eslint-9` and `eslint-8` matrix entries, both on Node 18.18.0) correctly still share one cache entry; that's fine, since they install the identical toolset.
+
+Also note: `install_args_hash` already differentiates jobs with different `install_args` sets (e.g. the `java maven`-only jobs never collide with the full-install jobs), so the explicit `cache_key` above is only needed for the _env-var-override_ case, not for the `install_args`-restriction case.
 
 ### Keeping the JS unit-test skip-cache honest
 
@@ -1057,7 +1060,7 @@ Pull-request QA runs use an isolated Orchestrator home under the runner temporar
 
 ## Updating the preview storage action
 
-The shared storage and npm setup commit pins are owned by `.github/ci-storage.json`.
+The shared storage action commit pin is owned by `.github/ci-storage.json`.
 GitHub requires literal `uses` references, so run `node tools/update-ci-storage.mjs` after changing that file;
 `node tools/update-ci-storage.mjs --check` verifies that all generated references agree.
 The transport reuses the common action's existing cache namespace. Cache and artifact objects keep the bucket's existing 30-day lifecycle.

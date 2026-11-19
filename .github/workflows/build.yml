@@ -113,7 +113,7 @@ jobs:
       contents: read
     steps:
       - *checkout
-      - uses: ./.github/actions/mise
+      - uses: jdx/mise-action@d5574b52816a478f9d4e6529a3f6ff17a8a36785 # v5.2.8
         with:
           version: 2026.10.20
           cache: false
@@ -136,7 +136,7 @@ jobs:
       BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
     steps:
       - *checkout
-      - uses: ./.github/actions/mise
+      - uses: jdx/mise-action@d5574b52816a478f9d4e6529a3f6ff17a8a36785 # v5.2.8
         with:
           version: 2026.10.20
           cache: false
@@ -181,7 +181,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - &npm_cache_mise
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: ./.github/actions/mise
+        uses: jdx/mise-action@d5574b52816a478f9d4e6529a3f6ff17a8a36785 # v5.2.8
         with:
           version: 2026.10.20
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -240,7 +240,7 @@ jobs:
     steps:
       - *checkout
       - &mise
-        uses: ./.github/actions/mise
+        uses: jdx/mise-action@d5574b52816a478f9d4e6529a3f6ff17a8a36785 # v5.2.8
         with:
           version: 2026.10.20
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -581,10 +581,11 @@ jobs:
             node-label: 'min supported'
     steps:
       - *checkout
-      - uses: ./.github/actions/mise
+      - uses: jdx/mise-action@d5574b52816a478f9d4e6529a3f6ff17a8a36785 # v5.2.8
         with:
           version: 2026.10.20
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
+          cache_key: '{{default}}-{{env.MISE_NODE_VERSION}}'
           install_args: node
       - name: Download ESLint plugin tarball
         uses: SonarSource/gh-action_cache@17679ade10f637e3fe34890fadbac3c6717da0eb # S3 CI storage
@@ -646,7 +647,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - if: steps.cache.outputs.cache-hit != 'true'
-        uses: ./.github/actions/mise
+        uses: jdx/mise-action@d5574b52816a478f9d4e6529a3f6ff17a8a36785 # v5.2.8
         with:
           version: 2026.10.20
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -715,7 +716,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - if: steps.cache.outputs.cache-hit != 'true'
-        uses: ./.github/actions/mise
+        uses: jdx/mise-action@d5574b52816a478f9d4e6529a3f6ff17a8a36785 # v5.2.8
         with:
           version: 2026.10.20
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -890,10 +891,11 @@ jobs:
     steps:
       - *checkout
       - &mise_java_matrix_node
-        uses: ./.github/actions/mise
+        uses: jdx/mise-action@d5574b52816a478f9d4e6529a3f6ff17a8a36785 # v5.2.8
         with:
           version: 2026.10.20
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
+          cache_key: '{{default}}-{{env.MISE_NODE_VERSION}}'
       - *maven_cache_restore
       - &download_sonarjs_m2
         name: Download SonarJS artifacts
@@ -986,7 +988,7 @@ jobs:
       - *checkout
       - &mise_java_only
         name: Setup Java and Maven
-        uses: ./.github/actions/mise
+        uses: jdx/mise-action@d5574b52816a478f9d4e6529a3f6ff17a8a36785 # v5.2.8
         with:
           version: 2026.10.20
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -1112,7 +1114,7 @@ jobs:
           chown -R sonar:sonar /github/home
       - &alpine_setup_maven
         name: Setup Maven
-        uses: ./.github/actions/mise
+        uses: jdx/mise-action@d5574b52816a478f9d4e6529a3f6ff17a8a36785 # v5.2.8
         with:
           version: 2026.10.20
           cache_save: true
