@@ -870,10 +870,10 @@ Repox is the repository manager behind both npm and Maven flows here.
 
 #### npm
 
-`populate_npm_cache` runs `config-npm` with `repox-url: https://repox-internal.dev.sonar.build`. It:
+`populate_npm_cache` runs `config-npm`, which defaults to the production Edge `https://repox.sonar.build` on self-hosted runners. It:
 
-- fetches a `private-reader` token issued by the Edge (`development/artifactory-edge-dev` on `https://vault.dev.sonar.build`)
-- points `npm` at `https://repox-internal.dev.sonar.build/artifactory/api/npm/npm`
+- fetches a `private-reader` token issued by the Edge (`development/artifactory-edge-prod` on `https://vault.sonar.build`)
+- points `npm` at `https://repox.sonar.build/artifactory/api/npm/npm`
 - fetches npmjs lockfile tarballs through Edge at install time. The workflow sets `NPM_CONFIG_REPLACE_REGISTRY_HOST=npmjs`, so npm replaces the public registry host with the configured Edge registry on Linux and Windows.
 
 The committed root `package-lock.json` uses `https://registry.npmjs.org/` for public dependencies. Keep new entries on npmjs, including when resolving lockfile conflicts. `.npmrc` keeps the public npm defaults, and both the npm configuration and npm datasource overrides in `.github/renovate.json` use npmjs. Public source installations therefore need no SonarSource credentials or internal registry access.
@@ -886,9 +886,9 @@ The ESLint plugin release runs on a GitHub-hosted runner. `jfrog rt npm-config` 
 
 #### Maven
 
-`config-maven` runs with `repox-url: https://repox-internal.dev.sonar.build`. It:
+`config-maven` defaults to the production Edge `https://repox.sonar.build` on self-hosted runners. It:
 
-- fetches a `private-reader` token issued by the Edge (`development/artifactory-edge-dev` on `https://vault.dev.sonar.build`)
+- fetches a `private-reader` token issued by the Edge (`development/artifactory-edge-prod` on `https://vault.sonar.build`)
 - writes Maven `settings.xml`
 - sets `ARTIFACTORY_URL` to the Edge and `SONARSOURCE_REPOSITORY_URL=$ARTIFACTORY_URL/sonarsource-qa`
 - exports authentication environment variables for Maven; plugin, fast, and ruling QA read a separate production Orchestrator configuration
@@ -1102,6 +1102,6 @@ And for caches specifically:
 
 ## Orchestrator production downloads
 
-Plugin, fast, and ruling QA use Orchestrator 6.4.4.4797 and a separate private-reader token from `development/artifactory-edge-prod` on production Vault. A configuration file with restricted permissions under the runner temporary directory selects `https://repox-internal.sonar.build/artifactory`. Only its URI is passed to test JVMs, keeping the reader token out of XML report properties. Maven and npm dependency configuration retains its existing endpoints and tokens; publication and promotion continue using SaaS Repox.
+Plugin, fast, and ruling QA use Orchestrator 6.4.4.4797 and a separate private-reader token from `development/artifactory-edge-prod` on production Vault. A configuration file with restricted permissions under the runner temporary directory selects `https://repox.sonar.build/artifactory`. Only its URI is passed to test JVMs, keeping the reader token out of XML report properties. Maven and npm dependency configuration use the same production Edge via `config-maven` and `config-npm`; publication and promotion continue using SaaS Repox.
 
 Pull-request QA runs use an isolated Orchestrator home under the runner temporary directory so private distribution downloads and version-alias resolution exercise production authentication without restored distribution caches. Default-branch normal QA distribution caches use `orchestrator-production` keys, and Fast QA uses `orchestrator-production-fast` keys. The shared `orchestrator-cache` action selects the home for all consumers; nightly DEV jobs disable caching and use a temporary home.
