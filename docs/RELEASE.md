@@ -92,7 +92,7 @@ release job finishes, SonarJS runs its own reusable workflow:
 
 1. Check out the repository.
 2. Update the root `pom.xml` `<revision>` to `${version}-SNAPSHOT`.
-3. Open a PR with `peter-evans/create-pull-request@v8` titled
+3. Open a PR with `step-security/create-pull-request@50c103da2b9ca12cd5bc013fc6931051a5aa872b # v8.1.1` titled
    `Prepare next development iteration`.
 
 ## SQAA Integration

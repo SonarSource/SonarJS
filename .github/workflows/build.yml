@@ -472,7 +472,7 @@ jobs:
           name: generated-licenses-${{ github.sha }}
           path: .
       - name: Open or update generated files refresh PR
-        uses: peter-evans/create-pull-request@3ffccacd46053766916f087ce41d627c0b8cf2d1 # v8.1.3
+        uses: step-security/create-pull-request@50c103da2b9ca12cd5bc013fc6931051a5aa872b # v8.1.1
         with:
           author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
           commit-message: Update generated files
