@@ -134,6 +134,7 @@
                     <artifactItem>
                       <groupId>${project.groupId}</groupId>
                       <artifactId>sonar-javascript-plugin-zip</artifactId>
+                      <version>${project.version}</version>
                       <type>zip</type>
                       <overWrite>true</overWrite>
                       <outputDirectory>${project.build.directory}/sonar-javascript-plugin</outputDirectory>

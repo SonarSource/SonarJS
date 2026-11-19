@@ -18,6 +18,11 @@
     per-platform Node.js runtime binaries under resources/, fetched on demand at analysis time.
   </description>
 
+  <properties>
+    <!-- No source to analyze in this module, which only packages the ZIP. -->
+    <sonar.skip>true</sonar.skip>
+  </properties>
+
   <dependencies>
     <!--
       Exactly one dependency of type sonar-plugin is required: the ZIP wraps its JAR. Being a separate module,
