@@ -40,15 +40,32 @@ describe('S5332 shared URL exclusions', () => {
     });
   }
 
-  it('limits the single-label exception to valid Java URIs', () => {
+  // Local coverage until ACOMMONS-257 is included in the published shared corpus.
+  it('handles empty user information before the hostname', () => {
+    assert.equal(isSafeWithoutTls('http://@localhost/api'), true);
+    assert.equal(isSafeWithoutTls('ftp://@localhost/file'), true);
+    assert.equal(isSafeWithoutTls('http://@public.invalid/api'), false);
+  });
+
+  it('allows brackets in single-label URL paths, queries and fragments', () => {
+    assert.equal(isSafeWithoutTls('http://my-service/a[0]'), true);
+    assert.equal(isSafeWithoutTls('http://my-service:8080/a[0]'), true);
+    assert.equal(isSafeWithoutTls('ftp://user@my-service/a[0]'), true);
+    assert.equal(isSafeWithoutTls('http://@my-service/a[0]'), true);
+    assert.equal(isSafeWithoutTls('http://my-service/?a[0]=1'), true);
+    assert.equal(isSafeWithoutTls('http://my-service/#a[0]'), true);
+  });
+
+  it('limits the single-label exception to valid Java URI authorities', () => {
     assert.equal(isSafeWithoutTls('http://my-service:65536/api'), true);
     assert.equal(isSafeWithoutTls('http://my-service:2147483648/api'), false);
     assert.equal(isSafeWithoutTls('http://my-service:<port>/api'), false);
     assert.equal(isSafeWithoutTls('http://my_service/api'), false);
-    assert.equal(isSafeWithoutTls('http://my-service/a b'), false);
-    assert.equal(isSafeWithoutTls('http://my-service/%xy'), false);
+    assert.equal(isSafeWithoutTls('http://my-service evil.com/a[0]'), false);
+    assert.equal(isSafeWithoutTls('http://my-service/a b'), true);
+    assert.equal(isSafeWithoutTls('http://my-service/%xy'), true);
     assert.equal(isSafeWithoutTls('http://user[name]@my-service/api'), false);
-    assert.equal(isSafeWithoutTls('http://my-service/#a#b'), false);
+    assert.equal(isSafeWithoutTls('http://my-service/#a#b'), true);
   });
 
   it('strips surrounding whitespace as Java does', () => {

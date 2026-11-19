@@ -29,7 +29,7 @@ const SAFE_URL_PREFIXES = exclusions.safeUrlPrefixes.map(prefix =>
 // Extract the raw authority, skipping user information, even when a URL contains placeholders.
 // The explicit whitespace characters match Java's default \s.
 const CLEARTEXT_AUTHORITY = new RegExp(
-  String.raw`^(?:${CLEARTEXT_PROTOCOLS.map(protocol => protocol.replace('://', '')).join('|')}):\/\/(?:[^@\t\n\v\f\r /?#]+@)?([^\t\n\v\f\r /?#]+)`,
+  String.raw`^(?:${CLEARTEXT_PROTOCOLS.map(protocol => protocol.replace('://', '')).join('|')}):\/\/(?:[^@\t\n\v\f\r /?#]*@)?([^\t\n\v\f\r /?#]+)`,
   'i',
 );
 
@@ -59,16 +59,15 @@ export function isSafeWithoutTls(value: string): boolean {
     return true;
   }
 
-  // Commons also exempts single-label hostnames, but only in valid URIs.
-  // Check the raw hostname, port and URI syntax without normalizing numeric IPs or paths.
-  const singleLabel = /^([a-z\d](?:[a-z\d-]*[a-z\d])?)(?::(\d*))?$/i.exec(authority);
+  // Commons validates the complete authority separately: malformed paths do not disable this exemption.
+  const rawAuthority = stripped.split('://', 2)[1].split(/[/?#]/, 1)[0];
+  const singleLabel = /^(?:[^@]*@)?([a-z\d](?:[a-z\d-]*[a-z\d])?)(?::(\d*))?$/i.exec(rawAuthority);
   return (
     singleLabel !== null &&
     !/^(?:\d+|0x[\da-f]+)$/i.test(singleLabel[1]) &&
     Number(singleLabel[2] ?? 0) <= JAVA_MAX_INTEGER &&
-    !/[\p{Cc}\p{Z}<>"\\^`{|}]|%(?![\da-f]{2})/iu.test(stripped) &&
-    !/[[\]]/.test(match[0]) &&
-    !/#.*#/.test(stripped)
+    !/[\p{Cc}\p{Z}<>"\\^`{|}]|%(?![\da-f]{2})/iu.test(rawAuthority) &&
+    !/[[\]]/.test(rawAuthority)
   );
 }
 
