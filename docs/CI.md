@@ -442,7 +442,11 @@ publication. Consumers restore that directory and copy its contents into their
 own Maven repository. `enableCrossOsArchive: true` supports Linux-to-Windows
 handoff without depending on different runner home paths. Producer and consumer
 path inputs must match. Minimal Ubuntu installs `jq` and `zstd`; Alpine also
-installs GNU tar for compatible cache archives.
+installs GNU tar for compatible cache archives. Windows consumers download a
+checksum-pinned zstd binary and add it only to the SonarJS restore step's PATH.
+The shared cache action includes compression in its cache version: a Windows
+gzip lookup cannot find the Linux zstd entry, even with cross-OS archives enabled.
+Keeping this PATH local preserves external actions' compression and caching.
 
 The S3 target archive includes complete target directories, accepting some extra
 report files to avoid custom packaging. These are ordinary caches: uploads happen in post-job steps, upload failures can

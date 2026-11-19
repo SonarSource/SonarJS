@@ -867,10 +867,32 @@ jobs:
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           cache_key: '{{default}}-{{env.MISE_NODE_VERSION}}'
       - *maven_cache_restore
+      - &prepare_sonarjs_cache_tools
+        name: Prepare SonarJS cross-OS cache tools
+        id: sonarjs_cache_tools
+        if: github.event_name != 'merge_group'
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = 'Windows' ]; then
+            tools="$(cygpath -u "$RUNNER_TEMP")/sonarjs-cache-tools"
+            mkdir -p "$tools"
+            curl -fsSL -o "$tools/zstd.zip" https://github.com/meta/zstd/releases/download/v1.5.7/zstd-v1.5.7-win64.zip
+            echo "acb4e8111511749dc7a3ebedca9b04190e37a17afeb73f55d4425dbf0b90fad9  $tools/zstd.zip" | sha256sum --check --status
+            unzip -q -o "$tools/zstd.zip" -d "$tools"
+            zstd_dir="$tools/zstd-v1.5.7-win64"
+            "$zstd_dir/zstd.exe" --version
+            echo "path=$(cygpath -wp "$zstd_dir:$PATH")" >> "$GITHUB_OUTPUT"
+          else
+            zstd --version
+            echo "path=$PATH" >> "$GITHUB_OUTPUT"
+          fi
       - &restore_sonarjs_m2
         name: Restore SonarJS artifacts from S3
         if: github.event_name != 'merge_group'
         uses: SonarSource/gh-action_cache@10fff0296bfc17164fb1ed6473f7238df3430ebf # v1.7.5
+        # Scope zstd to this cache call; external actions keep their original PATH.
+        env:
+          PATH: ${{ steps.sonarjs_cache_tools.outputs.path }}
         with:
           backend: s3
           import-github-cache: false
@@ -947,6 +969,7 @@ jobs:
       - *checkout
       - *mise_java_matrix_node
       - *maven_cache_restore
+      - *prepare_sonarjs_cache_tools
       - *restore_sonarjs_m2
       - *install_sonarjs_m2
       - *download_sonarjs_m2
@@ -983,6 +1006,7 @@ jobs:
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           install_args: java maven
       - *maven_cache_restore
+      - *prepare_sonarjs_cache_tools
       - *restore_sonarjs_m2
       - *install_sonarjs_m2
       - *download_sonarjs_m2
@@ -1026,6 +1050,7 @@ jobs:
       - *checkout
       - *mise_java_only
       - *maven_cache_restore
+      - *prepare_sonarjs_cache_tools
       - *restore_sonarjs_m2
       - *install_sonarjs_m2
       - *download_sonarjs_m2
@@ -1067,6 +1092,7 @@ jobs:
       - *checkout
       - *mise_java_only
       - *maven_cache_restore
+      - *prepare_sonarjs_cache_tools
       - *restore_sonarjs_m2
       - *install_sonarjs_m2
       - *download_sonarjs_m2
@@ -1120,6 +1146,7 @@ jobs:
           cache_save: true
           install_args: maven
       - *maven_cache_restore
+      - *prepare_sonarjs_cache_tools
       - *restore_sonarjs_m2
       - *install_sonarjs_m2
       - *download_sonarjs_m2
@@ -1156,6 +1183,7 @@ jobs:
       - *checkout
       - *mise_java_only
       - *maven_cache_restore
+      - *prepare_sonarjs_cache_tools
       - *restore_sonarjs_m2
       - *install_sonarjs_m2
       - *download_sonarjs_m2
@@ -1188,6 +1216,7 @@ jobs:
       - *checkout
       - *mise_java_only
       - *maven_cache_restore
+      - *prepare_sonarjs_cache_tools
       - *restore_sonarjs_m2
       - *install_sonarjs_m2
       - *download_sonarjs_m2
@@ -1223,6 +1252,7 @@ jobs:
       - *alpine_install_deps
       - *alpine_setup_maven
       - *maven_cache_restore
+      - *prepare_sonarjs_cache_tools
       - *restore_sonarjs_m2
       - *install_sonarjs_m2
       - *download_sonarjs_m2
@@ -1260,6 +1290,7 @@ jobs:
       - *checkout
       - *mise
       - *maven_cache_restore
+      - *prepare_sonarjs_cache_tools
       - *restore_sonarjs_m2
       - *install_sonarjs_m2
       - *download_sonarjs_m2
@@ -1298,6 +1329,7 @@ jobs:
       - *checkout
       - *mise
       - *maven_cache_restore
+      - *prepare_sonarjs_cache_tools
       - *restore_sonarjs_m2
       - *install_sonarjs_m2
       - *download_sonarjs_m2
@@ -1329,6 +1361,7 @@ jobs:
       - *checkout
       - *mise
       - *maven_cache_restore
+      - *prepare_sonarjs_cache_tools
       - *restore_sonarjs_m2
       - *install_sonarjs_m2
       - *download_sonarjs_m2
@@ -1510,6 +1543,7 @@ jobs:
       - *checkout_with_submodules
       - *mise
       - *maven_cache_restore
+      - *prepare_sonarjs_cache_tools
       - *restore_sonarjs_m2
       - *install_sonarjs_m2
       - *download_sonarjs_m2
