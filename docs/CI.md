@@ -268,8 +268,9 @@ set `SONARJS_ARTIFACT` to `multi` (or `linux-x64-musl` on Alpine) to select the 
 
 ## Optional minimal Ubuntu verification
 
-`minimal_ubuntu_analyzer_check` runs on each non-fork pull request after the final SonarJS
-artifacts are built. Like the other artifact QA jobs, it requires internal build credentials,
+`minimal_ubuntu_analyzer_check` runs on non-fork pull requests and all non-PR workflow runs
+(pushes, merge queues, nightly schedules, and manual runs) after the final SonarJS artifacts
+are built. Like the other artifact QA jobs, it requires internal build credentials,
 so fork pull requests skip it. It uses `sonar-m-docker` with a digest-pinned `ubuntu:24.04`
 container, installs only bootstrap tools and Java/Maven, and verifies that no system Node is
 available before analysis. The analysis checks compatibility with the minimal OS environment
@@ -305,7 +306,7 @@ The existing full/fast QA jobs keep their original runners and behavior.
 | `plugin_qa_fast_with_node`           | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
 | `plugin_qa_without_node`             | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
 | `plugin_qa_without_node_dev`         | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | nightly only                                                          |
-| `minimal_ubuntu_analyzer_check`      | `sonar-m-docker`           | `setup`, `get_build_number`, `build`                                             | non-fork PRs; non-blocking                                             |
+| `minimal_ubuntu_analyzer_check`      | `sonar-m-docker`           | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs; non-blocking                                             |
 | `plugin_qa_without_node_alpine`      | `warp-custom-ubuntu-24-04` | `setup`, `get_build_number`, `build`                                             | nightly only                                                          |
 | `plugin_qa_fast_without_node`        | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
 | `plugin_qa_fast_without_node_dev`    | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | nightly only                                                          |
