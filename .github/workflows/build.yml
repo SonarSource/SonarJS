@@ -171,21 +171,21 @@ jobs:
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
       - &npm_cache_checkout
         name: Checkout source code
-        if: steps.cache.outputs.cache-hit != 'true'
+        if: &npm_cache_miss steps.cache.outputs.cache-hit != 'true' || hashFiles('node_modules/.package-lock.json') == ''
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - &npm_cache_mise
-        if: steps.cache.outputs.cache-hit != 'true'
+        if: *npm_cache_miss
         uses: jdx/mise-action@d5574b52816a478f9d4e6529a3f6ff17a8a36785 # v5.2.8
         with:
           version: 2026.10.20
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
-      - if: steps.cache.outputs.cache-hit != 'true'
+      - if: *npm_cache_miss
         uses: SonarSource/ci-github-actions/config-npm@v2
         with:
           artifactory-reader-role: private-reader
           disable-caching: 'true'
       - &npm_cache_install
-        if: steps.cache.outputs.cache-hit != 'true'
+        if: *npm_cache_miss
         name: Install NPM dependencies
         run: npm ci
 
@@ -200,7 +200,7 @@ jobs:
       - *npm_cache_restore
       - *npm_cache_checkout
       - *npm_cache_mise
-      - if: steps.cache.outputs.cache-hit != 'true'
+      - if: *npm_cache_miss
         id: secrets
         name: Access vault secrets
         uses: SonarSource/vault-action-wrapper@v3
@@ -208,7 +208,7 @@ jobs:
           url: https://vault.sonar.build
           secrets: |
             development/artifactory-edge-prod/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
-      - if: steps.cache.outputs.cache-hit != 'true'
+      - if: *npm_cache_miss
         name: Configure npm registry
         shell: bash
         env:
@@ -596,6 +596,8 @@ jobs:
       - *mise
       - *npm_cache
       - *download_rspec_rule_data
+      - name: Test CI cache recovery conditions
+        run: node --test .github/tests/cache-restore.test.mjs
       - name: Run knip
         run: |
           npm run bbf
@@ -616,15 +618,15 @@ jobs:
           path: coverage/js
           key: js-coverage-${{ runner.os }}-${{ needs.setup.outputs.js-files-hash }}-${{ needs.prepare_rspec_rule_data.outputs.test-input-hash }}
       - name: Checkout source code
-        if: steps.cache.outputs.cache-hit != 'true'
+        if: &js_coverage_cache_miss steps.cache.outputs.cache-hit != 'true' || hashFiles('coverage/js/lcov.info') == '' || hashFiles('coverage/js/test-report.xml') == ''
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - if: steps.cache.outputs.cache-hit != 'true'
+      - if: *js_coverage_cache_miss
         uses: jdx/mise-action@d5574b52816a478f9d4e6529a3f6ff17a8a36785 # v5.2.8
         with:
           version: 2026.10.20
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
       - name: Restore NPM dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
+        if: *js_coverage_cache_miss
         uses: SonarSource/gh-action_cache@10fff0296bfc17164fb1ed6473f7238df3430ebf # v1.7.5
         with:
           backend: ${{ github.event_name == 'merge_group' && 'github' || 's3' }}
@@ -632,13 +634,13 @@ jobs:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
           fail-on-cache-miss: true
-      - if: steps.cache.outputs.cache-hit != 'true'
+      - if: *js_coverage_cache_miss
         name: Download prepared RSPEC rule data
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: rspec-rule-data-${{ github.sha }}
           path: sonar-plugin
-      - if: steps.cache.outputs.cache-hit != 'true'
+      - if: *js_coverage_cache_miss
         name: Run JS tests with coverage
         run: |
           npm run generate-meta
@@ -678,15 +680,15 @@ jobs:
           path: .js-test-marker-win
           key: js-test-win-${{ runner.os }}-${{ needs.setup.outputs.js-files-hash }}-${{ needs.prepare_rspec_rule_data.outputs.test-input-hash }}
       - name: Checkout source code
-        if: steps.cache.outputs.cache-hit != 'true'
+        if: &js_marker_cache_miss steps.cache.outputs.cache-hit != 'true' || hashFiles('.js-test-marker-win/success') == ''
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - if: steps.cache.outputs.cache-hit != 'true'
+      - if: *js_marker_cache_miss
         uses: jdx/mise-action@d5574b52816a478f9d4e6529a3f6ff17a8a36785 # v5.2.8
         with:
           version: 2026.10.20
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
       - name: Restore NPM dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
+        if: *js_marker_cache_miss
         uses: SonarSource/gh-action_cache@10fff0296bfc17164fb1ed6473f7238df3430ebf # v1.7.5
         with:
           backend: ${{ github.event_name == 'merge_group' && 'github' || 's3' }}
@@ -694,13 +696,13 @@ jobs:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
           fail-on-cache-miss: true
-      - if: steps.cache.outputs.cache-hit != 'true'
+      - if: *js_marker_cache_miss
         name: Download prepared RSPEC rule data
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: rspec-rule-data-${{ github.sha }}
           path: sonar-plugin
-      - if: steps.cache.outputs.cache-hit != 'true'
+      - if: *js_marker_cache_miss
         name: Run JS tests on Windows
         shell: bash
         run: |
