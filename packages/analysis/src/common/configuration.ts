@@ -34,8 +34,8 @@ import {
 } from '../../../shared/src/helpers/sanitize.js';
 import { JAVASCRIPT_CODE_FILE_EXTENSIONS, TYPESCRIPT_CODE_FILE_EXTENSIONS } from './file-kinds.js';
 
-/** Largest dependency inference depth representable by the protobuf int32 field. */
-export const MAX_NODE_MODULE_JS_DEPTH = 0x7fffffff;
+/** Operational ceiling for hook-requested JavaScript dependency inference depth. */
+export const MAX_NODE_MODULE_JS_DEPTH = 9;
 
 /**
  * A discriminator between JavaScript and TypeScript languages. This is used
@@ -334,7 +334,9 @@ function validateMaxNodeModuleJsDepth(depth: unknown): number | undefined {
     depth < 0 ||
     depth > MAX_NODE_MODULE_JS_DEPTH
   ) {
-    throw new Error('maxNodeModuleJsDepth must be a non-negative int32');
+    throw new Error(
+      `maxNodeModuleJsDepth must be an integer between 0 and ${MAX_NODE_MODULE_JS_DEPTH} inclusive`,
+    );
   }
   return depth;
 }

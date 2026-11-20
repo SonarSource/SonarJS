@@ -67,7 +67,7 @@ function stringList(values: string[]) {
 }
 
 describe('normalizeAnalyzeProjectRequest', () => {
-  for (const maxNodeModuleJsDepth of [undefined, 0, 4, 0x7fffffff]) {
+  for (const maxNodeModuleJsDepth of [undefined, 0, 1, 4, 8, 9]) {
     it(`preserves optional analysis node_modules depth ${maxNodeModuleJsDepth} through protobuf`, async () => {
       const baseDir = await createBaseDir();
       const { AnalyzeProjectRequest } = sonarjs.analyzeproject.v1;
@@ -97,7 +97,18 @@ describe('normalizeAnalyzeProjectRequest', () => {
     });
   }
 
-  for (const maxNodeModuleJsDepth of ['4', -1, 1.5, NaN, Infinity, -Infinity, 0x80000000]) {
+  for (const maxNodeModuleJsDepth of [
+    '4',
+    -1,
+    1.5,
+    9.5,
+    10,
+    NaN,
+    Infinity,
+    -Infinity,
+    0x7fffffff,
+    0x80000000,
+  ]) {
     it(`rejects invalid analysis node_modules depth ${maxNodeModuleJsDepth}`, async () => {
       const baseDir = await createBaseDir();
       const normalize = () =>
@@ -107,7 +118,23 @@ describe('normalizeAnalyzeProjectRequest', () => {
         });
       await expect(normalize()).rejects.toThrow(InvalidAnalyzeProjectRequestError);
       await expect(normalize()).rejects.toThrow(
-        'configuration.max_node_module_js_depth must be a non-negative int32',
+        'configuration.max_node_module_js_depth must be an integer between 0 and 9 inclusive',
+      );
+    });
+  }
+
+  for (const maxNodeModuleJsDepth of [10, 0x7fffffff]) {
+    it(`rejects excessive depth ${maxNodeModuleJsDepth} after protobuf serialization`, async () => {
+      const baseDir = await createBaseDir();
+      const { AnalyzeProjectRequest } = sonarjs.analyzeproject.v1;
+      const request = AnalyzeProjectRequest.decode(
+        AnalyzeProjectRequest.encode({
+          configuration: { baseDir, canAccessFileSystem: false, maxNodeModuleJsDepth },
+          files: {},
+        }).finish(),
+      );
+      await expect(normalizeAnalyzeProjectRequest(request)).rejects.toThrow(
+        InvalidAnalyzeProjectRequestError,
       );
     });
   }

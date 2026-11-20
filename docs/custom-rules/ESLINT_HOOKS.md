@@ -28,6 +28,9 @@ public int maxNodeModuleJsDepth() {
 }
 ```
 
+Accepted requests are integers from `0` through `9` inclusive; out-of-range requests are rejected.
+The ceiling limits hook-requested dependency traversal, but is not an execution-time guarantee and does
+not restrict values in the project's own tsconfig when no override is requested.
 The default is `0` (no override). SonarJS aggregates the largest positive request among enabled
 checks/hooks that can run in the current analysis in Java, then sends it once in the analysis
 `ProjectConfiguration`. `DEFAULT` hooks also contribute during `SKIP_UNCHANGED` analyses because they

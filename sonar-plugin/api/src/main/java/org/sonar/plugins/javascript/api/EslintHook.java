@@ -54,6 +54,7 @@ public interface EslintHook {
 
   /**
    * Requests JavaScript dependency inference to this depth in node_modules.
+   * Requests must be between 0 and 9 inclusive to limit dependency traversal cost.
    * A positive value overrides the project setting while this hook is enabled and can run on files
    * in the analysis. DEFAULT hooks also contribute in SKIP_UNCHANGED analyses, where they run on
    * changed and added files. Zero leaves the project setting unchanged. Multiple requests use the

@@ -58,7 +58,7 @@ describe('analysis-level node_modules inference depth', () => {
     const tsconfig = normalizeToAbsolutePath(path.join(process.cwd(), 'depth-test.json'));
     const original = createProgramOptions(
       tsconfig,
-      '{"compilerOptions":{"maxNodeModuleJsDepth":9},"files":["depth.js"]}',
+      '{"compilerOptions":{"maxNodeModuleJsDepth":12},"files":["depth.js"]}',
       true,
     );
     const enabled = withNodeModuleJsDepth(original, 4);
@@ -66,11 +66,11 @@ describe('analysis-level node_modules inference depth', () => {
     expect(enabled.options).not.toBe(original.options);
     const cached = createProgramOptions(
       tsconfig,
-      '{"compilerOptions":{"maxNodeModuleJsDepth":9},"files":["depth.js"]}',
+      '{"compilerOptions":{"maxNodeModuleJsDepth":12},"files":["depth.js"]}',
       true,
     );
     expect(cached).toBe(original);
-    expect(withNodeModuleJsDepth(cached, undefined).options.maxNodeModuleJsDepth).toBe(9);
+    expect(withNodeModuleJsDepth(cached, undefined).options.maxNodeModuleJsDepth).toBe(12);
     expect(
       withNodeModuleJsDepth(createProgramOptionsFromJson({}, [], process.cwd()), undefined).options
         .maxNodeModuleJsDepth,
@@ -113,7 +113,7 @@ describe('analysis-level node_modules inference depth', () => {
     'restored-merged',
     'sonarlint-configured',
   ] as const) {
-    for (const maxNodeModuleJsDepth of [undefined, 0, 4]) {
+    for (const maxNodeModuleJsDepth of [undefined, 0, 4, 9]) {
       it(`${scenario}: applies analysis depth ${maxNodeModuleJsDepth}`, async context => {
         const baseDir = normalizeToAbsolutePath(
           fs.mkdtempSync(path.join(os.tmpdir(), 'hook-depth-')),

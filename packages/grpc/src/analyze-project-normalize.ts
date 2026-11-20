@@ -188,7 +188,7 @@ function normalizeMaxNodeModuleJsDepth(depth: number | null | undefined) {
   }
   if (!Number.isInteger(depth) || depth < 0 || depth > MAX_NODE_MODULE_JS_DEPTH) {
     throw new InvalidAnalyzeProjectRequestError(
-      'configuration.max_node_module_js_depth must be a non-negative int32',
+      `configuration.max_node_module_js_depth must be an integer between 0 and ${MAX_NODE_MODULE_JS_DEPTH} inclusive`,
     );
   }
   return depth;

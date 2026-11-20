@@ -76,6 +76,7 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 public class JsTsChecks {
 
   private static final Logger LOG = LoggerFactory.getLogger(JsTsChecks.class);
+  private static final int MAX_NODE_MODULE_JS_DEPTH = 9;
 
   /**
    * SonarQube-provided component that knows which rules are active in the quality profile.
@@ -372,8 +373,12 @@ public class JsTsChecks {
       )
       .mapToInt(hook -> {
         int depth = hook.maxNodeModuleJsDepth();
-        if (depth < 0) {
-          throw new IllegalArgumentException("maxNodeModuleJsDepth must be non-negative");
+        if (depth < 0 || depth > MAX_NODE_MODULE_JS_DEPTH) {
+          throw new IllegalArgumentException(
+            "maxNodeModuleJsDepth must be an integer between 0 and " +
+              MAX_NODE_MODULE_JS_DEPTH +
+              " inclusive"
+          );
         }
         return depth;
       })

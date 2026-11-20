@@ -150,15 +150,27 @@ class JsTsChecksTest {
   }
 
   @Test
-  void should_accept_the_largest_int32_dependency_depth() {
+  void should_accept_the_maximum_dependency_depth() {
     var hook = new TestEslintHook();
-    hook.depth = Integer.MAX_VALUE;
+    hook.depth = 9;
     var checks = new JsTsChecks(checkFactory("repo", "customcheck"), new EslintHookRegistrar[] {
       hook,
     });
-    assertThat(checks.requestedMaxNodeModuleJsDepth(AnalysisMode.DEFAULT)).isEqualTo(
-      Integer.MAX_VALUE
-    );
+    assertThat(checks.requestedMaxNodeModuleJsDepth(AnalysisMode.DEFAULT)).isEqualTo(9);
+  }
+
+  @Test
+  void should_reject_excessive_dependency_depth_requests() {
+    for (int depth : new int[] { 10, Integer.MAX_VALUE }) {
+      var hook = new TestEslintHook();
+      hook.depth = depth;
+      var checks = new JsTsChecks(checkFactory("repo", "customcheck"), new EslintHookRegistrar[] {
+        hook,
+      });
+      assertThatThrownBy(() -> checks.requestedMaxNodeModuleJsDepth(AnalysisMode.DEFAULT))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("maxNodeModuleJsDepth must be an integer between 0 and 9 inclusive");
+    }
   }
 
   @Test
@@ -170,7 +182,7 @@ class JsTsChecksTest {
     });
     assertThatThrownBy(() -> checks.requestedMaxNodeModuleJsDepth(AnalysisMode.DEFAULT))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("maxNodeModuleJsDepth must be non-negative");
+      .hasMessage("maxNodeModuleJsDepth must be an integer between 0 and 9 inclusive");
   }
 
   @Test
