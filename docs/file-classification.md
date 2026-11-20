@@ -125,6 +125,10 @@ that selected set. This preserves all applicability filters and quality profile 
 `/* eslint no-var: "error" */` and `/* eslint sonarjs/S3504: "error" */` cannot reactivate S3504
 on vendor files.
 
+Rules added internally only to compute metrics retain their internal parameters, including issue
+suppression. Inline directives can still disable these rules, but cannot change their parameters
+to enable issue reporting.
+
 Shared filename classifiers live in `packages/analysis/src/common/`, outside the rule helpers.
 Generated-source facts come from the central generated-source subsystem. The linter owns their
 use for rule selection. Rules must not import or reimplement this classification logic.

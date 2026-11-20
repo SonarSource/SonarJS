@@ -117,6 +117,7 @@ function getRuleId(ruleId: string | null) {
 export function createOptions(
   filename: NormalizedAbsolutePath,
   activeRules: Linter.RulesRecord,
+  rulesForIssues: Linter.RulesRecord,
 ): Linter.LintOptions & {
   getRule: (ruleId: string) => Rule.RuleModule | undefined;
   patchDirectives: (disableDirectives: Directive[]) => void;
@@ -190,6 +191,16 @@ export function createOptions(
       for (const ruleId of Object.keys(patchedOptions)) {
         if (!Object.hasOwn(activeRules, ruleId)) {
           delete patchedOptions[ruleId];
+        } else if (!Object.hasOwn(rulesForIssues, ruleId)) {
+          // Preserve internal options for metrics-only rules, including issue suppression.
+          // Inline severity changes may still disable the rule as before.
+          const options = patchedOptions[ruleId];
+          const severity = Array.isArray(options) ? options[0] : options;
+          const activeOptions = activeRules[ruleId];
+          patchedOptions[ruleId] = [
+            severity,
+            ...(Array.isArray(activeOptions) ? activeOptions.slice(1) : []),
+          ];
         }
       }
       config.rules = patchedOptions;
