@@ -1207,6 +1207,46 @@ describe('SonarQube project analysis', () => {
     expect(result.files[normalizeToAbsolutePath(yamlFile)]).toBeDefined();
   });
 
+  it('discovers and analyzes custom stylesheet dialects with metrics and CSS-only rules', async () => {
+    const baseDir = fs.mkdtempSync(path.join(os.tmpdir(), 'custom-css-dialects-'));
+    try {
+      const files = {
+        'plain.txt': 'a { color: #ggg; }\n@import "other";',
+        'scss.custom-scss': '$name: foo; .#{$name} { color: #ggg; }',
+        'sass.custom-sass': 'a\n  color: #ggg\n  background: blue',
+        'less.custom-less': '.mixin(@a; @b) { color: #ggg; }',
+      };
+      for (const [file, code] of Object.entries(files))
+        fs.writeFileSync(path.join(baseDir, file), code);
+      const configuration = await initForTest({
+        baseDir,
+        cssSuffixes: ['.txt'],
+        scssSuffixes: ['.custom-scss'],
+        sassSuffixes: ['.custom-sass'],
+        lessSuffixes: ['.custom-less'],
+      });
+      const cssRules = ['color-no-invalid-hex', 'no-invalid-position-at-import-rule'].map(key => ({
+        key,
+        configurations: [],
+      }));
+      const result = await analyzeProject({ rules: [], cssRules, bundles: [] }, configuration);
+      expect(Object.keys(result.files)).toHaveLength(4);
+      for (const file of Object.keys(files)) {
+        const output = result.files[normalizeToAbsolutePath(path.join(baseDir, file))];
+        assert(output && !('error' in output) && 'metrics' in output && 'highlights' in output);
+        expect(output.metrics?.ncloc?.length).toBeGreaterThan(0);
+        expect(output.highlights?.length).toBeGreaterThan(0);
+        expect(output.issues.map(issue => issue.ruleId).sort()).toEqual(
+          file === 'plain.txt'
+            ? ['color-no-invalid-hex', 'no-invalid-position-at-import-rule']
+            : ['color-no-invalid-hex'],
+        );
+      }
+    } finally {
+      fs.rmSync(baseDir, { recursive: true, force: true });
+    }
+  });
+
   it('should route CSS files to CSS analyzer and return issues', async () => {
     const baseDir = join(fixtures, 'css');
     const cssFile = join(baseDir, 'file.css');

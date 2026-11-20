@@ -108,4 +108,26 @@ class JsTsContextTest {
     assertThat(JsTsContext.getYamlExtensions(config)).isEmpty();
     assertThat(JsTsContext.getCssAdditionalExtensions(config)).isEmpty();
   }
+
+  @Test
+  void includesNormalizedDialectSuffixesInDiscoveryAndBridgeConfiguration() {
+    var config = new MapSettings()
+      .setProperty(CssLanguage.FILE_SUFFIXES_KEY, ".css")
+      .setProperty(CssLanguage.SCSS_FILE_SUFFIXES_KEY, " CUSTOM-SCSS, .custom-scss ")
+      .setProperty(CssLanguage.SASS_FILE_SUFFIXES_KEY, ".custom-sass")
+      .setProperty(CssLanguage.LESS_FILE_SUFFIXES_KEY, ".custom-less")
+      .asConfig();
+    var context = mock(SensorContext.class, RETURNS_DEEP_STUBS);
+    when(context.config()).thenReturn(config);
+    var analysis = new JsTsContext<>(context);
+    assertThat(analysis.getCssExtensions()).containsExactly(
+      ".css",
+      ".custom-scss",
+      ".custom-sass",
+      ".custom-less"
+    );
+    assertThat(analysis.getScssExtensions()).containsExactly(".custom-scss");
+    assertThat(analysis.getSassExtensions()).containsExactly(".custom-sass");
+    assertThat(analysis.getLessExtensions()).containsExactly(".custom-less");
+  }
 }

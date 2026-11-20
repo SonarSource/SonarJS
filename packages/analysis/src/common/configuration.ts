@@ -33,6 +33,7 @@ import {
   isObject,
 } from '../../../shared/src/helpers/sanitize.js';
 import { JAVASCRIPT_CODE_FILE_EXTENSIONS, TYPESCRIPT_CODE_FILE_EXTENSIONS } from './file-kinds.js';
+import { DEFAULT_CSS_SUFFIXES, normalizeCssSuffixes } from '../css/linter/dialect.js';
 
 /**
  * A discriminator between JavaScript and TypeScript languages. This is used
@@ -71,6 +72,9 @@ export type Configuration = {
   tsSuffixes: string[] /* sonar.typescript.file.suffixes */;
   jsSuffixes: string[] /* sonar.javascript.file.suffixes */;
   cssSuffixes: string[] /* sonar.css.file.suffixes */;
+  scssSuffixes: string[] /* sonar.css.scss.file.suffixes */;
+  sassSuffixes: string[] /* sonar.css.sass.file.suffixes */;
+  lessSuffixes: string[] /* sonar.css.less.file.suffixes */;
   htmlSuffixes: string[] /* sonar.javascript.html.file.suffixes */;
   yamlSuffixes: string[] /* sonar.javascript.yaml.file.suffixes */;
   cssAdditionalSuffixes: string[] /* sonar.javascript.css.additional.file.suffixes */;
@@ -105,6 +109,9 @@ export type ConfigurationInput = {
   tsSuffixes?: string[];
   jsSuffixes?: string[];
   cssSuffixes?: string[];
+  scssSuffixes?: string[];
+  sassSuffixes?: string[];
+  lessSuffixes?: string[];
   htmlSuffixes?: string[];
   yamlSuffixes?: string[];
   cssAdditionalSuffixes?: string[];
@@ -126,7 +133,7 @@ export type ConfigurationInput = {
 
 export const DEFAULT_JS_EXTENSIONS = [...JAVASCRIPT_CODE_FILE_EXTENSIONS, '.vue'];
 export const DEFAULT_TS_EXTENSIONS = TYPESCRIPT_CODE_FILE_EXTENSIONS.slice();
-const DEFAULT_CSS_EXTENSIONS = ['.css', '.less', '.scss', '.sass'];
+const DEFAULT_CSS_EXTENSIONS = DEFAULT_CSS_SUFFIXES;
 const DEFAULT_HTML_EXTENSIONS = ['.html', '.htm', '.xhtml'];
 const DEFAULT_YAML_EXTENSIONS = ['.yml', '.yaml'];
 const DEFAULT_CSS_ADDITIONAL_EXTENSIONS = ['.vue', '.html', '.htm', '.xhtml'];
@@ -247,6 +254,9 @@ export function createConfiguration(raw: unknown): Configuration {
     tsSuffixes: getOptionalValue(raw, 'tsSuffixes', isStringArray),
     jsSuffixes: getOptionalValue(raw, 'jsSuffixes', isStringArray),
     cssSuffixes: getOptionalValue(raw, 'cssSuffixes', isStringArray),
+    scssSuffixes: getOptionalValue(raw, 'scssSuffixes', isStringArray),
+    sassSuffixes: getOptionalValue(raw, 'sassSuffixes', isStringArray),
+    lessSuffixes: getOptionalValue(raw, 'lessSuffixes', isStringArray),
     htmlSuffixes: getOptionalValue(raw, 'htmlSuffixes', isStringArray),
     yamlSuffixes: getOptionalValue(raw, 'yamlSuffixes', isStringArray),
     cssAdditionalSuffixes: getOptionalValue(raw, 'cssAdditionalSuffixes', isStringArray),
@@ -281,6 +291,9 @@ export function createConfigurationFromInput(input: ConfigurationInput): Configu
   }
   // Normalize baseDir first so it can be used by other normalization functions
   const baseDir = normalizeToAbsolutePath(input.baseDir);
+  const scssSuffixes = normalizeCssSuffixes(input.scssSuffixes);
+  const sassSuffixes = normalizeCssSuffixes(input.sassSuffixes);
+  const lessSuffixes = normalizeCssSuffixes(input.lessSuffixes);
   return {
     baseDir,
     canAccessFileSystem: input.canAccessFileSystem ?? true,
@@ -295,7 +308,17 @@ export function createConfigurationFromInput(input: ConfigurationInput): Configu
     globals: input.globals ?? DEFAULT_GLOBALS,
     tsSuffixes: input.tsSuffixes ?? DEFAULT_TS_EXTENSIONS,
     jsSuffixes: input.jsSuffixes ?? DEFAULT_JS_EXTENSIONS,
-    cssSuffixes: input.cssSuffixes ?? DEFAULT_CSS_EXTENSIONS,
+    cssSuffixes: [
+      ...new Set([
+        ...(input.cssSuffixes ?? DEFAULT_CSS_EXTENSIONS),
+        ...scssSuffixes,
+        ...sassSuffixes,
+        ...lessSuffixes,
+      ]),
+    ],
+    scssSuffixes,
+    sassSuffixes,
+    lessSuffixes,
     htmlSuffixes: input.htmlSuffixes ?? DEFAULT_HTML_EXTENSIONS,
     yamlSuffixes: input.yamlSuffixes ?? DEFAULT_YAML_EXTENSIONS,
     cssAdditionalSuffixes: input.cssAdditionalSuffixes ?? DEFAULT_CSS_ADDITIONAL_EXTENSIONS,

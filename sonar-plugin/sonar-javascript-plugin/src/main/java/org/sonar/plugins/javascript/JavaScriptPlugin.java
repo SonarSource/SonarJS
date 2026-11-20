@@ -370,6 +370,25 @@ public class JavaScriptPlugin implements Plugin {
         .build()
     );
 
+    for (var key : CssLanguage.DIALECT_FILE_SUFFIXES_KEYS) {
+      context.addExtension(
+        PropertyDefinition.builder(key)
+          .name(
+            key
+              .substring("sonar.css.".length(), key.indexOf(".file"))
+              .toUpperCase(java.util.Locale.ROOT) + " File Suffixes"
+          )
+          .description(
+            "Additional file suffixes for this CSS dialect. These files are automatically included in CSS analysis. Standard extensions remain supported. A suffix must not be assigned to multiple dialects."
+          )
+          .subCategory(GENERAL)
+          .category(CSS_CATEGORY)
+          .onConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
+          .multiValues(true)
+          .build()
+      );
+    }
+
     if (!context.getRuntime().getProduct().equals(SonarProduct.SONARLINT)) {
       context.addExtensions(
         CoverageSensor.class,

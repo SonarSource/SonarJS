@@ -31,6 +31,23 @@ import {
 import { normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
 
 describe('createConfiguration', () => {
+  it('adds normalized dialect suffixes to stylesheet discovery', () => {
+    const config = createConfiguration({
+      baseDir: '/tmp',
+      cssSuffixes: ['.css'],
+      scssSuffixes: [' CUSTOM-SCSS ', '.custom-scss'],
+      sassSuffixes: ['custom-sass'],
+      lessSuffixes: ['.CUSTOM-LESS'],
+    });
+    expect(config.scssSuffixes).toEqual(['.custom-scss']);
+    expect(config.cssSuffixes).toEqual(['.css', '.custom-scss', '.custom-sass', '.custom-less']);
+    for (const extension of ['custom-scss', 'custom-sass', 'custom-less']) {
+      expect(isAnalyzableFile(normalizeToAbsolutePath(`/tmp/input.${extension}`), config)).toBe(
+        true,
+      );
+    }
+  });
+
   it('honors literal scanner directory exclusions without hardcoding a directory name', () => {
     const root = normalizeToAbsolutePath('/ci/project');
     const configuration = createConfiguration({

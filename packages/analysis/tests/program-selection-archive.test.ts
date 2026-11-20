@@ -273,6 +273,9 @@ describe('ProgramSelectionArchive', () => {
         jsTsExclusions: { values: ['**/generated/**'] },
         detectBundles: false,
         environments: { values: ['browser'] },
+        scssSuffixes: ['.custom-scss'],
+        sassSuffixes: ['.custom-sass'],
+        lessSuffixes: ['.custom-less'],
       },
     });
     recorder.end();
@@ -295,6 +298,11 @@ describe('ProgramSelectionArchive', () => {
       detectBundles: false,
       environments: { values: ['browser'] },
       sources: [root],
+    });
+    expect(replay.restoredConfiguration()).toMatchObject({
+      scssSuffixes: ['.custom-scss'],
+      sassSuffixes: ['.custom-sass'],
+      lessSuffixes: ['.custom-less'],
     });
     expect(replay.restoredConfiguration()?.ecmaScriptVersion).toBeNull();
     expect(replay.restoredConfiguration()).not.toHaveProperty('canAccessFileSystem');

@@ -61,6 +61,18 @@ public interface AnalysisConfiguration {
     return List.of();
   }
 
+  default List<String> getScssExtensions() {
+    return List.of();
+  }
+
+  default List<String> getSassExtensions() {
+    return List.of();
+  }
+
+  default List<String> getLessExtensions() {
+    return List.of();
+  }
+
   default List<String> getHtmlExtensions() {
     return List.of();
   }
