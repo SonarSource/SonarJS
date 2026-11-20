@@ -42,7 +42,6 @@
       <plugin>
         <groupId>org.sonarsource.sonar-packaging-maven-plugin</groupId>
         <artifactId>sonar-packaging-maven-plugin</artifactId>
-        <!-- Pre-release build of the plugin: switch to a released version once available -->
         <version>2.1.0.13092</version>
         <extensions>true</extensions>
         <configuration>
