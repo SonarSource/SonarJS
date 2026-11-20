@@ -366,33 +366,6 @@ Explicit RSPEC refresh
 - run packaging checks (jar and zip size enforcement)
 - install artifacts in the local Maven repository
 
-### On-demand resources ZIP (JS-2714 / SC-49784)
-
-`sonar-javascript-plugin` used to ship 6 classified jars (`win-x64`, `linux-x64`,
-`linux-x64-musl`, `darwin-arm64`, `darwin-x64`, `linux-arm64`) plus a `multi` jar bundling every
-platform's Node.js runtime, via `maven-shade-plugin`. Those are gone. The runtime binaries are
-now shipped once, for every platform, inside the `sonar-javascript-plugin-zip-<version>.zip`
-artifact's `resources/` folder, fetched on demand at analysis time through the Plugin API's
-`ResourceFetcher`. `EmbeddedNode` (in the `bridge` module) is split into two concrete
-subclasses so that a constructor referencing `ResourceFetcher` never has to be reflected on in a
-context lacking that type: `ScannerEmbeddedNode` (`@ScannerSide`) fetches resources through
-`ResourceFetcher`; `SonarLintEmbeddedNode` (`@SonarLintSide`) doesn't implement
-`ResourceFetcher` yet, so as an interim measure it looks the runtime up directly on disk, next
-to the plugin jar it was loaded from, mirroring the ZIP's own `plugin/`+`resources/` layout.
-Replace that filesystem lookup once SonarLint supports `ResourceFetcher`.
-
-The ZIP is built by its own module, `sonar-plugin/sonar-javascript-plugin-zip`, using
-`<packaging>sonar-plugin-zip</packaging>` from `sonar-packaging-maven-plugin` `2.1.0.13092`
-(PACKMP-64/PACKMP-65). That module has exactly one dependency of `<type>sonar-plugin</type>`, on
-`sonar-javascript-plugin`, so the reactor always finishes building (and shading) the plugin jar before
-the ZIP wraps it, with no execution ordering to maintain. It also unpacks the `nodejs-runtime` artifact
-(version in the `nodejs.runtime.version` property of `sonar-plugin/pom.xml`) and enforces the ZIP size.
-The packaging plugin version is a pre-release build, resolved from the SonarSource Artifactory like the
-project's other dependencies, until a released version replaces it.
-
-`ResourceFetcher`/`HostPlatform`/`Os`/`Arch` are already present in the released `sonar-plugin-api:14.2.0.5584`
-(the version this project already depends on), so no plugin-api SNAPSHOT is needed.
-
 ## Notes
 
 - `-Dsurefire.failIfNoSpecifiedTests=false` is useful with `-pl ... -am -Dtest=...` because upstream
