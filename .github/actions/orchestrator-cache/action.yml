@@ -10,10 +10,6 @@ inputs:
     description: 'Prefix for the cache key (default: orchestrator-production)'
     required: false
     default: 'orchestrator-production'
-  save:
-    description: 'Whether to save the cache on the default branch (default: true)'
-    required: false
-    default: 'true'
 
 runs:
   using: composite
@@ -32,21 +28,12 @@ runs:
       env:
         CACHE_ENABLED: ${{ inputs.enabled }}
 
-    # Restore only on branches (no save) - allows branches to read from default branch's cache
-    # Also used when save is disabled
-    - name: Restore Orchestrator cache (restore only)
-      if: inputs.enabled == 'true' && github.event_name != 'pull_request' && (github.ref_name != github.event.repository.default_branch || inputs.save != 'true')
-      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+    - name: Cache Orchestrator distributions
+      if: inputs.enabled == 'true' && github.event_name != 'pull_request'
+      uses: SonarSource/gh-action_cache@10fff0296bfc17164fb1ed6473f7238df3430ebf # v1.7.5
       with:
-        path: ${{ env.ORCHESTRATOR_HOME }}
-        key: ${{ inputs.key-prefix }}-${{ env.ORCHESTRATOR_CACHE_MONTH }}-${{ github.run_id }}
-        restore-keys: ${{ inputs.key-prefix }}-${{ env.ORCHESTRATOR_CACHE_MONTH }}-
-
-    # Full cache on default branch (save enabled) - uses run_id for rolling cache
-    - name: Cache Orchestrator (default branch)
-      if: inputs.enabled == 'true' && github.event_name != 'pull_request' && github.ref_name == github.event.repository.default_branch && inputs.save == 'true'
-      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-      with:
+        backend: ${{ github.event_name == 'merge_group' && 'github' || 's3' }}
+        import-github-cache: false
         path: ${{ env.ORCHESTRATOR_HOME }}
         key: ${{ inputs.key-prefix }}-${{ env.ORCHESTRATOR_CACHE_MONTH }}-${{ github.run_id }}
         restore-keys: ${{ inputs.key-prefix }}-${{ env.ORCHESTRATOR_CACHE_MONTH }}-
