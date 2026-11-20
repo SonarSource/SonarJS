@@ -108,6 +108,9 @@ message ProjectConfiguration {
   optional bool skip_node_module_lookup_outside_base_dir = 29;
   optional string ecma_script_version = 30;
   optional bool detect_generated_code = 34;
+  // Aggregated compiler requirement from enabled, mode-compatible hooks; accepted range is 0..9.
+  // Absent or zero leaves tsconfig unchanged.
+  optional int32 max_node_module_js_depth = 35;
 }
 
 message StringList {

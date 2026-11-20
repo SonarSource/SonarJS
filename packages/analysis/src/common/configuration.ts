@@ -34,6 +34,9 @@ import {
 } from '../../../shared/src/helpers/sanitize.js';
 import { JAVASCRIPT_CODE_FILE_EXTENSIONS, TYPESCRIPT_CODE_FILE_EXTENSIONS } from './file-kinds.js';
 
+/** Operational ceiling for hook-requested JavaScript dependency inference depth. */
+export const MAX_NODE_MODULE_JS_DEPTH = 9;
+
 /**
  * A discriminator between JavaScript and TypeScript languages. This is used
  * in rule configuration and analysis input.
@@ -86,6 +89,8 @@ export type Configuration = {
   detectGeneratedCode: boolean /* sonar.javascript.detectGeneratedCode - whether generated-source detection should affect analysis behavior */;
   createTSProgramForOrphanFiles: boolean /* sonar.javascript.createTSProgramForOrphanFiles - whether to create a TS program for orphan files */;
   disableTypeChecking: boolean /* sonar.javascript.disableTypeChecking - whether to completely disable TypeScript type checking */;
+  /** Analysis-level JavaScript dependency inference requirement; absent or zero keeps compiler defaults. */
+  maxNodeModuleJsDepth?: number;
   skipNodeModuleLookupOutsideBaseDir: boolean /* sonar.internal.analysis.skipNodeModuleLookupOutsideBaseDir - whether to skip node_modules lookups outside baseDir in TS compiler host */;
   ecmaScriptVersion?: string /* sonar.javascript.ecmaScriptVersion - explicit ES version override e.g. 'ES2022' */;
 };
@@ -120,6 +125,7 @@ export type ConfigurationInput = {
   detectGeneratedCode?: boolean;
   createTSProgramForOrphanFiles?: boolean;
   disableTypeChecking?: boolean;
+  maxNodeModuleJsDepth?: number;
   skipNodeModuleLookupOutsideBaseDir?: boolean;
   ecmaScriptVersion?: string;
 };
@@ -266,6 +272,7 @@ export function createConfiguration(raw: unknown): Configuration {
       isBoolean,
     ),
     disableTypeChecking: getOptionalValue(raw, 'disableTypeChecking', isBoolean),
+    maxNodeModuleJsDepth: validateMaxNodeModuleJsDepth(raw.maxNodeModuleJsDepth),
     skipNodeModuleLookupOutsideBaseDir: getOptionalValue(
       raw,
       'skipNodeModuleLookupOutsideBaseDir',
@@ -311,9 +318,27 @@ export function createConfigurationFromInput(input: ConfigurationInput): Configu
     detectGeneratedCode: input.detectGeneratedCode ?? true,
     createTSProgramForOrphanFiles: input.createTSProgramForOrphanFiles ?? true,
     disableTypeChecking: input.disableTypeChecking ?? false,
+    maxNodeModuleJsDepth: validateMaxNodeModuleJsDepth(input.maxNodeModuleJsDepth),
     skipNodeModuleLookupOutsideBaseDir: input.skipNodeModuleLookupOutsideBaseDir ?? false,
     ecmaScriptVersion: input.ecmaScriptVersion,
   };
+}
+
+function validateMaxNodeModuleJsDepth(depth: unknown): number | undefined {
+  if (depth === undefined) {
+    return undefined;
+  }
+  if (
+    typeof depth !== 'number' ||
+    !Number.isInteger(depth) ||
+    depth < 0 ||
+    depth > MAX_NODE_MODULE_JS_DEPTH
+  ) {
+    throw new Error(
+      `maxNodeModuleJsDepth must be an integer between 0 and ${MAX_NODE_MODULE_JS_DEPTH} inclusive`,
+    );
+  }
+  return depth;
 }
 
 const SAM_TRANSFORM_FIELD = 'AWS::Serverless-2016-10-31';
@@ -632,6 +657,7 @@ function sanitizeFsEvents(raw: unknown): string[] | undefined {
  * Used by analyzeWithProgram, analyzeWithIncrementalProgram, analyzeWithoutProgram.
  */
 export type JsTsConfigFields = {
+  maxNodeModuleJsDepth?: number;
   allowTsParserJsFiles: boolean;
   analysisMode: AnalysisMode;
   ignoreHeaderComments: boolean;
@@ -652,6 +678,10 @@ export type JsTsConfigFields = {
  */
 export function getJsTsConfigFields(configuration: Configuration): JsTsConfigFields {
   return {
+    maxNodeModuleJsDepth:
+      configuration.sonarlint || !configuration.maxNodeModuleJsDepth
+        ? undefined
+        : configuration.maxNodeModuleJsDepth,
     allowTsParserJsFiles: configuration.allowTsParserJsFiles,
     analysisMode: configuration.analysisMode,
     ignoreHeaderComments: configuration.ignoreHeaderComments,

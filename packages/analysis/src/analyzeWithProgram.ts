@@ -42,6 +42,7 @@ import {
 import { getProgramCacheManager } from './jsts/program/cache/programCache.js';
 import { clearSourceFileContentCache } from './jsts/program/cache/sourceFileCache.js';
 import { createStandardProgram } from './jsts/program/factory.js';
+import { withNodeModuleJsDepth } from './jsts/program/tsconfig/node-module-depth.js';
 import { sanitizeProgramReferences } from './jsts/program/tsconfig/utils.js';
 import {
   getProjectAnalysisTelemetryCollector,
@@ -267,23 +268,31 @@ async function analyzeFilesFromEntryPoint(
     if (filesToAnalyze.length === 0 && !programSelection?.isRecord()) {
       return;
     }
-    programOptions.rootNames = groupRootNames;
-    telemetry.recordCompilerOptions(programOptions.options);
+    const effectiveProgramOptions = withNodeModuleJsDepth(
+      programOptions,
+      jsTsConfigFields.maxNodeModuleJsDepth,
+    );
+    telemetry.recordCompilerOptions(effectiveProgramOptions.options);
 
     info(
-      `Analyzing ${filesToAnalyze.length} file(s) using ${label} [lib: ${programOptions.options.lib?.join(', ')}]`,
+      `Analyzing ${filesToAnalyze.length} file(s) using ${label} [lib: ${effectiveProgramOptions.options.lib?.join(', ')}]`,
     );
     const host = new IncrementalCompilerHost(
-      programOptions.options,
+      effectiveProgramOptions.options,
       baseDir,
       jsTsConfigFields.skipNodeModuleLookupOutsideBaseDir,
     );
 
     telemetry.recordProgramCreationAttempt();
-    const tsProgram = createStandardProgram({ ...programOptions, host });
-    const detectedEsYear = esLibToYear(programOptions.options.lib);
-    const targetEsYear = tsTargetToEsYear(programOptions.options.target);
+    const tsProgram = createStandardProgram({
+      ...effectiveProgramOptions,
+      rootNames: groupRootNames,
+      host,
+    });
+    const detectedEsYear = esLibToYear(effectiveProgramOptions.options.lib);
+    const targetEsYear = tsTargetToEsYear(effectiveProgramOptions.options.target);
     telemetry.recordEcmaScriptVersion(detectedEsYear ?? undefined);
+    // Record the baseline; replay applies only the current analysis's hook requirement.
     programSelection?.recordOrphanGroup(groupRootNames, programOptions.options);
     for (const file of groupRootNames) {
       pendingProgramFiles.delete(file);
@@ -392,22 +401,27 @@ async function analyzeFilesFromTsConfig(
     return;
   }
 
+  // Keep merged/orphan baselines and recorded options free of this analysis's hook override.
   foundProgramOptions.push(programOptions);
-  telemetry.recordCompilerOptions(programOptions.options);
+  const effectiveProgramOptions = withNodeModuleJsDepth(
+    programOptions,
+    jsTsConfigFields.maxNodeModuleJsDepth,
+  );
+  telemetry.recordCompilerOptions(effectiveProgramOptions.options);
 
   reportMissingExtendedTsConfig(tsconfig, programOptions, results.meta);
 
   info(
-    `Creating TypeScript(${ts.version}) program with configuration file ${tsconfig} [lib: ${programOptions.options.lib?.join(', ')}]`,
+    `Creating TypeScript(${ts.version}) program with configuration file ${tsconfig} [lib: ${effectiveProgramOptions.options.lib?.join(', ')}]`,
   );
   const host = new IncrementalCompilerHost(
-    programOptions.options,
+    effectiveProgramOptions.options,
     baseDir,
     jsTsConfigFields.skipNodeModuleLookupOutsideBaseDir,
   );
-  const tsProgram = createStandardProgram({ ...programOptions, host });
-  const detectedEsYear = esLibToYear(programOptions.options.lib);
-  const targetEsYear = tsTargetToEsYear(programOptions.options.target);
+  const tsProgram = createStandardProgram({ ...effectiveProgramOptions, host });
+  const detectedEsYear = esLibToYear(effectiveProgramOptions.options.lib);
+  const targetEsYear = tsTargetToEsYear(effectiveProgramOptions.options.target);
   telemetry.recordEcmaScriptVersion(detectedEsYear ?? undefined);
 
   // TypeScript normalizes file paths internally, so we can safely cast them
@@ -552,15 +566,19 @@ function restoreSelectedProgram(
     reportMissingExtendedTsConfig(selection.program.tsconfig, programOptions, context.results.meta);
     programOptions.options = selection.program.compilerOptions;
   }
-  telemetry.recordCompilerOptions(programOptions.options);
+  const effectiveProgramOptions = withNodeModuleJsDepth(
+    programOptions,
+    jsTsConfigFields.maxNodeModuleJsDepth,
+  );
+  telemetry.recordCompilerOptions(effectiveProgramOptions.options);
   const host = new IncrementalCompilerHost(
-    programOptions.options,
+    effectiveProgramOptions.options,
     baseDir,
     jsTsConfigFields.skipNodeModuleLookupOutsideBaseDir,
   );
-  const tsProgram = createStandardProgram({ ...programOptions, host });
-  const detectedEsYear = esLibToYear(programOptions.options.lib) ?? undefined;
-  const targetEsYear = tsTargetToEsYear(programOptions.options.target) ?? undefined;
+  const tsProgram = createStandardProgram({ ...effectiveProgramOptions, host });
+  const detectedEsYear = esLibToYear(effectiveProgramOptions.options.lib) ?? undefined;
+  const targetEsYear = tsTargetToEsYear(effectiveProgramOptions.options.target) ?? undefined;
   telemetry.recordEcmaScriptVersion(detectedEsYear);
   return { tsProgram, detectedEsYear, targetEsYear };
 }

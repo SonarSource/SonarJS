@@ -25,7 +25,7 @@ import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
 import type { UnserializedJsTsAnalysisOutput } from '../src/jsts/analysis/analyzer.js';
 import { parse } from '../src/jsts/parsers/parse.js';
 import { parsersMap } from '../src/jsts/parsers/eslint.js';
-import { buildTsParserOptions } from '../src/jsts/parsers/options.js';
+import { buildTsParserOptions, buildVueParserOptions } from '../src/jsts/parsers/options.js';
 import { deserializeProtobuf } from '../src/jsts/parsers/ast.js';
 
 describe('finalizeFileResultForScanner', () => {
@@ -183,6 +183,51 @@ describe('finalizeFileResultForScanner', () => {
       ),
     ).toBe(result);
   });
+
+  for (const separator of ['\n', '\r\n', '\u2028', '\u2029']) {
+    it(`keeps Vue script locations in original-file coordinates with ${JSON.stringify(separator)}`, () => {
+      const filePath = normalizeToAbsolutePath('/project/component.vue');
+      const source = [
+        '<template><div /></template>',
+        '<script setup lang="ts">',
+        'const emoji = "😀";',
+        'run(emoji);',
+        '</script>',
+      ].join(separator);
+      const { ast } = parsersMap.vuejs.parseForESLint(
+        source,
+        buildVueParserOptions('ts', { filePath }),
+      );
+      const call = ast.body[1];
+      assert(call.loc);
+      const result = {
+        issues: [],
+        highlights: [
+          {
+            textType: 'CONSTANT',
+            location: {
+              startLine: call.loc.start.line,
+              startCol: call.loc.start.column,
+              endLine: call.loc.end.line,
+              endCol: call.loc.end.column,
+            },
+          },
+        ],
+      } satisfies FileResult;
+
+      finalizeFileResultForScanner(result, source, filePath);
+
+      const scannerHasSingleLine = separator === '\u2028' || separator === '\u2029';
+      expect(result.highlights[0].location).toEqual({
+        startLine: scannerHasSingleLine ? 1 : 4,
+        startCol: scannerHasSingleLine ? source.indexOf('run(emoji)') : 0,
+        endLine: scannerHasSingleLine ? 1 : 4,
+        endCol: scannerHasSingleLine
+          ? source.indexOf('run(emoji)') + 'run(emoji);'.length
+          : 'run(emoji);'.length,
+      });
+    });
+  }
 
   it('maps the AST before serializing it without changing parser locations', () => {
     const source = 'const a=1;\u2028const b=2;';

@@ -16,6 +16,48 @@ The `EslintHook` interface is the modern way to define custom rules in SonarJS. 
 - **Are activated through quality profiles** - by default, run only when enabled in the active quality profile
 - **Provide full control** over analysis modes, file types, and configurations
 
+## Dependency inference requested by hooks
+
+On this development branch, an enabled data-collection hook can request deeper inference into
+JavaScript dependencies without exposing its collected data through SonarJS's result protocol:
+
+```java
+@Override
+public int maxNodeModuleJsDepth() {
+  return 4;
+}
+```
+
+Accepted requests are integers from `0` through `9` inclusive; out-of-range requests are rejected.
+The ceiling limits hook-requested dependency traversal, but is not an execution-time guarantee and does
+not restrict values in the project's own tsconfig when no override is requested.
+The default is `0` (no override). SonarJS aggregates the largest positive request among enabled
+checks/hooks that can run in the current analysis in Java, then sends it once in the analysis
+`ProjectConfiguration`. `DEFAULT` hooks also contribute during `SKIP_UNCHANGED` analyses because they
+run on changed and added files. Hooks supporting only `SKIP_UNCHANGED` do not contribute to a full
+`DEFAULT` analysis. The request is not part of `EslintRule`, `JsTsRule`, or the Node `RuleConfig`.
+The request overrides `maxNodeModuleJsDepth` from the
+project's tsconfig for configured, orphan/merged and restored scanner programs, without changing
+cached tsconfig options. It does not override `sonar.javascript.disableTypeChecking=true`, and it
+does not apply to SonarLint. When the hook is absent or disabled, ordinary compiler behavior is
+preserved. Recorded program selections retain the baseline compiler options, without the hook
+override; replay applies only the current analysis's request, including when it is absent or zero.
+This option controls inference from JavaScript in `node_modules`, not declaration-file resolution
+or a general recursion limit for TypeScript types.
+
+For cross-plugin data collection, prefer a directly registered `EslintHookRegistrar` and a packaged
+`Bundle`. The hook can use the existing parser services and write versioned artifacts into an
+explicit scan-scoped directory passed via `configurations()`. A later sensor in the owning plugin
+reads those artifacts. Keep per-run isolation, atomic writes, source-coordinate validation and
+missing/incomplete-file diagnostics in that plugin; missing evidence must not imply non-reachability.
+No quality-profile activation or inventory-specific SonarJS callback/gRPC schema is needed.
+
+On this branch, bundled hooks access the **host TypeScript runtime** through
+`context.settings.sonarjs.typescript`. Use a type-only TypeScript import in the bundle and this
+runtime instance for compiler helpers; it is the compiler that owns `parserServices.program`.
+Do not assume `require('typescript')` is resolvable in the installed scanner: the production bridge
+embeds TypeScript. This avoids packaging a second compiler or importing SonarJS internal modules.
+
 ## Components
 
 A complete custom rules integration requires:
