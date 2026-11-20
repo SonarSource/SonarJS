@@ -17,12 +17,25 @@
 import { DefaultParserRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { rule } from './rule.js';
 import { describe, it } from 'node:test';
+import corpus from '@sonarsource/analyzer-commons-configurations/cleartext-protocol-corpus.json' with { type: 'json' };
 
 describe('S5332', () => {
   it('S5332', () => {
     const ruleTester = new DefaultParserRuleTester();
     ruleTester.run('Using clear-text protocols is security-sensitive', rule, {
       valid: [
+        ...corpus.safeUrls.map(value => ({ code: JSON.stringify(value) })),
+        {
+          // Shared exclusions apply in request calls too, with case-insensitive path matching.
+          code: `fetch("HTTP://WWW.TOPOGRAFIX.COM/gpx/1/1");`,
+        },
+        {
+          // FN - accepted for Commons consistency: "http://www" is exempt before concatenation.
+          code: `
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www')
+        + '.google-analytics.com/ga.js';
+      `,
+        },
         {
           code: `
       // Non sensitive url scheme
@@ -216,12 +229,6 @@ describe('S5332', () => {
       });`,
         },
         {
-          // JS-2368: $schema identifier mandated verbatim by the CycloneDX spec, never dereferenced
-          code: `
-      const bom = { "$schema": "http://cyclonedx.org/schema/bom-1.5.schema.json" };
-      `,
-        },
-        {
           // JS-2368: coding-system identifier, only ever compared, never fetched
           code: `
       const SNOMED_SYSTEM = "http://snomed.info/sct";
@@ -248,10 +255,8 @@ describe('S5332', () => {
         url = 'http://maven.apache.org/POM/4.0.0';
         url = 'http://ogp.me/ns#';
 
-        // Namespace URI authorities — added for JS-2368 (spec-mandated identifiers, never dereferenced)
-        url = 'http://adlnet.gov/expapi/verbs/completed';
+        // Shared Jabber protocol namespace prefix
         url = 'http://jabber.org/protocol/muc';
-        url = 'http://etherx.jabber.org/streams';
 
         // XMPP stream-feature namespaces live under /features/, not /protocol/
         url = 'http://jabber.org/features/iq-auth';
@@ -260,17 +265,34 @@ describe('S5332', () => {
       `,
         },
         {
-          // Namespace authorities carrying a port: only reachable through the lenient fallback,
-          // since a template placeholder makes strict URL parsing fail. Host matching is
-          // case-insensitive there too, as the literal is lower-cased before the lookup.
+          // Commons host patterns also accept namespace authorities with placeholder ports.
           code: `
-        url = "http://cyclonedx.org:\${port}/schema/bom-1.5.schema.json";
-        url = "HTTP://CYCLONEDX.ORG:\${port}/schema/bom-1.5.schema.json";
         url = "http://www.w3.org:\${port}/2001/XMLSchema";
       `,
         },
       ],
       invalid: [
+        // A standalone bare scheme is allowed by the rule; concatenation must still report it.
+        ...corpus.unsafeUrls.map(value => ({ code: `${JSON.stringify(value)} + path`, errors: 1 })),
+        {
+          // Existing SonarJS-only exemptions now follow the Commons configuration.
+          code: `
+      const bom = { "$schema": "http://cyclonedx.org/schema/bom-1.5.schema.json" };
+      url = "http://adlnet.gov/expapi/verbs/completed";
+      url = "http://etherx.jabber.org/streams";
+      url = "http://snomed.info/other";
+      url = "http://cyclonedx.org:\${port}/schema/bom-1.5.schema.json";
+      url = "HTTP://CYCLONEDX.ORG:\${port}/schema/bom-1.5.schema.json";
+      `,
+          errors: 6,
+        },
+        {
+          code: `
+      fetch("http://www.topografix.com/api");
+      fetch("http://www.topografix.com.anotherdomain.org/GPX/1/1");
+      `,
+          errors: 2,
+        },
         {
           code: `
       url = "http://192.168.0.1";
@@ -398,7 +420,7 @@ describe('S5332', () => {
       url = "http://jabber.org";
       // the path prefixes are anchored on the trailing slash
       url = "http://jabber.org/features";
-      // the lenient fallback cannot see the path, so a path-scoped authority fails closed
+      // A port placeholder prevents matching the shared full-URL prefix
       url = "http://jabber.org:\${port}/protocol/muc";
       `,
           errors: 5,
