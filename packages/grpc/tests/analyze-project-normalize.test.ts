@@ -84,6 +84,9 @@ describe('normalizeAnalyzeProjectRequest', () => {
         tsSuffixes: stringList(['.ts']),
         jsSuffixes: stringList(['.js']),
         cssSuffixes: stringList(['.css']),
+        scssSuffixes: ['.custom-scss'],
+        sassSuffixes: ['.custom-sass'],
+        lessSuffixes: ['.custom-less'],
         htmlSuffixes: stringList(['.html']),
         yamlSuffixes: stringList(['.yaml']),
         cssAdditionalSuffixes: stringList(['.scss']),
@@ -165,6 +168,15 @@ describe('normalizeAnalyzeProjectRequest', () => {
     expect(normalized.rulesWorkdir).toBe(normalizeToAbsolutePath('rules', baseDir));
     expect(normalized.pathMap.size).toBe(2);
     expect(normalized.configuration.maxFileSize).toBe(0x100000000 + 1);
+    expect(normalized.configuration.scssSuffixes).toEqual(['.custom-scss']);
+    expect(normalized.configuration.sassSuffixes).toEqual(['.custom-sass']);
+    expect(normalized.configuration.lessSuffixes).toEqual(['.custom-less']);
+    expect(normalized.configuration.cssSuffixes).toEqual([
+      '.css',
+      '.custom-scss',
+      '.custom-sass',
+      '.custom-less',
+    ]);
     expect(normalized.configuration.fsEvents).toEqual([
       normalizeToAbsolutePath(join(baseDir, 'src', 'created.ts'), baseDir),
     ]);

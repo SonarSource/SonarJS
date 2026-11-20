@@ -740,6 +740,18 @@ describe('analyze-project gRPC server', () => {
             code: grpc.status.INVALID_ARGUMENT,
             details: 'configuration.base_dir is required',
           });
+          const conflictingDialects = createAnalyzeProjectRequest();
+          conflictingDialects.configuration!.sassSuffixes = ['TXT'];
+          conflictingDialects.configuration!.lessSuffixes = ['.txt'];
+          for (const analyze of [
+            () => client.analyzeProject(conflictingDialects),
+            () => client.analyzeProjectUnary(conflictingDialects),
+          ]) {
+            await expect(analyze()).rejects.toMatchObject({
+              code: grpc.status.INVALID_ARGUMENT,
+              details: 'CSS suffix .txt is configured for both less and sass',
+            });
+          }
         });
       });
     }

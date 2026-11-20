@@ -223,6 +223,21 @@ class AnalyzeProjectMessagesTest {
       }
 
       @Override
+      public List<String> getScssExtensions() {
+        return List.of(".custom-scss");
+      }
+
+      @Override
+      public List<String> getSassExtensions() {
+        return List.of(".custom-sass");
+      }
+
+      @Override
+      public List<String> getLessExtensions() {
+        return List.of(".custom-less");
+      }
+
+      @Override
       public List<String> getHtmlExtensions() {
         return List.of(".html");
       }
@@ -336,6 +351,9 @@ class AnalyzeProjectMessagesTest {
     assertThat(proto.getTsSuffixes().getValuesList()).containsExactly(".ts");
     assertThat(proto.getJsSuffixes().getValuesList()).containsExactly(".js");
     assertThat(proto.getCssSuffixes().getValuesList()).containsExactly(".css");
+    assertThat(proto.getScssSuffixesList()).containsExactly(".custom-scss");
+    assertThat(proto.getSassSuffixesList()).containsExactly(".custom-sass");
+    assertThat(proto.getLessSuffixesList()).containsExactly(".custom-less");
     assertThat(proto.getHtmlSuffixes().getValuesList()).containsExactly(".html");
     assertThat(proto.getYamlSuffixes().getValuesList()).containsExactly(".yaml");
     assertThat(proto.getCssAdditionalSuffixes().getValuesList()).containsExactly(".scss");

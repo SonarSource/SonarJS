@@ -20,6 +20,7 @@ import { expect } from 'expect';
 import { createStylelintConfig, RuleConfig } from '../../../src/css/linter/config.js';
 import { LinterWrapper } from '../../../src/css/linter/wrapper.js';
 import { normalizeToAbsolutePath } from '../../../../shared/src/helpers/files.js';
+import { createConfiguration } from '../../../src/common/configuration.js';
 import { cssOnlyRuleKeys } from '../../../src/css/linter/css-only-rules.js';
 
 describe('createStylelintConfig', () => {
@@ -129,4 +130,117 @@ describe('preprocessor rule applicability', () => {
     );
     expect(issues).toEqual([expect.objectContaining({ ruleId: 'color-no-invalid-hex', line: 1 })]);
   });
+});
+
+describe('custom stylesheet suffixes', () => {
+  it('uses explicit dialect associations before standard extension defaults', async () => {
+    const linter = new LinterWrapper();
+    linter.initialize(
+      [],
+      undefined,
+      createConfiguration({ baseDir: '/tmp', sassSuffixes: ['.scss'] }),
+    );
+    expect(
+      (await linter.lint(normalizeToAbsolutePath('/tmp/input.SCSS'), 'a\n  color: red')).issues,
+    ).toEqual([]);
+  });
+
+  it('resets dialect selection and rule configs between analyses', async () => {
+    const linter = new LinterWrapper();
+    const rules = [{ key: 'no-invalid-position-at-import-rule', configurations: [] }];
+    linter.initialize(
+      rules,
+      undefined,
+      createConfiguration({ baseDir: '/tmp', lessSuffixes: ['.txt'] }),
+    );
+    const file = normalizeToAbsolutePath('/tmp/input.txt');
+    const code = 'a { color: red; }\n@import "other";';
+    expect((await linter.lint(file, code)).issues).toEqual([]);
+    linter.initialize(rules);
+    expect((await linter.lint(file, code)).issues.map(issue => issue.ruleId)).toEqual([
+      'no-invalid-position-at-import-rule',
+    ]);
+  });
+
+  const configuration = createConfiguration({
+    baseDir: '/tmp',
+    cssSuffixes: ['.txt'],
+    scssSuffixes: ['.custom-scss'],
+    sassSuffixes: ['.custom-sass'],
+    lessSuffixes: ['.custom-less'],
+  });
+
+  for (const [extension, code] of [
+    ['custom-sass', 'a\n  color: #ggg\n  background: blue'],
+    ['custom-scss', '$name: foo; .#{$name} { color: #ggg; }'],
+    ['CUSTOM-SCSS', '$name: foo; .#{$name} { color: #ggg; }'],
+    ['custom-less', '.mixin(@a; @b) { color: #ggg; }'],
+  ]) {
+    for (const ruleFileType of ['MAIN', 'TEST'] as const) {
+      it(`parses ${extension} with ${ruleFileType} rule selection`, async () => {
+        const linter = new LinterWrapper();
+        linter.initialize(
+          [{ key: 'color-no-invalid-hex', configurations: [] }],
+          undefined,
+          configuration,
+        );
+        const filePath = normalizeToAbsolutePath(`/tmp/input.${extension}`);
+        const { issues, root } = await linter.lint(filePath, code, ruleFileType);
+        expect(root).toBeDefined();
+        expect(root?.source?.input.file).toBe(filePath);
+        expect(issues.map(issue => issue.ruleId)).toEqual(
+          ruleFileType === 'MAIN' ? ['color-no-invalid-hex'] : [],
+        );
+      });
+    }
+  }
+
+  for (const extension of [
+    'txt',
+    'css',
+    'custom-scss',
+    'scss',
+    'custom-less',
+    'less',
+    'custom-sass',
+    'sass',
+  ]) {
+    it(`applies CSS-only rules appropriately to ${extension}`, async () => {
+      const linter = new LinterWrapper();
+      linter.initialize(
+        [{ key: 'no-invalid-position-at-import-rule', configurations: [] }],
+        undefined,
+        configuration,
+      );
+      expect(linter.hasActiveRules()).toBe(true);
+      const { issues } = await linter.lint(
+        normalizeToAbsolutePath(`/tmp/input.${extension}`),
+        extension.endsWith('sass')
+          ? 'a\n  color: red\n@import "other"'
+          : 'a { color: red; }\n@import "other";',
+      );
+      expect(issues.map(issue => issue.ruleId)).toEqual(
+        ['txt', 'css'].includes(extension) ? ['no-invalid-position-at-import-rule'] : [],
+      );
+    });
+  }
+
+  for (const [extension, code] of [
+    ['custom-scss', '$color: red !default;'],
+    ['custom-sass', '$color: red !global'],
+  ]) {
+    it(`uses the selected dialect for Sass annotations in ${extension}`, async () => {
+      const linter = new LinterWrapper();
+      linter.initialize(
+        [{ key: 'sonar/annotation-no-unknown', configurations: [] }],
+        undefined,
+        configuration,
+      );
+      const { issues } = await linter.lint(
+        normalizeToAbsolutePath(`/tmp/input.${extension}`),
+        code,
+      );
+      expect(issues).toEqual([]);
+    });
+  }
 });

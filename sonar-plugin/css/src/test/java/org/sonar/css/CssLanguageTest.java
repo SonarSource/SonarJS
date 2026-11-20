@@ -32,4 +32,21 @@ class CssLanguageTest {
     assertThat(language.getName()).isEqualTo("CSS");
     assertThat(language.getFileSuffixes()).containsOnly(".css", ".less", ".scss", ".sass");
   }
+
+  @Test
+  void includesCustomDialectSuffixesInLanguageDetection() {
+    var settings = new MapSettings()
+      .setProperty(CssLanguage.SCSS_FILE_SUFFIXES_KEY, " custom-scss, .CUSTOM-SCSS ")
+      .setProperty(CssLanguage.SASS_FILE_SUFFIXES_KEY, ".custom-sass")
+      .setProperty(CssLanguage.LESS_FILE_SUFFIXES_KEY, ".custom-less");
+    assertThat(new CssLanguage(settings.asConfig()).getFileSuffixes()).containsExactly(
+      ".css",
+      ".less",
+      ".scss",
+      ".sass",
+      ".custom-scss",
+      ".custom-sass",
+      ".custom-less"
+    );
+  }
 }

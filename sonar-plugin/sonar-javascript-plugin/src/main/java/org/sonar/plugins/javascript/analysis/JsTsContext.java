@@ -220,11 +220,33 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
   }
 
   public static List<String> getCssExtensions(Configuration config) {
-    return getNormalizedExtensions(
-      config,
-      CssLanguage.FILE_SUFFIXES_KEY,
-      CssLanguage.DEFAULT_FILE_SUFFIXES
-    );
+    return Stream.concat(
+      getNormalizedExtensions(
+        config,
+        CssLanguage.FILE_SUFFIXES_KEY,
+        CssLanguage.DEFAULT_FILE_SUFFIXES
+      ).stream(),
+      CssLanguage.DIALECT_FILE_SUFFIXES_KEYS.stream().flatMap(key ->
+        CssLanguage.getDialectSuffixes(config, key).stream()
+      )
+    )
+      .distinct()
+      .toList();
+  }
+
+  @Override
+  public List<String> getScssExtensions() {
+    return CssLanguage.getDialectSuffixes(context.config(), CssLanguage.SCSS_FILE_SUFFIXES_KEY);
+  }
+
+  @Override
+  public List<String> getSassExtensions() {
+    return CssLanguage.getDialectSuffixes(context.config(), CssLanguage.SASS_FILE_SUFFIXES_KEY);
+  }
+
+  @Override
+  public List<String> getLessExtensions() {
+    return CssLanguage.getDialectSuffixes(context.config(), CssLanguage.LESS_FILE_SUFFIXES_KEY);
   }
 
   @Override
