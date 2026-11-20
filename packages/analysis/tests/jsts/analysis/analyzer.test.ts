@@ -990,6 +990,53 @@ describe('await analyzeJSTS', () => {
     });
   });
 
+  for (const selection of ['outside quality profile', 'SKIP_UNCHANGED', 'selected'] as const) {
+    it(`should preserve S3776 ${selection} with inline configuration`, async () => {
+      const filePath = path.join(fixtures, 'inline-cognitive-complexity.js');
+      await Linter.initialize({
+        baseDir: normalizeToAbsolutePath(fixtures),
+        rules:
+          selection === 'outside quality profile'
+            ? []
+            : [
+                {
+                  key: 'S3776',
+                  configurations: [15],
+                  fileTypeTargets: ['MAIN'],
+                  language: 'js',
+                  analysisModes: ['DEFAULT'],
+                },
+              ],
+      });
+
+      for (const [options, expectedRuleIds, expectedComplexity] of [
+        ['["error", 15]', [], 1],
+        ['["error", 0]', selection === 'selected' ? ['S3776'] : [], 1],
+        ['["warn", 0]', selection === 'selected' ? ['S3776'] : [], 1],
+        ['"off"', [], 0],
+      ] as const) {
+        const { issues, suppressedIssues, metrics } = await analyzeJSTS(
+          await jsTsInput({
+            filePath,
+            fileContent: `/* eslint sonarjs/S3776: ${options} */
+function example(value) {
+  if (value) {
+    return 1;
+  }
+  return 0;
+}`,
+            fileStatus: selection === 'SKIP_UNCHANGED' ? 'SAME' : 'CHANGED',
+            analysisMode: selection === 'SKIP_UNCHANGED' ? 'SKIP_UNCHANGED' : 'DEFAULT',
+          }),
+        );
+
+        expect(issues.map(issue => issue.ruleId)).toEqual(expectedRuleIds);
+        expect(suppressedIssues ?? []).toEqual([]);
+        expect(metrics?.cognitiveComplexity).toBe(expectedComplexity);
+      }
+    });
+  }
+
   it('should keep cognitive complexity metric at 0 when S3776 is disabled with ESLint directives', async () => {
     const rules: RuleConfig[] = [];
     const filePath = path.join(

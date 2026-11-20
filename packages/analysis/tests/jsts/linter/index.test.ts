@@ -1482,7 +1482,7 @@ describe('Linter', () => {
         rules: [rule],
       });
 
-      const { issues } = Linter.lint(parseResult, filePath);
+      const { issues } = Linter.lint(parseResult, filePath, 'MAIN', 'CHANGED', 'DEFAULT', parser);
 
       expect(issues).toEqual([expect.objectContaining({ ruleId: rule.key })]);
     }
@@ -2011,7 +2011,7 @@ describe('Linter', () => {
     expect(issues).toEqual([expect.objectContaining({ ruleId: 'S878', line: 7 })]);
   });
 
-  it('should take into account comment-based eslint configurations', async () => {
+  it('should not enable rules outside the quality profile through inline configuration', async () => {
     const filePath = normalizeToAbsolutePath(
       path.join(import.meta.dirname, 'fixtures', 'wrapper', 'eslint-config.js'),
     );
@@ -2023,15 +2023,7 @@ describe('Linter', () => {
     });
     const { issues } = Linter.lint(parseResult, filePath);
 
-    expect(issues).toEqual([
-      expect.objectContaining({
-        ruleId: 'S107',
-        line: 2,
-        column: 0,
-        endLine: 2,
-        endColumn: 12,
-      }),
-    ]);
+    expect(issues).toEqual([]);
   });
 
   it('should not report on globals provided by environments configuration', async () => {
