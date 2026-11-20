@@ -17,6 +17,7 @@
 
 import {
   createConfigurationFromInput,
+  MAX_NODE_MODULE_JS_DEPTH,
   type AnalysisMode as InternalAnalysisMode,
   type ConfigurationInput,
   type JsTsLanguage as InternalJsTsLanguage,
@@ -185,7 +186,7 @@ function normalizeMaxNodeModuleJsDepth(depth: number | null | undefined) {
   if (depth == null) {
     return undefined;
   }
-  if (!Number.isInteger(depth) || depth < 0 || depth > 0x7fffffff) {
+  if (!Number.isInteger(depth) || depth < 0 || depth > MAX_NODE_MODULE_JS_DEPTH) {
     throw new InvalidAnalyzeProjectRequestError(
       'configuration.max_node_module_js_depth must be a non-negative int32',
     );
