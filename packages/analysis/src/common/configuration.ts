@@ -33,7 +33,11 @@ import {
   isObject,
 } from '../../../shared/src/helpers/sanitize.js';
 import { JAVASCRIPT_CODE_FILE_EXTENSIONS, TYPESCRIPT_CODE_FILE_EXTENSIONS } from './file-kinds.js';
-import { DEFAULT_CSS_SUFFIXES, normalizeCssSuffixes } from '../css/linter/dialect.js';
+import {
+  createCssDialectMap,
+  DEFAULT_CSS_SUFFIXES,
+  normalizeCssSuffixes,
+} from '../css/linter/dialect.js';
 
 /**
  * A discriminator between JavaScript and TypeScript languages. This is used
@@ -294,6 +298,7 @@ export function createConfigurationFromInput(input: ConfigurationInput): Configu
   const scssSuffixes = normalizeCssSuffixes(input.scssSuffixes);
   const sassSuffixes = normalizeCssSuffixes(input.sassSuffixes);
   const lessSuffixes = normalizeCssSuffixes(input.lessSuffixes);
+  createCssDialectMap({ scssSuffixes, sassSuffixes, lessSuffixes });
   return {
     baseDir,
     canAccessFileSystem: input.canAccessFileSystem ?? true,

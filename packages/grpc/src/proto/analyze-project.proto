@@ -108,9 +108,9 @@ message ProjectConfiguration {
   optional bool skip_node_module_lookup_outside_base_dir = 29;
   optional string ecma_script_version = 30;
   optional bool detect_generated_code = 34;
-  repeated string scss_suffixes = 35;
-  repeated string sass_suffixes = 36;
-  repeated string less_suffixes = 37;
+  repeated string scss_suffixes = 36;
+  repeated string sass_suffixes = 37;
+  repeated string less_suffixes = 38;
 }
 
 message StringList {

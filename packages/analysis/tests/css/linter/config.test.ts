@@ -133,17 +133,6 @@ describe('preprocessor rule applicability', () => {
 });
 
 describe('custom stylesheet suffixes', () => {
-  it('rejects ambiguous custom dialects', () => {
-    const linter = new LinterWrapper();
-    expect(() =>
-      linter.initialize(
-        [],
-        undefined,
-        createConfiguration({ baseDir: '/tmp', sassSuffixes: ['TXT'], lessSuffixes: ['.txt'] }),
-      ),
-    ).toThrow('CSS suffix .txt is configured for both less and sass');
-  });
-
   it('uses explicit dialect associations before standard extension defaults', async () => {
     const linter = new LinterWrapper();
     linter.initialize(
@@ -195,13 +184,10 @@ describe('custom stylesheet suffixes', () => {
           undefined,
           configuration,
         );
-        const { issues, root } = await linter.lint(
-          normalizeToAbsolutePath(`/tmp/input.${extension}`),
-          code,
-          ruleFileType,
-        );
+        const filePath = normalizeToAbsolutePath(`/tmp/input.${extension}`);
+        const { issues, root } = await linter.lint(filePath, code, ruleFileType);
         expect(root).toBeDefined();
-        expect(root?.source?.input.file).toBe(`/tmp/input.${extension}`);
+        expect(root?.source?.input.file).toBe(filePath);
         expect(issues.map(issue => issue.ruleId)).toEqual(
           ruleFileType === 'MAIN' ? ['color-no-invalid-hex'] : [],
         );

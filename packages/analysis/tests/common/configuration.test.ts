@@ -31,6 +31,12 @@ import {
 import { normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
 
 describe('createConfiguration', () => {
+  it('rejects ambiguous custom dialects before returning a configuration', () => {
+    expect(() =>
+      createConfiguration({ baseDir: '/tmp', sassSuffixes: ['TXT'], lessSuffixes: ['.txt'] }),
+    ).toThrow('CSS suffix .txt is configured for both less and sass');
+  });
+
   it('adds normalized dialect suffixes to stylesheet discovery', () => {
     const config = createConfiguration({
       baseDir: '/tmp',
