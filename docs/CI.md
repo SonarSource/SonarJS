@@ -430,6 +430,14 @@ branch for reusable dependency caches. A fallback restore can report
 restoring usable default-branch content. This is an accepted simplification.
 There is no promotion of a branch cache back to the default branch.
 
+Before skipping installation or tests, the workflow requires both an exact cache
+hit and the expected restored files: npm's hidden `node_modules/.package-lock.json`,
+both JS coverage reports, or the Windows test success marker. The released shared
+action can report a successful existence probe after a failed restore. Missing
+files therefore trigger normal installation or testing instead of trusting that
+probe. These checks detect missing payloads; they do not validate every dependency
+file or replace successful-restore reporting in the shared action.
+
 ## S3 Build Output Handoffs
 
 | Payload                | S3 key                                        | Archive paths                         | Consumers                       |
