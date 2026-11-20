@@ -134,71 +134,77 @@ export function createOptions(
     // seen in the file, while `patchInlineOptions` and `patchDirectives` later remap everything
     // back onto the internal `sonarjs/Sxxxx` rule id that we actually execute.
     getRule: (ruleId: string) => eslintMapping[getRuleId(ruleId)]?.directiveRuleDefinition,
-    patchDirectives: (disableDirectives: Directive[]) => {
-      for (const directive of disableDirectives) {
-        if (!eslintMapping[getRuleId(directive.ruleId)]) {
-          continue;
-        }
-        directive.ruleId = eslintMapping[getRuleId(directive.ruleId)].ruleId;
-        if (!mappedParentDirectives.has(directive.parentDirective)) {
-          directive.parentDirective.ruleIds = directive.parentDirective.ruleIds.map(ruleId => {
-            const mappedRule = ruleId && eslintMapping[getRuleId(ruleId)];
-            if (mappedRule) {
-              directive.parentDirective.value = directive.parentDirective.value.replaceAll(
-                ruleId,
-                mappedRule.ruleId,
-              );
-              return mappedRule.ruleId;
-            }
-            return ruleId;
-          });
-          mappedParentDirectives.add(directive.parentDirective);
-        }
-      }
-    },
-    patchInlineOptions: (config: { rules: Linter.RulesRecord }) => {
-      const patchedOptions: Linter.RulesRecord = { ...config.rules };
-      const aliasedRuleIds = new Set<string>();
-
-      for (const [ruleId, options] of Object.entries(config.rules)) {
-        const mapping = eslintMapping[getRuleId(ruleId)];
-        if (mapping && ruleId !== mapping.ruleId) {
-          // ESLint has already parsed the inline directive at this point, but once we remap the
-          // rule id we must reapply the active Sonar/materialized options for that rule. Otherwise
-          // severity-only pragmas drop Sonar defaults, and inline overrides merge against raw
-          // upstream alias defaults instead of the effective runtime config.
-          patchedOptions[mapping.ruleId] = normalizeInlineRuleOptions(
-            options,
-            mapping,
-            activeRules[mapping.ruleId],
-          );
-          delete patchedOptions[ruleId];
-          aliasedRuleIds.add(mapping.ruleId);
-        }
-      }
-
-      for (const [ruleId, options] of Object.entries(config.rules)) {
-        const mapping = eslintMapping[getRuleId(ruleId)];
-        if (ruleId === mapping?.ruleId && !aliasedRuleIds.has(ruleId)) {
-          patchedOptions[ruleId] = normalizeInlineRuleOptions(
-            options,
-            mapping,
-            activeRules[ruleId],
-          );
-        }
-      }
-      // Inline configuration is merged after rule selection. Keep vendor exclusions authoritative
-      // after alias remapping so a pragma cannot reactivate an ineligible rule.
-      if (vendorFile) {
-        for (const ruleId of Object.keys(patchedOptions)) {
-          if (getSonarMeta(ruleId)?.skipOnVendorFile) {
-            delete patchedOptions[ruleId];
-          }
-        }
-      }
-      config.rules = patchedOptions;
-    },
+    patchDirectives: (disableDirectives: Directive[]) =>
+      patchDirectives(disableDirectives, mappedParentDirectives),
+    patchInlineOptions: (config: { rules: Linter.RulesRecord }) =>
+      patchInlineOptions(config, activeRules, vendorFile),
   };
+}
+
+function patchDirectives(disableDirectives: Directive[], mappedParentDirectives: Set<unknown>) {
+  for (const directive of disableDirectives) {
+    if (!eslintMapping[getRuleId(directive.ruleId)]) {
+      continue;
+    }
+    directive.ruleId = eslintMapping[getRuleId(directive.ruleId)].ruleId;
+    if (!mappedParentDirectives.has(directive.parentDirective)) {
+      directive.parentDirective.ruleIds = directive.parentDirective.ruleIds.map(ruleId => {
+        const mappedRule = ruleId && eslintMapping[getRuleId(ruleId)];
+        if (mappedRule) {
+          directive.parentDirective.value = directive.parentDirective.value.replaceAll(
+            ruleId,
+            mappedRule.ruleId,
+          );
+          return mappedRule.ruleId;
+        }
+        return ruleId;
+      });
+      mappedParentDirectives.add(directive.parentDirective);
+    }
+  }
+}
+
+function patchInlineOptions(
+  config: { rules: Linter.RulesRecord },
+  activeRules: Linter.RulesRecord,
+  vendorFile: boolean,
+) {
+  const patchedOptions: Linter.RulesRecord = { ...config.rules };
+  const aliasedRuleIds = new Set<string>();
+
+  for (const [ruleId, options] of Object.entries(config.rules)) {
+    const mapping = eslintMapping[getRuleId(ruleId)];
+    if (mapping && ruleId !== mapping.ruleId) {
+      // ESLint has already parsed the inline directive at this point, but once we remap the
+      // rule id we must reapply the active Sonar/materialized options for that rule. Otherwise
+      // severity-only pragmas drop Sonar defaults, and inline overrides merge against raw
+      // upstream alias defaults instead of the effective runtime config.
+      patchedOptions[mapping.ruleId] = normalizeInlineRuleOptions(
+        options,
+        mapping,
+        activeRules[mapping.ruleId],
+      );
+      delete patchedOptions[ruleId];
+      aliasedRuleIds.add(mapping.ruleId);
+    }
+  }
+
+  for (const [ruleId, options] of Object.entries(config.rules)) {
+    const mapping = eslintMapping[getRuleId(ruleId)];
+    if (ruleId === mapping?.ruleId && !aliasedRuleIds.has(ruleId)) {
+      patchedOptions[ruleId] = normalizeInlineRuleOptions(options, mapping, activeRules[ruleId]);
+    }
+  }
+  // Inline configuration is merged after rule selection. Keep vendor exclusions authoritative
+  // after alias remapping so a pragma cannot reactivate an ineligible rule.
+  if (vendorFile) {
+    for (const ruleId of Object.keys(patchedOptions)) {
+      if (getSonarMeta(ruleId)?.skipOnVendorFile) {
+        delete patchedOptions[ruleId];
+      }
+    }
+  }
+  config.rules = patchedOptions;
 }
 
 function getSonarMeta(ruleId: string): SonarMeta | undefined {
