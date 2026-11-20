@@ -43,8 +43,7 @@ type AwsCdkCallback = {
   newExpression?(expr: estree.NewExpression, ctx: Rule.RuleContext): void;
 };
 export type AwsCdkConsumer =
-  | ((expr: estree.NewExpression, ctx: Rule.RuleContext) => void)
-  | AwsCdkCallback;
+  ((expr: estree.NewExpression, ctx: Rule.RuleContext) => void) | AwsCdkCallback;
 type AwsCdkNode = estree.NewExpression | estree.CallExpression;
 
 type Values = { invalid?: any[]; valid?: any[]; case_insensitive?: boolean };
@@ -74,39 +73,43 @@ export function AwsCdkTemplate(
   return {
     meta,
     create(ctx: Rule.RuleContext) {
-      const consumers = typeof mapOrFactory === 'function' ? mapOrFactory(ctx) : mapOrFactory;
+      const consumerMap = typeof mapOrFactory === 'function' ? mapOrFactory(ctx) : mapOrFactory;
+      // Expected names are normalized once per file.
+      const consumers = Object.entries(consumerMap).map(
+        ([fqn, callback]) => [normalizeFQN(fqn), callback] as const,
+      );
+      // Function consumers only match new expressions, so call expressions need no name
+      // resolution unless an object consumer is registered.
+      const hasCallExpressionConsumers = consumers.some(
+        ([, callback]) => typeof callback === 'object',
+      );
       return {
         'NewExpression, CallExpression'(node: AwsCdkNode) {
           if (node.arguments.some(arg => arg.type === 'SpreadElement')) {
             return;
           }
-          for (const fqn in consumers) {
-            const normalizedExpectedFQN = normalizeFQN(fqn);
-            const callback = consumers[fqn];
-            if (typeof callback === 'object' || node.type === 'CallExpression') {
-              executeIfMatching(node, normalizedExpectedFQN!, callback);
-              continue;
-            }
-            const normalizedActualFQN = normalizeFQN(getFullyQualifiedName(ctx, node.callee));
-            if (normalizedActualFQN === normalizedExpectedFQN) {
-              callback(node, ctx);
+          if (node.type === 'CallExpression' && !hasCallExpressionConsumers) {
+            return;
+          }
+          // The callee's name does not depend on the consumer, and resolving it walks scopes and
+          // imports, so it is resolved once per node. A callee without a name matches no consumer.
+          const fqn = normalizeFQN(getFullyQualifiedName(ctx, node.callee));
+          if (fqn === undefined) {
+            return;
+          }
+          for (const [expected, callback] of consumers) {
+            if (typeof callback === 'function') {
+              if (node.type === 'NewExpression' && fqn === expected) {
+                callback(node, ctx);
+              }
+            } else if (node.type === 'NewExpression' && fqn === expected) {
+              callback.newExpression?.(node, ctx);
+            } else if (isMethodCall(callback, fqn, expected)) {
+              callback.callExpression(node, ctx, fqn);
             }
           }
         },
       };
-
-      function executeIfMatching(node: AwsCdkNode, expected: string, callback: AwsCdkConsumer) {
-        if (typeof callback === 'function') {
-          return;
-        }
-
-        const fqn = normalizeFQN(getFullyQualifiedName(ctx, node.callee));
-        if (node.type === 'NewExpression' && fqn === expected) {
-          callback.newExpression?.(node, ctx);
-        } else if (isMethodCall(callback, fqn, expected)) {
-          callback.callExpression(node, ctx, fqn);
-        }
-      }
     },
   };
 }
@@ -408,6 +411,8 @@ function isMethodCall(callback: AwsCdkCallback, fqn: string | undefined, expecte
   }
 }
 
+export function normalizeFQN(fqn: string): string;
+export function normalizeFQN(fqn?: string | null): string | undefined;
 export function normalizeFQN(fqn?: string | null) {
   return fqn?.replaceAll('-', '_');
 }
