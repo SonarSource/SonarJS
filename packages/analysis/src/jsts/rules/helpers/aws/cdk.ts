@@ -43,8 +43,7 @@ type AwsCdkCallback = {
   newExpression?(expr: estree.NewExpression, ctx: Rule.RuleContext): void;
 };
 export type AwsCdkConsumer =
-  | ((expr: estree.NewExpression, ctx: Rule.RuleContext) => void)
-  | AwsCdkCallback;
+  ((expr: estree.NewExpression, ctx: Rule.RuleContext) => void) | AwsCdkCallback;
 type AwsCdkNode = estree.NewExpression | estree.CallExpression;
 
 type Values = { invalid?: any[]; valid?: any[]; case_insensitive?: boolean };
@@ -77,7 +76,7 @@ export function AwsCdkTemplate(
       const consumerMap = typeof mapOrFactory === 'function' ? mapOrFactory(ctx) : mapOrFactory;
       // Expected names are normalized once per file.
       const consumers = Object.entries(consumerMap).map(
-        ([fqn, callback]) => [normalizeFQN(fqn)!, callback] as const,
+        ([fqn, callback]) => [normalizeFQN(fqn), callback] as const,
       );
       // Function consumers only match new expressions, so call expressions need no name
       // resolution unless an object consumer is registered.
@@ -412,6 +411,8 @@ function isMethodCall(callback: AwsCdkCallback, fqn: string | undefined, expecte
   }
 }
 
+export function normalizeFQN(fqn: string): string;
+export function normalizeFQN(fqn?: string | null): string | undefined;
 export function normalizeFQN(fqn?: string | null) {
   return fqn?.replaceAll('-', '_');
 }
