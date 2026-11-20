@@ -20,6 +20,7 @@
     <protobuf.generation.phase>generate-sources</protobuf.generation.phase>
     <java.generation.phase>generate-resources</java.generation.phase>
     <skip.sbom>false</skip.sbom>
+    <nodejs.runtime.version>24.22.3.10265</nodejs.runtime.version>
     <!-- sonar scanner properties -->
     <sonar.sources>src/main</sonar.sources>
     <sonar.tests>src/test</sonar.tests>
@@ -54,6 +55,7 @@
     <module>bridge</module>
     <module>css</module>
     <module>sonar-javascript-plugin</module>
+    <module>sonar-javascript-plugin-zip</module>
     <module>standalone</module>
   </modules>
 

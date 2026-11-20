@@ -27,7 +27,7 @@
     <dependency>
       <groupId>com.sonarsource.scanner.integrationtester</groupId>
       <artifactId>sonar-scanner-integration-tester</artifactId>
-      <version>1.7.0.11463</version>
+      <version>1.8.0.11480</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -93,36 +93,34 @@
                       <type>sonar-plugin</type>
                       <overWrite>true</overWrite>
                     </artifactItem>
-                    <artifactItem>
-                      <groupId>${project.groupId}</groupId>
-                      <artifactId>sonar-javascript-plugin</artifactId>
-                      <classifier>win-x64</classifier>
-                      <type>sonar-plugin</type>
-                      <overWrite>true</overWrite>
-                    </artifactItem>
-                    <artifactItem>
-                      <groupId>${project.groupId}</groupId>
-                      <artifactId>sonar-javascript-plugin</artifactId>
-                      <classifier>linux-x64</classifier>
-                      <type>sonar-plugin</type>
-                      <overWrite>true</overWrite>
-                    </artifactItem>
-                    <artifactItem>
-                      <groupId>${project.groupId}</groupId>
-                      <artifactId>sonar-javascript-plugin</artifactId>
-                      <classifier>linux-x64-musl</classifier>
-                      <type>sonar-plugin</type>
-                      <overWrite>true</overWrite>
-                    </artifactItem>
-                    <artifactItem>
-                      <groupId>${project.groupId}</groupId>
-                      <artifactId>sonar-javascript-plugin</artifactId>
-                      <classifier>multi</classifier>
-                      <type>sonar-plugin</type>
-                      <overWrite>true</overWrite>
-                    </artifactItem>
                   </artifactItems>
                   <outputDirectory>../../../sonar-plugin/sonar-javascript-plugin/target</outputDirectory>
+                  <overWriteReleases>true</overWriteReleases>
+                  <overWriteSnapshots>true</overWriteSnapshots>
+                </configuration>
+              </execution>
+              <execution>
+                <!--
+                  The Node.js runtimes live in the on-demand resources ZIP (JS-2714 / SC-49784), not in the plugin
+                  jar: EmbeddedNodeTest serves them as static resources of the plugin, like SonarQube Server does.
+                -->
+                <id>unpack-plugin-resources</id>
+                <phase>generate-test-resources</phase>
+                <goals>
+                  <goal>unpack</goal>
+                </goals>
+                <configuration>
+                  <artifactItems>
+                    <artifactItem>
+                      <groupId>${project.groupId}</groupId>
+                      <artifactId>sonar-javascript-plugin-zip</artifactId>
+                      <version>${project.version}</version>
+                      <type>zip</type>
+                      <overWrite>true</overWrite>
+                      <includes>resources/**</includes>
+                      <outputDirectory>${project.build.directory}/sonar-javascript-plugin</outputDirectory>
+                    </artifactItem>
+                  </artifactItems>
                   <overWriteReleases>true</overWriteReleases>
                   <overWriteSnapshots>true</overWriteSnapshots>
                 </configuration>

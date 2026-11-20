@@ -20,54 +20,35 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.regex.Pattern;
 
 public class TestUtils {
 
-  static final Path JAVASCRIPT_PLUGIN_LOCATION = artifact();
-
-  static final List<String> platformStrings = List.of(
-    "darwin-arm64",
-    "darwin-x64",
-    "linux-arm64",
-    "linux-x64",
-    "linux-x64-musl",
-    "win-x64",
-    "multi"
+  private static final Pattern PLUGIN_FILENAME_PATTERN = Pattern.compile(
+    "sonar-javascript-plugin-[0-9.]*(?:-SNAPSHOT)?\\.jar"
   );
 
+  static final Path JAVASCRIPT_PLUGIN_LOCATION = artifact();
+
   /**
-   * This is used to test artifact with and without embedded runtime during plugin QA integration tests
-   *
+   * The `copy-plugin` QA execution unpacks the full on-demand resources ZIP (JS-2714 / SC-49784) here, so that
+   * {@code plugin/<jar>} and {@code resources/<platform>/...} land as siblings on disk, exactly like a real
+   * SonarLint distribution - {@code SonarLintEmbeddedNode} looks for the latter next to wherever it loads the
+   * former from.
    */
   private static Path artifact() {
     try {
-      var target = Path.of("../../../sonar-plugin/sonar-javascript-plugin/target").toRealPath();
-      try (var stream = Files.walk(target, 1)) {
+      var pluginDirectory = Path.of("target", "sonar-javascript-plugin", "plugin").toRealPath();
+      try (var stream = Files.walk(pluginDirectory, 1)) {
         return stream
-          .filter(p -> pluginFilenameMatcher().matcher(p.getFileName().toString()).matches())
+          .filter(p -> PLUGIN_FILENAME_PATTERN.matcher(p.getFileName().toString()).matches())
           .findAny()
-          .orElseThrow(() -> new IllegalStateException("Cannot find plugin artifact in " + target));
+          .orElseThrow(() ->
+            new IllegalStateException("Cannot find plugin artifact in " + pluginDirectory)
+          );
       }
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
-  }
-
-  private static Pattern pluginFilenameMatcher() {
-    if (System.getenv("SONARJS_ARTIFACT") != null) {
-      return Pattern.compile(
-        String.format("sonar-javascript-plugin-.*-%s\\.jar", System.getenv("SONARJS_ARTIFACT"))
-      );
-    }
-
-    return Pattern.compile("sonar-javascript-plugin-[0-9.]*(?:-SNAPSHOT)?\\.jar");
-  }
-
-  static boolean usingEmbeddedNode() {
-    return platformStrings
-      .stream()
-      .anyMatch(TestUtils.JAVASCRIPT_PLUGIN_LOCATION.toString()::contains);
   }
 }

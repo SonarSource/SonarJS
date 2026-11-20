@@ -48,19 +48,29 @@ class EmbeddedNodeCleanupTest {
     when(env.isAlpine()).thenReturn(false);
     when(env.getSonarUserHome()).thenReturn(tempDir);
 
-    var embeddedNode = new EmbeddedNode(processWrapper, env);
+    var resourcesRoot = tempDir.resolve("resources");
+    var archiveResource = resourcesRoot.resolve("linux-x64/bin/node.xz");
+    Files.createDirectories(archiveResource.getParent());
+    Files.writeString(archiveResource, "broken");
+    var versionResource = resourcesRoot.resolve("linux-x64/version.txt");
+    try (var versionInput = getClass().getResourceAsStream("/linux-x64/version.txt")) {
+      assertThat(versionInput).isNotNull();
+      Files.writeString(
+        versionResource,
+        new String(versionInput.readAllBytes(), StandardCharsets.UTF_8)
+      );
+    }
+
+    // Pre-seed an already-deployed runtime whose version matches the resources root's version.txt, so deploy()
+    // takes its "already up to date" branch and skips re-extracting the (dummy, non-XZ) archive fixture - the
+    // validation failure below must come from running the (mocked) binary, not from extraction itself.
+    var embeddedNode = new SonarLintEmbeddedNode(processWrapper, env, resourcesRoot);
     var runtimeDir = tempDir.resolve("js").resolve("node-runtime");
     var runtimeBinary = runtimeDir.resolve("node");
     var runtimeVersion = runtimeDir.resolve(EmbeddedNode.VERSION_FILENAME);
     Files.createDirectories(runtimeDir);
     Files.writeString(runtimeBinary, "broken");
-    try (var versionInput = getClass().getResourceAsStream("/linux-x64/version.txt")) {
-      assertThat(versionInput).isNotNull();
-      Files.writeString(
-        runtimeVersion,
-        new String(versionInput.readAllBytes(), StandardCharsets.UTF_8)
-      );
-    }
+    Files.copy(versionResource, runtimeVersion);
 
     embeddedNode.deploy();
 
