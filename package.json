@@ -142,7 +142,7 @@
     "lodash.merge": "4.6.2",
     "minimatch": "11.0.8",
     "postcss": "8.5.33",
-    "postcss-html": "2.0.0",
+    "postcss-html": "2.0.1",
     "postcss-less": "7.1.1",
     "postcss-scss": "4.0.9",
     "postcss-selector-parser": "7.2.1",
