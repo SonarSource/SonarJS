@@ -78,11 +78,15 @@ export const rule: Rule.RuleModule = {
           typeNode.parent?.type === 'TSUnionType'
             ? [getUndefinedRemovalSuggestion(context, typeNode)]
             : [];
+        const message =
+          suggest.length > 0
+            ? "Consider removing the redundant 'undefined' type."
+            : `The type annotation '${context.sourceCode.text.slice(...rootType.range)}' includes 'undefined'. Use a type without 'undefined' here, keeping '?'.`;
 
         report(
           context,
           {
-            message: "Consider removing the redundant 'undefined' type.",
+            message,
             loc: optionalToken.loc,
             suggest,
           },
