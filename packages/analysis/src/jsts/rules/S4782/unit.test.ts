@@ -1127,8 +1127,54 @@ describe('S4782', () => {
           const invalid: T = { p: 42 };`,
           filename: exactOptionalFile,
         },
+        {
+          code: `declare const source: { value?: string };
+          interface T { p?: typeof source.value | undefined; }`,
+          filename: exactOptionalFile,
+        },
+        {
+          code: `declare const source: { value?: string };
+          type Value = typeof source.value;
+          interface T { p?: Value | undefined; }`,
+          filename: exactOptionalFile,
+        },
       ],
       invalid: [
+        {
+          code: `declare const source: { value?: string | undefined };
+          interface T { p?: typeof source.value | undefined; }`,
+          filename: exactOptionalFile,
+          errors: [
+            {
+              message: "Remove this redundant 'undefined' type annotation.",
+              suggestions: [
+                {
+                  desc: 'Remove "undefined" type annotation',
+                  output: `declare const source: { value?: string | undefined };
+          interface T { p?: typeof source.value; }`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `type Value = string | undefined;
+          interface T { p?: Value | undefined; }`,
+          filename: exactOptionalFile,
+          settings: { sonarRuntime: true },
+          errors: [
+            {
+              message: `{"message":"Remove this redundant 'undefined' type annotation.","secondaryLocations":[]}`,
+              suggestions: [
+                {
+                  desc: 'Remove "undefined" type annotation',
+                  output: `type Value = string | undefined;
+          interface T { p?: Value; }`,
+                },
+              ],
+            },
+          ],
+        },
         {
           code: `interface ColorDetails { localizedNames?: string[]; }
           interface T { p?: ColorDetails['localizedNames'] | undefined; }`,
