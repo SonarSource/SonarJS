@@ -55,7 +55,7 @@ export const rule: Rule.RuleModule = {
           ? findRedundantUndefinedTypeNode(rootType, parserServices)
           : undefined;
         if (redundantUndefined) {
-          context.report({
+          report(context, {
             message: "Remove this redundant 'undefined' type annotation.",
             loc: redundantUndefined.loc,
             suggest: [getUndefinedRemovalSuggestion(context, redundantUndefined)],
@@ -201,9 +201,10 @@ function propagatesUndefined(
 
 function containsUndefined(node: TSESTree.TypeNode, services: RequiredParserServices): boolean {
   const tsNode = services.esTreeNodeToTSNodeMap.get(node);
-  const type = services.program.getTypeChecker().getTypeAtLocation(tsNode);
+  const checker = services.program.getTypeChecker();
+  const type = checker.getTypeAtLocation(tsNode);
   const members = type.isUnion() ? type.types : [type];
-  return members.some(isUndefinedType);
+  return members.includes(checker.getUndefinedType());
 }
 
 function findSyntacticUndefinedTypeNode(
