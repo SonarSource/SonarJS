@@ -317,6 +317,187 @@ describe('S3801', () => {
     });
   });
 
+  it('S3801 without type information - never return expressions', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    // Without type information, a return argument cannot be proven to be 'never'.
+    ruleTester.run(`Functions should use "return" consistently [no type information]`, rule, {
+      valid: [],
+      invalid: [
+        {
+          code: `
+            declare function fail(): never;
+            function test(condition: boolean) {
+              if (condition) return;
+              return fail();
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            declare function fail(): Generator<unknown, never, unknown>;
+            function* test(condition: boolean) {
+              if (condition) return yield* fail();
+            }
+          `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('S3801 with type information - never return expressions', () => {
+    const ruleTester = new RuleTester();
+
+    ruleTester.run(`Functions should use "return" consistently [never expressions]`, rule, {
+      valid: [
+        {
+          code: `
+            declare function fail(): never;
+            function test(condition: boolean) {
+              if (condition) return;
+              return fail();
+            }
+          `,
+        },
+        {
+          code: `
+            declare function fail(): never;
+            function test(condition: boolean) {
+              if (condition) return fail();
+            }
+          `,
+        },
+        {
+          code: `
+            declare function fail(): never;
+            function test(condition: boolean) {
+              if (condition) return 42;
+              return fail();
+            }
+          `,
+        },
+        {
+          code: `
+            declare function fail(): Generator<unknown, never, unknown>;
+            function* test(condition: boolean) {
+              if (condition) return;
+              return yield* fail();
+            }
+          `,
+        },
+        {
+          code: `
+            declare function fail(): Generator<unknown, never, unknown>;
+            function* test(condition: boolean) {
+              if (condition) return yield* fail();
+            }
+          `,
+        },
+        {
+          code: `
+            declare function fail(): Promise<never>;
+            async function test(condition: boolean) {
+              if (condition) return;
+              return await fail();
+            }
+          `,
+        },
+      ],
+      invalid: [
+        {
+          // A never return does not excuse another path that omits the required value.
+          code: `
+            declare function fail(): never;
+            function test(value: number): number {
+              if (value > 0) return 42;
+              if (value < 0) return fail();
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            declare function fail(): never;
+            function test(value: number) {
+              if (value > 0) return 42;
+              if (value < 0) return fail();
+              return;
+            }
+          `,
+          errors: [
+            {
+              message: String.raw`{"message":"Refactor this function to use \"return\" consistently.","secondaryLocations":[{"message":"Return with value","column":29,"line":4,"endColumn":39,"endLine":4},{"message":"Return without value","column":14,"line":6,"endColumn":21,"endLine":6}]}`,
+            },
+          ],
+          settings: { sonarRuntime: true },
+        },
+        {
+          code: `
+            declare function fail(): Generator<unknown, never, unknown>;
+            function* test(value: number) {
+              if (value > 0) return 42;
+              if (value < 0) return yield* fail();
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            declare function fail(): Generator<unknown, never, unknown>;
+            function* test(value: number) {
+              if (value > 0) return 42;
+              if (value < 0) return yield* fail();
+              return;
+            }
+          `,
+          errors: 1,
+        },
+        {
+          // Returning an error object is a successful completion, unlike yielding never.
+          code: `
+            function* test(condition: boolean) {
+              if (condition) return new Error('failure');
+            }
+          `,
+          errors: 1,
+        },
+        {
+          // An inferred optional result still mixes successful valued and bare returns.
+          code: `
+            function test(condition: boolean) {
+              if (condition) return 42;
+              return;
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            declare function valueOrFail(): number | never;
+            function test(condition: boolean) {
+              if (condition) return;
+              return valueOrFail();
+            }
+          `,
+          errors: 1,
+        },
+        {
+          // An unknown return type is not proof that the expression cannot complete.
+          code: `
+            declare function unknownResult(): unknown;
+            function test(condition: boolean) {
+              if (condition) return;
+              return unknownResult();
+            }
+          `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
   it('S3801 with type information - exhaustive switch', () => {
     const ruleTester = new RuleTester();
 

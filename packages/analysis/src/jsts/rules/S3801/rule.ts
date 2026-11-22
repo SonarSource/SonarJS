@@ -196,10 +196,19 @@ export const rule: Rule.RuleModule = {
         const currentContext = functionContextStack.at(-1);
         if (!!currentContext) {
           const returnStatement = node as estree.ReturnStatement;
+          const { argument } = returnStatement;
+          if (
+            argument &&
+            hasTypeInformation &&
+            (getTypeFromTreeNode(argument, services).flags & ts.TypeFlags.Never) !== 0
+          ) {
+            // Evaluating a 'never' argument cannot complete the return.
+            return;
+          }
           currentContext.containsReturnWithValue =
-            currentContext.containsReturnWithValue || !!returnStatement.argument;
+            currentContext.containsReturnWithValue || !!argument;
           currentContext.containsReturnWithoutValue =
-            currentContext.containsReturnWithoutValue || !returnStatement.argument;
+            currentContext.containsReturnWithoutValue || !argument;
           currentContext.returnStatements.push(returnStatement);
         }
       },
