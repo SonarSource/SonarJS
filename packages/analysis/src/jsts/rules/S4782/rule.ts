@@ -16,7 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S4782/javascript
 
-import type { AST, Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { isStrictCompilerOptionEnabled } from 'ts-api-utils';
@@ -74,13 +74,15 @@ export const rule: Rule.RuleModule = {
       }
 
       if (typeNode) {
-        const suggest = getQuickFixSuggestions(context, optionalToken, typeNode);
+        const suggest =
+          typeNode.parent?.type === 'TSUnionType'
+            ? [getUndefinedRemovalSuggestion(context, typeNode)]
+            : [];
 
         report(
           context,
           {
-            message:
-              "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
+            message: "Consider removing the redundant 'undefined' type.",
             loc: optionalToken.loc,
             suggest,
           },
@@ -217,23 +219,6 @@ function findSyntacticUndefinedTypeNode(
     return typeNode.types.map(findSyntacticUndefinedTypeNode).find(type => type !== undefined);
   }
   return undefined;
-}
-
-function getQuickFixSuggestions(
-  context: Rule.RuleContext,
-  optionalToken: AST.Token,
-  undefinedType: TSESTree.TypeNode,
-): Rule.SuggestionReportDescriptor[] {
-  const suggestions: Rule.SuggestionReportDescriptor[] = [
-    {
-      desc: 'Remove "?" operator',
-      fix: fixer => fixer.remove(optionalToken),
-    },
-  ];
-  if (undefinedType.parent?.type === 'TSUnionType') {
-    suggestions.push(getUndefinedRemovalSuggestion(context, undefinedType));
-  }
-  return suggestions;
 }
 
 function getUndefinedRemovalSuggestion(

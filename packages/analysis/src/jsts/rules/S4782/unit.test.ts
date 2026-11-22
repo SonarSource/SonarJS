@@ -22,8 +22,77 @@ import {
 import path from 'node:path';
 import parser from '@typescript-eslint/parser';
 import { describe, it } from 'node:test';
+import assert from 'node:assert/strict';
+import { Linter } from 'eslint';
+import ts from 'typescript';
 
 describe('S4782', () => {
+  it('loose-mode suggestions preserve accepted inputs', () => {
+    const filename = path.join(import.meta.dirname, 'fixtures', 'index.ts');
+    const code = 'export interface T { p?: string | undefined; }';
+    for (const strictNullChecks of [false, true]) {
+      const options: ts.CompilerOptions = {
+        strictNullChecks,
+        exactOptionalPropertyTypes: false,
+        noLib: true,
+        types: [],
+      };
+      function createProgram(text: string) {
+        const host = ts.createCompilerHost(options);
+        const readFile = host.readFile;
+        host.readFile = file => (file === filename ? text : readFile(file));
+        return ts.createProgram([filename], options, host);
+      }
+      const messages = new Linter({ cwd: import.meta.dirname }).verify(
+        code,
+        [
+          {
+            files: ['**/*.ts'],
+            languageOptions: { parser, parserOptions: { programs: [createProgram(code)] } },
+            plugins: { sonarjs: { rules: { S4782: rule } } },
+            rules: { 'sonarjs/S4782': 'error' },
+          },
+        ],
+        { filename },
+      );
+      assert.equal(messages.length, 1);
+      const suggestions = messages[0].suggestions;
+      assert.ok(suggestions?.length, JSON.stringify(messages));
+      for (const suggestion of suggestions) {
+        const { range, text } = suggestion.fix;
+        const fixed = code.slice(0, range[0]) + text + code.slice(range[1]);
+        const proof = `
+          namespace Before { ${code} }
+          namespace After { ${fixed} }
+          declare const before: Before.T;
+          declare const after: After.T;
+          const forward: After.T = before;
+          const reverse: Before.T = after;
+          const omittedBefore: Before.T = {};
+          const omittedAfter: After.T = {};
+          const undefinedBefore: Before.T = { p: undefined };
+          const undefinedAfter: After.T = { p: undefined };
+          interface Required { p: string | undefined; }
+          // @ts-expect-error Removing ? rejects omission even in loose mode.
+          const invalidOmission: Required = {};
+          // @ts-expect-error The accepted value type must not widen.
+          const invalidValue: After.T = { p: 42 };
+        `;
+        const program = createProgram(proof);
+        const source = program.getSourceFile(filename);
+        assert.ok(source);
+        assert.deepEqual(
+          [
+            ...program.getSyntacticDiagnostics(source),
+            ...program.getSemanticDiagnostics(source),
+          ].map(diagnostic => ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n')),
+          [],
+          `strictNullChecks=${strictNullChecks}, suggestion=${suggestion.desc}`,
+        );
+      }
+    }
+  });
+
   it('S4782', () => {
     const ruleTester = new RuleTester();
     ruleTester.run(
@@ -123,20 +192,12 @@ describe('S4782', () => {
           }`,
             errors: [
               {
-                message: `{"message":"Consider removing 'undefined' type or '?' specifier, one of them is redundant.","secondaryLocations":[{"column":31,"line":4,"endColumn":40,"endLine":4}]}`,
+                message: `{"message":"Consider removing the redundant 'undefined' type.","secondaryLocations":[{"column":31,"line":4,"endColumn":40,"endLine":4}]}`,
                 line: 4,
                 endLine: 4,
                 column: 20,
                 endColumn: 21,
                 suggestions: [
-                  {
-                    desc: 'Remove "?" operator',
-                    output: `
-          interface Person {
-            name: string;
-            address: string | undefined;
-          }`,
-                  },
                   {
                     desc: 'Remove "undefined" type annotation',
                     output: `
@@ -159,8 +220,7 @@ describe('S4782', () => {
             errors: [
               {
                 message: JSON.stringify({
-                  message:
-                    "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
+                  message: "Consider removing the redundant 'undefined' type.",
                   secondaryLocations: [
                     {
                       column: 33,
@@ -173,14 +233,6 @@ describe('S4782', () => {
                 line: 3,
                 endLine: 3,
                 suggestions: [
-                  {
-                    desc: 'Remove "?" operator',
-                    output: `
-          class Person {
-            address: (string | (undefined | number));
-            name: string;
-          }`,
-                  },
                   {
                     desc: 'Remove "undefined" type annotation',
                     output: `
@@ -198,13 +250,8 @@ describe('S4782', () => {
             code: `interface T { p?: undefined | number; }`,
             errors: [
               {
-                message:
-                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
+                message: "Consider removing the redundant 'undefined' type.",
                 suggestions: [
-                  {
-                    desc: 'Remove "?" operator',
-                    output: 'interface T { p: undefined | number; }',
-                  },
                   {
                     desc: 'Remove "undefined" type annotation',
                     output: 'interface T { p?: number; }',
@@ -217,13 +264,8 @@ describe('S4782', () => {
             code: `interface T { p?: number | undefined; }`,
             errors: [
               {
-                message:
-                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
+                message: "Consider removing the redundant 'undefined' type.",
                 suggestions: [
-                  {
-                    desc: 'Remove "?" operator',
-                    output: 'interface T { p: number | undefined; }',
-                  },
                   {
                     desc: 'Remove "undefined" type annotation',
                     output: 'interface T { p?: number; }',
@@ -236,13 +278,8 @@ describe('S4782', () => {
             code: `interface T { p?: (undefined | number); }`,
             errors: [
               {
-                message:
-                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
+                message: "Consider removing the redundant 'undefined' type.",
                 suggestions: [
-                  {
-                    desc: 'Remove "?" operator',
-                    output: 'interface T { p: (undefined | number); }',
-                  },
                   {
                     desc: 'Remove "undefined" type annotation',
                     output: 'interface T { p?: number; }',
@@ -255,13 +292,8 @@ describe('S4782', () => {
             code: `interface T { p?: undefined | number | string; }`,
             errors: [
               {
-                message:
-                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
+                message: "Consider removing the redundant 'undefined' type.",
                 suggestions: [
-                  {
-                    desc: 'Remove "?" operator',
-                    output: 'interface T { p: undefined | number | string; }',
-                  },
                   {
                     desc: 'Remove "undefined" type annotation',
                     output: 'interface T { p?: number | string; }',
@@ -274,13 +306,8 @@ describe('S4782', () => {
             code: `interface T { p?: number | undefined | string; }`,
             errors: [
               {
-                message:
-                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
+                message: "Consider removing the redundant 'undefined' type.",
                 suggestions: [
-                  {
-                    desc: 'Remove "?" operator',
-                    output: 'interface T { p: number | undefined | string; }',
-                  },
                   {
                     desc: 'Remove "undefined" type annotation',
                     output: 'interface T { p?: number | string; }',
@@ -293,13 +320,8 @@ describe('S4782', () => {
             code: `interface T { p?: number | string | undefined; }`,
             errors: [
               {
-                message:
-                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
+                message: "Consider removing the redundant 'undefined' type.",
                 suggestions: [
-                  {
-                    desc: 'Remove "?" operator',
-                    output: 'interface T { p: number | string | undefined; }',
-                  },
                   {
                     desc: 'Remove "undefined" type annotation',
                     output: 'interface T { p?: number | string; }',
@@ -312,13 +334,8 @@ describe('S4782', () => {
             code: `interface T { p?: number | (string | undefined); }`,
             errors: [
               {
-                message:
-                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
+                message: "Consider removing the redundant 'undefined' type.",
                 suggestions: [
-                  {
-                    desc: 'Remove "?" operator',
-                    output: 'interface T { p: number | (string | undefined); }',
-                  },
                   {
                     desc: 'Remove "undefined" type annotation',
                     output: 'interface T { p?: number | string; }',
@@ -331,13 +348,8 @@ describe('S4782', () => {
             code: `interface T { p?: (undefined) | number; }`,
             errors: [
               {
-                message:
-                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
+                message: "Consider removing the redundant 'undefined' type.",
                 suggestions: [
-                  {
-                    desc: 'Remove "?" operator',
-                    output: 'interface T { p: (undefined) | number; }',
-                  },
                   {
                     desc: 'Remove "undefined" type annotation',
                     output: 'interface T { p?: number; }',
@@ -354,13 +366,8 @@ describe('S4782', () => {
             code: `interface T { p?: Map<string, number | undefined> | undefined; }`,
             errors: [
               {
-                message:
-                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
+                message: "Consider removing the redundant 'undefined' type.",
                 suggestions: [
-                  {
-                    desc: 'Remove "?" operator',
-                    output: 'interface T { p: Map<string, number | undefined> | undefined; }',
-                  },
                   {
                     desc: 'Remove "undefined" type annotation',
                     output: 'interface T { p?: Map<string, number | undefined>; }',
@@ -417,20 +424,41 @@ describe('S4782', () => {
       'S4782 reports syntactic cases with exact optional properties disabled',
       rule,
       {
-        valid: [],
+        valid: [
+          {
+            code: `interface T { p?: string; }
+          const omitted: T = {};
+          const explicitUndefined: T = { p: undefined };`,
+            filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
+          },
+        ],
         invalid: [
+          {
+            code: `interface T { p?: string | undefined; }
+          const omitted: T = {};
+          const explicitUndefined: T = { p: undefined };`,
+            filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
+            errors: [
+              {
+                message: "Consider removing the redundant 'undefined' type.",
+                suggestions: [
+                  {
+                    desc: 'Remove "undefined" type annotation',
+                    output: `interface T { p?: string; }
+          const omitted: T = {};
+          const explicitUndefined: T = { p: undefined };`,
+                  },
+                ],
+              },
+            ],
+          },
           {
             code: `interface T { p?: string | undefined; }`,
             filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
             errors: [
               {
-                message:
-                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
+                message: "Consider removing the redundant 'undefined' type.",
                 suggestions: [
-                  {
-                    desc: 'Remove "?" operator',
-                    output: 'interface T { p: string | undefined; }',
-                  },
                   {
                     desc: 'Remove "undefined" type annotation',
                     output: 'interface T { p?: string; }',
@@ -445,14 +473,8 @@ describe('S4782', () => {
             filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
             errors: [
               {
-                message:
-                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
+                message: "Consider removing the redundant 'undefined' type.",
                 suggestions: [
-                  {
-                    desc: 'Remove "?" operator',
-                    output: `type MaybeText = string | undefined;
-          class T { p: undefined | MaybeText; }`,
-                  },
                   {
                     desc: 'Remove "undefined" type annotation',
                     output: `type MaybeText = string | undefined;
@@ -613,21 +635,8 @@ describe('S4782', () => {
             filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
             errors: [
               {
-                message:
-                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
-                suggestions: [
-                  {
-                    desc: 'Remove "?" operator',
-                    output: `
-            interface LocalProperties {
-              optional?: string;
-            }
-            interface Example {
-              attribute: LocalProperties['optional'];
-            };
-            `,
-                  },
-                ],
+                message: "Consider removing the redundant 'undefined' type.",
+                suggestions: [],
               },
             ],
           },
@@ -645,21 +654,8 @@ describe('S4782', () => {
             filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
             errors: [
               {
-                message:
-                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
-                suggestions: [
-                  {
-                    desc: 'Remove "?" operator',
-                    output: `
-            interface LocalIndexed {
-              [key: string]: string | undefined;
-            }
-            interface Example {
-              attribute: LocalIndexed['anyKey'];
-            };
-            `,
-                  },
-                ],
+                message: "Consider removing the redundant 'undefined' type.",
+                suggestions: [],
               },
             ],
           },
@@ -676,20 +672,8 @@ describe('S4782', () => {
             filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
             errors: [
               {
-                message:
-                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
-                suggestions: [
-                  {
-                    desc: 'Remove "?" operator',
-                    output: `
-            import type { FakeExternalProperties } from 'fake-lib';
-            type Key = 'optional';
-            interface Example {
-              attribute: FakeExternalProperties[Key];
-            };
-            `,
-                  },
-                ],
+                message: "Consider removing the redundant 'undefined' type.",
+                suggestions: [],
               },
             ],
           },
@@ -703,19 +687,8 @@ describe('S4782', () => {
             filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
             errors: [
               {
-                message:
-                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
-                suggestions: [
-                  {
-                    desc: 'Remove "?" operator',
-                    output: `
-            import type { FakeUndefinedUnion } from 'fake-lib';
-            type LocalUndefinedUnion = number | undefined;
-            interface Example {
-              attribute: FakeUndefinedUnion | LocalUndefinedUnion;
-            };`,
-                  },
-                ],
+                message: "Consider removing the redundant 'undefined' type.",
+                suggestions: [],
               },
             ],
           },
@@ -729,19 +702,8 @@ describe('S4782', () => {
             filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
             errors: [
               {
-                message:
-                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
-                suggestions: [
-                  {
-                    desc: 'Remove "?" operator',
-                    output: `
-            import type { FakeUndefinedUnion } from 'fake-lib';
-            type LocalAlias = FakeUndefinedUnion;
-            interface Example {
-              attribute: LocalAlias;
-            };`,
-                  },
-                ],
+                message: "Consider removing the redundant 'undefined' type.",
+                suggestions: [],
               },
             ],
           },
@@ -753,17 +715,8 @@ describe('S4782', () => {
             filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
             errors: [
               {
-                message:
-                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
-                suggestions: [
-                  {
-                    desc: 'Remove "?" operator',
-                    output: `type StringOrUndefined = string | undefined;
-            interface Example {
-              attribute: StringOrUndefined;
-            };`,
-                  },
-                ],
+                message: "Consider removing the redundant 'undefined' type.",
+                suggestions: [],
               },
             ],
           },
@@ -775,17 +728,8 @@ describe('S4782', () => {
             filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
             errors: [
               {
-                message:
-                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
-                suggestions: [
-                  {
-                    desc: 'Remove "?" operator',
-                    output: `type NumberOrUndefined = number | undefined;
-            interface Example {
-              attribute: string | NumberOrUndefined;
-            };`,
-                  },
-                ],
+                message: "Consider removing the redundant 'undefined' type.",
+                suggestions: [],
               },
             ],
           },
@@ -799,19 +743,8 @@ describe('S4782', () => {
             filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
             errors: [
               {
-                message:
-                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
-                suggestions: [
-                  {
-                    desc: 'Remove "?" operator',
-                    output: `
-            type NumberOrUndefined = number | undefined;
-            type Attribute = string | NumberOrUndefined;
-            interface Example {
-              attribute: Attribute;
-            };`,
-                  },
-                ],
+                message: "Consider removing the redundant 'undefined' type.",
+                suggestions: [],
               },
             ],
           },
@@ -824,18 +757,8 @@ describe('S4782', () => {
             filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
             errors: [
               {
-                message:
-                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
-                suggestions: [
-                  {
-                    desc: 'Remove "?" operator',
-                    output: `
-            type Maybe<T> = T | undefined;
-            interface Example {
-              attribute: Maybe<string>;
-            };`,
-                  },
-                ],
+                message: "Consider removing the redundant 'undefined' type.",
+                suggestions: [],
               },
             ],
           },
@@ -849,19 +772,8 @@ describe('S4782', () => {
             filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
             errors: [
               {
-                message:
-                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
-                suggestions: [
-                  {
-                    desc: 'Remove "?" operator',
-                    output: `
-            type Recursive<T> = T | Recursive<T>[];
-            type RecursiveUndefined = Recursive<string | undefined>;
-            interface Example {
-              attribute: RecursiveUndefined;
-            };`,
-                  },
-                ],
+                message: "Consider removing the redundant 'undefined' type.",
+                suggestions: [],
               },
             ],
           },
@@ -878,18 +790,8 @@ describe('S4782', () => {
             filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
             errors: [
               {
-                message:
-                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
-                suggestions: [
-                  {
-                    desc: 'Remove "?" operator',
-                    output: `
-            import type { FakeMaybeRef } from 'fake-lib';
-            interface Example {
-              attribute: FakeMaybeRef<string | undefined>;
-            };`,
-                  },
-                ],
+                message: "Consider removing the redundant 'undefined' type.",
+                suggestions: [],
               },
             ],
           },
@@ -905,19 +807,8 @@ describe('S4782', () => {
             filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
             errors: [
               {
-                message:
-                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
-                suggestions: [
-                  {
-                    desc: 'Remove "?" operator',
-                    output: `
-            import type { FakeMaybeRef } from 'fake-lib';
-            type Status = 'idle' | 'loading';
-            interface Example {
-              attribute: FakeMaybeRef<Status | undefined>;
-            };`,
-                  },
-                ],
+                message: "Consider removing the redundant 'undefined' type.",
+                suggestions: [],
               },
             ],
           },
@@ -934,18 +825,8 @@ describe('S4782', () => {
             filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
             errors: [
               {
-                message:
-                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
-                suggestions: [
-                  {
-                    desc: 'Remove "?" operator',
-                    output: `
-            type NullableWrap<T> = T | undefined;
-            interface Example {
-              attribute: NullableWrap<Map<string, number | undefined>>;
-            };`,
-                  },
-                ],
+                message: "Consider removing the redundant 'undefined' type.",
+                suggestions: [],
               },
             ],
           },
