@@ -34,7 +34,6 @@ describe('S4782', () => {
       const options: ts.CompilerOptions = {
         strictNullChecks,
         exactOptionalPropertyTypes: false,
-        noLib: true,
         types: [],
       };
       function createProgram(text: string) {
@@ -72,9 +71,19 @@ describe('S4782', () => {
           const omittedAfter: After.T = {};
           const undefinedBefore: Before.T = { p: undefined };
           const undefinedAfter: After.T = { p: undefined };
-          interface Required { p: string | undefined; }
+          type Shared = string | null | undefined;
+          namespace AliasBefore { export interface T { p?: Shared; } }
+          namespace AliasAfter { export interface T { p?: Exclude<Shared, undefined>; } }
+          declare const aliasBefore: AliasBefore.T;
+          declare const aliasAfter: AliasAfter.T;
+          const aliasForward: AliasAfter.T = aliasBefore;
+          const aliasReverse: AliasBefore.T = aliasAfter;
+          const aliasOmitted: AliasAfter.T = {};
+          const aliasUndefined: AliasAfter.T = { p: undefined };
+          const aliasNull: AliasAfter.T = { p: null };
+          interface RequiredProperty { p: string | undefined; }
           // @ts-expect-error Removing ? rejects omission even in loose mode.
-          const invalidOmission: Required = {};
+          const invalidOmission: RequiredProperty = {};
           // @ts-expect-error The accepted value type must not widen.
           const invalidValue: After.T = { p: 42 };
         `;
@@ -494,6 +503,11 @@ describe('S4782', () => {
       {
         valid: [
           {
+            code: `type Shared = string | undefined;
+            interface Example { attribute?: Exclude<Shared, undefined>; }`,
+            filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
+          },
+          {
             code: `
             type StringOrNumber = string | number;
             interface Example {
@@ -635,7 +649,8 @@ describe('S4782', () => {
             filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
             errors: [
               {
-                message: "Consider removing the redundant 'undefined' type.",
+                message:
+                  "The type annotation 'LocalProperties['optional']' includes 'undefined'. Use a type without 'undefined' here, keeping '?'.",
                 suggestions: [],
               },
             ],
@@ -654,7 +669,8 @@ describe('S4782', () => {
             filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
             errors: [
               {
-                message: "Consider removing the redundant 'undefined' type.",
+                message:
+                  "The type annotation 'LocalIndexed['anyKey']' includes 'undefined'. Use a type without 'undefined' here, keeping '?'.",
                 suggestions: [],
               },
             ],
@@ -672,7 +688,8 @@ describe('S4782', () => {
             filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
             errors: [
               {
-                message: "Consider removing the redundant 'undefined' type.",
+                message:
+                  "The type annotation 'FakeExternalProperties[Key]' includes 'undefined'. Use a type without 'undefined' here, keeping '?'.",
                 suggestions: [],
               },
             ],
@@ -687,7 +704,8 @@ describe('S4782', () => {
             filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
             errors: [
               {
-                message: "Consider removing the redundant 'undefined' type.",
+                message:
+                  "The type annotation 'FakeUndefinedUnion | LocalUndefinedUnion' includes 'undefined'. Use a type without 'undefined' here, keeping '?'.",
                 suggestions: [],
               },
             ],
@@ -702,7 +720,8 @@ describe('S4782', () => {
             filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
             errors: [
               {
-                message: "Consider removing the redundant 'undefined' type.",
+                message:
+                  "The type annotation 'LocalAlias' includes 'undefined'. Use a type without 'undefined' here, keeping '?'.",
                 suggestions: [],
               },
             ],
@@ -715,7 +734,8 @@ describe('S4782', () => {
             filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
             errors: [
               {
-                message: "Consider removing the redundant 'undefined' type.",
+                message:
+                  "The type annotation 'StringOrUndefined' includes 'undefined'. Use a type without 'undefined' here, keeping '?'.",
                 suggestions: [],
               },
             ],
@@ -728,7 +748,8 @@ describe('S4782', () => {
             filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
             errors: [
               {
-                message: "Consider removing the redundant 'undefined' type.",
+                message:
+                  "The type annotation 'string | NumberOrUndefined' includes 'undefined'. Use a type without 'undefined' here, keeping '?'.",
                 suggestions: [],
               },
             ],
@@ -743,7 +764,8 @@ describe('S4782', () => {
             filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
             errors: [
               {
-                message: "Consider removing the redundant 'undefined' type.",
+                message:
+                  "The type annotation 'Attribute' includes 'undefined'. Use a type without 'undefined' here, keeping '?'.",
                 suggestions: [],
               },
             ],
@@ -757,7 +779,8 @@ describe('S4782', () => {
             filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
             errors: [
               {
-                message: "Consider removing the redundant 'undefined' type.",
+                message:
+                  "The type annotation 'Maybe<string>' includes 'undefined'. Use a type without 'undefined' here, keeping '?'.",
                 suggestions: [],
               },
             ],
@@ -772,7 +795,8 @@ describe('S4782', () => {
             filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
             errors: [
               {
-                message: "Consider removing the redundant 'undefined' type.",
+                message:
+                  "The type annotation 'RecursiveUndefined' includes 'undefined'. Use a type without 'undefined' here, keeping '?'.",
                 suggestions: [],
               },
             ],
@@ -790,7 +814,8 @@ describe('S4782', () => {
             filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
             errors: [
               {
-                message: "Consider removing the redundant 'undefined' type.",
+                message:
+                  "The type annotation 'FakeMaybeRef<string | undefined>' includes 'undefined'. Use a type without 'undefined' here, keeping '?'.",
                 suggestions: [],
               },
             ],
@@ -807,7 +832,8 @@ describe('S4782', () => {
             filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
             errors: [
               {
-                message: "Consider removing the redundant 'undefined' type.",
+                message:
+                  "The type annotation 'FakeMaybeRef<Status | undefined>' includes 'undefined'. Use a type without 'undefined' here, keeping '?'.",
                 suggestions: [],
               },
             ],
@@ -825,7 +851,8 @@ describe('S4782', () => {
             filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
             errors: [
               {
-                message: "Consider removing the redundant 'undefined' type.",
+                message:
+                  "The type annotation 'NullableWrap<Map<string, number | undefined>>' includes 'undefined'. Use a type without 'undefined' here, keeping '?'.",
                 suggestions: [],
               },
             ],
