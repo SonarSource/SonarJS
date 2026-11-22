@@ -102,6 +102,17 @@ describe('S4782', () => {
               attribute?: BoxU<undefined>;
             };`,
           },
+          {
+            code: `interface T {
+              required: string | undefined;
+              nullable?: string | null;
+              anything?: any;
+              unknown?: unknown;
+            }
+            declare function f(p?: string | undefined): void;
+            type Callback = (p?: string | undefined) => void;
+            class C { method(p?: string | undefined): void {} }`,
+          },
         ],
         invalid: [
           {
@@ -363,7 +374,7 @@ describe('S4782', () => {
     );
 
     const noTypeCheckingRuleTester = new NoTypeCheckingRuleTester();
-    noTypeCheckingRuleTester.run('S4782 reports syntactic cases without type checking', rule, {
+    noTypeCheckingRuleTester.run('S4782 requires compiler options even for syntactic cases', rule, {
       valid: [
         {
           code: `
@@ -384,28 +395,14 @@ describe('S4782', () => {
             p?: MaybeString;
           }`,
         },
-      ],
-      invalid: [
         {
           code: `interface T { p?: string | undefined; }`,
-          errors: [
-            {
-              message:
-                "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
-              suggestions: [
-                {
-                  desc: 'Remove "?" operator',
-                  output: 'interface T { p: string | undefined; }',
-                },
-                {
-                  desc: 'Remove "undefined" type annotation',
-                  output: 'interface T { p?: string; }',
-                },
-              ],
-            },
-          ],
+        },
+        {
+          code: `class T { p?: string | (number | undefined); }`,
         },
       ],
+      invalid: [],
     });
 
     const semanticRuleTester = new RuleTester({
@@ -415,6 +412,59 @@ describe('S4782', () => {
         tsconfigRootDir: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks'),
       },
     });
+
+    semanticRuleTester.run(
+      'S4782 reports syntactic cases with exact optional properties disabled',
+      rule,
+      {
+        valid: [],
+        invalid: [
+          {
+            code: `interface T { p?: string | undefined; }`,
+            filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
+            errors: [
+              {
+                message:
+                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
+                suggestions: [
+                  {
+                    desc: 'Remove "?" operator',
+                    output: 'interface T { p: string | undefined; }',
+                  },
+                  {
+                    desc: 'Remove "undefined" type annotation',
+                    output: 'interface T { p?: string; }',
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            code: `type MaybeText = string | undefined;
+          class T { p?: undefined | MaybeText; }`,
+            filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
+            errors: [
+              {
+                message:
+                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
+                suggestions: [
+                  {
+                    desc: 'Remove "?" operator',
+                    output: `type MaybeText = string | undefined;
+          class T { p: undefined | MaybeText; }`,
+                  },
+                  {
+                    desc: 'Remove "undefined" type annotation',
+                    output: `type MaybeText = string | undefined;
+          class T { p?: MaybeText; }`,
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    );
 
     semanticRuleTester.run(
       'S4782 reports alias-based undefined types with strictNullChecks',
@@ -1021,7 +1071,7 @@ describe('S4782', () => {
       },
     );
 
-    const noopRuleTester = new RuleTester({
+    const exactOptionalRuleTester = new RuleTester({
       parser,
       ecmaVersion: 2018,
       sourceType: 'module',
@@ -1031,14 +1081,158 @@ describe('S4782', () => {
       },
     });
 
-    noopRuleTester.run('S4782 becomes noop when exactOptionalPropertyTypes is enabled', rule, {
+    const exactOptionalFile = path.join(import.meta.dirname, 'fixtures', 'index.ts');
+    exactOptionalRuleTester.run('S4782 preserves exact optional property types', rule, {
       valid: [
         {
           code: 'interface T { p?: string | undefined; }',
-          filename: path.join(import.meta.dirname, 'fixtures', 'index.ts'),
+          filename: exactOptionalFile,
+        },
+        {
+          code: `interface Evidence { assessedAt: string; }
+          interface T { p?: Evidence['assessedAt'] | undefined; }`,
+          filename: exactOptionalFile,
+        },
+        {
+          code: `type Text = string;
+          class T { p?: Text | undefined; }`,
+          filename: exactOptionalFile,
+        },
+        {
+          code: `interface T {
+            p?: string | (number | undefined);
+            nullable?: string | null | undefined;
+            onlyUndefined?: undefined;
+            nullOrUndefined?: null | undefined;
+            anything?: any;
+          }`,
+          filename: exactOptionalFile,
+        },
+        {
+          code: `type MaybeText = string | undefined;
+          interface T {
+            p?: MaybeText;
+            values?: Map<string, string | undefined> | undefined;
+          }
+          declare function f(p?: MaybeText | undefined): void;
+          type Callback = (p?: MaybeText | undefined) => void;`,
+          filename: exactOptionalFile,
+        },
+        {
+          code: `interface T { p?: string | undefined; }
+          const omitted: T = {};
+          const presentUndefined: T = { p: undefined };
+          const presentString: T = { p: 'value' };
+          // @ts-expect-error The value must still be a string or undefined.
+          const invalid: T = { p: 42 };`,
+          filename: exactOptionalFile,
         },
       ],
-      invalid: [],
+      invalid: [
+        {
+          code: `interface ColorDetails { localizedNames?: string[]; }
+          interface T { p?: ColorDetails['localizedNames'] | undefined; }`,
+          filename: exactOptionalFile,
+          errors: [
+            {
+              message: "Remove this redundant 'undefined' type annotation.",
+              line: 2,
+              column: 62,
+              endColumn: 71,
+              suggestions: [
+                {
+                  desc: 'Remove "undefined" type annotation',
+                  output: `interface ColorDetails { localizedNames?: string[]; }
+          interface T { p?: ColorDetails['localizedNames']; }`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `interface Evidence { validUntil?: string | undefined; }
+          interface T { readonly p?: Evidence['validUntil'] | undefined; }`,
+          filename: exactOptionalFile,
+          errors: [
+            {
+              message: "Remove this redundant 'undefined' type annotation.",
+              suggestions: [
+                {
+                  desc: 'Remove "undefined" type annotation',
+                  output: `interface Evidence { validUntil?: string | undefined; }
+          interface T { readonly p?: Evidence['validUntil']; }`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `type MaybeText = string | undefined;
+          class T { p?: undefined | MaybeText; }`,
+          filename: exactOptionalFile,
+          errors: [
+            {
+              message: "Remove this redundant 'undefined' type annotation.",
+              suggestions: [
+                {
+                  desc: 'Remove "undefined" type annotation',
+                  output: `type MaybeText = string | undefined;
+          class T { p?: MaybeText; }`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `type MaybeText = string | undefined;
+          interface T { p?: number | (MaybeText | undefined); }`,
+          filename: exactOptionalFile,
+          errors: [
+            {
+              message: "Remove this redundant 'undefined' type annotation.",
+              suggestions: [
+                {
+                  desc: 'Remove "undefined" type annotation',
+                  output: `type MaybeText = string | undefined;
+          interface T { p?: number | MaybeText; }`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `type MaybeText = string | undefined;
+          interface T { p?: number | undefined | MaybeText; }`,
+          filename: exactOptionalFile,
+          errors: [
+            {
+              message: "Remove this redundant 'undefined' type annotation.",
+              suggestions: [
+                {
+                  desc: 'Remove "undefined" type annotation',
+                  output: `type MaybeText = string | undefined;
+          interface T { p?: number | MaybeText; }`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `interface T { p?: undefined | string | undefined; }`,
+          filename: exactOptionalFile,
+          errors: [
+            {
+              message: "Remove this redundant 'undefined' type annotation.",
+              suggestions: [
+                {
+                  desc: 'Remove "undefined" type annotation',
+                  output: `interface T { p?: string | undefined; }`,
+                },
+              ],
+            },
+          ],
+        },
+      ],
     });
   });
 });

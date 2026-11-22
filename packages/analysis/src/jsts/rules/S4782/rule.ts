@@ -35,16 +35,11 @@ export const rule: Rule.RuleModule = {
 
   create(context: Rule.RuleContext) {
     const parserServices = context.sourceCode.parserServices;
-    const hasTypeChecking = isRequiredParserServices(parserServices);
-    const compilerOptions = hasTypeChecking
-      ? parserServices.program.getCompilerOptions()
-      : undefined;
-    if (compilerOptions?.exactOptionalPropertyTypes) {
+    if (!isRequiredParserServices(parserServices)) {
       return {};
     }
-    const canResolveTypes =
-      compilerOptions !== undefined &&
-      isStrictCompilerOptionEnabled(compilerOptions, 'strictNullChecks');
+    const compilerOptions = parserServices.program.getCompilerOptions();
+    const canResolveTypes = isStrictCompilerOptionEnabled(compilerOptions, 'strictNullChecks');
 
     function checkProperty(node: estree.Node) {
       const tsNode = node as TSESTree.Node as
@@ -55,16 +50,27 @@ export const rule: Rule.RuleModule = {
         return;
       }
 
+      if (compilerOptions.exactOptionalPropertyTypes) {
+        const redundantUndefined = canResolveTypes
+          ? findRedundantUndefinedTypeNode(rootType, parserServices)
+          : undefined;
+        if (redundantUndefined) {
+          context.report({
+            message: "Remove this redundant 'undefined' type annotation.",
+            loc: redundantUndefined.loc,
+            suggest: [getUndefinedRemovalSuggestion(context, redundantUndefined)],
+          });
+        }
+        return;
+      }
+
       let typeNode: TSESTree.TypeNode | undefined;
       if (rootType.type === 'TSUnionType') {
         typeNode = findSyntacticUndefinedTypeNode(rootType);
       }
 
       if (!typeNode && canResolveTypes) {
-        typeNode = findSemanticUndefinedTypeNode(
-          rootType,
-          parserServices as RequiredParserServices,
-        );
+        typeNode = findSemanticUndefinedTypeNode(rootType, parserServices);
       }
 
       if (typeNode) {
@@ -88,6 +94,24 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function findRedundantUndefinedTypeNode(
+  rootType: TSESTree.TypeNode,
+  services: RequiredParserServices,
+): TSESTree.TypeNode | undefined {
+  const members = unionConstituents(rootType);
+  return members.find(
+    member =>
+      member.type === 'TSUndefinedKeyword' &&
+      members.some(other => other !== member && containsUndefined(other, services)),
+  );
+}
+
+function unionConstituents(typeNode: TSESTree.TypeNode): TSESTree.TypeNode[] {
+  // Resolve the written constituents, not the property's read type, which
+  // includes undefined solely because the property is optional.
+  return typeNode.type === 'TSUnionType' ? typeNode.types.flatMap(unionConstituents) : [typeNode];
+}
 
 function findSemanticUndefinedTypeNode(
   rootType: TSESTree.TypeNode,
