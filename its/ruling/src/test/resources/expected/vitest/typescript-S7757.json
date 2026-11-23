@@ -1,0 +1,22 @@
+{
+"vitest:packages/browser-preview/src/preview.ts": [
+31
+],
+"vitest:packages/snapshot/src/port/state.ts": [
+106,
+107,
+108
+],
+"vitest:packages/utils/src/diff/getAlignedDiffs.ts": [
+41,
+42,
+127
+],
+"vitest:packages/vitest/src/integrations/mock/timers.ts": [
+41,
+43
+],
+"vitest:packages/vitest/src/runtime/vm/commonjs-executor.ts": [
+73
+]
+}

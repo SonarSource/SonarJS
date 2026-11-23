@@ -1,6 +1,11 @@
 {
 "router:src/history.js": [
-29
+29,
+30,
+31
+],
+"router:src/navigationCommand.js": [
+8
 ],
 "router:src/pipeline.js": [
 17
