@@ -145,7 +145,7 @@ function isCallArgumentKey(node: estree.Property & Rule.NodeParentExtension) {
   return (
     call !== undefined &&
     (call.type === 'CallExpression' || call.type === 'NewExpression') &&
-    call.arguments.some(item => item === argument)
+    call.arguments.includes(argument as TSESTree.CallExpressionArgument)
   );
 }
 
