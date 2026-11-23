@@ -1,5 +1,11 @@
 {
 "router:src/history.js": [
 29
+],
+"router:src/pipeline.js": [
+17
+],
+"router:src/routerConfiguration.js": [
+5
 ]
 }
