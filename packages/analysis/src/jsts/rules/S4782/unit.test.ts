@@ -39,7 +39,8 @@ describe('S4782', () => {
       function createProgram(text: string) {
         const host = ts.createCompilerHost(options);
         const readFile = host.readFile;
-        host.readFile = file => (file === filename ? text : readFile(file));
+        host.readFile = file =>
+          path.normalize(file) === path.normalize(filename) ? text : readFile(file);
         return ts.createProgram([filename], options, host);
       }
       const messages = new Linter({ cwd: import.meta.dirname }).verify(
