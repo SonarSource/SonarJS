@@ -90,6 +90,13 @@ describe('S100', () => {
       `,
           options: [{ format: DEFAULT_FORMAT, ignoreCallArgumentKeys: true }],
         },
+        {
+          code: `
+      Object.assign(target, { Bad_Name: () => 1 });
+      Model.extend({ Another_Bad_Name() {} });
+      `,
+          options: [{ ignoreCallArgumentKeys: true }],
+        },
       ],
       invalid: [
         {
@@ -211,6 +218,21 @@ describe('S100', () => {
       new Registry({ OnReady: () => {} });
       `,
           options: [{ format: DEFAULT_FORMAT }],
+          errors: [2, 3].map(line => ({ messageId: `renameFunction`, line })),
+        },
+        {
+          code: `
+      Object.assign(target, { Bad_Name: () => 1 });
+      Model.extend({ Another_Bad_Name() {} });
+      `,
+          errors: [2, 3].map(line => ({ messageId: `renameFunction`, line })),
+        },
+        {
+          code: `
+      Object.assign(target, { Bad_Name: () => 1 });
+      Model.extend({ Another_Bad_Name() {} });
+      `,
+          options: [{ ignoreCallArgumentKeys: false }],
           errors: [2, 3].map(line => ({ messageId: `renameFunction`, line })),
         },
       ],

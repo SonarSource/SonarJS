@@ -134,8 +134,7 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-// Keys of an object literal passed inline to a call are dictated by the callee
-// (e.g. `Match.tags({ Foo: () => x })`), so the author cannot rename them.
+// Match only object literals used directly as call or constructor arguments.
 function isCallArgumentKey(node: estree.Property & Rule.NodeParentExtension) {
   const object = node.parent as estree.ObjectExpression & Rule.NodeParentExtension;
   const call = object.parent;

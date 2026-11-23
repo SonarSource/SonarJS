@@ -28,7 +28,7 @@ export const fields = [
     {
       field: 'ignoreCallArgumentKeys',
       description:
-        'Ignore function-valued keys of object literals passed directly as call arguments, whose names are dictated by the callee.',
+        'Ignore function-valued keys of object literals passed directly to any call or constructor, including author-chosen names in assign and extend calls. Stored and nested objects remain checked.',
       default: false,
     },
   ],
