@@ -97,6 +97,19 @@ describe('S100', () => {
       `,
           options: [{ ignoreCallArgumentKeys: true }],
         },
+        ...[
+          '{ Success: () => 1 } as const',
+          '{ Success: () => 1 } satisfies Handlers',
+          '<Handlers>{ Success: () => 1 }',
+          '({ Success: () => 1 } as Handlers)!',
+          '({ Success: () => 1 } as const) satisfies Handlers',
+        ].flatMap(argument =>
+          ['register', 'new Registry'].map(callee => ({
+            code: `${callee}(${argument});`,
+            filename: 'test.ts',
+            options: [{ ignoreCallArgumentKeys: true }],
+          })),
+        ),
       ],
       invalid: [
         {
@@ -212,6 +225,17 @@ describe('S100', () => {
           options: [{ format: DEFAULT_FORMAT, ignoreCallArgumentKeys: true }],
           errors: [2, 4].map(line => ({ messageId: `renameFunction`, line })),
         },
+        ...['as const', 'satisfies Handlers'].map(wrapper => ({
+          // Stored and nested objects remain checked, even with transparent TypeScript wrappers.
+          code: `
+            const handlers = { Success: () => 1 } ${wrapper};
+            register(handlers);
+            register({ nested: { Failure: () => 1 } } ${wrapper});
+          `,
+          filename: 'test.ts',
+          options: [{ ignoreCallArgumentKeys: true }],
+          errors: [2, 4].map(line => ({ messageId: 'renameFunction', line })),
+        })),
         {
           code: `
       Match.tags({ Foo: () => 1 });

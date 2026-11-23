@@ -18,7 +18,8 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { functionLike } from '../helpers/ast.js';
+import type { TSESTree } from '@typescript-eslint/utils';
+import { functionLike, isTypeScriptExpressionWrapper } from '../helpers/ast.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { last } from '../helpers/collection.js';
 import type { FromSchema } from 'json-schema-to-ts';
@@ -136,11 +137,15 @@ export const rule: Rule.RuleModule = {
 
 // Match only object literals used directly as call or constructor arguments.
 function isCallArgumentKey(node: estree.Property & Rule.NodeParentExtension) {
-  const object = node.parent as estree.ObjectExpression & Rule.NodeParentExtension;
-  const call = object.parent;
+  let argument = node.parent as unknown as TSESTree.Node;
+  while (argument.parent && isTypeScriptExpressionWrapper(argument.parent)) {
+    argument = argument.parent;
+  }
+  const call = argument.parent;
   return (
+    call !== undefined &&
     (call.type === 'CallExpression' || call.type === 'NewExpression') &&
-    call.arguments.includes(object)
+    call.arguments.some(item => item === argument)
   );
 }
 
