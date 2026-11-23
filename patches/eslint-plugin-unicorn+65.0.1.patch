@@ -1,0 +1,22 @@
+diff --git a/node_modules/eslint-plugin-unicorn/rules/prefer-class-fields.js b/node_modules/eslint-plugin-unicorn/rules/prefer-class-fields.js
+--- a/node_modules/eslint-plugin-unicorn/rules/prefer-class-fields.js
++++ b/node_modules/eslint-plugin-unicorn/rules/prefer-class-fields.js
+@@ -67,13 +67,16 @@ const create = context => {
+ 			&& node.expression.left.object.type === 'ThisExpression'
+ 			&& !node.expression.left.computed
+ 			&& ['Identifier', 'PrivateIdentifier'].includes(node.expression.left.property.type)
+-			&& node.expression.right.type === 'Literal'
++			&& (
++				node.expression.right.type === 'Literal'
++				|| (node.expression.right.type === 'ArrayExpression' && node.expression.right.elements.length === 0)
++			)
+ 		)) {
+ 			return;
+ 		}
+ 
+ 		const propertyName = node.expression.left.property.name;
+-		const propertyValue = node.expression.right.raw;
++		const propertyValue = sourceCode.getText(node.expression.right);
+ 		const propertyType = node.expression.left.property.type;
+ 		const existingProperty = classBody.body.find(node =>
+ 			node.type === 'PropertyDefinition'
