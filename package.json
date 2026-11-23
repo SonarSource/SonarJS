@@ -102,8 +102,8 @@
     "type-fest": "5.10.0"
   },
   "dependencies": {
-    "@angular-eslint/eslint-plugin": "22.6.0",
-    "@angular-eslint/utils": "22.6.0",
+    "@angular-eslint/eslint-plugin": "22.7.0",
+    "@angular-eslint/utils": "22.7.0",
     "@babel/core": "8.1.2",
     "@babel/eslint-parser": "8.1.2",
     "@csstools/css-calc": "3.4.4",
