@@ -83,6 +83,33 @@ describe('S100', () => {
       }`,
           options: [{ format: DEFAULT_FORMAT }],
         },
+        {
+          code: `
+      Match.tags({ Foo: () => 1, Bar: function () {} });
+      new Registry({ OnReady: () => {} });
+      `,
+          options: [{ format: DEFAULT_FORMAT, ignoreCallArgumentKeys: true }],
+        },
+        {
+          code: `
+      Object.assign(target, { Bad_Name: () => 1 });
+      Model.extend({ Another_Bad_Name() {} });
+      `,
+          options: [{ ignoreCallArgumentKeys: true }],
+        },
+        ...[
+          '{ Success: () => 1 } as const',
+          '{ Success: () => 1 } satisfies Handlers',
+          '<Handlers>{ Success: () => 1 }',
+          '({ Success: () => 1 } as Handlers)!',
+          '({ Success: () => 1 } as const) satisfies Handlers',
+        ].flatMap(argument =>
+          ['register', 'new Registry'].map(callee => ({
+            code: `${callee}(${argument});`,
+            filename: 'test.ts',
+            options: [{ ignoreCallArgumentKeys: true }],
+          })),
+        ),
       ],
       invalid: [
         {
@@ -188,6 +215,49 @@ describe('S100', () => {
               line,
             };
           }),
+        },
+        {
+          code: `
+      const handlers = { Foo: () => 1 };
+      register(handlers);
+      register({ nested: { Bar: () => 1 } });
+      `,
+          options: [{ format: DEFAULT_FORMAT, ignoreCallArgumentKeys: true }],
+          errors: [2, 4].map(line => ({ messageId: `renameFunction`, line })),
+        },
+        ...['as const', 'satisfies Handlers'].map(wrapper => ({
+          // Stored and nested objects remain checked, even with transparent TypeScript wrappers.
+          code: `
+            const handlers = { Success: () => 1 } ${wrapper};
+            register(handlers);
+            register({ nested: { Failure: () => 1 } } ${wrapper});
+          `,
+          filename: 'test.ts',
+          options: [{ ignoreCallArgumentKeys: true }],
+          errors: [2, 4].map(line => ({ messageId: 'renameFunction', line })),
+        })),
+        {
+          code: `
+      Match.tags({ Foo: () => 1 });
+      new Registry({ OnReady: () => {} });
+      `,
+          options: [{ format: DEFAULT_FORMAT }],
+          errors: [2, 3].map(line => ({ messageId: `renameFunction`, line })),
+        },
+        {
+          code: `
+      Object.assign(target, { Bad_Name: () => 1 });
+      Model.extend({ Another_Bad_Name() {} });
+      `,
+          errors: [2, 3].map(line => ({ messageId: `renameFunction`, line })),
+        },
+        {
+          code: `
+      Object.assign(target, { Bad_Name: () => 1 });
+      Model.extend({ Another_Bad_Name() {} });
+      `,
+          options: [{ ignoreCallArgumentKeys: false }],
+          errors: [2, 3].map(line => ({ messageId: `renameFunction`, line })),
         },
       ],
     });
