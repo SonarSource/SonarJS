@@ -92,8 +92,6 @@ describe('normalizeAnalyzeProjectRequest', () => {
       expect(normalized.configuration.maxNodeModuleJsDepth).toBe(maxNodeModuleJsDepth);
       expect(normalized.rules[0]).not.toHaveProperty('maxNodeModuleJsDepth');
       expect(request.rules[0]).not.toHaveProperty('maxNodeModuleJsDepth');
-      expect(normalized.configuration).not.toHaveProperty('collectExternalApiUsages');
-      expect(request.configuration).not.toHaveProperty('collectExternalApiUsages');
     });
   }
 

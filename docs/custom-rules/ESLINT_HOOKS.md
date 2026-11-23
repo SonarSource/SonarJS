@@ -18,7 +18,7 @@ The `EslintHook` interface is the modern way to define custom rules in SonarJS. 
 
 ## Dependency inference requested by hooks
 
-On this development branch, an enabled data-collection hook can request deeper inference into
+An enabled data-collection hook can request deeper inference into
 JavaScript dependencies without exposing its collected data through SonarJS's result protocol:
 
 ```java
@@ -55,11 +55,14 @@ reads those artifacts. Keep per-run isolation, atomic writes, source-coordinate 
 missing/incomplete-file diagnostics in that plugin; missing evidence must not imply non-reachability.
 No quality-profile activation or inventory-specific SonarJS callback/gRPC schema is needed.
 
-On this branch, bundled hooks access the **host TypeScript runtime** through
+Bundled hooks access the **host TypeScript runtime** through
 `context.settings.sonarjs.typescript`. Use a type-only TypeScript import in the bundle and this
 runtime instance for compiler helpers; it is the compiler that owns `parserServices.program`.
 Do not assume `require('typescript')` is resolvable in the installed scanner: the production bridge
 embeds TypeScript. This avoids packaging a second compiler or importing SonarJS internal modules.
+Treat this shared runtime as read-only: do not monkey-patch it, since other hooks and rules use the
+same instance. Bundles execute as trusted analyzer code; exposing compiler helpers is not a sandbox
+or an isolation boundary.
 
 ## Components
 

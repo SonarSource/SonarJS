@@ -864,7 +864,14 @@ class WebSensorTest {
     assertThat(enabled.getConfiguration().hasMaxNodeModuleJsDepth()).isTrue();
     assertThat(enabled.getConfiguration().getMaxNodeModuleJsDepth()).isEqualTo(4);
     assertThat(enabled.getRulesList()).isEmpty();
+    assertThat(logTester.logs(Level.INFO)).contains(
+      "ESLint hooks requested maxNodeModuleJsDepth=4"
+    );
+    logTester.clear();
     assertThat(handler.getRequest().getConfiguration().hasMaxNodeModuleJsDepth()).isFalse();
+    assertThat(logTester.logs(Level.INFO)).noneMatch(message ->
+      message.startsWith("ESLint hooks requested maxNodeModuleJsDepth=")
+    );
   }
 
   @Test

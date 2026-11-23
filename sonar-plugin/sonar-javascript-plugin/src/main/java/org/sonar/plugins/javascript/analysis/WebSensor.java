@@ -504,6 +504,7 @@ public class WebSensor implements ProjectSensor {
       if (!handlerContext.isSonarLint()) {
         int depth = checks.requestedMaxNodeModuleJsDepth(handlerContext.getAnalysisMode());
         if (depth > 0) {
+          LOG.info("ESLint hooks requested maxNodeModuleJsDepth={}", depth);
           configurationBuilder.setMaxNodeModuleJsDepth(depth);
         }
       }

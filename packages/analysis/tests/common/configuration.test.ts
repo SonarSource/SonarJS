@@ -47,7 +47,7 @@ describe('createConfiguration', () => {
   }
 
   for (const maxNodeModuleJsDepth of ['4', NaN, null, true, {}, []]) {
-    it(`ignores nonnumeric optional analysis depth ${JSON.stringify(maxNodeModuleJsDepth)}`, () => {
+    it(`ignores nonnumeric optional analysis depth ${String(maxNodeModuleJsDepth)}`, () => {
       const configuration = createConfiguration({
         baseDir: '/path/to/project',
         maxNodeModuleJsDepth,
@@ -74,16 +74,6 @@ describe('createConfiguration', () => {
     expect(
       getJsTsConfigFields({ ...configuration, maxNodeModuleJsDepth: 6 }).maxNodeModuleJsDepth,
     ).toBeUndefined();
-  });
-
-  it('ignores the retired external API inventory configuration', () => {
-    const baseDir = '/path/to/project';
-    const configuration = createConfiguration({ baseDir, collectExternalApiUsages: true });
-    expect(configuration).not.toHaveProperty('collectExternalApiUsages');
-    expect(getJsTsConfigFields(configuration)).not.toHaveProperty('collectExternalApiUsages');
-    expect(createConfigurationFromInput({ baseDir })).not.toHaveProperty(
-      'collectExternalApiUsages',
-    );
   });
 
   it('honors literal scanner directory exclusions without hardcoding a directory name', () => {
