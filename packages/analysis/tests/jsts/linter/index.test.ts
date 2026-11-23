@@ -168,6 +168,7 @@ describe('Linter', () => {
           'error',
           {
             format: '^[_a-z][a-zA-Z0-9]*$',
+            ignoreCallArgumentKeys: false,
           },
         ],
       }),
@@ -1189,6 +1190,7 @@ describe('Linter', () => {
         'error',
         {
           format: '^[_a-z][a-zA-Z0-9]*$',
+          ignoreCallArgumentKeys: false,
         },
       ],
     });
