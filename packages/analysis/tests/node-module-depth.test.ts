@@ -21,10 +21,10 @@ import os from 'node:os';
 import path from 'node:path';
 import type ts from 'typescript';
 import type { RuleConfig } from '../src/jsts/linter/config/rule-config.js';
-import { withNodeModuleJsDepth } from '../src/jsts/program/tsconfig/node-module-depth.js';
 import {
   createProgramOptions,
   createProgramOptionsFromJson,
+  withNodeModuleJsDepth,
 } from '../src/jsts/program/tsconfig/options.js';
 import { clearProgramOptionsCache } from '../src/jsts/program/cache/programOptionsCache.js';
 import { createConfigurationFromInput } from '../src/common/configuration.js';

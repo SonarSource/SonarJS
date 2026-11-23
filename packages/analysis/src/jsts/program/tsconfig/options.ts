@@ -488,6 +488,16 @@ function createBaseParseConfigHost(canAccessFileSystem: boolean): CustomParseCon
   };
 }
 
+/** Apply per-analysis overrides after cache retrieval; never mutate cached tsconfig options. */
+export function withNodeModuleJsDepth(
+  programOptions: ProgramOptions,
+  depth: number | undefined,
+): ProgramOptions {
+  return depth === undefined
+    ? programOptions
+    : { ...programOptions, options: { ...programOptions.options, maxNodeModuleJsDepth: depth } };
+}
+
 export function createProgramOptionsFromJson(
   json: any,
   rootNames: NormalizedAbsolutePath[],
