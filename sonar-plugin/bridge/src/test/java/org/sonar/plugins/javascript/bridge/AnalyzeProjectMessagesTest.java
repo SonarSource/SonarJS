@@ -41,7 +41,7 @@ class AnalyzeProjectMessagesTest {
           .setBaseDir("C:/ci/project")
           .setDetectBundles(false)
           .setMaxFileSize(12345L)
-          .setMaxNodeModuleJsDepth(4)
+          .setRequestedMaxNodeModuleJsDepth(4)
           .setCanAccessFileSystem(true)
           .setSkipAst(false)
           .addFsEvents("src/changed.ts")
@@ -59,7 +59,7 @@ class AnalyzeProjectMessagesTest {
       var raw = json.getAsJsonObject("configuration");
       assertThat(raw.get("baseDir").getAsString()).isEqualTo(original.getBaseDir());
       assertThat(raw.get("maxFileSize").getAsString()).isEqualTo("12345");
-      assertThat(raw.get("maxNodeModuleJsDepth").getAsInt()).isEqualTo(4);
+      assertThat(raw.get("requestedMaxNodeModuleJsDepth").getAsInt()).isEqualTo(4);
       assertThat(raw.has("tsSuffixes")).isEqualTo(emptySuffixes);
       var restored =
         org.sonar.plugins.javascript.analyzeproject.grpc.ProjectConfiguration.newBuilder();
@@ -131,7 +131,7 @@ class AnalyzeProjectMessagesTest {
     );
     assertThat(configuration.getBlacklistedExtensionsList()).containsExactly(".d.ts");
     assertThat(
-      configuration.getDescriptorForType().findFieldByName("max_node_module_js_depth")
+      configuration.getDescriptorForType().findFieldByName("requested_max_node_module_js_depth")
     ).isNull();
   }
 

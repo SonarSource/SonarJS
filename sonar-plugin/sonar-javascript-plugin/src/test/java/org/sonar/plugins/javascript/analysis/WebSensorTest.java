@@ -861,16 +861,18 @@ class WebSensorTest {
     var handler = executeSensorAndCaptureHandler(sensor, context);
 
     var enabled = handler.getRequest();
-    assertThat(enabled.getConfiguration().hasMaxNodeModuleJsDepth()).isTrue();
-    assertThat(enabled.getConfiguration().getMaxNodeModuleJsDepth()).isEqualTo(4);
+    assertThat(enabled.getConfiguration().hasRequestedMaxNodeModuleJsDepth()).isTrue();
+    assertThat(enabled.getConfiguration().getRequestedMaxNodeModuleJsDepth()).isEqualTo(4);
     assertThat(enabled.getRulesList()).isEmpty();
     assertThat(logTester.logs(Level.INFO)).contains(
-      "ESLint hooks requested maxNodeModuleJsDepth=4"
+      "ESLint hooks: requestedMaxNodeModuleJsDepth=4"
     );
     logTester.clear();
-    assertThat(handler.getRequest().getConfiguration().hasMaxNodeModuleJsDepth()).isFalse();
+    assertThat(
+      handler.getRequest().getConfiguration().hasRequestedMaxNodeModuleJsDepth()
+    ).isFalse();
     assertThat(logTester.logs(Level.INFO)).noneMatch(message ->
-      message.startsWith("ESLint hooks requested maxNodeModuleJsDepth=")
+      message.startsWith("ESLint hooks: requestedMaxNodeModuleJsDepth=")
     );
   }
 
@@ -880,7 +882,7 @@ class WebSensorTest {
       executeSensorAndCaptureHandler(createSensor(), context)
         .getRequest()
         .getConfiguration()
-        .hasMaxNodeModuleJsDepth()
+        .hasRequestedMaxNodeModuleJsDepth()
     ).isFalse();
   }
 
@@ -900,7 +902,7 @@ class WebSensorTest {
       executeSensorAndCaptureHandler(sensor, context)
         .getRequest()
         .getConfiguration()
-        .hasMaxNodeModuleJsDepth()
+        .hasRequestedMaxNodeModuleJsDepth()
     ).isFalse();
     verify(checks, never()).requestedMaxNodeModuleJsDepth(any());
   }

@@ -23,7 +23,7 @@ JavaScript dependencies without exposing its collected data through SonarJS's re
 
 ```java
 @Override
-public int maxNodeModuleJsDepth() {
+public int requestedMaxNodeModuleJsDepth() {
   return 4;
 }
 ```
@@ -39,8 +39,9 @@ checks/hooks that can run in the current analysis in Java, then sends it once in
 `ProjectConfiguration`. `DEFAULT` hooks also contribute during `SKIP_UNCHANGED` analyses because they
 run on changed and added files. Hooks supporting only `SKIP_UNCHANGED` do not contribute to a full
 `DEFAULT` analysis. The request is not part of `EslintRule`, `JsTsRule`, or the Node `RuleConfig`.
-The request means **at least this depth**: configured, orphan/merged and restored scanner programs
-use the maximum of the baseline `maxNodeModuleJsDepth` (defaulting to `0`) and the hook request,
+The `requestedMaxNodeModuleJsDepth` request raises the **inference ceiling**, without forcing
+TypeScript to traverse that far. Configured, orphan/merged and restored scanner programs use the
+maximum of the baseline `maxNodeModuleJsDepth` (defaulting to `0`) and the hook request,
 without changing cached tsconfig options. For example, a request of `4` raises a project depth of `1`
 to `4`, but preserves a project depth of `12`. An absent or zero request leaves the project setting
 unchanged. It does not override `sonar.javascript.disableTypeChecking=true`, and it

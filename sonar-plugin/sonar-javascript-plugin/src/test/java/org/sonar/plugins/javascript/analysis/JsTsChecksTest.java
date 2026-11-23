@@ -97,7 +97,7 @@ class JsTsChecksTest {
     });
     assertThat(checks.enabledEslintRules()).isEmpty();
     assertThat(checks.requestedMaxNodeModuleJsDepth(AnalysisMode.DEFAULT)).isZero();
-    assertThat(new CustomTsCheck().maxNodeModuleJsDepth()).isZero();
+    assertThat(new CustomTsCheck().requestedMaxNodeModuleJsDepth()).isZero();
   }
 
   @Test
@@ -174,7 +174,7 @@ class JsTsChecksTest {
       });
       assertThat(checks.requestedMaxNodeModuleJsDepth(AnalysisMode.DEFAULT)).isZero();
       assertThat(logTester.logs(Level.WARN)).contains(
-        "Ignoring maxNodeModuleJsDepth=" +
+        "Ignoring requestedMaxNodeModuleJsDepth=" +
           depth +
           " from ESLint hook 'test-hook': expected an integer between 0 and 9 inclusive"
       );
@@ -216,7 +216,7 @@ class JsTsChecksTest {
   public static class DepthRequestingCheck extends MainFileCheck {
 
     @Override
-    public int maxNodeModuleJsDepth() {
+    public int requestedMaxNodeModuleJsDepth() {
       return 7;
     }
   }
@@ -235,7 +235,7 @@ class JsTsChecksTest {
     }
 
     @Override
-    public int maxNodeModuleJsDepth() {
+    public int requestedMaxNodeModuleJsDepth() {
       return depth;
     }
 

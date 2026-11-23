@@ -88,13 +88,17 @@ function toPlainTelemetryValue(value: object | null | undefined) {
 describe('analyze-project convert', () => {
   it('does not transport compiler requirements as rule metadata', () => {
     const { JsTsRule } = analyzeProjectProto.analyzeproject.v1;
-    const legacyRule = { key: 'custom/api-usages', maxNodeModuleJsDepth: 4 };
-    const decoded = JsTsRule.decode(JsTsRule.encode(legacyRule).finish());
-    expect(decoded.key).toBe(legacyRule.key);
-    expect(decoded).not.toHaveProperty('maxNodeModuleJsDepth');
-    expect(JsTsRule.fromObject(legacyRule)).not.toHaveProperty('maxNodeModuleJsDepth');
-    // Decoding also ignores the removed rule field 7.
-    expect(JsTsRule.decode(Uint8Array.from([0x38, 4]))).not.toHaveProperty('maxNodeModuleJsDepth');
+    const ruleWithCompilerRequest = { key: 'custom/api-usages', requestedMaxNodeModuleJsDepth: 4 };
+    const decoded = JsTsRule.decode(JsTsRule.encode(ruleWithCompilerRequest).finish());
+    expect(decoded.key).toBe(ruleWithCompilerRequest.key);
+    expect(decoded).not.toHaveProperty('requestedMaxNodeModuleJsDepth');
+    expect(JsTsRule.fromObject(ruleWithCompilerRequest)).not.toHaveProperty(
+      'requestedMaxNodeModuleJsDepth',
+    );
+    // Decoding also ignores unrecognized rule field 7.
+    expect(JsTsRule.decode(Uint8Array.from([0x38, 4]))).not.toHaveProperty(
+      'requestedMaxNodeModuleJsDepth',
+    );
   });
 
   it('does not transport the retired external API inventory', () => {

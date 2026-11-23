@@ -67,13 +67,13 @@ function stringList(values: string[]) {
 }
 
 describe('normalizeAnalyzeProjectRequest', () => {
-  for (const maxNodeModuleJsDepth of [undefined, 0, 1, 4, 8, 9, 10, 0x7fffffff]) {
-    it(`preserves optional analysis node_modules depth ${maxNodeModuleJsDepth} through protobuf`, async () => {
+  for (const requestedMaxNodeModuleJsDepth of [undefined, 0, 1, 4, 8, 9, 10, 0x7fffffff]) {
+    it(`preserves optional analysis node_modules depth ${requestedMaxNodeModuleJsDepth} through protobuf`, async () => {
       const baseDir = await createBaseDir();
       const { AnalyzeProjectRequest } = sonarjs.analyzeproject.v1;
       const request = AnalyzeProjectRequest.decode(
         AnalyzeProjectRequest.encode({
-          configuration: { baseDir, canAccessFileSystem: false, maxNodeModuleJsDepth },
+          configuration: { baseDir, canAccessFileSystem: false, requestedMaxNodeModuleJsDepth },
           files: {},
           rules: [
             {
@@ -83,40 +83,59 @@ describe('normalizeAnalyzeProjectRequest', () => {
           ],
         }).finish(),
       );
-      expect(request.configuration?.maxNodeModuleJsDepth ?? undefined).toBe(maxNodeModuleJsDepth);
-      expect(Object.hasOwn(request.configuration!, 'maxNodeModuleJsDepth')).toBe(
-        maxNodeModuleJsDepth !== undefined,
+      expect(request.configuration?.requestedMaxNodeModuleJsDepth ?? undefined).toBe(
+        requestedMaxNodeModuleJsDepth,
+      );
+      expect(Object.hasOwn(request.configuration!, 'requestedMaxNodeModuleJsDepth')).toBe(
+        requestedMaxNodeModuleJsDepth !== undefined,
       );
 
       const normalized = await normalizeAnalyzeProjectRequest(request);
-      expect(normalized.configuration.maxNodeModuleJsDepth).toBe(maxNodeModuleJsDepth);
-      expect(normalized.rules[0]).not.toHaveProperty('maxNodeModuleJsDepth');
-      expect(request.rules[0]).not.toHaveProperty('maxNodeModuleJsDepth');
+      expect(normalized.configuration.requestedMaxNodeModuleJsDepth).toBe(
+        requestedMaxNodeModuleJsDepth,
+      );
+      expect(normalized.rules[0]).not.toHaveProperty('requestedMaxNodeModuleJsDepth');
+      expect(request.rules[0]).not.toHaveProperty('requestedMaxNodeModuleJsDepth');
     });
   }
 
-  for (const maxNodeModuleJsDepth of ['4', true, {}, [], -1, 1.5, 9.5, NaN, Infinity, -Infinity]) {
-    it(`rejects invalid analysis node_modules depth ${maxNodeModuleJsDepth}`, async () => {
+  for (const requestedMaxNodeModuleJsDepth of [
+    '4',
+    true,
+    {},
+    [],
+    -1,
+    1.5,
+    9.5,
+    NaN,
+    Infinity,
+    -Infinity,
+  ]) {
+    it(`rejects invalid analysis node_modules depth ${requestedMaxNodeModuleJsDepth}`, async () => {
       const baseDir = await createBaseDir();
       const normalize = () =>
         normalizeAnalyzeProjectRequest({
-          configuration: { baseDir, canAccessFileSystem: false, maxNodeModuleJsDepth } as never,
+          configuration: {
+            baseDir,
+            canAccessFileSystem: false,
+            requestedMaxNodeModuleJsDepth,
+          } as never,
           files: {},
         });
       await expect(normalize()).rejects.toThrow(InvalidAnalyzeProjectRequestError);
       await expect(normalize()).rejects.toThrow(
-        'configuration.max_node_module_js_depth must be a non-negative integer',
+        'configuration.requested_max_node_module_js_depth must be a non-negative integer',
       );
     });
   }
 
-  for (const maxNodeModuleJsDepth of [-1, -0x80000000]) {
-    it(`rejects negative depth ${maxNodeModuleJsDepth} after protobuf serialization`, async () => {
+  for (const requestedMaxNodeModuleJsDepth of [-1, -0x80000000]) {
+    it(`rejects negative depth ${requestedMaxNodeModuleJsDepth} after protobuf serialization`, async () => {
       const baseDir = await createBaseDir();
       const { AnalyzeProjectRequest } = sonarjs.analyzeproject.v1;
       const request = AnalyzeProjectRequest.decode(
         AnalyzeProjectRequest.encode({
-          configuration: { baseDir, canAccessFileSystem: false, maxNodeModuleJsDepth },
+          configuration: { baseDir, canAccessFileSystem: false, requestedMaxNodeModuleJsDepth },
           files: {},
         }).finish(),
       );
@@ -129,20 +148,22 @@ describe('normalizeAnalyzeProjectRequest', () => {
   it('accepts protobuf null depth as absent and preserves the SonarLint guard', async () => {
     const baseDir = await createBaseDir();
     const absent = await normalizeAnalyzeProjectRequest({
-      configuration: { baseDir, canAccessFileSystem: false, maxNodeModuleJsDepth: null },
+      configuration: { baseDir, canAccessFileSystem: false, requestedMaxNodeModuleJsDepth: null },
       files: {},
     });
-    expect(absent.configuration.maxNodeModuleJsDepth).toBeUndefined();
+    expect(absent.configuration.requestedMaxNodeModuleJsDepth).toBeUndefined();
     const sonarlint = await normalizeAnalyzeProjectRequest({
       configuration: {
         baseDir,
         sonarlint: true,
         canAccessFileSystem: false,
-        maxNodeModuleJsDepth: 4,
+        requestedMaxNodeModuleJsDepth: 4,
       },
       files: {},
     });
-    expect(getJsTsConfigFields(sonarlint.configuration).maxNodeModuleJsDepth).toBeUndefined();
+    expect(
+      getJsTsConfigFields(sonarlint.configuration).requestedMaxNodeModuleJsDepth,
+    ).toBeUndefined();
   });
 
   it('should normalize explicit files, paths, rules and protobuf values', async () => {

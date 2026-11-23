@@ -373,10 +373,10 @@ public class JsTsChecks {
           hook.analysisModes().contains(AnalysisMode.DEFAULT)
       )
       .mapToInt(hook -> {
-        int depth = hook.maxNodeModuleJsDepth();
+        int depth = hook.requestedMaxNodeModuleJsDepth();
         if (depth < 0 || depth > MAX_NODE_MODULE_JS_DEPTH) {
           LOG.warn(
-            "Ignoring maxNodeModuleJsDepth={} from ESLint hook '{}': expected an integer between 0 and {} inclusive",
+            "Ignoring requestedMaxNodeModuleJsDepth={} from ESLint hook '{}': expected an integer between 0 and {} inclusive",
             depth,
             hook.eslintKey(),
             MAX_NODE_MODULE_JS_DEPTH

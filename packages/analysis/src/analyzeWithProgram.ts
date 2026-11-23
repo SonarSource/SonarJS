@@ -562,7 +562,7 @@ function createAnalysisProgram(
 ): ts.Program {
   const effectiveProgramOptions = withNodeModuleJsDepth(
     baseProgramOptions,
-    jsTsConfigFields.maxNodeModuleJsDepth,
+    jsTsConfigFields.requestedMaxNodeModuleJsDepth,
   );
   telemetry.recordCompilerOptions(effectiveProgramOptions.options);
   const host = new IncrementalCompilerHost(

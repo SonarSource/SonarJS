@@ -110,7 +110,7 @@ message ProjectConfiguration {
   optional bool detect_generated_code = 34;
   // Aggregated compiler requirement from enabled, mode-compatible hooks; policy limits are validated in Java.
   // Positive requests set a minimum depth, never lowering the tsconfig value; absent or zero leaves it unchanged.
-  optional int32 max_node_module_js_depth = 35;
+  optional int32 requested_max_node_module_js_depth = 35;
 }
 
 message StringList {

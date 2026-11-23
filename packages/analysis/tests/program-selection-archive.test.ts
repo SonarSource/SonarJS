@@ -311,20 +311,20 @@ describe('ProgramSelectionArchive', () => {
       root,
       'replay',
       false,
-      JSON.stringify({ configuration: { baseDir: root, maxNodeModuleJsDepth: 9 } }),
+      JSON.stringify({ configuration: { baseDir: root, requestedMaxNodeModuleJsDepth: 9 } }),
     );
     const restored = replay.restoredConfiguration();
-    expect(restored).not.toHaveProperty('maxNodeModuleJsDepth');
-    for (const maxNodeModuleJsDepth of [undefined, 0, 4]) {
+    expect(restored).not.toHaveProperty('requestedMaxNodeModuleJsDepth');
+    for (const requestedMaxNodeModuleJsDepth of [undefined, 0, 4]) {
       // Mirror the request handler's merge: replayed settings must not replace this requirement.
       const configuration = createConfiguration({
         baseDir: root,
-        maxNodeModuleJsDepth,
+        requestedMaxNodeModuleJsDepth,
         ...restored,
       });
-      expect(configuration.maxNodeModuleJsDepth).toBe(maxNodeModuleJsDepth);
-      expect(getJsTsConfigFields(configuration).maxNodeModuleJsDepth).toBe(
-        maxNodeModuleJsDepth || undefined,
+      expect(configuration.requestedMaxNodeModuleJsDepth).toBe(requestedMaxNodeModuleJsDepth);
+      expect(getJsTsConfigFields(configuration).requestedMaxNodeModuleJsDepth).toBe(
+        requestedMaxNodeModuleJsDepth || undefined,
       );
     }
   });

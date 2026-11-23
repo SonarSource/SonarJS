@@ -33,32 +33,32 @@ import {
 import { normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
 
 describe('createConfiguration', () => {
-  for (const maxNodeModuleJsDepth of [undefined, 0, 1, 4, 8, 9, 10, 0x7fffffff]) {
-    it(`preserves optional analysis node_modules depth ${maxNodeModuleJsDepth}`, () => {
-      const input = { baseDir: '/path/to/project', maxNodeModuleJsDepth };
+  for (const requestedMaxNodeModuleJsDepth of [undefined, 0, 1, 4, 8, 9, 10, 0x7fffffff]) {
+    it(`preserves optional analysis node_modules depth ${requestedMaxNodeModuleJsDepth}`, () => {
+      const input = { baseDir: '/path/to/project', requestedMaxNodeModuleJsDepth };
       for (const create of [createConfiguration, createConfigurationFromInput]) {
         const configuration = create(input);
-        expect(configuration.maxNodeModuleJsDepth).toBe(maxNodeModuleJsDepth);
-        expect(getJsTsConfigFields(configuration).maxNodeModuleJsDepth).toBe(
-          maxNodeModuleJsDepth || undefined,
+        expect(configuration.requestedMaxNodeModuleJsDepth).toBe(requestedMaxNodeModuleJsDepth);
+        expect(getJsTsConfigFields(configuration).requestedMaxNodeModuleJsDepth).toBe(
+          requestedMaxNodeModuleJsDepth || undefined,
         );
       }
     });
   }
 
-  for (const maxNodeModuleJsDepth of ['4', NaN, null, true, {}, []]) {
-    it(`ignores nonnumeric optional analysis depth ${String(maxNodeModuleJsDepth)}`, () => {
+  for (const requestedMaxNodeModuleJsDepth of ['4', NaN, null, true, {}, []]) {
+    it(`ignores nonnumeric optional analysis depth ${String(requestedMaxNodeModuleJsDepth)}`, () => {
       const configuration = createConfiguration({
         baseDir: '/path/to/project',
-        maxNodeModuleJsDepth,
+        requestedMaxNodeModuleJsDepth,
       });
-      expect(configuration.maxNodeModuleJsDepth).toBeUndefined();
+      expect(configuration.requestedMaxNodeModuleJsDepth).toBeUndefined();
     });
   }
 
   it('leaves normal project defaults unchanged when analysis depth is omitted', () => {
     const configuration = createConfiguration({ baseDir: '/path/to/project' });
-    expect(configuration.maxNodeModuleJsDepth).toBeUndefined();
+    expect(configuration.requestedMaxNodeModuleJsDepth).toBeUndefined();
     expect(configuration.disableTypeChecking).toBe(false);
     expect(configuration.createTSProgramForOrphanFiles).toBe(true);
   });
@@ -67,12 +67,13 @@ describe('createConfiguration', () => {
     const configuration = createConfiguration({
       baseDir: '/path/to/project',
       sonarlint: true,
-      maxNodeModuleJsDepth: 4,
+      requestedMaxNodeModuleJsDepth: 4,
     });
-    expect(configuration.maxNodeModuleJsDepth).toBe(4);
-    expect(getJsTsConfigFields(configuration).maxNodeModuleJsDepth).toBeUndefined();
+    expect(configuration.requestedMaxNodeModuleJsDepth).toBe(4);
+    expect(getJsTsConfigFields(configuration).requestedMaxNodeModuleJsDepth).toBeUndefined();
     expect(
-      getJsTsConfigFields({ ...configuration, maxNodeModuleJsDepth: 6 }).maxNodeModuleJsDepth,
+      getJsTsConfigFields({ ...configuration, requestedMaxNodeModuleJsDepth: 6 })
+        .requestedMaxNodeModuleJsDepth,
     ).toBeUndefined();
   });
 

@@ -107,7 +107,7 @@ describe('analysis-level node_modules inference depth', () => {
     const configuration = createConfigurationFromInput({
       baseDir,
       disableTypeChecking: true,
-      maxNodeModuleJsDepth: 4,
+      requestedMaxNodeModuleJsDepth: 4,
     });
     const sanitized = await sanitizeInputFiles(
       { [filePath]: { filePath, fileType: 'MAIN' } },
@@ -134,8 +134,8 @@ describe('analysis-level node_modules inference depth', () => {
     'sonarlint-configured',
   ] as const) {
     for (const projectDepth of scenario.endsWith('orphan') ? [undefined] : [1, 12]) {
-      for (const maxNodeModuleJsDepth of [undefined, 0, 4, 9]) {
-        it(`${scenario}: project depth ${projectDepth}, hook request ${maxNodeModuleJsDepth}`, async context => {
+      for (const requestedMaxNodeModuleJsDepth of [undefined, 0, 4, 9]) {
+        it(`${scenario}: project depth ${projectDepth}, hook request ${requestedMaxNodeModuleJsDepth}`, async context => {
           const baseDir = normalizeToAbsolutePath(
             fs.mkdtempSync(path.join(os.tmpdir(), 'hook-depth-')),
           );
@@ -165,7 +165,7 @@ describe('analysis-level node_modules inference depth', () => {
           const initialize = async () => {
             const configuration = createConfigurationFromInput({
               baseDir,
-              maxNodeModuleJsDepth,
+              requestedMaxNodeModuleJsDepth,
               sonarlint,
             });
             const sanitized = await sanitizeInputFiles(inputFiles, configuration);
@@ -179,7 +179,7 @@ describe('analysis-level node_modules inference depth', () => {
             const archive = new ProgramSelectionArchive(archivePath, baseDir, 'record');
             await analyzeProject(
               { ...input, programSelection: archive },
-              { ...configuration, maxNodeModuleJsDepth: 2 },
+              { ...configuration, requestedMaxNodeModuleJsDepth: 2 },
             );
             archive.end();
             await initialize();
@@ -204,8 +204,8 @@ describe('analysis-level node_modules inference depth', () => {
           expect(observed).toHaveLength(merged ? 2 : 1);
           expect(observed).toEqual(
             Array(observed.length).fill(
-              !sonarlint && maxNodeModuleJsDepth
-                ? Math.max(projectDepth ?? 0, maxNodeModuleJsDepth)
+              !sonarlint && requestedMaxNodeModuleJsDepth
+                ? Math.max(projectDepth ?? 0, requestedMaxNodeModuleJsDepth)
                 : projectDepth,
             ),
           );
