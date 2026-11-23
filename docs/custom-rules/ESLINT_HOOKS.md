@@ -32,19 +32,21 @@ Accepted requests are integers from `0` through `9` inclusive; out-of-range requ
 the hook key and ignored, without failing the analysis or discarding other hooks' valid requests.
 Java validates this operational ceiling, chosen from memory tests rather than a TypeScript compiler
 limit. The gRPC boundary checks only the value's shape. The ceiling limits hook-requested dependency
-traversal, but is not an execution-time guarantee and does not restrict values in the project's own
-tsconfig when no override is requested.
-The default is `0` (no override). SonarJS aggregates the largest positive request among enabled
+traversal, but is not an execution-time guarantee and never caps a larger value in the project's own
+tsconfig.
+The default is `0` (no request). SonarJS aggregates the largest positive request among enabled
 checks/hooks that can run in the current analysis in Java, then sends it once in the analysis
 `ProjectConfiguration`. `DEFAULT` hooks also contribute during `SKIP_UNCHANGED` analyses because they
 run on changed and added files. Hooks supporting only `SKIP_UNCHANGED` do not contribute to a full
 `DEFAULT` analysis. The request is not part of `EslintRule`, `JsTsRule`, or the Node `RuleConfig`.
-The request overrides `maxNodeModuleJsDepth` from the
-project's tsconfig for configured, orphan/merged and restored scanner programs, without changing
-cached tsconfig options. It does not override `sonar.javascript.disableTypeChecking=true`, and it
+The request means **at least this depth**: configured, orphan/merged and restored scanner programs
+use the maximum of the baseline `maxNodeModuleJsDepth` (defaulting to `0`) and the hook request,
+without changing cached tsconfig options. For example, a request of `4` raises a project depth of `1`
+to `4`, but preserves a project depth of `12`. An absent or zero request leaves the project setting
+unchanged. It does not override `sonar.javascript.disableTypeChecking=true`, and it
 does not apply to SonarLint. When the hook is absent or disabled, ordinary compiler behavior is
-preserved. Recorded program selections retain the baseline compiler options, without the hook
-override; replay applies only the current analysis's request, including when it is absent or zero.
+preserved. Recorded program selections retain the baseline compiler options, without the hook's
+depth increase; replay applies only the current analysis's request, including when it is absent or zero.
 This option controls inference from JavaScript in `node_modules`, not declaration-file resolution
 or a general recursion limit for TypeScript types.
 

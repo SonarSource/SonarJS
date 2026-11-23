@@ -54,7 +54,7 @@ describe('analysis-level node_modules inference depth', () => {
     clearProgramOptionsCache();
   });
 
-  it('overrides cached tsconfig options without leaking into the next disabled analysis', () => {
+  it('preserves a higher cached project depth without leaking hook requests into the cache', () => {
     const tsconfig = normalizeToAbsolutePath(path.join(process.cwd(), 'depth-test.json'));
     const original = createProgramOptions(
       tsconfig,
@@ -62,7 +62,7 @@ describe('analysis-level node_modules inference depth', () => {
       true,
     );
     const enabled = withNodeModuleJsDepth(original, 4);
-    expect(enabled.options.maxNodeModuleJsDepth).toBe(4);
+    expect(enabled.options.maxNodeModuleJsDepth).toBe(12);
     expect(enabled.options).not.toBe(original.options);
     const cached = createProgramOptions(
       tsconfig,
@@ -76,6 +76,26 @@ describe('analysis-level node_modules inference depth', () => {
         .maxNodeModuleJsDepth,
     ).toBeUndefined();
   });
+
+  for (const projectDepth of [undefined, 0, 1, 4, 12]) {
+    for (const requestedDepth of [undefined, 0, 4, 9]) {
+      it(`keeps at least project depth ${projectDepth} with hook request ${requestedDepth}`, () => {
+        const original = createProgramOptionsFromJson(
+          { maxNodeModuleJsDepth: projectDepth },
+          [],
+          process.cwd(),
+        );
+        const effective = withNodeModuleJsDepth(original, requestedDepth);
+        expect(effective.options.maxNodeModuleJsDepth).toBe(
+          requestedDepth ? Math.max(projectDepth ?? 0, requestedDepth) : projectDepth,
+        );
+        expect(original.options.maxNodeModuleJsDepth).toBe(projectDepth);
+        if (!requestedDepth) {
+          expect(effective).toBe(original);
+        }
+      });
+    }
+  }
 
   it('does not re-enable explicitly disabled type checking', async context => {
     const baseDir = normalizeToAbsolutePath(
@@ -113,86 +133,90 @@ describe('analysis-level node_modules inference depth', () => {
     'restored-merged',
     'sonarlint-configured',
   ] as const) {
-    for (const maxNodeModuleJsDepth of [undefined, 0, 4, 9]) {
-      it(`${scenario}: applies analysis depth ${maxNodeModuleJsDepth}`, async context => {
-        const baseDir = normalizeToAbsolutePath(
-          fs.mkdtempSync(path.join(os.tmpdir(), 'hook-depth-')),
-        );
-        context.after(() => fs.rmSync(baseDir, { recursive: true, force: true }));
-        const configured = !scenario.endsWith('orphan');
-        const sonarlint = scenario === 'sonarlint-configured';
-        const merged = scenario.endsWith('merged');
-        const main = normalizeToAbsolutePath('main.js', baseDir);
-        const orphan = normalizeToAbsolutePath('orphan.js', baseDir);
-        fs.writeFileSync(main, 'const value = 1;;');
-        if (configured) {
-          fs.writeFileSync(
-            path.join(baseDir, 'tsconfig.json'),
-            JSON.stringify({
-              compilerOptions: { allowJs: true, maxNodeModuleJsDepth: 1 },
-              files: ['main.js'],
-            }),
+    for (const projectDepth of scenario.endsWith('orphan') ? [undefined] : [1, 12]) {
+      for (const maxNodeModuleJsDepth of [undefined, 0, 4, 9]) {
+        it(`${scenario}: project depth ${projectDepth}, hook request ${maxNodeModuleJsDepth}`, async context => {
+          const baseDir = normalizeToAbsolutePath(
+            fs.mkdtempSync(path.join(os.tmpdir(), 'hook-depth-')),
           );
-        }
-        if (merged) fs.writeFileSync(orphan, 'const other = 2;;');
-        const inputFiles = Object.fromEntries(
-          [main, ...(merged ? [orphan] : [])].map(filePath => [
-            filePath,
-            { filePath, fileType: 'MAIN' as const },
-          ]),
-        );
-        const initialize = async () => {
-          const configuration = createConfigurationFromInput({
-            baseDir,
-            maxNodeModuleJsDepth,
-            sonarlint,
+          context.after(() => fs.rmSync(baseDir, { recursive: true, force: true }));
+          const configured = !scenario.endsWith('orphan');
+          const sonarlint = scenario === 'sonarlint-configured';
+          const merged = scenario.endsWith('merged');
+          const main = normalizeToAbsolutePath('main.js', baseDir);
+          const orphan = normalizeToAbsolutePath('orphan.js', baseDir);
+          fs.writeFileSync(main, 'const value = 1;;');
+          if (configured) {
+            fs.writeFileSync(
+              path.join(baseDir, 'tsconfig.json'),
+              JSON.stringify({
+                compilerOptions: { allowJs: true, maxNodeModuleJsDepth: projectDepth },
+                files: ['main.js'],
+              }),
+            );
+          }
+          if (merged) fs.writeFileSync(orphan, 'const other = 2;;');
+          const inputFiles = Object.fromEntries(
+            [main, ...(merged ? [orphan] : [])].map(filePath => [
+              filePath,
+              { filePath, fileType: 'MAIN' as const },
+            ]),
+          );
+          const initialize = async () => {
+            const configuration = createConfigurationFromInput({
+              baseDir,
+              maxNodeModuleJsDepth,
+              sonarlint,
+            });
+            const sanitized = await sanitizeInputFiles(inputFiles, configuration);
+            await initFileStoresForAnalysis(configuration, sanitized.files);
+            return configuration;
+          };
+          const input = { rules: [rule], bundles: [] };
+          const configuration = await initialize();
+          const archivePath = path.join(baseDir, 'selection.pb.gz');
+          if (scenario.startsWith('restored')) {
+            const archive = new ProgramSelectionArchive(archivePath, baseDir, 'record');
+            await analyzeProject(
+              { ...input, programSelection: archive },
+              { ...configuration, maxNodeModuleJsDepth: 2 },
+            );
+            archive.end();
+            await initialize();
+          }
+          const replay = scenario.startsWith('restored')
+            ? new ProgramSelectionArchive(archivePath, baseDir, 'replay')
+            : undefined;
+          const observed: (number | undefined)[] = [];
+          const lint = Linter.lint;
+          context.mock.method(Linter, 'lint', (...args: Parameters<typeof Linter.lint>) => {
+            const services = args[0].sourceCode.parserServices as { program?: ts.Program };
+            observed.push(services.program?.getCompilerOptions().maxNodeModuleJsDepth);
+            return lint.apply(Linter, args);
           });
-          const sanitized = await sanitizeInputFiles(inputFiles, configuration);
-          await initFileStoresForAnalysis(configuration, sanitized.files);
-          return configuration;
-        };
-        const input = { rules: [rule], bundles: [] };
-        const configuration = await initialize();
-        const archivePath = path.join(baseDir, 'selection.pb.gz');
-        if (scenario.startsWith('restored')) {
-          const archive = new ProgramSelectionArchive(archivePath, baseDir, 'record');
           await analyzeProject(
-            { ...input, programSelection: archive },
-            { ...configuration, maxNodeModuleJsDepth: 2 },
+            {
+              ...input,
+              ...(replay ? { programSelection: replay } : {}),
+            },
+            configuration,
           );
-          archive.end();
-          await initialize();
-        }
-        const replay = scenario.startsWith('restored')
-          ? new ProgramSelectionArchive(archivePath, baseDir, 'replay')
-          : undefined;
-        const observed: (number | undefined)[] = [];
-        const lint = Linter.lint;
-        context.mock.method(Linter, 'lint', (...args: Parameters<typeof Linter.lint>) => {
-          const services = args[0].sourceCode.parserServices as { program?: ts.Program };
-          observed.push(services.program?.getCompilerOptions().maxNodeModuleJsDepth);
-          return lint.apply(Linter, args);
+          expect(observed).toHaveLength(merged ? 2 : 1);
+          expect(observed).toEqual(
+            Array(observed.length).fill(
+              !sonarlint && maxNodeModuleJsDepth
+                ? Math.max(projectDepth ?? 0, maxNodeModuleJsDepth)
+                : projectDepth,
+            ),
+          );
+          if (replay) {
+            const recordedDepths = replay
+              .getRestoredSelections([main, ...(merged ? [orphan] : [])])
+              .map(selection => selection.program.compilerOptions.maxNodeModuleJsDepth);
+            expect(recordedDepths).toEqual(Array(merged ? 2 : 1).fill(projectDepth));
+          }
         });
-        await analyzeProject(
-          {
-            ...input,
-            ...(replay ? { programSelection: replay } : {}),
-          },
-          configuration,
-        );
-        expect(observed).toHaveLength(merged ? 2 : 1);
-        expect(observed).toEqual(
-          Array(observed.length).fill(
-            (!sonarlint && maxNodeModuleJsDepth) || (configured ? 1 : undefined),
-          ),
-        );
-        if (replay) {
-          const recordedDepths = replay
-            .getRestoredSelections([main, ...(merged ? [orphan] : [])])
-            .map(selection => selection.program.compilerOptions.maxNodeModuleJsDepth);
-          expect(recordedDepths).toEqual(Array(merged ? 2 : 1).fill(configured ? 1 : undefined));
-        }
-      });
+      }
     }
   }
 });

@@ -488,14 +488,20 @@ function createBaseParseConfigHost(canAccessFileSystem: boolean): CustomParseCon
   };
 }
 
-/** Apply per-analysis overrides after cache retrieval; never mutate cached tsconfig options. */
+/** Apply the hook's minimum depth after cache retrieval; never mutate cached tsconfig options. */
 export function withNodeModuleJsDepth(
   programOptions: ProgramOptions,
   depth: number | undefined,
 ): ProgramOptions {
-  return depth === undefined
+  return depth === undefined || depth === 0
     ? programOptions
-    : { ...programOptions, options: { ...programOptions.options, maxNodeModuleJsDepth: depth } };
+    : {
+        ...programOptions,
+        options: {
+          ...programOptions.options,
+          maxNodeModuleJsDepth: Math.max(programOptions.options.maxNodeModuleJsDepth ?? 0, depth),
+        },
+      };
 }
 
 export function createProgramOptionsFromJson(
