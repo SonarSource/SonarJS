@@ -76,6 +76,7 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 public class JsTsChecks {
 
   private static final Logger LOG = LoggerFactory.getLogger(JsTsChecks.class);
+  // Operational ceiling chosen from memory tests, not a TypeScript compiler limit.
   private static final int MAX_NODE_MODULE_JS_DEPTH = 9;
 
   /**
@@ -374,11 +375,13 @@ public class JsTsChecks {
       .mapToInt(hook -> {
         int depth = hook.maxNodeModuleJsDepth();
         if (depth < 0 || depth > MAX_NODE_MODULE_JS_DEPTH) {
-          throw new IllegalArgumentException(
-            "maxNodeModuleJsDepth must be an integer between 0 and " +
-              MAX_NODE_MODULE_JS_DEPTH +
-              " inclusive"
+          LOG.warn(
+            "Ignoring maxNodeModuleJsDepth={} from ESLint hook '{}': expected an integer between 0 and {} inclusive",
+            depth,
+            hook.eslintKey(),
+            MAX_NODE_MODULE_JS_DEPTH
           );
+          return 0;
         }
         return depth;
       })

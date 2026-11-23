@@ -67,7 +67,7 @@ function stringList(values: string[]) {
 }
 
 describe('normalizeAnalyzeProjectRequest', () => {
-  for (const maxNodeModuleJsDepth of [undefined, 0, 1, 4, 8, 9]) {
+  for (const maxNodeModuleJsDepth of [undefined, 0, 1, 4, 8, 9, 10, 0x7fffffff]) {
     it(`preserves optional analysis node_modules depth ${maxNodeModuleJsDepth} through protobuf`, async () => {
       const baseDir = await createBaseDir();
       const { AnalyzeProjectRequest } = sonarjs.analyzeproject.v1;
@@ -97,18 +97,7 @@ describe('normalizeAnalyzeProjectRequest', () => {
     });
   }
 
-  for (const maxNodeModuleJsDepth of [
-    '4',
-    -1,
-    1.5,
-    9.5,
-    10,
-    NaN,
-    Infinity,
-    -Infinity,
-    0x7fffffff,
-    0x80000000,
-  ]) {
+  for (const maxNodeModuleJsDepth of ['4', true, {}, [], -1, 1.5, 9.5, NaN, Infinity, -Infinity]) {
     it(`rejects invalid analysis node_modules depth ${maxNodeModuleJsDepth}`, async () => {
       const baseDir = await createBaseDir();
       const normalize = () =>
@@ -118,13 +107,13 @@ describe('normalizeAnalyzeProjectRequest', () => {
         });
       await expect(normalize()).rejects.toThrow(InvalidAnalyzeProjectRequestError);
       await expect(normalize()).rejects.toThrow(
-        'configuration.max_node_module_js_depth must be an integer between 0 and 9 inclusive',
+        'configuration.max_node_module_js_depth must be a non-negative integer',
       );
     });
   }
 
-  for (const maxNodeModuleJsDepth of [10, 0x7fffffff]) {
-    it(`rejects excessive depth ${maxNodeModuleJsDepth} after protobuf serialization`, async () => {
+  for (const maxNodeModuleJsDepth of [-1, -0x80000000]) {
+    it(`rejects negative depth ${maxNodeModuleJsDepth} after protobuf serialization`, async () => {
       const baseDir = await createBaseDir();
       const { AnalyzeProjectRequest } = sonarjs.analyzeproject.v1;
       const request = AnalyzeProjectRequest.decode(

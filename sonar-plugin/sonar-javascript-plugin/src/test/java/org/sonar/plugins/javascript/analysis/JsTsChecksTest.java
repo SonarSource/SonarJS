@@ -17,7 +17,6 @@
 package org.sonar.plugins.javascript.analysis;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.plugins.javascript.TestUtils.checkFactory;
 import static org.sonar.plugins.javascript.api.Language.JAVASCRIPT;
 import static org.sonar.plugins.javascript.api.Language.TYPESCRIPT;
@@ -28,8 +27,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.CheckList;
@@ -45,6 +47,9 @@ import org.sonar.scanner.plugin.api.impl.rule.ActiveRulesBuilder;
 import org.sonar.scanner.plugin.api.impl.rule.NewActiveRule;
 
 class JsTsChecksTest {
+
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   @Test
   void test() {
@@ -160,29 +165,32 @@ class JsTsChecksTest {
   }
 
   @Test
-  void should_reject_excessive_dependency_depth_requests() {
-    for (int depth : new int[] { 10, Integer.MAX_VALUE }) {
+  void should_warn_and_ignore_invalid_dependency_depth_requests() {
+    for (int depth : new int[] { Integer.MIN_VALUE, -1, 10, Integer.MAX_VALUE }) {
       var hook = new TestEslintHook();
       hook.depth = depth;
       var checks = new JsTsChecks(checkFactory("repo", "customcheck"), new EslintHookRegistrar[] {
         hook,
       });
-      assertThatThrownBy(() -> checks.requestedMaxNodeModuleJsDepth(AnalysisMode.DEFAULT))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessage("maxNodeModuleJsDepth must be an integer between 0 and 9 inclusive");
+      assertThat(checks.requestedMaxNodeModuleJsDepth(AnalysisMode.DEFAULT)).isZero();
+      assertThat(logTester.logs(Level.WARN)).contains(
+        "Ignoring maxNodeModuleJsDepth=" +
+          depth +
+          " from ESLint hook 'test-hook': expected an integer between 0 and 9 inclusive"
+      );
     }
   }
 
   @Test
-  void should_reject_negative_dependency_depth_requests() {
-    var hook = new TestEslintHook();
-    hook.depth = -1;
+  void invalid_dependency_depth_does_not_discard_other_hooks_requests() {
+    var invalid = new TestEslintHook();
+    invalid.depth = 10;
+    var valid = new TestEslintHook();
     var checks = new JsTsChecks(checkFactory("repo", "customcheck"), new EslintHookRegistrar[] {
-      hook,
+      invalid,
+      valid,
     });
-    assertThatThrownBy(() -> checks.requestedMaxNodeModuleJsDepth(AnalysisMode.DEFAULT))
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("maxNodeModuleJsDepth must be an integer between 0 and 9 inclusive");
+    assertThat(checks.requestedMaxNodeModuleJsDepth(AnalysisMode.DEFAULT)).isEqualTo(4);
   }
 
   @Test

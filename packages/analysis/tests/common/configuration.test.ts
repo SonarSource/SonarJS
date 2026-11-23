@@ -33,7 +33,7 @@ import {
 import { normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
 
 describe('createConfiguration', () => {
-  for (const maxNodeModuleJsDepth of [undefined, 0, 1, 4, 8, 9]) {
+  for (const maxNodeModuleJsDepth of [undefined, 0, 1, 4, 8, 9, 10, 0x7fffffff]) {
     it(`preserves optional analysis node_modules depth ${maxNodeModuleJsDepth}`, () => {
       const input = { baseDir: '/path/to/project', maxNodeModuleJsDepth };
       for (const create of [createConfiguration, createConfigurationFromInput]) {
@@ -46,27 +46,13 @@ describe('createConfiguration', () => {
     });
   }
 
-  for (const maxNodeModuleJsDepth of [
-    '4',
-    -1,
-    0.5,
-    9.5,
-    10,
-    NaN,
-    Infinity,
-    -Infinity,
-    0x7fffffff,
-    0x80000000,
-    null,
-  ]) {
-    it(`rejects invalid analysis node_modules depth ${maxNodeModuleJsDepth}`, () => {
-      const input = { baseDir: '/path/to/project', maxNodeModuleJsDepth };
-      expect(() => createConfiguration(input)).toThrow(
-        'maxNodeModuleJsDepth must be an integer between 0 and 9 inclusive',
-      );
-      expect(() => createConfigurationFromInput(input as never)).toThrow(
-        'maxNodeModuleJsDepth must be an integer between 0 and 9 inclusive',
-      );
+  for (const maxNodeModuleJsDepth of ['4', NaN, null, true, {}, []]) {
+    it(`ignores nonnumeric optional analysis depth ${JSON.stringify(maxNodeModuleJsDepth)}`, () => {
+      const configuration = createConfiguration({
+        baseDir: '/path/to/project',
+        maxNodeModuleJsDepth,
+      });
+      expect(configuration.maxNodeModuleJsDepth).toBeUndefined();
     });
   }
 
