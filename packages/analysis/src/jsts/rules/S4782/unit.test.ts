@@ -27,41 +27,78 @@ import { Linter } from 'eslint';
 import ts from 'typescript';
 
 describe('S4782', () => {
-  it('loose-mode suggestions preserve accepted inputs', () => {
-    const filename = path.join(import.meta.dirname, 'fixtures', 'index.ts');
-    const code = 'export interface T { p?: string | undefined; }';
-    for (const strictNullChecks of [false, true]) {
-      const options: ts.CompilerOptions = {
-        strictNullChecks,
-        exactOptionalPropertyTypes: false,
-        types: [],
-      };
-      function createProgram(text: string) {
-        const host = ts.createCompilerHost(options);
-        const readFile = host.readFile;
-        host.readFile = file =>
-          path.normalize(file) === path.normalize(filename) ? text : readFile(file);
-        return ts.createProgram([filename], options, host);
-      }
-      const messages = new Linter({ cwd: import.meta.dirname }).verify(
-        code,
-        [
-          {
-            files: ['**/*.ts'],
-            languageOptions: { parser, parserOptions: { programs: [createProgram(code)] } },
-            plugins: { sonarjs: { rules: { S4782: rule } } },
-            rules: { 'sonarjs/S4782': 'error' },
-          },
-        ],
-        { filename },
-      );
-      assert.equal(messages.length, 1);
-      const suggestions = messages[0].suggestions;
-      assert.ok(suggestions?.length, JSON.stringify(messages));
-      for (const suggestion of suggestions) {
-        const { range, text } = suggestion.fix;
-        const fixed = code.slice(0, range[0]) + text + code.slice(range[1]);
-        const proof = `
+  for (const { code, needsUndefinedWithoutStrictNullChecks } of [
+    {
+      code: 'export interface T { p?: string | undefined; }',
+      needsUndefinedWithoutStrictNullChecks: false,
+    },
+    {
+      code: 'export interface T { p?: never | undefined; }',
+      needsUndefinedWithoutStrictNullChecks: true,
+    },
+    {
+      code: 'type Empty = never; export interface T { p?: Empty | undefined; }',
+      needsUndefinedWithoutStrictNullChecks: true,
+    },
+    {
+      code: 'export interface T { p?: (string & number) | undefined; }',
+      needsUndefinedWithoutStrictNullChecks: true,
+    },
+    {
+      code: 'type Empty = never; export interface T { p?: never | (Empty | undefined); }',
+      needsUndefinedWithoutStrictNullChecks: true,
+    },
+    {
+      code: 'export interface T { p?: never | string | undefined; }',
+      needsUndefinedWithoutStrictNullChecks: false,
+    },
+    {
+      code: 'export interface T { p?: never | undefined | undefined; }',
+      needsUndefinedWithoutStrictNullChecks: false,
+    },
+  ]) {
+    it(`loose-mode suggestions preserve accepted inputs: ${code}`, () => {
+      const filename = path.join(import.meta.dirname, 'fixtures', 'index.ts');
+      for (const strictNullChecks of [false, true]) {
+        const options: ts.CompilerOptions = {
+          strictNullChecks,
+          exactOptionalPropertyTypes: false,
+          types: [],
+        };
+        function createProgram(text: string) {
+          const host = ts.createCompilerHost(options);
+          const readFile = host.readFile;
+          host.readFile = file =>
+            path.normalize(file) === path.normalize(filename) ? text : readFile(file);
+          return ts.createProgram([filename], options, host);
+        }
+        const messages = new Linter({ cwd: import.meta.dirname }).verify(
+          code,
+          [
+            {
+              files: ['**/*.ts'],
+              languageOptions: { parser, parserOptions: { programs: [createProgram(code)] } },
+              plugins: { sonarjs: { rules: { S4782: rule } } },
+              rules: { 'sonarjs/S4782': 'error' },
+            },
+          ],
+          { filename },
+        );
+        assert.equal(
+          messages.length,
+          !strictNullChecks && needsUndefinedWithoutStrictNullChecks ? 0 : 1,
+        );
+        const suggestions = messages[0]?.suggestions ?? [];
+        if (messages.length > 0) {
+          assert.ok(suggestions.length, JSON.stringify(messages));
+        }
+        for (const suggestion of suggestions.length > 0 ? suggestions : [undefined]) {
+          const fixed = suggestion
+            ? code.slice(0, suggestion.fix.range[0]) +
+              suggestion.fix.text +
+              code.slice(suggestion.fix.range[1])
+            : code;
+          const proof = `
           namespace Before { ${code} }
           namespace After { ${fixed} }
           declare const before: Before.T;
@@ -88,20 +125,21 @@ describe('S4782', () => {
           // @ts-expect-error The accepted value type must not widen.
           const invalidValue: After.T = { p: 42 };
         `;
-        const program = createProgram(proof);
-        const source = program.getSourceFile(filename);
-        assert.ok(source);
-        assert.deepEqual(
-          [
-            ...program.getSyntacticDiagnostics(source),
-            ...program.getSemanticDiagnostics(source),
-          ].map(diagnostic => ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n')),
-          [],
-          `strictNullChecks=${strictNullChecks}, suggestion=${suggestion.desc}`,
-        );
+          const program = createProgram(proof);
+          const source = program.getSourceFile(filename);
+          assert.ok(source);
+          assert.deepEqual(
+            [
+              ...program.getSyntacticDiagnostics(source),
+              ...program.getSemanticDiagnostics(source),
+            ].map(diagnostic => ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n')),
+            [],
+            `strictNullChecks=${strictNullChecks}, suggestion=${suggestion?.desc ?? 'none'}`,
+          );
+        }
       }
-    }
-  });
+    });
+  }
 
   it('S4782', () => {
     const ruleTester = new RuleTester();

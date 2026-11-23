@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { isStrictCompilerOptionEnabled } from 'ts-api-utils';
+import { isIntrinsicNeverType, isStrictCompilerOptionEnabled } from 'ts-api-utils';
 import ts from 'typescript';
 import { generateMeta } from '../helpers/generate-meta.js';
 import {
@@ -39,6 +39,7 @@ export const rule: Rule.RuleModule = {
       return {};
     }
     const compilerOptions = parserServices.program.getCompilerOptions();
+    const checker = parserServices.program.getTypeChecker();
     const canResolveTypes = isStrictCompilerOptionEnabled(compilerOptions, 'strictNullChecks');
 
     function checkProperty(node: estree.Node) {
@@ -74,6 +75,19 @@ export const rule: Rule.RuleModule = {
       }
 
       if (typeNode) {
+        // Without strictNullChecks, an optional never property still rejects explicit undefined.
+        if (
+          !canResolveTypes &&
+          unionConstituents(rootType).every(
+            member =>
+              member === typeNode ||
+              isIntrinsicNeverType(
+                checker.getTypeAtLocation(parserServices.esTreeNodeToTSNodeMap.get(member)),
+              ),
+          )
+        ) {
+          return;
+        }
         const suggest =
           typeNode.parent?.type === 'TSUnionType'
             ? [getUndefinedRemovalSuggestion(context, typeNode)]
