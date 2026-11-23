@@ -24,20 +24,216 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.Set;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.slf4j.event.Level;
 import org.sonar.api.scanner.ResourceFetcher;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
+import org.sonar.plugins.javascript.bridge.EmbeddedNode.Platform;
 import org.sonar.plugins.javascript.nodejs.ProcessWrapper;
+import org.tukaani.xz.LZMA2Options;
+import org.tukaani.xz.XZOutputStream;
 
 class EmbeddedNodeTest {
 
   private static final String PLUGIN_KEY = "javascript";
 
+  @RegisterExtension
+  public final LogTesterJUnit5 logTester = new LogTesterJUnit5();
+
   @TempDir
   Path tempDir;
+
+  static Stream<Arguments> platforms() {
+    return Stream.of(
+      Arguments.of(
+        "Windows 11",
+        "amd64",
+        false,
+        Platform.WIN_X64,
+        "win-x64/node.exe.xz",
+        "win-x64/version.txt",
+        "node.exe"
+      ),
+      Arguments.of(
+        "Linux",
+        "aarch64",
+        false,
+        Platform.LINUX_ARM64,
+        "linux-arm64/bin/node.xz",
+        "linux-arm64/version.txt",
+        "node"
+      ),
+      Arguments.of(
+        "Linux",
+        "amd64",
+        false,
+        Platform.LINUX_X64,
+        "linux-x64/bin/node.xz",
+        "linux-x64/version.txt",
+        "node"
+      ),
+      Arguments.of(
+        "Linux",
+        "amd64",
+        true,
+        Platform.LINUX_X64_MUSL,
+        "linux-x64-musl/bin/node.xz",
+        "linux-x64-musl/version.txt",
+        "node"
+      ),
+      Arguments.of(
+        "Mac OS X",
+        "aarch64",
+        false,
+        Platform.DARWIN_ARM64,
+        "darwin-arm64/bin/node.xz",
+        "darwin-arm64/version.txt",
+        "node"
+      ),
+      Arguments.of(
+        "Mac OS X",
+        "amd64",
+        false,
+        Platform.DARWIN_X64,
+        "darwin-x64/bin/node.xz",
+        "darwin-x64/version.txt",
+        "node"
+      ),
+      Arguments.of("FreeBSD", "amd64", false, Platform.UNSUPPORTED, "", "", "node")
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("platforms")
+  void should_detect_platform_and_resolve_resource_paths(
+    String osName,
+    String osArch,
+    boolean alpine,
+    Platform expected,
+    String archivePath,
+    String versionPath,
+    String binary
+  ) {
+    var env = mock(Environment.class);
+    when(env.getOsName()).thenReturn(osName);
+    when(env.getOsArch()).thenReturn(osArch);
+    when(env.isAlpine()).thenReturn(alpine);
+
+    var platform = Platform.detect(env);
+
+    assertThat(platform).isEqualTo(expected);
+    assertThat(platform.archiveResourcePath()).isEqualTo(archivePath);
+    assertThat(platform.versionResourcePath()).isEqualTo(versionPath);
+    assertThat(platform.binary()).isEqualTo(binary);
+  }
+
+  @Test
+  void should_log_debug_message_when_embedded_node_is_not_found() throws Exception {
+    logTester.setLevel(Level.DEBUG);
+    var env = linuxX64Environment(tempDir);
+
+    var embeddedNode = new UnavailableEmbeddedNode(successfulProcessWrapper(), env);
+    embeddedNode.deploy();
+
+    assertThat(logTester.logs(Level.DEBUG)).contains(
+      "Embedded node not found for platform LINUX_X64"
+    );
+    assertThat(embeddedNode.isAvailable()).isFalse();
+  }
+
+  @Test
+  void should_extract_runtime_and_version_when_nothing_is_deployed() throws Exception {
+    var env = linuxX64Environment(tempDir);
+    var resourceFetcher = resourceFetcherFor(
+      "linux-x64/bin/node.xz",
+      "linux-x64/version.txt",
+      "v1"
+    );
+
+    var embeddedNode = new ScannerEmbeddedNode(successfulProcessWrapper(), env, resourceFetcher);
+    embeddedNode.deploy();
+
+    assertThat(embeddedNode.isAvailable()).isTrue();
+    assertThat(Files.readString(embeddedNode.binary())).isEqualTo("node-binary-v1");
+    assertThat(
+      Files.readString(deployDirectory().resolve(EmbeddedNode.VERSION_FILENAME))
+    ).isEqualTo("v1");
+    assertThat(Files.getPosixFilePermissions(embeddedNode.binary())).containsExactlyInAnyOrder(
+      PosixFilePermission.OWNER_READ,
+      PosixFilePermission.OWNER_WRITE,
+      PosixFilePermission.OWNER_EXECUTE
+    );
+  }
+
+  @Test
+  void should_extract_runtime_when_deployed_version_is_different() throws Exception {
+    var env = linuxX64Environment(tempDir);
+    Files.createDirectories(deployDirectory());
+    Files.writeString(deployDirectory().resolve("node"), "node-binary-old");
+    Files.writeString(deployDirectory().resolve(EmbeddedNode.VERSION_FILENAME), "old");
+    var resourceFetcher = resourceFetcherFor(
+      "linux-x64/bin/node.xz",
+      "linux-x64/version.txt",
+      "v2"
+    );
+
+    var embeddedNode = new ScannerEmbeddedNode(successfulProcessWrapper(), env, resourceFetcher);
+    embeddedNode.deploy();
+
+    assertThat(embeddedNode.isAvailable()).isTrue();
+    assertThat(Files.readString(embeddedNode.binary())).isEqualTo("node-binary-v2");
+    assertThat(
+      Files.readString(deployDirectory().resolve(EmbeddedNode.VERSION_FILENAME))
+    ).isEqualTo("v2");
+  }
+
+  @Test
+  void should_extract_windows_runtime_without_changing_permissions() throws Exception {
+    var env = mock(Environment.class);
+    when(env.getOsName()).thenReturn("Windows 11");
+    when(env.getOsArch()).thenReturn("amd64");
+    when(env.getSonarUserHome()).thenReturn(tempDir);
+    var resourceFetcher = resourceFetcherFor("win-x64/node.exe.xz", "win-x64/version.txt", "v1");
+
+    var embeddedNode = new ScannerEmbeddedNode(successfulProcessWrapper(), env, resourceFetcher);
+    embeddedNode.deploy();
+
+    assertThat(embeddedNode.isAvailable()).isTrue();
+    assertThat(embeddedNode.binary().getFileName()).hasToString("node.exe");
+    assertThat(Files.readString(embeddedNode.binary())).isEqualTo("node-binary-v1");
+  }
+
+  private Path deployDirectory() {
+    return tempDir.resolve("js").resolve("node-runtime");
+  }
+
+  private ResourceFetcher resourceFetcherFor(String archivePath, String versionPath, String version)
+    throws Exception {
+    var compressed = new ByteArrayOutputStream();
+    try (var xz = new XZOutputStream(compressed, new LZMA2Options())) {
+      xz.write(("node-binary-" + version).getBytes(StandardCharsets.UTF_8));
+    }
+    var downloads = tempDir.resolve("resource-fetcher-downloads");
+    Files.createDirectories(downloads);
+    var archive = Files.write(downloads.resolve("archive.xz"), compressed.toByteArray());
+    var versionFile = Files.writeString(downloads.resolve("version.txt"), version);
+    var resourceFetcher = mock(ResourceFetcher.class);
+    when(resourceFetcher.fetch(PLUGIN_KEY, archivePath)).thenReturn(archive);
+    when(resourceFetcher.fetch(PLUGIN_KEY, versionPath)).thenReturn(versionFile);
+    return resourceFetcher;
+  }
 
   private ProcessWrapper successfulProcessWrapper() throws Exception {
     var processWrapper = mock(ProcessWrapper.class);
