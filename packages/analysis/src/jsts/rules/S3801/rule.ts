@@ -197,12 +197,20 @@ export const rule: Rule.RuleModule = {
         if (!!currentContext) {
           const returnStatement = node as estree.ReturnStatement;
           const { argument } = returnStatement;
+          let target = argument;
+          while (
+            target?.type === 'AwaitExpression' ||
+            (target?.type === 'YieldExpression' && target.delegate)
+          ) {
+            target = target.argument;
+          }
           if (
             argument &&
+            target?.type === 'CallExpression' &&
             hasTypeInformation &&
             (getTypeFromTreeNode(argument, services).flags & ts.TypeFlags.Never) !== 0
           ) {
-            // Evaluating a 'never' argument cannot complete the return.
+            // Only trust never-valued calls; control-flow narrowing can mark ordinary values as never.
             return;
           }
           currentContext.containsReturnWithValue =

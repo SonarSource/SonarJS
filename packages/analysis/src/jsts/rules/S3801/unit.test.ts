@@ -20,6 +20,7 @@ import {
   RuleTester,
 } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
+import path from 'node:path';
 
 describe('S3801', () => {
   it('S3801', () => {
@@ -490,6 +491,43 @@ describe('S3801', () => {
             function test(condition: boolean) {
               if (condition) return;
               return unknownResult();
+            }
+          `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('S3801 preserves successful returns narrowed to never', () => {
+    const ruleTester = new RuleTester({
+      parserOptions: {
+        project: path.join(
+          import.meta.dirname,
+          '../../../../tests/jsts/tools/testers/fixtures/tsconfig.strict.json',
+        ),
+      },
+    });
+    ruleTester.run('Closure assignments can make never narrowing inaccurate', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: `
+            function find(items: number[]) {
+              let found: number | undefined = undefined;
+              items.forEach(item => { found = item; });
+              if (found) return found;
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            function find(items: number[]) {
+              let found: number | undefined = undefined;
+              items.forEach(item => { found = item; });
+              if (found) return found;
+              return;
             }
           `,
           errors: 1,
