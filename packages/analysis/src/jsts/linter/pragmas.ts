@@ -114,6 +114,73 @@ function getRuleId(ruleId: string | null) {
   return ruleId?.split('/').at(-1)!;
 }
 
+function remapAliasedInlineOptions(
+  config: { rules: Linter.RulesRecord },
+  activeRules: Linter.RulesRecord,
+): { patchedOptions: Linter.RulesRecord; aliasedRuleIds: Set<string> } {
+  const patchedOptions: Linter.RulesRecord = { ...config.rules };
+  const aliasedRuleIds = new Set<string>();
+
+  for (const [ruleId, options] of Object.entries(config.rules)) {
+    const mapping = eslintMapping[getRuleId(ruleId)];
+    if (!mapping || ruleId === mapping.ruleId) {
+      continue;
+    }
+    // ESLint has already parsed the inline directive at this point, but once we remap the
+    // rule id we must reapply the active Sonar/materialized options for that rule. Otherwise
+    // severity-only pragmas drop Sonar defaults, and inline overrides merge against raw
+    // upstream alias defaults instead of the effective runtime config.
+    patchedOptions[mapping.ruleId] = normalizeInlineRuleOptions(
+      options,
+      mapping,
+      activeRules[mapping.ruleId],
+    );
+    delete patchedOptions[ruleId];
+    aliasedRuleIds.add(mapping.ruleId);
+  }
+
+  return { patchedOptions, aliasedRuleIds };
+}
+
+function applyNonAliasedInlineOptions(
+  config: { rules: Linter.RulesRecord },
+  patchedOptions: Linter.RulesRecord,
+  aliasedRuleIds: Set<string>,
+  activeRules: Linter.RulesRecord,
+): void {
+  for (const [ruleId, options] of Object.entries(config.rules)) {
+    const mapping = eslintMapping[getRuleId(ruleId)];
+    if (ruleId === mapping?.ruleId && !aliasedRuleIds.has(ruleId)) {
+      patchedOptions[ruleId] = normalizeInlineRuleOptions(options, mapping, activeRules[ruleId]);
+    }
+  }
+}
+
+function restrictInlineOptionsToActiveRules(
+  patchedOptions: Linter.RulesRecord,
+  activeRules: Linter.RulesRecord,
+  rulesForIssues: Linter.RulesRecord,
+): void {
+  for (const ruleId of Object.keys(patchedOptions)) {
+    if (!Object.hasOwn(activeRules, ruleId)) {
+      delete patchedOptions[ruleId];
+      continue;
+    }
+    if (Object.hasOwn(rulesForIssues, ruleId)) {
+      continue;
+    }
+    // Preserve internal options for metrics-only rules, including issue suppression.
+    // Inline severity changes may still disable the rule as before.
+    const options = patchedOptions[ruleId];
+    const severity = Array.isArray(options) ? options[0] : options;
+    const activeOptions = activeRules[ruleId];
+    patchedOptions[ruleId] = [
+      severity,
+      ...(Array.isArray(activeOptions) ? activeOptions.slice(1) : []),
+    ];
+  }
+}
+
 export function createOptions(
   filename: NormalizedAbsolutePath,
   activeRules: Linter.RulesRecord,
@@ -156,53 +223,11 @@ export function createOptions(
       }
     },
     patchInlineOptions: (config: { rules: Linter.RulesRecord }) => {
-      const patchedOptions: Linter.RulesRecord = { ...config.rules };
-      const aliasedRuleIds = new Set<string>();
-
-      for (const [ruleId, options] of Object.entries(config.rules)) {
-        const mapping = eslintMapping[getRuleId(ruleId)];
-        if (mapping && ruleId !== mapping.ruleId) {
-          // ESLint has already parsed the inline directive at this point, but once we remap the
-          // rule id we must reapply the active Sonar/materialized options for that rule. Otherwise
-          // severity-only pragmas drop Sonar defaults, and inline overrides merge against raw
-          // upstream alias defaults instead of the effective runtime config.
-          patchedOptions[mapping.ruleId] = normalizeInlineRuleOptions(
-            options,
-            mapping,
-            activeRules[mapping.ruleId],
-          );
-          delete patchedOptions[ruleId];
-          aliasedRuleIds.add(mapping.ruleId);
-        }
-      }
-
-      for (const [ruleId, options] of Object.entries(config.rules)) {
-        const mapping = eslintMapping[getRuleId(ruleId)];
-        if (ruleId === mapping?.ruleId && !aliasedRuleIds.has(ruleId)) {
-          patchedOptions[ruleId] = normalizeInlineRuleOptions(
-            options,
-            mapping,
-            activeRules[ruleId],
-          );
-        }
-      }
+      const { patchedOptions, aliasedRuleIds } = remapAliasedInlineOptions(config, activeRules);
+      applyNonAliasedInlineOptions(config, patchedOptions, aliasedRuleIds, activeRules);
       // Inline configuration may only override rules selected by the linter for this file.
       // Check after alias remapping so directives cannot bypass rule applicability filters.
-      for (const ruleId of Object.keys(patchedOptions)) {
-        if (!Object.hasOwn(activeRules, ruleId)) {
-          delete patchedOptions[ruleId];
-        } else if (!Object.hasOwn(rulesForIssues, ruleId)) {
-          // Preserve internal options for metrics-only rules, including issue suppression.
-          // Inline severity changes may still disable the rule as before.
-          const options = patchedOptions[ruleId];
-          const severity = Array.isArray(options) ? options[0] : options;
-          const activeOptions = activeRules[ruleId];
-          patchedOptions[ruleId] = [
-            severity,
-            ...(Array.isArray(activeOptions) ? activeOptions.slice(1) : []),
-          ];
-        }
-      }
+      restrictInlineOptionsToActiveRules(patchedOptions, activeRules, rulesForIssues);
       config.rules = patchedOptions;
     },
   };
