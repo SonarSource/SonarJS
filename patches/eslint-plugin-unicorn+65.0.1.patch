@@ -1,16 +1,102 @@
 diff --git a/node_modules/eslint-plugin-unicorn/rules/prefer-class-fields.js b/node_modules/eslint-plugin-unicorn/rules/prefer-class-fields.js
+index ceabecb07a..0480942771 100644
 --- a/node_modules/eslint-plugin-unicorn/rules/prefer-class-fields.js
 +++ b/node_modules/eslint-plugin-unicorn/rules/prefer-class-fields.js
-@@ -67,13 +67,16 @@ const create = context => {
- 			&& node.expression.left.object.type === 'ThisExpression'
- 			&& !node.expression.left.computed
- 			&& ['Identifier', 'PrivateIdentifier'].includes(node.expression.left.property.type)
+@@ -29,6 +29,72 @@ const removeFieldAssignment = (node, sourceCode, fixer) => {
+ 		: fixer.remove(node);
+ };
+ 
++const getThisAssignment = node => {
++	if (
++		node?.type === 'ExpressionStatement'
++		&& node.expression.type === 'AssignmentExpression'
++		&& node.expression.operator === '='
++		&& node.expression.left.type === 'MemberExpression'
++		&& node.expression.left.object.type === 'ThisExpression'
++		&& !node.expression.left.computed
++		&& ['Identifier', 'PrivateIdentifier'].includes(node.expression.left.property.type)
++	) {
++		return node.expression;
++	}
++};
++
++const isStaticValue = node => node.type === 'Literal'
++	|| (node.type === 'ArrayExpression' && node.elements.length === 0);
++
++function * getAdditionalProblems(constructor, classBody, sourceCode) {
++	const statements = constructor.value.body.body.filter(node => node.type !== 'EmptyStatement');
++	const assignedProperties = new Set();
++	const propertyKey = property => property.type === 'Literal'
++		? `Identifier:${property.value}`
++		: `${property.type}:${property.name}`;
++	const observesInstance = node => sourceCode.getTokens(node).some(token =>
++		token.type === 'Keyword' && (token.value === 'this' || token.value === 'super'));
++
++	for (const parameter of constructor.value.params) {
++		if (parameter.type === 'TSParameterProperty') {
++			assignedProperties.add(propertyKey(parameter.parameter.left ?? parameter.parameter));
++		}
++	}
++
++	for (const statement of statements) {
++		const assignment = getThisAssignment(statement);
++		if (!assignment) {
++			if (!['ExpressionStatement', 'VariableDeclaration'].includes(statement.type) || observesInstance(statement)) {
++				break;
++			}
++
++			continue;
++		}
++
++		if (observesInstance(assignment.right)) {
++			break;
++		}
++
++		const key = propertyKey(assignment.left.property);
++		const alreadyAssigned = assignedProperties.has(key);
++		assignedProperties.add(key);
++		if (statement === statements[0] || alreadyAssigned || !isStaticValue(assignment.right)) {
++			continue;
++		}
++
++		// A field must not shadow a method or duplicate a static private name.
++		if (classBody.body.some(member => !member.computed && member.key
++			&& propertyKey(member.key) === key
++			&& ((member.type === 'MethodDefinition' && !member.static)
++				|| (assignment.left.property.type === 'PrivateIdentifier' && member.static)))) {
++			continue;
++		}
++
++		// Broader detection is independent of the upstream first-statement fixer.
++		yield {node: statement, messageId: MESSAGE_ID_ERROR};
++	}
++}
++
+ /**
+ @type {import('eslint').Rule.RuleModule['create']}
+ */
+@@ -47,23 +113,19 @@ const create = context => {
+ 			return;
+ 		}
+ 
++		for (const problem of getAdditionalProblems(constructor, classBody, sourceCode)) {
++			context.report(problem);
++		}
++
+ 		const node = constructor.value.body.body.find(node => node.type !== 'EmptyStatement');
+ 
+-		if (!(
+-			node?.type === 'ExpressionStatement'
+-			&& node.expression.type === 'AssignmentExpression'
+-			&& node.expression.operator === '='
+-			&& node.expression.left.type === 'MemberExpression'
+-			&& node.expression.left.object.type === 'ThisExpression'
+-			&& !node.expression.left.computed
+-			&& ['Identifier', 'PrivateIdentifier'].includes(node.expression.left.property.type)
 -			&& node.expression.right.type === 'Literal'
-+			&& (
-+				node.expression.right.type === 'Literal'
-+				|| (node.expression.right.type === 'ArrayExpression' && node.expression.right.elements.length === 0)
-+			)
- 		)) {
+-		)) {
++		const assignment = getThisAssignment(node);
++		if (!assignment || !isStaticValue(assignment.right)) {
  			return;
  		}
  
