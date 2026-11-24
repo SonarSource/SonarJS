@@ -511,6 +511,52 @@ describe('S3801', () => {
     ruleTester.run('Closure assignments can make never narrowing inaccurate', rule, {
       valid: [],
       invalid: [
+        ...['', 'return;'].map(finalReturn => ({
+          code: `
+            function identity<T>(value: T): T { return value; }
+            function find(items: number[]) {
+              let found: number | undefined = undefined;
+              items.forEach(item => { found = item; });
+              if (found) return identity(found);
+              ${finalReturn}
+            }
+          `,
+          errors: 1,
+        })),
+        ...['identity(found)', 'await identity(found)'].map(returnExpression => ({
+          code: `
+            async function identity<T>(value: T): Promise<T> { return value; }
+            async function find(items: number[]) {
+              let found: number | undefined = undefined;
+              items.forEach(item => { found = item; });
+              if (found) return ${returnExpression};
+            }
+          `,
+          errors: 1,
+        })),
+        {
+          code: `
+            function* identity<T>(value: T): Generator<unknown, T, unknown> { return value; }
+            function* find(items: number[]) {
+              let found: number | undefined = undefined;
+              items.forEach(item => { found = item; });
+              if (found) return yield* identity(found);
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            interface PromiseConstructor { reject<T>(value: T): Promise<T>; }
+            declare const custom: PromiseConstructor;
+            async function find(items: number[]) {
+              let found: number | undefined = undefined;
+              items.forEach(item => { found = item; });
+              if (found) return custom.reject(found);
+            }
+          `,
+          errors: 1,
+        },
         {
           code: `
             function find(items: number[]) {
@@ -528,6 +574,107 @@ describe('S3801', () => {
               items.forEach(item => { found = item; });
               if (found) return found;
               return;
+            }
+          `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('S3801 with type information - rejected promises', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('Async returns adopt the promise result', rule, {
+      valid: [
+        {
+          code: `
+            async function process(skip: boolean) {
+              if (skip) return;
+              return Promise.reject(new Error('Failed'));
+            }
+          `,
+        },
+        {
+          code: `
+            async function process(skip: boolean) {
+              if (skip) return;
+              return await Promise.reject(new Error('Failed'));
+            }
+          `,
+        },
+        {
+          code: `
+            declare function fail<T>(value: T): Generator<T, never, unknown>;
+            function* process(skip: boolean) {
+              if (skip) return;
+              return yield* fail(42);
+            }
+          `,
+        },
+        {
+          code: `
+            declare function fail<T>(value: T): Promise<never>;
+            const process = async (skip: boolean) => {
+              if (skip) return;
+              return fail(42);
+            };
+          `,
+        },
+        {
+          code: `
+            declare const rejected: Promise<never>;
+            const processor = {
+              async process(skip: boolean) {
+                if (skip) return;
+                return rejected;
+              }
+            };
+          `,
+        },
+        {
+          code: `
+            declare function fail<T>(value: T): never;
+            function process(skip: boolean) {
+              if (skip) return;
+              return fail(42);
+            }
+          `,
+        },
+      ],
+      invalid: [
+        {
+          code: `
+            function process(skip: boolean) {
+              if (skip) return;
+              return Promise.reject(new Error('Failed'));
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            async function process(skip: boolean) {
+              if (skip) return;
+              return Promise.resolve(42);
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            async function process(value: number) {
+              if (value > 0) return 42;
+              if (value < 0) return Promise.reject(new Error('Failed'));
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            declare const rejected: Promise<never>;
+            function process(skip: boolean) {
+              if (skip) return;
+              return rejected;
             }
           `,
           errors: 1,
