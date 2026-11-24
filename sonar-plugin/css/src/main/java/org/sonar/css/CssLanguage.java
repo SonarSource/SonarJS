@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Stream;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.AbstractLanguage;
 
@@ -28,7 +27,7 @@ public class CssLanguage extends AbstractLanguage {
 
   public static final String KEY = "css";
   public static final String FILE_SUFFIXES_KEY = "sonar.css.file.suffixes";
-  public static final String DEFAULT_FILE_SUFFIXES = ".css";
+  public static final String DEFAULT_FILE_SUFFIXES = ".css,.less,.scss,.sass";
 
   public static final String SCSS_FILE_SUFFIXES_KEY = "sonar.css.scss.file.suffixes";
   public static final String SASS_FILE_SUFFIXES_KEY = "sonar.css.sass.file.suffixes";
@@ -41,12 +40,6 @@ public class CssLanguage extends AbstractLanguage {
     LESS_FILE_SUFFIXES_KEY,
     ".less"
   );
-  public static final List<String> DIALECT_FILE_SUFFIXES_KEYS = List.of(
-    SCSS_FILE_SUFFIXES_KEY,
-    SASS_FILE_SUFFIXES_KEY,
-    LESS_FILE_SUFFIXES_KEY
-  );
-
   private final Configuration configuration;
 
   public CssLanguage(Configuration configuration) {
@@ -56,14 +49,9 @@ public class CssLanguage extends AbstractLanguage {
 
   @Override
   public String[] getFileSuffixes() {
-    return Stream.concat(
-      getSuffixes(configuration, FILE_SUFFIXES_KEY, DEFAULT_FILE_SUFFIXES).stream(),
-      DIALECT_FILE_SUFFIXES_KEYS.stream().flatMap(key ->
-        getDialectSuffixes(configuration, key).stream()
-      )
-    )
-      .distinct()
-      .toArray(String[]::new);
+    return getSuffixes(configuration, FILE_SUFFIXES_KEY, DEFAULT_FILE_SUFFIXES).toArray(
+      String[]::new
+    );
   }
 
   public static List<String> getDialectSuffixes(Configuration configuration, String key) {
@@ -82,7 +70,12 @@ public class CssLanguage extends AbstractLanguage {
       .map(String::trim)
       .filter(suffix -> !suffix.isEmpty())
       .map(suffix -> suffix.toLowerCase(Locale.ROOT))
-      .map(suffix -> suffix.startsWith(".") ? suffix : "." + suffix)
+      .map(suffix -> {
+        if (suffix.startsWith(".")) {
+          return suffix;
+        }
+        return "." + suffix;
+      })
       .distinct()
       .toList();
   }

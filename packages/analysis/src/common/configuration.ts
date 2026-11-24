@@ -37,7 +37,6 @@ import {
   createCssDialectMap,
   DEFAULT_CSS_SUFFIXES,
   normalizeCssSuffixes,
-  getStylesheetSuffixes,
   type CssDialectSuffixes,
 } from '../css/linter/dialect.js';
 
@@ -609,7 +608,7 @@ export function isAnalyzableFile(
     isHtmlFile(filePath, suffixes.htmlSuffixes) ||
     isYamlFile(filePath, undefined, suffixes.yamlSuffixes) ||
     isJsTsFile(filePath, suffixes) ||
-    isCssFile(filePath, getStylesheetSuffixes(suffixes)) ||
+    isCssFile(filePath, suffixes.cssSuffixes) ||
     isAlsoCssFile(filePath, suffixes.cssAdditionalSuffixes)
   );
 }

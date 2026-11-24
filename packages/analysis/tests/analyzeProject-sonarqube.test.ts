@@ -1208,7 +1208,7 @@ describe('SonarQube project analysis', () => {
   });
 
   for (const dialect of ['css', 'scss', 'sass', 'less'] as const) {
-    it(`does not discover ${dialect} files when its suffix list is empty`, async () => {
+    it(`uses the general suffix list for discovery when ${dialect} suffixes are empty`, async () => {
       const baseDir = fs.mkdtempSync(path.join(os.tmpdir(), 'empty-css-dialect-'));
       try {
         for (const extension of ['css', 'scss', 'sass', 'less']) {
@@ -1226,10 +1226,7 @@ describe('SonarQube project analysis', () => {
           },
           configuration,
         );
-        expect(Object.keys(result.files)).toHaveLength(3);
-        expect(
-          result.files[normalizeToAbsolutePath(path.join(baseDir, `theme.${dialect}`))],
-        ).toBeUndefined();
+        expect(Object.keys(result.files)).toHaveLength(dialect === 'css' ? 0 : 4);
       } finally {
         fs.rmSync(baseDir, { recursive: true, force: true });
       }
@@ -1254,7 +1251,17 @@ describe('SonarQube project analysis', () => {
         fs.writeFileSync(path.join(baseDir, file), code);
       const configuration = await initForTest({
         baseDir,
-        cssSuffixes: ['.txt', '.css', '.css.template'],
+        cssSuffixes: [
+          '.txt',
+          '.css',
+          '.css.template',
+          '.custom-scss',
+          '.scss.tpl',
+          '.custom-sass',
+          '.sass.tpl',
+          '.custom-less',
+          '.less.tpl',
+        ],
         scssSuffixes: ['.custom-scss', '.scss.tpl'],
         sassSuffixes: ['.custom-sass', '.sass.tpl', '.module.css'],
         lessSuffixes: ['.custom-less', '.less.tpl'],

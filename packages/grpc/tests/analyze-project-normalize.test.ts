@@ -78,10 +78,11 @@ describe('normalizeAnalyzeProjectRequest', () => {
           }).finish(),
         );
         const { configuration } = await normalizeAnalyzeProjectRequest(request);
-        expect(configuration[`${dialect}Suffixes`]).toEqual(suffixes ?? [`.${dialect}`]);
+        const defaults = dialect === 'css' ? ['.css', '.less', '.scss', '.sass'] : [`.${dialect}`];
+        expect(configuration[`${dialect}Suffixes`]).toEqual(suffixes ?? defaults);
         expect(
           isAnalyzableFile(normalizeToAbsolutePath(`input.${dialect}`, baseDir), configuration),
-        ).toBe(suffixes === undefined);
+        ).toBe(dialect !== 'css' || suffixes === undefined);
       }
     });
   }

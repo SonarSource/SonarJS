@@ -137,7 +137,7 @@ class JsTsContextTest {
         .asConfig()
     );
     var analysis = new JsTsContext<>(context);
-    assertThat(analysis.getCssExtensions()).containsExactly(".css");
+    assertThat(analysis.getCssExtensions()).containsExactly(".css", ".less", ".scss", ".sass");
     assertThat(analysis.getScssExtensions()).isEmpty();
     assertThat(analysis.getSassExtensions()).isEmpty();
     assertThat(analysis.getLessExtensions()).isEmpty();

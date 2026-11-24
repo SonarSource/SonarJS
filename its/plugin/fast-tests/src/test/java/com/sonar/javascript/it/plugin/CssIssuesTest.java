@@ -71,6 +71,35 @@ class CssIssuesTest {
     parsingErrorsNotExcluded(result);
   }
 
+  @Test
+  void customDialectSuffixesKeepTheCssLanguage() {
+    var input = ScannerInput.create(
+      "custom-css-dialects",
+      TestUtils.projectDir("custom-css-dialects")
+    )
+      .withSourceDirs("src")
+      .withScmDisabled()
+      .withScannerProperty(
+        CssLanguage.FILE_SUFFIXES_KEY,
+        ".custom-css,.custom-scss,.custom-sass,.custom-less"
+      )
+      .withScannerProperty(CssLanguage.SCSS_FILE_SUFFIXES_KEY, ".custom-scss")
+      .withScannerProperty(CssLanguage.SASS_FILE_SUFFIXES_KEY, ".custom-sass")
+      .withScannerProperty(CssLanguage.LESS_FILE_SUFFIXES_KEY, ".custom-less")
+      .build();
+    var result = ScannerRunner.run(SERVER_CONTEXT, input, ScannerRunnerConfig.builder().build());
+    assertThat(result.scannerOutputReader().getProject().getAllIssues())
+      .filteredOn(TextRangeIssue.class::isInstance)
+      .map(TextRangeIssue.class::cast)
+      .extracting(TextRangeIssue::ruleKey, TextRangeIssue::componentPath)
+      .containsExactlyInAnyOrder(
+        tuple("css:S4647", "src/plain.custom-css"),
+        tuple("css:S4647", "src/theme.custom-scss"),
+        tuple("css:S4647", "src/theme.custom-sass"),
+        tuple("css:S4647", "src/theme.custom-less")
+      );
+  }
+
   void parsingErrorsNotExcluded(ScannerResult result) {
     var issues = result
       .scannerOutputReader()

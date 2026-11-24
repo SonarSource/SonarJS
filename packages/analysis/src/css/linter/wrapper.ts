@@ -19,7 +19,7 @@ import type { Root, Document } from 'postcss';
 import { transform } from './issues/transform.js';
 import { createStylelintConfig, type RuleConfig, type CssSyntax } from './config.js';
 import { isAlsoCssFile, isCssFile, type Configuration } from '../../common/configuration.js';
-import { createCssDialectMap, getCssDialect, getStylesheetSuffixes } from './dialect.js';
+import { createCssDialectMap, getCssDialect } from './dialect.js';
 import type { CssIssue } from './issues/issue.js';
 import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import { APIError } from '../../contracts/error.js';
@@ -102,7 +102,7 @@ export class LinterWrapper {
     }
 
     const syntax =
-      !isCssFile(filePath, getStylesheetSuffixes(this.configuration)) &&
+      !isCssFile(filePath, this.configuration?.cssSuffixes) &&
       isAlsoCssFile(filePath, this.configuration?.cssAdditionalSuffixes)
         ? 'embedded'
         : getCssDialect(filePath, this.dialects);

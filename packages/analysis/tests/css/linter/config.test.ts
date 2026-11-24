@@ -209,7 +209,16 @@ describe('custom stylesheet suffixes', () => {
 
   const configuration = createConfiguration({
     baseDir: '/tmp',
-    cssSuffixes: ['.txt'],
+    cssSuffixes: [
+      '.txt',
+      '.css',
+      '.scss',
+      '.sass',
+      '.less',
+      '.custom-scss',
+      '.custom-sass',
+      '.custom-less',
+    ],
     scssSuffixes: ['.scss', '.custom-scss'],
     sassSuffixes: ['.sass', '.custom-sass'],
     lessSuffixes: ['.less', '.custom-less'],

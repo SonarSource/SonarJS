@@ -39,7 +39,6 @@ import type { NormalizedAbsolutePath } from '../../shared/src/helpers/files.js';
 import type { EmbeddedAnalysisInput } from './jsts/embedded/analysis/analysis.js';
 import { analyzeCSSProject } from './css/analysis/analyzer.js';
 import { linter as cssLinter } from './css/linter/wrapper.js';
-import { getStylesheetSuffixes } from './css/linter/dialect.js';
 import { error, info } from '../../shared/src/helpers/logging.js';
 import { finalizeFileResultForScanner } from './scanner-locations.js';
 
@@ -90,7 +89,7 @@ export async function analyzeFile(
     },
     ...jsTsConfigFields
   } = configFields;
-  const cssSuffixes = getStylesheetSuffixes(configFields.shouldIgnoreParams);
+  const cssSuffixes = configFields.shouldIgnoreParams.cssSuffixes;
 
   // Build complete analysis input from stored file and provided configuration
   // jsTsConfigFields provides config-based values (analysisMode, skipAst, etc.)

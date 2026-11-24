@@ -29,12 +29,12 @@ import { cssOnlyRuleKeys } from './css-only-rules.js';
 
 export type CssSyntax = CssDialect | 'embedded';
 
-const parsers: Record<CssDialect, Syntax> = {
+const parsers = {
   css: postcss,
   scss: postcssScss,
   sass: postcssSass,
   less: postcssLess,
-};
+} satisfies Record<CssDialect, Syntax>;
 const embeddedSyntax = postcssHtml(parsers);
 // Keep the actual source filename and expose the selected dialect just as postcss-html does.
 const syntaxes = Object.fromEntries(
@@ -43,8 +43,10 @@ const syntaxes = Object.fromEntries(
     {
       ...syntax,
       parse: (css, opts) => {
-        const root = syntax.parse!(css, opts);
-        if (root.source) Object.assign(root.source, { lang: dialect });
+        const root = syntax.parse(css, opts);
+        if (root.source) {
+          Object.assign(root.source, { lang: dialect });
+        }
         return root;
       },
     } satisfies Syntax,

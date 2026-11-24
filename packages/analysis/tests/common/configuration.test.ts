@@ -37,26 +37,26 @@ describe('createConfiguration', () => {
     ).toThrow('CSS suffix .txt is configured for both less and sass');
   });
 
-  it('keeps normalized dialect suffix lists separate while discovering every dialect', () => {
+  it('discovers stylesheets only through the general suffix list', () => {
     const config = createConfiguration({
       baseDir: '/tmp',
-      cssSuffixes: ['.css'],
+      cssSuffixes: ['.css', '.custom-scss'],
       scssSuffixes: [' CUSTOM-SCSS ', '.custom-scss'],
       sassSuffixes: ['custom-sass'],
       lessSuffixes: ['.CUSTOM-LESS'],
     });
     expect(config.scssSuffixes).toEqual(['.custom-scss']);
-    expect(config.cssSuffixes).toEqual(['.css']);
+    expect(config.cssSuffixes).toEqual(['.css', '.custom-scss']);
     for (const extension of ['custom-scss', 'custom-sass', 'custom-less']) {
       expect(isAnalyzableFile(normalizeToAbsolutePath(`/tmp/input.${extension}`), config)).toBe(
-        true,
+        extension === 'custom-scss',
       );
     }
   });
 
-  it('defaults each stylesheet dialect to its own extension', () => {
+  it('discovers all standard stylesheet extensions by default', () => {
     const config = createConfiguration({ baseDir: '/tmp' });
-    expect(config.cssSuffixes).toEqual(['.css']);
+    expect(config.cssSuffixes).toEqual(['.css', '.less', '.scss', '.sass']);
     expect(config.scssSuffixes).toEqual(['.scss']);
     expect(config.sassSuffixes).toEqual(['.sass']);
     expect(config.lessSuffixes).toEqual(['.less']);
@@ -68,19 +68,32 @@ describe('createConfiguration', () => {
         const config = createConfiguration({ baseDir: '/tmp', [`${dialect}Suffixes`]: suffixes });
         expect(config[`${dialect}Suffixes`]).toEqual(suffixes);
         expect(isAnalyzableFile(normalizeToAbsolutePath(`/tmp/input.${dialect}`), config)).toBe(
-          false,
+          dialect !== 'css',
         );
         expect(isAnalyzableFile(normalizeToAbsolutePath('/tmp/input.custom'), config)).toBe(
-          suffixes.length > 0,
+          dialect === 'css' && suffixes.length > 0,
         );
       }
     });
   }
 
-  it('rejects suffixes assigned to both plain CSS and a preprocessor', () => {
-    expect(() =>
-      createConfiguration({ baseDir: '/tmp', cssSuffixes: [' TXT '], sassSuffixes: ['.txt'] }),
-    ).toThrow('CSS suffix .txt is configured for both css and sass');
+  it('allows discovered suffixes to be associated with a preprocessor', () => {
+    const config = createConfiguration({
+      baseDir: '/tmp',
+      cssSuffixes: [' TXT '],
+      sassSuffixes: ['.txt'],
+    });
+    expect(config.cssSuffixes).toEqual(['.txt']);
+    expect(config.sassSuffixes).toEqual(['.txt']);
+  });
+
+  it('disables standalone stylesheet discovery when the general list is empty', () => {
+    const config = createConfiguration({ baseDir: '/tmp', cssSuffixes: [] });
+    for (const extension of ['css', 'scss', 'sass', 'less']) {
+      expect(isAnalyzableFile(normalizeToAbsolutePath(`/tmp/input.${extension}`), config)).toBe(
+        false,
+      );
+    }
   });
 
   it('honors literal scanner directory exclusions without hardcoding a directory name', () => {

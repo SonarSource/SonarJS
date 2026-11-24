@@ -362,9 +362,11 @@ public class JavaScriptPlugin implements Plugin {
     context.addExtension(
       PropertyDefinition.builder(CssLanguage.FILE_SUFFIXES_KEY)
         .defaultValue(CssLanguage.DEFAULT_FILE_SUFFIXES)
-        .name("Plain CSS File Suffixes")
+        .name("File Suffixes")
         .description(
-          "File suffixes to analyze as plain CSS. An empty list disables plain CSS file discovery. A suffix cannot be assigned to more than one stylesheet dialect. When suffixes overlap, the longest match determines the dialect."
+          "File suffixes to include in stylesheet analysis. All listed files use the CSS language. " +
+            "Use the SCSS, Sass, and Less settings to select their parsers. Other suffixes use plain CSS. " +
+            "An empty list disables standalone stylesheet discovery."
         )
         .subCategory(GENERAL)
         .category(CSS_CATEGORY)
@@ -386,9 +388,11 @@ public class JavaScriptPlugin implements Plugin {
           .defaultValue(CssLanguage.DEFAULT_DIALECT_FILE_SUFFIXES.get(dialect.getKey()))
           .name(dialect.getValue() + " File Suffixes")
           .description(
-            "File suffixes to analyze as " +
+            "File suffixes to parse as " +
               dialect.getValue() +
-              ". An empty list disables file discovery for this dialect. A suffix cannot be assigned to more than one stylesheet dialect. When suffixes overlap, the longest match determines the dialect."
+              ". These suffixes must also be listed in File Suffixes. " +
+              "Configured values replace the defaults. An empty list removes all associations for this dialect. " +
+              "A suffix cannot belong to multiple dialect settings. The longest matching suffix selects the parser."
           )
           .subCategory(GENERAL)
           .category(CSS_CATEGORY)
