@@ -148,7 +148,7 @@ describe('Linter', () => {
     expect(bundle.getResult().program).toBeFalsy();
     expect(Object.keys(bundle.getResult().sonarjsSettings)).toEqual(['typescriptSyntax']);
 
-    const fileContent = 'Math.max(1, 2)';
+    const fileContent = 'new Date(); Math.max(1, 2);';
     const options = { allowJs: true, types: [], noEmit: true };
     const host = ts.createCompilerHost(options, true);
     const getSourceFile = host.getSourceFile.bind(host);
@@ -168,7 +168,8 @@ describe('Linter', () => {
     );
     expect(syntax.isCallExpression).not.toBe(ts.isCallExpression);
     expect(result.program).toBe(program);
-    expect(result.isConstruct).toBe(false);
+    expect(result.callIsConstruct).toBe(false);
+    expect(result.newIsConstruct).toBe(true);
     expect(result.declaration.name.text).toBe('max');
   });
 
