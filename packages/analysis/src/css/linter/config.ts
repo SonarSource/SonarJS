@@ -16,7 +16,7 @@
  */
 import type stylelint from 'stylelint';
 import postcss, { type Syntax } from 'postcss';
-import { type CssDialect, PREPROCESSOR_DIALECTS } from './dialect.js';
+import { type CssDialect, DEFAULT_DIALECT_EXTENSIONS, PREPROCESSOR_DIALECTS } from './dialect.js';
 import postcssHtml from 'postcss-html';
 import { postcssSass } from './sass/index.js';
 import postcssScss from 'postcss-scss';
@@ -86,7 +86,7 @@ type ConfigRules = {
  *  - Never enabled for standalone SCSS/Sass/Less dialects.
  *
  * @param rules the rules from the active quality profile
- * @param syntax the selected dialect, or omitted for extension-based routing
+ * @param syntax the selected dialect, or omitted for default-suffix routing in rule tests
  * @returns the created Stylelint configuration
  */
 export function createStylelintConfig(rules: RuleConfig[], syntax?: CssSyntax): stylelint.Config {
@@ -137,7 +137,7 @@ export function createStylelintConfig(rules: RuleConfig[], syntax?: CssSyntax): 
       },
       // Preprocessors do not enable CSS-only rules.
       ...PREPROCESSOR_DIALECTS.map(dialect => ({
-        files: [`**/*.${dialect}`],
+        files: DEFAULT_DIALECT_EXTENSIONS[dialect].map(suffix => `**/*${suffix}`),
         customSyntax: syntaxes[dialect],
       })),
     ],
