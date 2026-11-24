@@ -1,5 +1,10 @@
 {
 "watchtower.js:src/dirty_checking.js": [
-32
+32,
+211,
+485
+],
+"watchtower.js:test/helpers.js": [
+3
 ]
 }
