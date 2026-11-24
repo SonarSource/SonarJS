@@ -82,5 +82,3 @@ export const hookTypeScriptSyntax = Object.freeze({
     (symbol: ts.Symbol) => (symbol.flags & ts.SymbolFlags.Function) !== 0,
   ),
 });
-
-export type HookTypeScriptSyntax = typeof hookTypeScriptSyntax;
