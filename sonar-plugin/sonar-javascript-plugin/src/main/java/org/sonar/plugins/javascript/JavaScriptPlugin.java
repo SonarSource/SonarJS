@@ -16,6 +16,7 @@
  */
 package org.sonar.plugins.javascript;
 
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.Plugin;
@@ -245,7 +246,7 @@ public class JavaScriptPlugin implements Plugin {
         .name("CSS-in-HTML File Suffixes")
         .description(CSS_ADDITIONAL_FILE_SUFFIXES_DESCRIPTION)
         .subCategory(GENERAL)
-        .category(JS_TS_CATEGORY)
+        .category(CSS_CATEGORY)
         .onConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
         .multiValues(true)
         .build(),
@@ -362,13 +363,44 @@ public class JavaScriptPlugin implements Plugin {
       PropertyDefinition.builder(CssLanguage.FILE_SUFFIXES_KEY)
         .defaultValue(CssLanguage.DEFAULT_FILE_SUFFIXES)
         .name("File Suffixes")
-        .description(FILE_SUFFIXES_DESCRIPTION)
+        .description(
+          "File suffixes to include in stylesheet analysis. All listed files use the CSS language. " +
+            "Use the SCSS, Sass, and Less settings to select their parsers. Other suffixes use plain CSS. " +
+            "An empty list disables standalone stylesheet discovery."
+        )
         .subCategory(GENERAL)
         .category(CSS_CATEGORY)
         .onConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
         .multiValues(true)
         .build()
     );
+
+    for (var dialect : Map.of(
+      CssLanguage.SCSS_FILE_SUFFIXES_KEY,
+      "SCSS",
+      CssLanguage.SASS_FILE_SUFFIXES_KEY,
+      "Sass",
+      CssLanguage.LESS_FILE_SUFFIXES_KEY,
+      "Less"
+    ).entrySet()) {
+      context.addExtension(
+        PropertyDefinition.builder(dialect.getKey())
+          .defaultValue(CssLanguage.DEFAULT_DIALECT_FILE_SUFFIXES.get(dialect.getKey()))
+          .name(dialect.getValue() + " File Suffixes")
+          .description(
+            "File suffixes to parse as " +
+              dialect.getValue() +
+              ". These suffixes must also be listed in File Suffixes. " +
+              "Configured values replace the defaults. An empty list removes all associations for this dialect. " +
+              "A suffix cannot belong to multiple dialect settings. The longest matching suffix selects the parser."
+          )
+          .subCategory(GENERAL)
+          .category(CSS_CATEGORY)
+          .onConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
+          .multiValues(true)
+          .build()
+      );
+    }
 
     if (!context.getRuntime().getProduct().equals(SonarProduct.SONARLINT)) {
       context.addExtensions(

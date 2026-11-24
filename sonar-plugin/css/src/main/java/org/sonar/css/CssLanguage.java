@@ -17,6 +17,9 @@
 package org.sonar.css;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.resources.AbstractLanguage;
 
@@ -26,6 +29,20 @@ public class CssLanguage extends AbstractLanguage {
   public static final String FILE_SUFFIXES_KEY = "sonar.css.file.suffixes";
   public static final String DEFAULT_FILE_SUFFIXES = ".css,.less,.scss,.sass";
 
+  public static final String SCSS_FILE_SUFFIXES_KEY = "sonar.css.scss.file.suffixes";
+  public static final String DEFAULT_SCSS_FILE_SUFFIXES = ".scss";
+  public static final String SASS_FILE_SUFFIXES_KEY = "sonar.css.sass.file.suffixes";
+  public static final String DEFAULT_SASS_FILE_SUFFIXES = ".sass";
+  public static final String LESS_FILE_SUFFIXES_KEY = "sonar.css.less.file.suffixes";
+  public static final String DEFAULT_LESS_FILE_SUFFIXES = ".less";
+  public static final Map<String, String> DEFAULT_DIALECT_FILE_SUFFIXES = Map.of(
+    SCSS_FILE_SUFFIXES_KEY,
+    DEFAULT_SCSS_FILE_SUFFIXES,
+    SASS_FILE_SUFFIXES_KEY,
+    DEFAULT_SASS_FILE_SUFFIXES,
+    LESS_FILE_SUFFIXES_KEY,
+    DEFAULT_LESS_FILE_SUFFIXES
+  );
   private final Configuration configuration;
 
   public CssLanguage(Configuration configuration) {
@@ -35,9 +52,34 @@ public class CssLanguage extends AbstractLanguage {
 
   @Override
   public String[] getFileSuffixes() {
-    String[] suffixes = Arrays.stream(configuration.getStringArray(FILE_SUFFIXES_KEY))
-      .filter(s -> s != null && !s.trim().isEmpty())
-      .toArray(String[]::new);
-    return suffixes.length > 0 ? suffixes : DEFAULT_FILE_SUFFIXES.split(",");
+    return getSuffixes(configuration, FILE_SUFFIXES_KEY, DEFAULT_FILE_SUFFIXES).toArray(
+      String[]::new
+    );
+  }
+
+  public static List<String> getDialectSuffixes(Configuration configuration, String key) {
+    return getSuffixes(configuration, key, DEFAULT_DIALECT_FILE_SUFFIXES.get(key));
+  }
+
+  private static List<String> getSuffixes(
+    Configuration configuration,
+    String key,
+    String defaultValue
+  ) {
+    var suffixes = configuration.hasKey(key)
+      ? configuration.getStringArray(key)
+      : defaultValue.split(",");
+    return Arrays.stream(suffixes)
+      .map(String::trim)
+      .filter(suffix -> !suffix.isEmpty())
+      .map(suffix -> suffix.toLowerCase(Locale.ROOT))
+      .map(suffix -> {
+        if (suffix.startsWith(".")) {
+          return suffix;
+        }
+        return "." + suffix;
+      })
+      .distinct()
+      .toList();
   }
 }

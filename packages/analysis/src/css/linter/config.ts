@@ -15,6 +15,8 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type stylelint from 'stylelint';
+import postcss, { type Syntax } from 'postcss';
+import { type CssDialect, DEFAULT_DIALECT_EXTENSIONS, PREPROCESSOR_DIALECTS } from './dialect.js';
 import postcssHtml from 'postcss-html';
 import { postcssSass } from './sass/index.js';
 import postcssScss from 'postcss-scss';
@@ -24,6 +26,32 @@ import postcssVueConfig from 'stylelint-config-html/vue.js';
 import { sonarRules } from '../rules/index.js';
 import stylisticPlugins from '@stylistic/stylelint-plugin';
 import { cssOnlyRuleKeys } from './css-only-rules.js';
+
+export type CssSyntax = CssDialect | 'embedded';
+
+const parsers = {
+  css: postcss,
+  scss: postcssScss,
+  sass: postcssSass,
+  less: postcssLess,
+} satisfies Record<CssDialect, Syntax>;
+const embeddedSyntax = postcssHtml(parsers);
+// Keep the actual source filename and expose the selected dialect just as postcss-html does.
+const syntaxes = Object.fromEntries(
+  Object.entries(parsers).map(([dialect, syntax]) => [
+    dialect,
+    {
+      ...syntax,
+      parse: (css, opts) => {
+        const root = syntax.parse(css, opts);
+        if (root.source) {
+          Object.assign(root.source, { lang: dialect });
+        }
+        return root;
+      },
+    } satisfies Syntax,
+  ]),
+) as Record<CssDialect, Syntax>;
 
 /**
  * A Stylelint rule configuration
@@ -53,14 +81,15 @@ type ConfigRules = {
  * configuration all the rules from the active quality profile.
  *
  * Rules in cssOnlyRuleKeys are treated specially:
- *  - Enabled for .css files and HTML/Vue files (where transform.ts filters
- *    out warnings from non-CSS embedded blocks).
- *  - Never enabled for .scss/.sass/.less files.
+ *  - Enabled for the CSS dialect and embedded stylesheets (where transform.ts
+ *    filters out warnings from non-CSS embedded blocks).
+ *  - Never enabled for standalone SCSS/Sass/Less dialects.
  *
  * @param rules the rules from the active quality profile
+ * @param syntax the selected dialect, or omitted for default-suffix routing in rule tests
  * @returns the created Stylelint configuration
  */
-export function createStylelintConfig(rules: RuleConfig[]): stylelint.Config {
+export function createStylelintConfig(rules: RuleConfig[], syntax?: CssSyntax): stylelint.Config {
   const configRules: ConfigRules = {};
   const cssOnlyRules: ConfigRules = {};
   for (const { key, configurations } of rules) {
@@ -79,6 +108,16 @@ export function createStylelintConfig(rules: RuleConfig[]): stylelint.Config {
       configRules[key] = value;
     }
   }
+  if (syntax) {
+    return {
+      customSyntax: syntax === 'embedded' ? embeddedSyntax : syntaxes[syntax],
+      rules:
+        syntax === 'css' || syntax === 'embedded'
+          ? { ...configRules, ...cssOnlyRules }
+          : configRules,
+      plugins: [...sonarRules, ...stylisticPlugins],
+    };
+  }
   return {
     // We can pass just postcss function to the bundle and the module will resolve all plugins
     // automatically. However, esbuild will not be able to resolve our dependencies. We pass them
@@ -93,26 +132,14 @@ export function createStylelintConfig(rules: RuleConfig[]): stylelint.Config {
       // too; transform.ts drops any warning that comes from a non-CSS embedded block.
       {
         files: [...postcssHtmlConfig.overrides[0].files, ...postcssVueConfig.overrides[0].files],
-        customSyntax: postcssHtml({
-          scss: postcssScss,
-          sass: postcssSass,
-          less: postcssLess,
-        }),
+        customSyntax: embeddedSyntax,
         rules: cssOnlyRules,
       },
-      // scss/sass/less: no CSS-only rules.
-      {
-        files: ['**/*.scss'],
-        customSyntax: postcssScss,
-      },
-      {
-        files: ['**/*.sass'],
-        customSyntax: postcssSass,
-      },
-      {
-        files: ['**/*.less'],
-        customSyntax: postcssLess,
-      },
+      // Preprocessors do not enable CSS-only rules.
+      ...PREPROCESSOR_DIALECTS.map(dialect => ({
+        files: DEFAULT_DIALECT_EXTENSIONS[dialect].map(suffix => `**/*${suffix}`),
+        customSyntax: syntaxes[dialect],
+      })),
     ],
     rules: configRules,
     plugins: [...sonarRules, ...stylisticPlugins],

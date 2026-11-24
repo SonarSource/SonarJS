@@ -829,3 +829,34 @@ enough.
 
 Add a link to the RSPEC PR from the SonarJS PR as shown in
 [this example](https://github.com/SonarSource/SonarJS/pull/4802#issue-2505105904).
+
+## Custom stylesheet dialect suffixes
+
+`sonar.css.file.suffixes` selects all standalone stylesheets to discover. Its default value is
+`.css,.less,.scss,.sass`. All these files belong to the CSS language.
+
+The SCSS, Sass, and Less suffix settings select the parser and rules for discovered files. Their
+defaults are `.scss`, `.sass`, and `.less`, respectively. Other discovered suffixes use plain CSS.
+Custom dialect suffixes must be listed in both the general discovery setting and the dialect setting.
+
+For example, to retain the standard extensions and add custom ones:
+
+```properties
+sonar.css.file.suffixes=.css,.less,.scss,.sass,.custom-css,.custom-scss,.custom-sass,.custom-less
+sonar.css.scss.file.suffixes=.scss,.custom-scss
+sonar.css.sass.file.suffixes=.sass,.custom-sass
+sonar.css.less.file.suffixes=.less,.custom-less
+```
+
+Configured values replace the defaults for that setting. Defaults apply only when a setting is
+absent. An empty general list disables standalone stylesheet discovery. An empty dialect list
+removes its parser associations but does not change discovery. Suffixes are case insensitive and
+may be written with or without a leading dot. A suffix can appear in the general list and one
+dialect list. A suffix in more than one dialect list causes a configuration error. To move an
+extension to another dialect, remove it from its original dialect list.
+Compound suffixes such as `.sass.tpl` are supported. When dialect associations overlap, the longest
+matching suffix determines the dialect, so `.sass.tpl` takes precedence over `.tpl`.
+
+The selected dialect controls parsing, CSS-only rule applicability, and dialect-aware checks such
+as Sass annotations. HTML and Vue style blocks continue to use their `lang` attributes; their
+container suffixes are configured through `sonar.javascript.css.additional.file.suffixes`.

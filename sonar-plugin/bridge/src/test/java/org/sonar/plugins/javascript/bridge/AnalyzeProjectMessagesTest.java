@@ -223,6 +223,21 @@ class AnalyzeProjectMessagesTest {
       }
 
       @Override
+      public List<String> getScssExtensions() {
+        return List.of(".custom-scss");
+      }
+
+      @Override
+      public List<String> getSassExtensions() {
+        return List.of(".custom-sass");
+      }
+
+      @Override
+      public List<String> getLessExtensions() {
+        return List.of(".custom-less");
+      }
+
+      @Override
       public List<String> getHtmlExtensions() {
         return List.of(".html");
       }
@@ -336,6 +351,9 @@ class AnalyzeProjectMessagesTest {
     assertThat(proto.getTsSuffixes().getValuesList()).containsExactly(".ts");
     assertThat(proto.getJsSuffixes().getValuesList()).containsExactly(".js");
     assertThat(proto.getCssSuffixes().getValuesList()).containsExactly(".css");
+    assertThat(proto.getScssSuffixes().getValuesList()).containsExactly(".custom-scss");
+    assertThat(proto.getSassSuffixes().getValuesList()).containsExactly(".custom-sass");
+    assertThat(proto.getLessSuffixes().getValuesList()).containsExactly(".custom-less");
     assertThat(proto.getHtmlSuffixes().getValuesList()).containsExactly(".html");
     assertThat(proto.getYamlSuffixes().getValuesList()).containsExactly(".yaml");
     assertThat(proto.getCssAdditionalSuffixes().getValuesList()).containsExactly(".scss");
@@ -378,6 +396,31 @@ class AnalyzeProjectMessagesTest {
     assertThat(proto.getCreateTsProgramForOrphanFiles()).isTrue();
     assertThat(proto.getDisableTypeChecking()).isFalse();
     assertThat(proto.hasEcmaScriptVersion()).isFalse();
+    assertThat(proto.hasCssSuffixes()).isFalse();
+    assertThat(proto.hasScssSuffixes()).isFalse();
+    assertThat(proto.hasSassSuffixes()).isFalse();
+    assertThat(proto.hasLessSuffixes()).isFalse();
+  }
+
+  @Test
+  void should_preserve_explicitly_empty_stylesheet_suffixes() {
+    var proto = AnalyzeProjectMessages.newProjectConfigurationBuilder(
+      "/base",
+      new AnalysisConfiguration() {
+        @Override
+        public boolean shouldSendFileSuffixes() {
+          return true;
+        }
+      }
+    ).build();
+    assertThat(proto.hasCssSuffixes()).isTrue();
+    assertThat(proto.getCssSuffixes().getValuesList()).isEmpty();
+    assertThat(proto.hasScssSuffixes()).isTrue();
+    assertThat(proto.getScssSuffixes().getValuesList()).isEmpty();
+    assertThat(proto.hasSassSuffixes()).isTrue();
+    assertThat(proto.getSassSuffixes().getValuesList()).isEmpty();
+    assertThat(proto.hasLessSuffixes()).isTrue();
+    assertThat(proto.getLessSuffixes().getValuesList()).isEmpty();
   }
 
   @Test

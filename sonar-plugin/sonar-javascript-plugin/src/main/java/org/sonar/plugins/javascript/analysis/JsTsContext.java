@@ -228,6 +228,21 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
   }
 
   @Override
+  public List<String> getScssExtensions() {
+    return CssLanguage.getDialectSuffixes(context.config(), CssLanguage.SCSS_FILE_SUFFIXES_KEY);
+  }
+
+  @Override
+  public List<String> getSassExtensions() {
+    return CssLanguage.getDialectSuffixes(context.config(), CssLanguage.SASS_FILE_SUFFIXES_KEY);
+  }
+
+  @Override
+  public List<String> getLessExtensions() {
+    return CssLanguage.getDialectSuffixes(context.config(), CssLanguage.LESS_FILE_SUFFIXES_KEY);
+  }
+
+  @Override
   public List<String> getHtmlExtensions() {
     return getHtmlExtensions(context.config());
   }

@@ -106,6 +106,9 @@ public final class AnalyzeProjectMessages {
         .setTsSuffixes(stringList(analysisConfiguration.getTsExtensions()))
         .setJsSuffixes(stringList(analysisConfiguration.getJsExtensions()))
         .setCssSuffixes(stringList(analysisConfiguration.getCssExtensions()))
+        .setScssSuffixes(stringList(analysisConfiguration.getScssExtensions()))
+        .setSassSuffixes(stringList(analysisConfiguration.getSassExtensions()))
+        .setLessSuffixes(stringList(analysisConfiguration.getLessExtensions()))
         .setHtmlSuffixes(stringList(analysisConfiguration.getHtmlExtensions()))
         .setYamlSuffixes(stringList(analysisConfiguration.getYamlExtensions()))
         .setCssAdditionalSuffixes(stringList(analysisConfiguration.getCssAdditionalExtensions()));

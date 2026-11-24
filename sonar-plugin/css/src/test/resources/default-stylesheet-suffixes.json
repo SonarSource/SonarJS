@@ -1,0 +1,6 @@
+{
+  "cssSuffixes": [".css", ".less", ".scss", ".sass"],
+  "scssSuffixes": [".scss"],
+  "sassSuffixes": [".sass"],
+  "lessSuffixes": [".less"]
+}
