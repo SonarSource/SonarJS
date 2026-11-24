@@ -2,9 +2,6 @@
 "desktop:app/src/crash/crash-app.tsx": [
 172
 ],
-"desktop:app/src/lib/fatal-error.ts": [
-43
-],
 "desktop:app/src/lib/git/environment.ts": [
 84
 ],
@@ -34,7 +31,6 @@
 2390,
 2444,
 2980,
-3014,
 3931,
 4395,
 4754,
@@ -50,19 +46,11 @@
 "desktop:app/src/lib/stores/pull-request-store.ts": [
 114
 ],
-"desktop:app/src/lib/stores/sign-in-store.ts": [
-334,
-458,
-516
-],
 "desktop:app/src/main-process/menu/build-spell-check-menu.ts": [
 3
 ],
 "desktop:app/src/main-process/squirrel-updater.ts": [
 136
-],
-"desktop:app/src/models/repository.ts": [
-117
 ],
 "desktop:app/src/ui/about/about.tsx": [
 236

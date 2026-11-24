@@ -20,6 +20,7 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import ts from 'typescript';
 import type { TSESTree } from '@typescript-eslint/utils';
+import { isTypeReference } from 'ts-api-utils';
 import {
   type RequiredParserServices,
   isRequiredParserServices,
@@ -32,6 +33,7 @@ import * as meta from './generated-meta.js';
 
 interface FunctionContext {
   codePath: Rule.CodePath;
+  async: boolean;
   containsReturnWithValue: boolean;
   containsReturnWithoutValue: boolean;
   containsImplicitReturn: boolean;
@@ -157,9 +159,10 @@ export const rule: Rule.RuleModule = {
     }
 
     return {
-      onCodePathStart(codePath: Rule.CodePath) {
+      onCodePathStart(codePath: Rule.CodePath, node: estree.Node) {
         functionContextStack.push({
           codePath,
+          async: 'async' in node && node.async === true,
           containsReturnWithValue: false,
           containsReturnWithoutValue: false,
           containsImplicitReturn: false,
@@ -196,10 +199,18 @@ export const rule: Rule.RuleModule = {
         const currentContext = functionContextStack.at(-1);
         if (!!currentContext) {
           const returnStatement = node as estree.ReturnStatement;
+          const { argument } = returnStatement;
+          if (
+            argument &&
+            hasTypeInformation &&
+            isNonReturningExpression(argument, currentContext.async, services)
+          ) {
+            return;
+          }
           currentContext.containsReturnWithValue =
-            currentContext.containsReturnWithValue || !!returnStatement.argument;
+            currentContext.containsReturnWithValue || !!argument;
           currentContext.containsReturnWithoutValue =
-            currentContext.containsReturnWithoutValue || !returnStatement.argument;
+            currentContext.containsReturnWithoutValue || !argument;
           currentContext.returnStatements.push(returnStatement);
         }
       },
@@ -335,4 +346,76 @@ function isNeverReturningCall(
 
   const returnType = signature.getReturnType();
   return (returnType.flags & ts.TypeFlags.Never) !== 0;
+}
+
+function isNonReturningExpression(
+  argument: estree.Expression,
+  async: boolean,
+  services: RequiredParserServices,
+): boolean {
+  const checker = services.program.getTypeChecker();
+  const type = getTypeFromTreeNode(argument, services);
+  const isNever = (type.flags & ts.TypeFlags.Never) !== 0;
+  // Async returns adopt promises. A normal function returns the promise object as a value.
+  const adoptsNever =
+    !isNever && async && ((checker.getAwaitedType(type)?.flags ?? 0) & ts.TypeFlags.Never) !== 0;
+  if (!isNever && !adoptsNever) {
+    return false;
+  }
+
+  let target: estree.Expression | null | undefined = argument;
+  let delegates = false;
+  while (
+    target?.type === 'AwaitExpression' ||
+    (target?.type === 'YieldExpression' && target.delegate)
+  ) {
+    delegates ||= target.type === 'YieldExpression';
+    target = target.argument;
+  }
+  if (target?.type !== 'CallExpression') {
+    // Control-flow narrowing can incorrectly mark ordinary values as never.
+    return adoptsNever;
+  }
+
+  const signature = getSignatureFromCallee(target, services);
+  const declaration = signature?.getDeclaration();
+  if (!signature || !declaration) {
+    return false;
+  }
+
+  // Promise.reject always rejects, although its declared return type is Promise<T>.
+  if (
+    ts.isMethodSignature(declaration) &&
+    ts.isIdentifier(declaration.name) &&
+    declaration.name.text === 'reject' &&
+    ts.isInterfaceDeclaration(declaration.parent) &&
+    declaration.parent.name.text === 'PromiseConstructor' &&
+    services.program.isSourceFileDefaultLibrary(declaration.getSourceFile())
+  ) {
+    return true;
+  }
+
+  const declaredSignature = checker.getSignatureFromDeclaration(declaration);
+  if (!declaredSignature) {
+    return false;
+  }
+  const declaredReturnType = declaredSignature.getReturnType();
+  // A generator's yielded type can be generic while its completion type is always never.
+  if (
+    delegates &&
+    isTypeReference(declaredReturnType) &&
+    [
+      'Generator',
+      'AsyncGenerator',
+      'Iterator',
+      'AsyncIterator',
+      'IterableIterator',
+      'AsyncIterableIterator',
+    ].includes(declaredReturnType.symbol?.name)
+  ) {
+    const completionType = checker.getTypeArguments(declaredReturnType)[1];
+    return ((completionType?.flags ?? 0) & ts.TypeFlags.Never) !== 0;
+  }
+  // Generic inference from a narrowed argument must not turn a returning function into never.
+  return checker.isTypeAssignableTo(declaredReturnType, signature.getReturnType());
 }
