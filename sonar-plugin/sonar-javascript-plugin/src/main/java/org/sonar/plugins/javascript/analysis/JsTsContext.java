@@ -303,7 +303,10 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
       return null;
     }
     var normalized = trimmed.toLowerCase(Locale.ROOT);
-    return normalized.startsWith(".") ? normalized : "." + normalized;
+    if (normalized.startsWith(".")) {
+      return normalized;
+    }
+    return "." + normalized;
   }
 
   @Override
