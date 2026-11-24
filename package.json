@@ -100,7 +100,7 @@
     "pretty-quick": "4.2.2",
     "protobufjs-cli": "2.7.1",
     "rimraf": "6.1.4",
-    "test-exclude": "6.0.0",
+    "test-exclude": "8.0.0",
     "tsx": "4.23.15",
     "type-fest": "6.0.3"
   },
