@@ -33,6 +33,7 @@ import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.Version;
+import org.sonar.css.CssLanguage;
 import org.sonar.plugins.javascript.analysis.DefaultFilesystemCacheContext;
 import org.sonar.plugins.javascript.analysis.NoOpFilesystemCacheContext;
 
@@ -185,6 +186,22 @@ class JavaScriptPluginTest {
     assertThat(propertyDefinition.defaultValue()).isEqualTo("false");
     assertThat(propertyDefinition.category()).isEqualTo("JavaScript / TypeScript");
     assertThat(propertyDefinition.subCategory()).isEqualTo("TypeScript");
+  }
+
+  @Test
+  void stylesheetDiscoveryDefaultsIncludeAllStandardDialects() {
+    var property = properties()
+      .stream()
+      .filter(item -> item.key().equals(CssLanguage.FILE_SUFFIXES_KEY))
+      .findFirst()
+      .orElseThrow();
+    assertThat(property.defaultValue().split(",")).containsExactly(
+      ".css",
+      ".less",
+      ".scss",
+      ".sass"
+    );
+    assertThat(property.name()).isEqualTo("File Suffixes");
   }
 
   private List<PropertyDefinition> properties() {

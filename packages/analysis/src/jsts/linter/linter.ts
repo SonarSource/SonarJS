@@ -305,7 +305,11 @@ export class Linter {
       files: [`**/*${path.posix.extname(normalizePath(filePath))}`],
     };
 
-    const messages = Linter.linter.verify(sourceCode, config, createOptions(filePath, rules));
+    const messages = Linter.linter.verify(
+      sourceCode,
+      config,
+      createOptions(filePath, rules, baseRules),
+    );
     const suppressedMessages = (
       Linter.linter as ESLintLinter & {
         getSuppressedMessages(): SuppressedLintMessage[];

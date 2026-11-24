@@ -20,6 +20,7 @@ import {
   RuleTester,
 } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
+import path from 'node:path';
 
 describe('S3801', () => {
   it('S3801', () => {
@@ -311,6 +312,371 @@ describe('S3801', () => {
         throwError('False')
       }
     `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('S3801 without type information - never return expressions', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    // Without type information, a return argument cannot be proven to be 'never'.
+    ruleTester.run(`Functions should use "return" consistently [no type information]`, rule, {
+      valid: [],
+      invalid: [
+        {
+          code: `
+            declare function fail(): never;
+            function test(condition: boolean) {
+              if (condition) return;
+              return fail();
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            declare function fail(): Generator<unknown, never, unknown>;
+            function* test(condition: boolean) {
+              if (condition) return yield* fail();
+            }
+          `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('S3801 with type information - never return expressions', () => {
+    const ruleTester = new RuleTester();
+
+    ruleTester.run(`Functions should use "return" consistently [never expressions]`, rule, {
+      valid: [
+        {
+          code: `
+            declare function fail(): never;
+            function test(condition: boolean) {
+              if (condition) return;
+              return fail();
+            }
+          `,
+        },
+        {
+          code: `
+            declare function fail(): never;
+            function test(condition: boolean) {
+              if (condition) return fail();
+            }
+          `,
+        },
+        {
+          code: `
+            declare function fail(): never;
+            function test(condition: boolean) {
+              if (condition) return 42;
+              return fail();
+            }
+          `,
+        },
+        {
+          code: `
+            declare function fail(): Generator<unknown, never, unknown>;
+            function* test(condition: boolean) {
+              if (condition) return;
+              return yield* fail();
+            }
+          `,
+        },
+        {
+          code: `
+            declare function fail(): Generator<unknown, never, unknown>;
+            function* test(condition: boolean) {
+              if (condition) return yield* fail();
+            }
+          `,
+        },
+        {
+          code: `
+            declare function fail(): Promise<never>;
+            async function test(condition: boolean) {
+              if (condition) return;
+              return await fail();
+            }
+          `,
+        },
+      ],
+      invalid: [
+        {
+          // A never return does not excuse another path that omits the required value.
+          code: `
+            declare function fail(): never;
+            function test(value: number): number {
+              if (value > 0) return 42;
+              if (value < 0) return fail();
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            declare function fail(): never;
+            function test(value: number) {
+              if (value > 0) return 42;
+              if (value < 0) return fail();
+              return;
+            }
+          `,
+          errors: [
+            {
+              message: String.raw`{"message":"Refactor this function to use \"return\" consistently.","secondaryLocations":[{"message":"Return with value","column":29,"line":4,"endColumn":39,"endLine":4},{"message":"Return without value","column":14,"line":6,"endColumn":21,"endLine":6}]}`,
+            },
+          ],
+          settings: { sonarRuntime: true },
+        },
+        {
+          code: `
+            declare function fail(): Generator<unknown, never, unknown>;
+            function* test(value: number) {
+              if (value > 0) return 42;
+              if (value < 0) return yield* fail();
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            declare function fail(): Generator<unknown, never, unknown>;
+            function* test(value: number) {
+              if (value > 0) return 42;
+              if (value < 0) return yield* fail();
+              return;
+            }
+          `,
+          errors: 1,
+        },
+        {
+          // Returning an error object is a successful completion, unlike yielding never.
+          code: `
+            function* test(condition: boolean) {
+              if (condition) return new Error('failure');
+            }
+          `,
+          errors: 1,
+        },
+        {
+          // An inferred optional result still mixes successful valued and bare returns.
+          code: `
+            function test(condition: boolean) {
+              if (condition) return 42;
+              return;
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            declare function valueOrFail(): number | never;
+            function test(condition: boolean) {
+              if (condition) return;
+              return valueOrFail();
+            }
+          `,
+          errors: 1,
+        },
+        {
+          // An unknown return type is not proof that the expression cannot complete.
+          code: `
+            declare function unknownResult(): unknown;
+            function test(condition: boolean) {
+              if (condition) return;
+              return unknownResult();
+            }
+          `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('S3801 preserves successful returns narrowed to never', () => {
+    const ruleTester = new RuleTester({
+      parserOptions: {
+        project: path.join(
+          import.meta.dirname,
+          '../../../../tests/jsts/tools/testers/fixtures/tsconfig.strict.json',
+        ),
+      },
+    });
+    ruleTester.run('Closure assignments can make never narrowing inaccurate', rule, {
+      valid: [],
+      invalid: [
+        ...['', 'return;'].map(finalReturn => ({
+          code: `
+            function identity<T>(value: T): T { return value; }
+            function find(items: number[]) {
+              let found: number | undefined = undefined;
+              items.forEach(item => { found = item; });
+              if (found) return identity(found);
+              ${finalReturn}
+            }
+          `,
+          errors: 1,
+        })),
+        ...['identity(found)', 'await identity(found)'].map(returnExpression => ({
+          code: `
+            async function identity<T>(value: T): Promise<T> { return value; }
+            async function find(items: number[]) {
+              let found: number | undefined = undefined;
+              items.forEach(item => { found = item; });
+              if (found) return ${returnExpression};
+            }
+          `,
+          errors: 1,
+        })),
+        {
+          code: `
+            function* identity<T>(value: T): Generator<unknown, T, unknown> { return value; }
+            function* find(items: number[]) {
+              let found: number | undefined = undefined;
+              items.forEach(item => { found = item; });
+              if (found) return yield* identity(found);
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            interface PromiseConstructor { reject<T>(value: T): Promise<T>; }
+            declare const custom: PromiseConstructor;
+            async function find(items: number[]) {
+              let found: number | undefined = undefined;
+              items.forEach(item => { found = item; });
+              if (found) return custom.reject(found);
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            function find(items: number[]) {
+              let found: number | undefined = undefined;
+              items.forEach(item => { found = item; });
+              if (found) return found;
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            function find(items: number[]) {
+              let found: number | undefined = undefined;
+              items.forEach(item => { found = item; });
+              if (found) return found;
+              return;
+            }
+          `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('S3801 with type information - rejected promises', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('Async returns adopt the promise result', rule, {
+      valid: [
+        {
+          code: `
+            async function process(skip: boolean) {
+              if (skip) return;
+              return Promise.reject(new Error('Failed'));
+            }
+          `,
+        },
+        {
+          code: `
+            async function process(skip: boolean) {
+              if (skip) return;
+              return await Promise.reject(new Error('Failed'));
+            }
+          `,
+        },
+        {
+          code: `
+            declare function fail<T>(value: T): Generator<T, never, unknown>;
+            function* process(skip: boolean) {
+              if (skip) return;
+              return yield* fail(42);
+            }
+          `,
+        },
+        {
+          code: `
+            declare function fail<T>(value: T): Promise<never>;
+            const process = async (skip: boolean) => {
+              if (skip) return;
+              return fail(42);
+            };
+          `,
+        },
+        {
+          code: `
+            declare const rejected: Promise<never>;
+            const processor = {
+              async process(skip: boolean) {
+                if (skip) return;
+                return rejected;
+              }
+            };
+          `,
+        },
+        {
+          code: `
+            declare function fail<T>(value: T): never;
+            function process(skip: boolean) {
+              if (skip) return;
+              return fail(42);
+            }
+          `,
+        },
+      ],
+      invalid: [
+        {
+          code: `
+            function process(skip: boolean) {
+              if (skip) return;
+              return Promise.reject(new Error('Failed'));
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            async function process(skip: boolean) {
+              if (skip) return;
+              return Promise.resolve(42);
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            async function process(value: number) {
+              if (value > 0) return 42;
+              if (value < 0) return Promise.reject(new Error('Failed'));
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            declare const rejected: Promise<never>;
+            function process(skip: boolean) {
+              if (skip) return;
+              return rejected;
+            }
+          `,
           errors: 1,
         },
       ],

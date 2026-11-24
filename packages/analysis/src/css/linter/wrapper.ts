@@ -17,7 +17,9 @@
 import stylelint from 'stylelint';
 import type { Root, Document } from 'postcss';
 import { transform } from './issues/transform.js';
-import { createStylelintConfig, type RuleConfig } from './config.js';
+import { createStylelintConfig, type RuleConfig, type CssSyntax } from './config.js';
+import { isAlsoCssFile, isCssFile, type Configuration } from '../../common/configuration.js';
+import { createCssDialectMap, getCssDialect } from './dialect.js';
 import type { CssIssue } from './issues/issue.js';
 import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import { APIError } from '../../contracts/error.js';
@@ -29,17 +31,20 @@ interface LintResult {
   root?: Root | Document;
 }
 
-const testFileConfig = createStylelintConfig([]);
+const testFileConfigs = new Map<CssSyntax, stylelint.Config>();
 
 /**
  * A wrapper of Stylelint linter
  */
 export class LinterWrapper {
   /**
-   * The stored Stylelint configuration from the active quality profile.
+   * The stored rules from the active quality profile.
    * Set by `initialize()` and consumed by `lint()` for files using MAIN rule selection.
    */
-  private config: stylelint.Config | undefined;
+  private rules: RuleConfig[] | undefined;
+  private readonly configs = new Map<CssSyntax, stylelint.Config>();
+  private dialects = createCssDialectMap();
+  private configuration: Configuration | undefined;
   private baseDir: NormalizedAbsolutePath | undefined;
 
   /**
@@ -52,9 +57,17 @@ export class LinterWrapper {
    *
    * @param rules the CSS rules from the active quality profile
    * @param baseDir the analysis root for resolving Stylelint's filesystem configuration
+   * @param configuration the configured standalone dialect and embedded stylesheet suffixes
    */
-  initialize(rules: RuleConfig[], baseDir?: NormalizedAbsolutePath): void {
-    this.config = createStylelintConfig(rules);
+  initialize(
+    rules: RuleConfig[],
+    baseDir?: NormalizedAbsolutePath,
+    configuration?: Configuration,
+  ): void {
+    this.rules = rules;
+    this.configs.clear();
+    this.configuration = configuration;
+    this.dialects = createCssDialectMap(this.configuration);
     this.baseDir = baseDir;
   }
 
@@ -62,10 +75,7 @@ export class LinterWrapper {
    * Whether the current initialized configuration has at least one active rule.
    */
   hasActiveRules(): boolean {
-    if (!this.config?.rules) {
-      return false;
-    }
-    return Object.keys(this.config.rules).length > 0;
+    return (this.rules?.length ?? 0) > 0;
   }
 
   /**
@@ -87,11 +97,21 @@ export class LinterWrapper {
     fileContent: string,
     ruleFileType: FileType = 'MAIN',
   ): Promise<LintResult> {
-    if (!this.config) {
+    if (!this.rules) {
       throw APIError.linterError(`Linter does not exist.`);
     }
 
-    const config = ruleFileType === 'TEST' ? testFileConfig : this.config;
+    const syntax =
+      !isCssFile(filePath, this.configuration?.cssSuffixes) &&
+      isAlsoCssFile(filePath, this.configuration?.cssAdditionalSuffixes)
+        ? 'embedded'
+        : getCssDialect(filePath, this.dialects);
+    const configs = ruleFileType === 'TEST' ? testFileConfigs : this.configs;
+    let config = configs.get(syntax);
+    if (!config) {
+      config = createStylelintConfig(ruleFileType === 'TEST' ? [] : this.rules, syntax);
+      configs.set(syntax, config);
+    }
     const options: stylelint.LinterOptions = {
       code: fileContent,
       codeFilename: filePath,

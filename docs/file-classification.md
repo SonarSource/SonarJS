@@ -118,9 +118,16 @@ MAIN/TEST applicability uses the separate `fileType` field in that context.
   this flag, including bundle rules without Sonar metadata, remain eligible. Today this applies
   to S3504 only. The vendor signal is part of the linter configuration cache key, so a library
   distribution and ordinary source in the same directory cannot reuse the wrong rule set.
-  The inline ESLint configuration handler also enforces this metadata after remapping rule aliases,
-  so `/* eslint no-var: "error" */` and `/* eslint sonarjs/S3504: "error" */` cannot reactivate
-  S3504 on vendor files.
+
+Inline ESLint directives can only reconfigure or disable rules the linter has already selected for
+the file. After remapping rule aliases, the inline configuration handler removes entries absent from
+that selected set. This preserves all applicability filters and quality profile selection, so
+`/* eslint no-var: "error" */` and `/* eslint sonarjs/S3504: "error" */` cannot reactivate S3504
+on vendor files.
+
+Rules added internally only to compute metrics retain their internal parameters, including issue
+suppression. Inline directives can still disable these rules, but cannot change their parameters
+to enable issue reporting.
 
 Shared filename classifiers live in `packages/analysis/src/common/`, outside the rule helpers.
 Generated-source facts come from the central generated-source subsystem. The linter owns their

@@ -158,7 +158,7 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
   }
 
   public boolean skipAst(AnalysisConsumers consumers) {
-    return (!consumers.isEnabled());
+    return !consumers.isEnabled();
   }
 
   @Override
@@ -228,6 +228,21 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
   }
 
   @Override
+  public List<String> getScssExtensions() {
+    return CssLanguage.getDialectSuffixes(context.config(), CssLanguage.SCSS_FILE_SUFFIXES_KEY);
+  }
+
+  @Override
+  public List<String> getSassExtensions() {
+    return CssLanguage.getDialectSuffixes(context.config(), CssLanguage.SASS_FILE_SUFFIXES_KEY);
+  }
+
+  @Override
+  public List<String> getLessExtensions() {
+    return CssLanguage.getDialectSuffixes(context.config(), CssLanguage.LESS_FILE_SUFFIXES_KEY);
+  }
+
+  @Override
   public List<String> getHtmlExtensions() {
     return getHtmlExtensions(context.config());
   }
@@ -288,7 +303,7 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
       return null;
     }
     var normalized = trimmed.toLowerCase(Locale.ROOT);
-    return normalized.startsWith(".") ? normalized : ("." + normalized);
+    return normalized.startsWith(".") ? normalized : "." + normalized;
   }
 
   @Override
@@ -297,11 +312,7 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
     if (isSonarLint()) {
       return Arrays.asList(getJsTsExcludedPaths(context.config()));
     }
-    var workDir = context
-      .fileSystem()
-      .workDir()
-      .getAbsolutePath()
-      .replace('\\', '/');
+    var workDir = context.fileSystem().workDir().getAbsolutePath().replace('\\', '/');
     return concat(
       stream(getJsTsExcludedPaths(context.config())),
       Stream.of("directory:" + workDir)

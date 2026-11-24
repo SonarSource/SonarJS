@@ -22,7 +22,6 @@ import { getExternalRuleDefinition } from '../rules/external/registry.js';
 import type { SonarMeta } from '../rules/helpers/generate-meta.js';
 import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import { materializeRuleOptions, mergeRuleOptions } from '../rules/helpers/configs.js';
-import { isVendorFile } from '../../common/vendor-file-pattern.js';
 
 const sonarRules = rules as Record<string, Rule.RuleModule>;
 
@@ -118,13 +117,13 @@ function getRuleId(ruleId: string | null) {
 export function createOptions(
   filename: NormalizedAbsolutePath,
   activeRules: Linter.RulesRecord,
+  rulesForIssues: Linter.RulesRecord,
 ): Linter.LintOptions & {
   getRule: (ruleId: string) => Rule.RuleModule | undefined;
   patchDirectives: (disableDirectives: Directive[]) => void;
   patchInlineOptions: (config: { rules: Linter.RulesRecord }) => void;
 } {
   const mappedParentDirectives = new Set();
-  const vendorFile = isVendorFile(filename);
 
   return {
     filename,
@@ -187,13 +186,21 @@ export function createOptions(
           );
         }
       }
-      // Inline configuration is merged after rule selection. Keep vendor exclusions authoritative
-      // after alias remapping so a pragma cannot reactivate an ineligible rule.
-      if (vendorFile) {
-        for (const ruleId of Object.keys(patchedOptions)) {
-          if (getSonarMeta(ruleId)?.skipOnVendorFile) {
-            delete patchedOptions[ruleId];
-          }
+      // Inline configuration may only override rules selected by the linter for this file.
+      // Check after alias remapping so directives cannot bypass rule applicability filters.
+      for (const ruleId of Object.keys(patchedOptions)) {
+        if (!Object.hasOwn(activeRules, ruleId)) {
+          delete patchedOptions[ruleId];
+        } else if (!Object.hasOwn(rulesForIssues, ruleId)) {
+          // Preserve internal options for metrics-only rules, including issue suppression.
+          // Inline severity changes may still disable the rule as before.
+          const options = patchedOptions[ruleId];
+          const severity = Array.isArray(options) ? options[0] : options;
+          const activeOptions = activeRules[ruleId];
+          patchedOptions[ruleId] = [
+            severity,
+            ...(Array.isArray(activeOptions) ? activeOptions.slice(1) : []),
+          ];
         }
       }
       config.rules = patchedOptions;

@@ -83,13 +83,13 @@ export async function analyzeFile(
     shouldIgnoreParams: {
       jsSuffixes,
       tsSuffixes,
-      cssSuffixes,
       cssAdditionalSuffixes,
       htmlSuffixes,
       yamlSuffixes,
     },
     ...jsTsConfigFields
   } = configFields;
+  const cssSuffixes = configFields.shouldIgnoreParams.cssSuffixes;
 
   // Build complete analysis input from stored file and provided configuration
   // jsTsConfigFields provides config-based values (analysisMode, skipAst, etc.)

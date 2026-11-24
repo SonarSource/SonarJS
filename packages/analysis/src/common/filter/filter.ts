@@ -36,14 +36,14 @@ export function accept(
   fileContent: string,
   params: FilterFileParams,
 ): boolean {
-  const { detectBundles, maxFileSize, jsSuffixes, tsSuffixes, cssSuffixes } = params;
+  const { detectBundles, maxFileSize, jsSuffixes, tsSuffixes } = params;
   if (isJsTsFile(filePath, { jsSuffixes, tsSuffixes })) {
     return (
       (!detectBundles || filterBundle(filePath, fileContent)) &&
       filterMinified(filePath, fileContent) &&
       filterSize(filePath, fileContent, maxFileSize)
     );
-  } else if (isCssFile(filePath, cssSuffixes)) {
+  } else if (isCssFile(filePath, params.cssSuffixes)) {
     // We ignore the size limit for CSS files because analyzing large CSS files takes a reasonable amount of time
     return filterMinified(filePath, fileContent);
   }

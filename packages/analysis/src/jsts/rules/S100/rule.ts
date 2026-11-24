@@ -18,7 +18,8 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { functionLike } from '../helpers/ast.js';
+import type { TSESTree } from '@typescript-eslint/utils';
+import { functionLike, isTypeScriptExpressionWrapper } from '../helpers/ast.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { last } from '../helpers/collection.js';
 import type { FromSchema } from 'json-schema-to-ts';
@@ -62,10 +63,15 @@ const messages = {
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages }),
   create(context: Rule.RuleContext) {
-    const format = (context.options as FromSchema<typeof meta.schema>)[0]?.format ?? DEFAULT_FORMAT;
+    const options = (context.options as FromSchema<typeof meta.schema>)[0];
+    const format = options?.format ?? DEFAULT_FORMAT;
+    const ignoreCallArgumentKeys = options?.ignoreCallArgumentKeys ?? false;
     const knowledgeStack: FunctionKnowledge[] = [];
     return {
-      [functionExpressionProperty]: (node: estree.Property) => {
+      [functionExpressionProperty]: (node: estree.Property & Rule.NodeParentExtension) => {
+        if (ignoreCallArgumentKeys && isCallArgumentKey(node)) {
+          return;
+        }
         knowledgeStack.push({
           node: node.key as estree.Identifier,
           func: node.value as estree.Function,
@@ -128,6 +134,20 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+// Match only object literals used directly as call or constructor arguments.
+function isCallArgumentKey(node: estree.Property & Rule.NodeParentExtension) {
+  let argument = node.parent as unknown as TSESTree.Node;
+  while (argument.parent && isTypeScriptExpressionWrapper(argument.parent)) {
+    argument = argument.parent;
+  }
+  const call = argument.parent;
+  return (
+    call !== undefined &&
+    (call.type === 'CallExpression' || call.type === 'NewExpression') &&
+    call.arguments.includes(argument as TSESTree.CallExpressionArgument)
+  );
+}
 
 //handling arrow functions without return statement
 function returnsJSX(node: estree.Function) {

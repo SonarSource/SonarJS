@@ -46,6 +46,58 @@ describe('createConfiguration', () => {
     });
   }
 
+  it('rejects ambiguous custom dialects before returning a configuration', () => {
+    expect(() =>
+      createConfiguration({ baseDir: '/tmp', sassSuffixes: ['TXT'], lessSuffixes: ['.txt'] }),
+    ).toThrow('CSS suffix .txt is configured for both less and sass');
+  });
+
+  it('discovers stylesheets only through the general suffix list', () => {
+    const config = createConfiguration({
+      baseDir: '/tmp',
+      cssSuffixes: ['.css', '.custom-scss'],
+      scssSuffixes: [' CUSTOM-SCSS ', '.custom-scss'],
+      sassSuffixes: ['custom-sass'],
+      lessSuffixes: ['.CUSTOM-LESS'],
+    });
+    expect(config.scssSuffixes).toEqual(['.custom-scss']);
+    expect(config.cssSuffixes).toEqual(['.css', '.custom-scss']);
+    for (const extension of ['custom-scss', 'custom-sass', 'custom-less']) {
+      expect(isAnalyzableFile(normalizeToAbsolutePath(`/tmp/input.${extension}`), config)).toBe(
+        extension === 'custom-scss',
+      );
+    }
+  });
+
+  it('uses the same stylesheet defaults as Java', () => {
+    const config = createConfiguration({ baseDir: '/tmp' });
+    const defaults = JSON.parse(
+      fs.readFileSync(
+        new URL(
+          '../../../../sonar-plugin/css/src/test/resources/default-stylesheet-suffixes.json',
+          import.meta.url,
+        ),
+        'utf8',
+      ),
+    );
+    expect(config).toMatchObject(defaults);
+  });
+
+  for (const dialect of ['css', 'scss', 'sass', 'less'] as const) {
+    it(`does not restore defaults when ${dialect} suffixes are empty or replaced`, () => {
+      for (const suffixes of [[], ['.custom']]) {
+        const config = createConfiguration({ baseDir: '/tmp', [`${dialect}Suffixes`]: suffixes });
+        expect(config[`${dialect}Suffixes`]).toEqual(suffixes);
+        expect(isAnalyzableFile(normalizeToAbsolutePath(`/tmp/input.${dialect}`), config)).toBe(
+          dialect !== 'css',
+        );
+        expect(isAnalyzableFile(normalizeToAbsolutePath('/tmp/input.custom'), config)).toBe(
+          dialect === 'css' && suffixes.length > 0,
+        );
+      }
+    });
+  }
+
   for (const requestedMaxNodeModuleJsDepth of ['4', NaN, null, true, {}, []]) {
     it(`ignores nonnumeric optional analysis depth ${String(requestedMaxNodeModuleJsDepth)}`, () => {
       const configuration = createConfiguration({
@@ -75,6 +127,25 @@ describe('createConfiguration', () => {
       getJsTsConfigFields({ ...configuration, requestedMaxNodeModuleJsDepth: 6 })
         .requestedMaxNodeModuleJsDepth,
     ).toBeUndefined();
+  });
+
+  it('allows discovered suffixes to be associated with a preprocessor', () => {
+    const config = createConfiguration({
+      baseDir: '/tmp',
+      cssSuffixes: [' TXT '],
+      sassSuffixes: ['.txt'],
+    });
+    expect(config.cssSuffixes).toEqual(['.txt']);
+    expect(config.sassSuffixes).toEqual(['.txt']);
+  });
+
+  it('disables standalone stylesheet discovery when the general list is empty', () => {
+    const config = createConfiguration({ baseDir: '/tmp', cssSuffixes: [] });
+    for (const extension of ['css', 'scss', 'sass', 'less']) {
+      expect(isAnalyzableFile(normalizeToAbsolutePath(`/tmp/input.${extension}`), config)).toBe(
+        false,
+      );
+    }
   });
 
   it('honors literal scanner directory exclusions without hardcoding a directory name', () => {

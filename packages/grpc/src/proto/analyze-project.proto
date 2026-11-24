@@ -111,6 +111,9 @@ message ProjectConfiguration {
   // Aggregated compiler requirement from enabled, mode-compatible hooks; policy limits are validated in Java.
   // Positive requests set a minimum depth, never lowering the tsconfig value; absent or zero leaves it unchanged.
   optional int32 requested_max_node_module_js_depth = 35;
+  StringList scss_suffixes = 36;
+  StringList sass_suffixes = 37;
+  StringList less_suffixes = 38;
 }
 
 message StringList {
