@@ -1215,29 +1215,34 @@ describe('SonarQube project analysis', () => {
         'scss.custom-scss': '$name: foo; .#{$name} { color: #ggg; }',
         'sass.custom-sass': 'a\n  color: #ggg\n  background: blue',
         'less.custom-less': '.mixin(@a; @b) { color: #ggg; }',
+        'plain.css.template': 'a { color: #ggg; }\n@import "other";',
+        'theme.SASS.TPL': 'a\n  color: #ggg\n  background: blue',
+        'theme.module.css': 'a\n  color: #ggg\n  background: blue',
+        'theme.scss.tpl': '$name: foo; .#{$name} { color: #ggg; }',
+        'theme.less.tpl': '.mixin(@a; @b) { color: #ggg; }',
       };
       for (const [file, code] of Object.entries(files))
         fs.writeFileSync(path.join(baseDir, file), code);
       const configuration = await initForTest({
         baseDir,
-        cssSuffixes: ['.txt'],
-        scssSuffixes: ['.custom-scss'],
-        sassSuffixes: ['.custom-sass'],
-        lessSuffixes: ['.custom-less'],
+        cssSuffixes: ['.txt', '.css', '.css.template'],
+        scssSuffixes: ['.custom-scss', '.scss.tpl'],
+        sassSuffixes: ['.custom-sass', '.sass.tpl', '.module.css'],
+        lessSuffixes: ['.custom-less', '.less.tpl'],
       });
       const cssRules = ['color-no-invalid-hex', 'no-invalid-position-at-import-rule'].map(key => ({
         key,
         configurations: [],
       }));
       const result = await analyzeProject({ rules: [], cssRules, bundles: [] }, configuration);
-      expect(Object.keys(result.files)).toHaveLength(4);
+      expect(Object.keys(result.files)).toHaveLength(Object.keys(files).length);
       for (const file of Object.keys(files)) {
         const output = result.files[normalizeToAbsolutePath(path.join(baseDir, file))];
         assert(output && !('error' in output) && 'metrics' in output && 'highlights' in output);
         expect(output.metrics?.ncloc?.length).toBeGreaterThan(0);
         expect(output.highlights?.length).toBeGreaterThan(0);
         expect(output.issues.map(issue => issue.ruleId).sort()).toEqual(
-          file === 'plain.txt'
+          file.startsWith('plain.')
             ? ['color-no-invalid-hex', 'no-invalid-position-at-import-rule']
             : ['color-no-invalid-hex'],
         );

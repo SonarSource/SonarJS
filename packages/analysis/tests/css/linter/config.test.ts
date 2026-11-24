@@ -133,6 +133,37 @@ describe('preprocessor rule applicability', () => {
 });
 
 describe('custom stylesheet suffixes', () => {
+  for (const extension of ['SASS.TPL', 'module.css']) {
+    for (const ruleFileType of ['MAIN', 'TEST'] as const) {
+      it(`uses the longest matching suffix for ${extension} with ${ruleFileType} rule selection`, async () => {
+        const linter = new LinterWrapper();
+        linter.initialize(
+          [
+            { key: 'color-no-invalid-hex', configurations: [] },
+            { key: 'no-invalid-position-at-import-rule', configurations: [] },
+          ],
+          undefined,
+          createConfiguration({
+            baseDir: '/tmp',
+            sassSuffixes: ['.sass.tpl', '.module.css'],
+            lessSuffixes: ['.tpl'],
+          }),
+        );
+        const filePath = normalizeToAbsolutePath(`/tmp/theme.${extension}`);
+        const { issues, root } = await linter.lint(
+          filePath,
+          'a\n  color: #ggg\n@import "other"',
+          ruleFileType,
+        );
+        expect(root).toBeDefined();
+        expect(root?.source?.input.file).toBe(filePath);
+        expect(issues.map(issue => issue.ruleId)).toEqual(
+          ruleFileType === 'MAIN' ? ['color-no-invalid-hex'] : [],
+        );
+      });
+    }
+  }
+
   it('uses explicit dialect associations before standard extension defaults', async () => {
     const linter = new LinterWrapper();
     linter.initialize(

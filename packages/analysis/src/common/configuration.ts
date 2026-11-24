@@ -588,7 +588,8 @@ export function isCssFile(
   filePath: NormalizedAbsolutePath,
   cssSuffixes: string[] = DEFAULT_CSS_EXTENSIONS,
 ): boolean {
-  return cssSuffixes.includes(extname(filePath).toLowerCase());
+  const filename = filePath.toLowerCase();
+  return cssSuffixes.some(suffix => filename.endsWith(suffix));
 }
 
 export function isAlsoCssFile(

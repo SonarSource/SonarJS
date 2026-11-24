@@ -849,6 +849,8 @@ There is no need to repeat them in `sonar.css.file.suffixes`. Suffixes are case 
 be written with or without a leading dot. Existing standard defaults are preserved. An explicit
 association takes precedence over the standard dialect for that extension; assigning the same
 suffix to multiple dialect properties fails analysis with a configuration error.
+Compound suffixes such as `.sass.tpl` are supported. When dialect associations overlap, the longest
+matching suffix determines the dialect, so `.sass.tpl` takes precedence over `.tpl`.
 
 The selected dialect controls parsing, CSS-only rule applicability, and dialect-aware checks such
 as Sass annotations. HTML and Vue style blocks continue to use their `lang` attributes; their

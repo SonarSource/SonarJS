@@ -14,8 +14,6 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { extname } from 'node:path/posix';
-
 export type CssDialect = 'css' | 'scss' | 'sass' | 'less';
 export const PREPROCESSOR_DIALECTS = ['less', 'scss', 'sass'] as const;
 export const DEFAULT_CSS_SUFFIXES = [
@@ -60,5 +58,14 @@ export function createCssDialectMap(suffixes: CssDialectSuffixes = {}): Map<stri
 }
 
 export function getCssDialect(filePath: string, dialects: Map<string, CssDialect>): CssDialect {
-  return dialects.get(extname(filePath).toLowerCase()) ?? 'css';
+  const filename = filePath.toLowerCase();
+  let selectedDialect: CssDialect = 'css';
+  let longestSuffix = 0;
+  for (const [suffix, dialect] of dialects) {
+    if (suffix.length > longestSuffix && filename.endsWith(suffix)) {
+      selectedDialect = dialect;
+      longestSuffix = suffix.length;
+    }
+  }
+  return selectedDialect;
 }

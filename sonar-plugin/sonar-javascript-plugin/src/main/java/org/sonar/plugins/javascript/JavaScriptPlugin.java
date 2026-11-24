@@ -16,6 +16,7 @@
  */
 package org.sonar.plugins.javascript;
 
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.Plugin;
@@ -245,7 +246,7 @@ public class JavaScriptPlugin implements Plugin {
         .name("CSS-in-HTML File Suffixes")
         .description(CSS_ADDITIONAL_FILE_SUFFIXES_DESCRIPTION)
         .subCategory(GENERAL)
-        .category(JS_TS_CATEGORY)
+        .category(CSS_CATEGORY)
         .onConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
         .multiValues(true)
         .build(),
@@ -362,7 +363,9 @@ public class JavaScriptPlugin implements Plugin {
       PropertyDefinition.builder(CssLanguage.FILE_SUFFIXES_KEY)
         .defaultValue(CssLanguage.DEFAULT_FILE_SUFFIXES)
         .name("File Suffixes")
-        .description(FILE_SUFFIXES_DESCRIPTION)
+        .description(
+          "File suffixes to include in stylesheet analysis. .scss, .sass, and .less use their corresponding dialects. Other suffixes use plain CSS unless explicitly associated with a dialect below. Suffixes configured in the dialect settings below are automatically included, even if absent from this list."
+        )
         .subCategory(GENERAL)
         .category(CSS_CATEGORY)
         .onConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
@@ -370,16 +373,21 @@ public class JavaScriptPlugin implements Plugin {
         .build()
     );
 
-    for (var key : CssLanguage.DIALECT_FILE_SUFFIXES_KEYS) {
+    for (var dialect : Map.of(
+      CssLanguage.SCSS_FILE_SUFFIXES_KEY,
+      "SCSS",
+      CssLanguage.SASS_FILE_SUFFIXES_KEY,
+      "Sass",
+      CssLanguage.LESS_FILE_SUFFIXES_KEY,
+      "Less"
+    ).entrySet()) {
       context.addExtension(
-        PropertyDefinition.builder(key)
-          .name(
-            key
-              .substring("sonar.css.".length(), key.indexOf(".file"))
-              .toUpperCase(java.util.Locale.ROOT) + " File Suffixes"
-          )
+        PropertyDefinition.builder(dialect.getKey())
+          .name("Additional " + dialect.getValue() + " File Suffixes")
           .description(
-            "Additional file suffixes for this CSS dialect. These files are automatically included in CSS analysis. Standard extensions remain supported. A suffix must not be assigned to multiple dialects."
+            "Additional file suffixes to analyze as " +
+              dialect.getValue() +
+              ". These suffixes are automatically included in analysis; you do not need to add them to File Suffixes. An explicit association overrides the standard dialect for that suffix. The longest matching suffix determines the dialect. The same suffix cannot be assigned to multiple dialect settings."
           )
           .subCategory(GENERAL)
           .category(CSS_CATEGORY)
