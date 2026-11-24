@@ -81,11 +81,14 @@ class CssIssuesTest {
       .withScmDisabled()
       .withScannerProperty(
         CssLanguage.FILE_SUFFIXES_KEY,
-        ".custom-css,.custom-scss,.custom-sass,.custom-less"
+        ".custom-css,.custom-scss,.custom-sass,.custom-less,.sass.old,.custom.sass"
       )
       .withScannerProperty(CssLanguage.SCSS_FILE_SUFFIXES_KEY, ".custom-scss")
-      .withScannerProperty(CssLanguage.SASS_FILE_SUFFIXES_KEY, ".custom-sass")
-      .withScannerProperty(CssLanguage.LESS_FILE_SUFFIXES_KEY, ".custom-less")
+      .withScannerProperty(
+        CssLanguage.SASS_FILE_SUFFIXES_KEY,
+        ".custom-sass,.sass.old,.custom.sass"
+      )
+      .withScannerProperty(CssLanguage.LESS_FILE_SUFFIXES_KEY, ".custom-less,.old")
       .build();
     var result = ScannerRunner.run(SERVER_CONTEXT, input, ScannerRunnerConfig.builder().build());
     assertThat(result.scannerOutputReader().getProject().getAllIssues())
@@ -96,8 +99,28 @@ class CssIssuesTest {
         tuple("css:S4647", "src/plain.custom-css"),
         tuple("css:S4647", "src/theme.custom-scss"),
         tuple("css:S4647", "src/theme.custom-sass"),
-        tuple("css:S4647", "src/theme.custom-less")
+        tuple("css:S4647", "src/theme.custom-less"),
+        tuple("css:S4647", "src/theme.sass.old"),
+        tuple("css:S4647", "src/theme.custom.sass")
       );
+  }
+
+  @Test
+  void compoundSassSuffixUsesTheDefaultAssociation() {
+    var input = ScannerInput.create(
+      "compound-sass-suffix",
+      TestUtils.projectDir("custom-css-dialects")
+    )
+      .withSourceDirs("src")
+      .withScmDisabled()
+      .withScannerProperty("sonar.inclusions", "**/theme.custom.sass")
+      .build();
+    var result = ScannerRunner.run(SERVER_CONTEXT, input, ScannerRunnerConfig.builder().build());
+    assertThat(result.scannerOutputReader().getProject().getAllIssues())
+      .filteredOn(TextRangeIssue.class::isInstance)
+      .map(TextRangeIssue.class::cast)
+      .extracting(TextRangeIssue::ruleKey, TextRangeIssue::componentPath)
+      .containsExactly(tuple("css:S4647", "src/theme.custom.sass"));
   }
 
   void parsingErrorsNotExcluded(ScannerResult result) {
