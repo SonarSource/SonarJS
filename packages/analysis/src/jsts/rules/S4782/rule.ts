@@ -16,10 +16,10 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S4782/javascript
 
-import type { AST, Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { isStrictCompilerOptionEnabled } from 'ts-api-utils';
+import { isIntrinsicNeverType, isStrictCompilerOptionEnabled } from 'ts-api-utils';
 import ts from 'typescript';
 import { generateMeta } from '../helpers/generate-meta.js';
 import {
@@ -35,16 +35,12 @@ export const rule: Rule.RuleModule = {
 
   create(context: Rule.RuleContext) {
     const parserServices = context.sourceCode.parserServices;
-    const hasTypeChecking = isRequiredParserServices(parserServices);
-    const compilerOptions = hasTypeChecking
-      ? parserServices.program.getCompilerOptions()
-      : undefined;
-    if (compilerOptions?.exactOptionalPropertyTypes) {
+    if (!isRequiredParserServices(parserServices)) {
       return {};
     }
-    const canResolveTypes =
-      compilerOptions !== undefined &&
-      isStrictCompilerOptionEnabled(compilerOptions, 'strictNullChecks');
+    const compilerOptions = parserServices.program.getCompilerOptions();
+    const checker = parserServices.program.getTypeChecker();
+    const canResolveTypes = isStrictCompilerOptionEnabled(compilerOptions, 'strictNullChecks');
 
     function checkProperty(node: estree.Node) {
       const tsNode = node as TSESTree.Node as
@@ -55,26 +51,56 @@ export const rule: Rule.RuleModule = {
         return;
       }
 
+      if (compilerOptions.exactOptionalPropertyTypes) {
+        const redundantUndefined = canResolveTypes
+          ? findRedundantUndefinedTypeNode(rootType, parserServices)
+          : undefined;
+        if (redundantUndefined) {
+          report(context, {
+            message: "Remove this redundant 'undefined' type annotation.",
+            loc: redundantUndefined.loc,
+            suggest: [getUndefinedRemovalSuggestion(context, redundantUndefined)],
+          });
+        }
+        return;
+      }
+
       let typeNode: TSESTree.TypeNode | undefined;
       if (rootType.type === 'TSUnionType') {
         typeNode = findSyntacticUndefinedTypeNode(rootType);
       }
 
       if (!typeNode && canResolveTypes) {
-        typeNode = findSemanticUndefinedTypeNode(
-          rootType,
-          parserServices as RequiredParserServices,
-        );
+        typeNode = findSemanticUndefinedTypeNode(rootType, parserServices);
       }
 
       if (typeNode) {
-        const suggest = getQuickFixSuggestions(context, optionalToken, typeNode);
+        // Without strictNullChecks, an optional never property still rejects explicit undefined.
+        if (
+          !canResolveTypes &&
+          unionConstituents(rootType).every(
+            member =>
+              member === typeNode ||
+              isIntrinsicNeverType(
+                checker.getTypeAtLocation(parserServices.esTreeNodeToTSNodeMap.get(member)),
+              ),
+          )
+        ) {
+          return;
+        }
+        const suggest =
+          typeNode.parent?.type === 'TSUnionType'
+            ? [getUndefinedRemovalSuggestion(context, typeNode)]
+            : [];
+        const message =
+          suggest.length > 0
+            ? "Consider removing the redundant 'undefined' type."
+            : `The type annotation '${context.sourceCode.text.slice(...rootType.range)}' includes 'undefined'. Use a type without 'undefined' here, keeping '?'.`;
 
         report(
           context,
           {
-            message:
-              "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
+            message,
             loc: optionalToken.loc,
             suggest,
           },
@@ -88,6 +114,24 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function findRedundantUndefinedTypeNode(
+  rootType: TSESTree.TypeNode,
+  services: RequiredParserServices,
+): TSESTree.TypeNode | undefined {
+  const members = unionConstituents(rootType);
+  return members.find(
+    member =>
+      member.type === 'TSUndefinedKeyword' &&
+      members.some(other => other !== member && containsUndefined(other, services)),
+  );
+}
+
+function unionConstituents(typeNode: TSESTree.TypeNode): TSESTree.TypeNode[] {
+  // Resolve the written constituents, not the property's read type, which
+  // includes undefined solely because the property is optional.
+  return typeNode.type === 'TSUnionType' ? typeNode.types.flatMap(unionConstituents) : [typeNode];
+}
 
 function findSemanticUndefinedTypeNode(
   rootType: TSESTree.TypeNode,
@@ -177,9 +221,10 @@ function propagatesUndefined(
 
 function containsUndefined(node: TSESTree.TypeNode, services: RequiredParserServices): boolean {
   const tsNode = services.esTreeNodeToTSNodeMap.get(node);
-  const type = services.program.getTypeChecker().getTypeAtLocation(tsNode);
+  const checker = services.program.getTypeChecker();
+  const type = checker.getTypeAtLocation(tsNode);
   const members = type.isUnion() ? type.types : [type];
-  return members.some(isUndefinedType);
+  return members.includes(checker.getUndefinedType());
 }
 
 function findSyntacticUndefinedTypeNode(
@@ -192,23 +237,6 @@ function findSyntacticUndefinedTypeNode(
     return typeNode.types.map(findSyntacticUndefinedTypeNode).find(type => type !== undefined);
   }
   return undefined;
-}
-
-function getQuickFixSuggestions(
-  context: Rule.RuleContext,
-  optionalToken: AST.Token,
-  undefinedType: TSESTree.TypeNode,
-): Rule.SuggestionReportDescriptor[] {
-  const suggestions: Rule.SuggestionReportDescriptor[] = [
-    {
-      desc: 'Remove "?" operator',
-      fix: fixer => fixer.remove(optionalToken),
-    },
-  ];
-  if (undefinedType.parent?.type === 'TSUnionType') {
-    suggestions.push(getUndefinedRemovalSuggestion(context, undefinedType));
-  }
-  return suggestions;
 }
 
 function getUndefinedRemovalSuggestion(
