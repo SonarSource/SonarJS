@@ -123,7 +123,7 @@ describe('Linter', () => {
     );
   });
 
-  it('shares the host compiler with external bundles without a runtime TypeScript dependency', async () => {
+  it('provides existing ESLint parser services to bundles without a SonarJS compiler setting', async () => {
     const bundlePath = normalizeToAbsolutePath(
       path.join(import.meta.dirname, 'fixtures', 'index', 'host-compiler-bundle.cjs'),
     );
@@ -143,9 +143,26 @@ describe('Linter', () => {
     const filePath = normalizeToAbsolutePath(
       path.join(import.meta.dirname, 'fixtures', 'index', 'custom.js'),
     );
-    Linter.lint(await parseJavaScriptSourceFile(filePath), filePath);
     const bundle = await import(pathToFileURL(bundlePath).href);
-    expect(bundle.getCompiler()).toBe(ts);
+    Linter.lint(await parseJavaScriptSourceFile(filePath), filePath);
+    expect(bundle.getResult().program).toBeFalsy();
+    expect(bundle.getResult().sonarjsSettings).toBeUndefined();
+
+    const fileContent = 'Math.max(1, 2)';
+    const options = { allowJs: true, types: [], noEmit: true };
+    const host = ts.createCompilerHost(options, true);
+    const getSourceFile = host.getSourceFile.bind(host);
+    host.getSourceFile = (file, version, ...rest) =>
+      file === filePath
+        ? ts.createSourceFile(file, fileContent, version, true)
+        : getSourceFile(file, version, ...rest);
+    const program = ts.createProgram([filePath], options, host);
+    Linter.lint(build(await jsTsInput({ filePath, fileContent, program })), filePath);
+
+    const result = bundle.getResult();
+    expect(result.sonarjsSettings).toBeUndefined();
+    expect(result.program).toBe(program);
+    expect(result.declaration.name.text).toBe('max');
   });
 
   it('should enable environments', async () => {

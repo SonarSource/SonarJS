@@ -58,14 +58,13 @@ reads those artifacts. Keep per-run isolation, atomic writes, source-coordinate 
 missing/incomplete-file diagnostics in that plugin; missing evidence must not imply non-reachability.
 No quality-profile activation or inventory-specific SonarJS callback/gRPC schema is needed.
 
-Bundled hooks access the **host TypeScript runtime** through
-`context.settings.sonarjs.typescript`. Use a type-only TypeScript import in the bundle and this
-runtime instance for compiler helpers; it is the compiler that owns `parserServices.program`.
-Do not assume `require('typescript')` is resolvable in the installed scanner: the production bridge
-embeds TypeScript. This avoids packaging a second compiler or importing SonarJS internal modules.
-Treat this shared runtime as read-only: do not monkey-patch it, since other hooks and rules use the
-same instance. Bundles execute as trusted analyzer code; exposing compiler helpers is not a sandbox
-or an isolation boundary.
+For typed analysis, use the existing ESLint `context.sourceCode.parserServices`. When a
+TypeScript program and an `esTreeNodeToTSNodeMap` are available, the hook can query the program's
+type checker for the mapped node. Treat this shared compiler state as read-only. When those
+services are not available, report unavailable evidence rather than assuming the code has no
+external calls. Use ESTree for traversal and source locations, including for Vue components.
+SonarJS does not expose the TypeScript module to bundles, and the packaged bridge embeds it;
+do not assume `require('typescript')` can load the host compiler.
 
 ## Components
 

@@ -70,7 +70,6 @@ import {
 import { parseInlineNPMImport } from '../rules/helpers/dependency-manifests/resolvers/npm-import.js';
 import { isTestCaseFile } from '../../common/rule-file-type.js';
 import { isVendorFile } from '../../common/vendor-file-pattern.js';
-import ts from 'typescript';
 
 interface InitializeParams {
   rules?: RuleConfig[];
@@ -298,9 +297,6 @@ export class Linter {
         sonarRuntime: true,
         workDir: Linter.rulesWorkdir,
         ...lintOptions.additionalSettings,
-        // Bundled hooks must use the compiler that owns parserServices.program. The packaged
-        // bridge embeds TypeScript, so a separate runtime require('typescript') is not available.
-        sonarjs: { typescript: ts },
       },
       files: [`**/*${path.posix.extname(normalizePath(filePath))}`],
     };

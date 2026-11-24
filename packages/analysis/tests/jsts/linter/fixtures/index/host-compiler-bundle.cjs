@@ -14,16 +14,23 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-let compiler;
-exports.getCompiler = () => compiler;
+let result;
+exports.getResult = () => result;
 exports.rules = [
   {
     ruleId: 'host-compiler-probe',
     ruleModule: {
       meta: { schema: [] },
       create(context) {
-        compiler = context.settings.sonarjs.typescript;
-        return {};
+        const { program, esTreeNodeToTSNodeMap } = context.sourceCode.parserServices;
+        result = { program, sonarjsSettings: context.settings.sonarjs };
+        if (!program) return {};
+        return {
+          CallExpression(estreeNode) {
+            const node = esTreeNodeToTSNodeMap.get(estreeNode);
+            result.declaration = program.getTypeChecker().getResolvedSignature(node)?.getDeclaration();
+          },
+        };
       },
     },
   },
