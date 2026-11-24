@@ -54,12 +54,18 @@ describe('createConfiguration', () => {
     }
   });
 
-  it('discovers all standard stylesheet extensions by default', () => {
+  it('uses the same stylesheet defaults as Java', () => {
     const config = createConfiguration({ baseDir: '/tmp' });
-    expect(config.cssSuffixes).toEqual(['.css', '.less', '.scss', '.sass']);
-    expect(config.scssSuffixes).toEqual(['.scss']);
-    expect(config.sassSuffixes).toEqual(['.sass']);
-    expect(config.lessSuffixes).toEqual(['.less']);
+    const defaults = JSON.parse(
+      fs.readFileSync(
+        new URL(
+          '../../../../sonar-plugin/css/src/test/resources/default-stylesheet-suffixes.json',
+          import.meta.url,
+        ),
+        'utf8',
+      ),
+    );
+    expect(config).toMatchObject(defaults);
   });
 
   for (const dialect of ['css', 'scss', 'sass', 'less'] as const) {

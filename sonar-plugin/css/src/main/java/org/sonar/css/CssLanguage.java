@@ -30,15 +30,18 @@ public class CssLanguage extends AbstractLanguage {
   public static final String DEFAULT_FILE_SUFFIXES = ".css,.less,.scss,.sass";
 
   public static final String SCSS_FILE_SUFFIXES_KEY = "sonar.css.scss.file.suffixes";
+  public static final String DEFAULT_SCSS_FILE_SUFFIXES = ".scss";
   public static final String SASS_FILE_SUFFIXES_KEY = "sonar.css.sass.file.suffixes";
+  public static final String DEFAULT_SASS_FILE_SUFFIXES = ".sass";
   public static final String LESS_FILE_SUFFIXES_KEY = "sonar.css.less.file.suffixes";
+  public static final String DEFAULT_LESS_FILE_SUFFIXES = ".less";
   public static final Map<String, String> DEFAULT_DIALECT_FILE_SUFFIXES = Map.of(
     SCSS_FILE_SUFFIXES_KEY,
-    ".scss",
+    DEFAULT_SCSS_FILE_SUFFIXES,
     SASS_FILE_SUFFIXES_KEY,
-    ".sass",
+    DEFAULT_SASS_FILE_SUFFIXES,
     LESS_FILE_SUFFIXES_KEY,
-    ".less"
+    DEFAULT_LESS_FILE_SUFFIXES
   );
   private final Configuration configuration;
 

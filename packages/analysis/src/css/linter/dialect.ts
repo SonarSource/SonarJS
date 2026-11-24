@@ -16,7 +16,16 @@
  */
 export type CssDialect = 'css' | 'scss' | 'sass' | 'less';
 export const PREPROCESSOR_DIALECTS = ['less', 'scss', 'sass'] as const;
-export const DEFAULT_CSS_SUFFIXES = ['.css', '.less', '.scss', '.sass'];
+export const DEFAULT_CSS_EXTENSIONS = ['.css', '.less', '.scss', '.sass'];
+export const DEFAULT_SCSS_EXTENSIONS = ['.scss'];
+export const DEFAULT_SASS_EXTENSIONS = ['.sass'];
+export const DEFAULT_LESS_EXTENSIONS = ['.less'];
+
+const DEFAULT_DIALECT_EXTENSIONS = {
+  scss: DEFAULT_SCSS_EXTENSIONS,
+  sass: DEFAULT_SASS_EXTENSIONS,
+  less: DEFAULT_LESS_EXTENSIONS,
+};
 
 export type CssDialectSuffixes = {
   cssSuffixes?: string[];
@@ -38,13 +47,15 @@ export function normalizeCssSuffixes(suffixes: string[] = []): string[] {
 
 export function createCssDialectMap(suffixes: CssDialectSuffixes = {}): Map<string, CssDialect> {
   const dialects = new Map<string, CssDialect>(
-    normalizeCssSuffixes(suffixes.cssSuffixes ?? DEFAULT_CSS_SUFFIXES).map(suffix => [
+    normalizeCssSuffixes(suffixes.cssSuffixes ?? DEFAULT_CSS_EXTENSIONS).map(suffix => [
       suffix,
       'css',
     ]),
   );
   for (const dialect of PREPROCESSOR_DIALECTS) {
-    for (const suffix of normalizeCssSuffixes(suffixes[`${dialect}Suffixes`] ?? [`.${dialect}`])) {
+    for (const suffix of normalizeCssSuffixes(
+      suffixes[`${dialect}Suffixes`] ?? DEFAULT_DIALECT_EXTENSIONS[dialect],
+    )) {
       const previous = dialects.get(suffix);
       if (previous && previous !== 'css' && previous !== dialect) {
         throw new Error(`CSS suffix ${suffix} is configured for both ${previous} and ${dialect}`);

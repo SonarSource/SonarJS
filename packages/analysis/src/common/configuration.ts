@@ -35,7 +35,10 @@ import {
 import { JAVASCRIPT_CODE_FILE_EXTENSIONS, TYPESCRIPT_CODE_FILE_EXTENSIONS } from './file-kinds.js';
 import {
   createCssDialectMap,
-  DEFAULT_CSS_SUFFIXES,
+  DEFAULT_CSS_EXTENSIONS,
+  DEFAULT_SCSS_EXTENSIONS,
+  DEFAULT_SASS_EXTENSIONS,
+  DEFAULT_LESS_EXTENSIONS,
   normalizeCssSuffixes,
   type CssDialectSuffixes,
 } from '../css/linter/dialect.js';
@@ -138,7 +141,6 @@ export type ConfigurationInput = {
 
 export const DEFAULT_JS_EXTENSIONS = [...JAVASCRIPT_CODE_FILE_EXTENSIONS, '.vue'];
 export const DEFAULT_TS_EXTENSIONS = TYPESCRIPT_CODE_FILE_EXTENSIONS.slice();
-const DEFAULT_CSS_EXTENSIONS = DEFAULT_CSS_SUFFIXES;
 const DEFAULT_HTML_EXTENSIONS = ['.html', '.htm', '.xhtml'];
 const DEFAULT_YAML_EXTENSIONS = ['.yml', '.yaml'];
 const DEFAULT_CSS_ADDITIONAL_EXTENSIONS = ['.vue', '.html', '.htm', '.xhtml'];
@@ -297,9 +299,9 @@ export function createConfigurationFromInput(input: ConfigurationInput): Configu
   // Normalize baseDir first so it can be used by other normalization functions
   const baseDir = normalizeToAbsolutePath(input.baseDir);
   const cssSuffixes = normalizeCssSuffixes(input.cssSuffixes ?? DEFAULT_CSS_EXTENSIONS);
-  const scssSuffixes = normalizeCssSuffixes(input.scssSuffixes ?? ['.scss']);
-  const sassSuffixes = normalizeCssSuffixes(input.sassSuffixes ?? ['.sass']);
-  const lessSuffixes = normalizeCssSuffixes(input.lessSuffixes ?? ['.less']);
+  const scssSuffixes = normalizeCssSuffixes(input.scssSuffixes ?? DEFAULT_SCSS_EXTENSIONS);
+  const sassSuffixes = normalizeCssSuffixes(input.sassSuffixes ?? DEFAULT_SASS_EXTENSIONS);
+  const lessSuffixes = normalizeCssSuffixes(input.lessSuffixes ?? DEFAULT_LESS_EXTENSIONS);
   createCssDialectMap({ cssSuffixes, scssSuffixes, sassSuffixes, lessSuffixes });
   return {
     baseDir,
