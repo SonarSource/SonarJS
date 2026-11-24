@@ -23,12 +23,16 @@ exports.rules = [
       meta: { schema: [] },
       create(context) {
         const { program, esTreeNodeToTSNodeMap } = context.sourceCode.parserServices;
+        const { typescriptSyntax } = context.settings.sonarjs;
         result = { program, sonarjsSettings: context.settings.sonarjs };
         if (!program) return {};
         return {
           CallExpression(estreeNode) {
             const node = esTreeNodeToTSNodeMap.get(estreeNode);
-            result.declaration = program.getTypeChecker().getResolvedSignature(node)?.getDeclaration();
+            if (typescriptSyntax.isCallExpression(node)) {
+              result.isConstruct = typescriptSyntax.isNewExpression(node);
+              result.declaration = program.getTypeChecker().getResolvedSignature(node)?.getDeclaration();
+            }
           },
         };
       },

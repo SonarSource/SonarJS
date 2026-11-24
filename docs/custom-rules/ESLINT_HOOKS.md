@@ -63,8 +63,12 @@ TypeScript program and an `esTreeNodeToTSNodeMap` are available, the hook can qu
 type checker for the mapped node. Treat this shared compiler state as read-only. When those
 services are not available, report unavailable evidence rather than assuming the code has no
 external calls. Use ESTree for traversal and source locations, including for Vue components.
-SonarJS does not expose the TypeScript module to bundles, and the packaged bridge embeds it;
-do not assume `require('typescript')` can load the host compiler.
+Use `context.settings.sonarjs?.typescriptSyntax` to classify nodes, types and symbols from
+those services with the [host compiler’s predicates](../../packages/analysis/src/jsts/linter/hook-typescript-syntax.ts).
+For example, `typescriptSyntax.isCallExpression(node)` checks a mapped TypeScript node without
+comparing its numeric `SyntaxKind`. The predicates return booleans and expose no compiler objects
+or numeric enums. If the predicates are required and the setting is absent on an older host, treat
+that analysis as unavailable. Do not assume `require('typescript')` can load the embedded compiler.
 
 ## Components
 

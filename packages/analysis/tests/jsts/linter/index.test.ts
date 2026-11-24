@@ -123,7 +123,7 @@ describe('Linter', () => {
     );
   });
 
-  it('provides existing ESLint parser services to bundles without a SonarJS compiler setting', async () => {
+  it('provides the host compiler predicates without exposing the TypeScript module', async () => {
     const bundlePath = normalizeToAbsolutePath(
       path.join(import.meta.dirname, 'fixtures', 'index', 'host-compiler-bundle.cjs'),
     );
@@ -146,7 +146,7 @@ describe('Linter', () => {
     const bundle = await import(pathToFileURL(bundlePath).href);
     Linter.lint(await parseJavaScriptSourceFile(filePath), filePath);
     expect(bundle.getResult().program).toBeFalsy();
-    expect(bundle.getResult().sonarjsSettings).toBeUndefined();
+    expect(Object.keys(bundle.getResult().sonarjsSettings)).toEqual(['typescriptSyntax']);
 
     const fileContent = 'Math.max(1, 2)';
     const options = { allowJs: true, types: [], noEmit: true };
@@ -160,8 +160,15 @@ describe('Linter', () => {
     Linter.lint(build(await jsTsInput({ filePath, fileContent, program })), filePath);
 
     const result = bundle.getResult();
-    expect(result.sonarjsSettings).toBeUndefined();
+    expect(Object.keys(result.sonarjsSettings)).toEqual(['typescriptSyntax']);
+    const syntax = result.sonarjsSettings.typescriptSyntax;
+    expect(Object.isFrozen(syntax)).toBe(true);
+    expect(Object.values(syntax).every(fn => typeof fn === 'function' && Object.isFrozen(fn))).toBe(
+      true,
+    );
+    expect(syntax.isCallExpression).not.toBe(ts.isCallExpression);
     expect(result.program).toBe(program);
+    expect(result.isConstruct).toBe(false);
     expect(result.declaration.name.text).toBe('max');
   });
 
