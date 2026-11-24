@@ -1,0 +1,12 @@
+{
+"qunit:src/reports/suite.js": [
+8,
+9
+],
+"qunit:src/reports/test.js": [
+8,
+9,
+16,
+17
+]
+}
