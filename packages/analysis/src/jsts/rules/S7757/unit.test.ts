@@ -206,6 +206,53 @@ ruleTester.run('S7757', rule, {
   ],
 });
 
+ruleTester.run('S7757 known quick-fix limitations', rule, {
+  valid: [],
+  invalid: [
+    {
+      // Known limitation: this records the current unsafe fix, not the desired behavior.
+      // The accessor initializer reads items before the constructor runs.
+      // Moving [] to the field changes saved from undefined to the array.
+      code: `class Cart {
+  items;
+  accessor saved = this.items;
+  constructor() {
+    this.items = [];
+  }
+}`,
+      output: `class Cart {
+  items = [];
+  accessor saved = this.items;
+  constructor() {
+  }
+}`,
+      errors: [{ messageId, line: 5 }],
+    },
+    {
+      // Known limitation: this records the current unsafe fix, not the desired behavior.
+      // The constructor assignment calls the setter and sets saved to the array.
+      // The added field hides the setter, so it no longer runs and saved stays undefined.
+      code: `class Cart {
+  constructor() {
+    this.items = [];
+  }
+  set items(value) {
+    this.saved = value;
+  }
+}`,
+      output: `class Cart {
+  constructor() {
+  }
+  set items(value) {
+    this.saved = value;
+  }
+  items = [];
+}`,
+      errors: [{ messageId, line: 3 }],
+    },
+  ],
+});
+
 ruleTester.run('S7757 additional constructor assignments', rule, {
   valid: [],
   invalid: [
