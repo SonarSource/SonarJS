@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { filterBundle } from './filter-bundle.js';
+import { getStylesheetSuffixes } from '../../css/linter/dialect.js';
 import { filterMinified, hasExcessiveAverageLineLength } from './filter-minified.js';
 import { filterSize } from './filter-size.js';
 import { isCssFile, isJsTsFile, type FilterFileParams } from '../configuration.js';
@@ -36,14 +37,14 @@ export function accept(
   fileContent: string,
   params: FilterFileParams,
 ): boolean {
-  const { detectBundles, maxFileSize, jsSuffixes, tsSuffixes, cssSuffixes } = params;
+  const { detectBundles, maxFileSize, jsSuffixes, tsSuffixes } = params;
   if (isJsTsFile(filePath, { jsSuffixes, tsSuffixes })) {
     return (
       (!detectBundles || filterBundle(filePath, fileContent)) &&
       filterMinified(filePath, fileContent) &&
       filterSize(filePath, fileContent, maxFileSize)
     );
-  } else if (isCssFile(filePath, cssSuffixes)) {
+  } else if (isCssFile(filePath, getStylesheetSuffixes(params))) {
     // We ignore the size limit for CSS files because analyzing large CSS files takes a reasonable amount of time
     return filterMinified(filePath, fileContent);
   }

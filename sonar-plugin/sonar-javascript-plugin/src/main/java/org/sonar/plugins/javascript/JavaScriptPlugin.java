@@ -362,9 +362,9 @@ public class JavaScriptPlugin implements Plugin {
     context.addExtension(
       PropertyDefinition.builder(CssLanguage.FILE_SUFFIXES_KEY)
         .defaultValue(CssLanguage.DEFAULT_FILE_SUFFIXES)
-        .name("File Suffixes")
+        .name("Plain CSS File Suffixes")
         .description(
-          "File suffixes to include in stylesheet analysis. .scss, .sass, and .less use their corresponding dialects. Other suffixes use plain CSS unless explicitly associated with a dialect below. Suffixes configured in the dialect settings below are automatically included, even if absent from this list."
+          "File suffixes to analyze as plain CSS. An empty list disables plain CSS file discovery. A suffix cannot be assigned to more than one stylesheet dialect. When suffixes overlap, the longest match determines the dialect."
         )
         .subCategory(GENERAL)
         .category(CSS_CATEGORY)
@@ -383,11 +383,12 @@ public class JavaScriptPlugin implements Plugin {
     ).entrySet()) {
       context.addExtension(
         PropertyDefinition.builder(dialect.getKey())
-          .name("Additional " + dialect.getValue() + " File Suffixes")
+          .defaultValue(CssLanguage.DEFAULT_DIALECT_FILE_SUFFIXES.get(dialect.getKey()))
+          .name(dialect.getValue() + " File Suffixes")
           .description(
-            "Additional file suffixes to analyze as " +
+            "File suffixes to analyze as " +
               dialect.getValue() +
-              ". These suffixes are automatically included in analysis; you do not need to add them to File Suffixes. An explicit association overrides the standard dialect for that suffix. The longest matching suffix determines the dialect. The same suffix cannot be assigned to multiple dialect settings."
+              ". An empty list disables file discovery for this dialect. A suffix cannot be assigned to more than one stylesheet dialect. When suffixes overlap, the longest match determines the dialect."
           )
           .subCategory(GENERAL)
           .category(CSS_CATEGORY)

@@ -741,8 +741,8 @@ describe('analyze-project gRPC server', () => {
             details: 'configuration.base_dir is required',
           });
           const conflictingDialects = createAnalyzeProjectRequest();
-          conflictingDialects.configuration!.sassSuffixes = ['TXT'];
-          conflictingDialects.configuration!.lessSuffixes = ['.txt'];
+          conflictingDialects.configuration!.sassSuffixes = { values: ['TXT'] };
+          conflictingDialects.configuration!.lessSuffixes = { values: ['.txt'] };
           for (const analyze of [
             () => client.analyzeProject(conflictingDialects),
             () => client.analyzeProjectUnary(conflictingDialects),

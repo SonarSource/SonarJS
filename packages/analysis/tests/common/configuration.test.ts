@@ -37,7 +37,7 @@ describe('createConfiguration', () => {
     ).toThrow('CSS suffix .txt is configured for both less and sass');
   });
 
-  it('adds normalized dialect suffixes to stylesheet discovery', () => {
+  it('keeps normalized dialect suffix lists separate while discovering every dialect', () => {
     const config = createConfiguration({
       baseDir: '/tmp',
       cssSuffixes: ['.css'],
@@ -46,12 +46,41 @@ describe('createConfiguration', () => {
       lessSuffixes: ['.CUSTOM-LESS'],
     });
     expect(config.scssSuffixes).toEqual(['.custom-scss']);
-    expect(config.cssSuffixes).toEqual(['.css', '.custom-scss', '.custom-sass', '.custom-less']);
+    expect(config.cssSuffixes).toEqual(['.css']);
     for (const extension of ['custom-scss', 'custom-sass', 'custom-less']) {
       expect(isAnalyzableFile(normalizeToAbsolutePath(`/tmp/input.${extension}`), config)).toBe(
         true,
       );
     }
+  });
+
+  it('defaults each stylesheet dialect to its own extension', () => {
+    const config = createConfiguration({ baseDir: '/tmp' });
+    expect(config.cssSuffixes).toEqual(['.css']);
+    expect(config.scssSuffixes).toEqual(['.scss']);
+    expect(config.sassSuffixes).toEqual(['.sass']);
+    expect(config.lessSuffixes).toEqual(['.less']);
+  });
+
+  for (const dialect of ['css', 'scss', 'sass', 'less'] as const) {
+    it(`does not restore defaults when ${dialect} suffixes are empty or replaced`, () => {
+      for (const suffixes of [[], ['.custom']]) {
+        const config = createConfiguration({ baseDir: '/tmp', [`${dialect}Suffixes`]: suffixes });
+        expect(config[`${dialect}Suffixes`]).toEqual(suffixes);
+        expect(isAnalyzableFile(normalizeToAbsolutePath(`/tmp/input.${dialect}`), config)).toBe(
+          false,
+        );
+        expect(isAnalyzableFile(normalizeToAbsolutePath('/tmp/input.custom'), config)).toBe(
+          suffixes.length > 0,
+        );
+      }
+    });
+  }
+
+  it('rejects suffixes assigned to both plain CSS and a preprocessor', () => {
+    expect(() =>
+      createConfiguration({ baseDir: '/tmp', cssSuffixes: [' TXT '], sassSuffixes: ['.txt'] }),
+    ).toThrow('CSS suffix .txt is configured for both css and sass');
   });
 
   it('honors literal scanner directory exclusions without hardcoding a directory name', () => {

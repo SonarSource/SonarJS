@@ -133,6 +133,20 @@ describe('preprocessor rule applicability', () => {
 });
 
 describe('custom stylesheet suffixes', () => {
+  it('selects plain CSS before a broader preprocessor suffix', async () => {
+    const linter = new LinterWrapper();
+    linter.initialize(
+      [{ key: 'no-invalid-position-at-import-rule', configurations: [] }],
+      undefined,
+      createConfiguration({ baseDir: '/tmp', cssSuffixes: ['.plain.tpl'], lessSuffixes: ['.tpl'] }),
+    );
+    const { issues } = await linter.lint(
+      normalizeToAbsolutePath('/tmp/theme.plain.tpl'),
+      'a { color: red; }\n@import "other";',
+    );
+    expect(issues.map(issue => issue.ruleId)).toEqual(['no-invalid-position-at-import-rule']);
+  });
+
   for (const extension of ['SASS.TPL', 'module.css']) {
     for (const ruleFileType of ['MAIN', 'TEST'] as const) {
       it(`uses the longest matching suffix for ${extension} with ${ruleFileType} rule selection`, async () => {
@@ -164,12 +178,12 @@ describe('custom stylesheet suffixes', () => {
     }
   }
 
-  it('uses explicit dialect associations before standard extension defaults', async () => {
+  it('allows reassigning an extension after removing it from its original dialect', async () => {
     const linter = new LinterWrapper();
     linter.initialize(
       [],
       undefined,
-      createConfiguration({ baseDir: '/tmp', sassSuffixes: ['.scss'] }),
+      createConfiguration({ baseDir: '/tmp', scssSuffixes: [], sassSuffixes: ['.scss'] }),
     );
     expect(
       (await linter.lint(normalizeToAbsolutePath('/tmp/input.SCSS'), 'a\n  color: red')).issues,
@@ -196,9 +210,9 @@ describe('custom stylesheet suffixes', () => {
   const configuration = createConfiguration({
     baseDir: '/tmp',
     cssSuffixes: ['.txt'],
-    scssSuffixes: ['.custom-scss'],
-    sassSuffixes: ['.custom-sass'],
-    lessSuffixes: ['.custom-less'],
+    scssSuffixes: ['.scss', '.custom-scss'],
+    sassSuffixes: ['.sass', '.custom-sass'],
+    lessSuffixes: ['.less', '.custom-less'],
   });
 
   for (const [extension, code] of [

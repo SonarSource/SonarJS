@@ -16,12 +16,10 @@
  */
 export type CssDialect = 'css' | 'scss' | 'sass' | 'less';
 export const PREPROCESSOR_DIALECTS = ['less', 'scss', 'sass'] as const;
-export const DEFAULT_CSS_SUFFIXES = [
-  '.css',
-  ...PREPROCESSOR_DIALECTS.map(dialect => `.${dialect}`),
-];
+export const DEFAULT_CSS_SUFFIXES = ['.css'];
 
 export type CssDialectSuffixes = {
+  cssSuffixes?: string[];
   scssSuffixes?: string[];
   sassSuffixes?: string[];
   lessSuffixes?: string[];
@@ -38,19 +36,22 @@ export function normalizeCssSuffixes(suffixes: string[] = []): string[] {
   ];
 }
 
-/** Explicit dialect associations override standard extensions; ambiguous custom associations fail. */
+export function getStylesheetSuffixes(suffixes: CssDialectSuffixes = {}): string[] {
+  return [
+    ...(suffixes.cssSuffixes ?? DEFAULT_CSS_SUFFIXES),
+    ...PREPROCESSOR_DIALECTS.flatMap(dialect => suffixes[`${dialect}Suffixes`] ?? [`.${dialect}`]),
+  ];
+}
+
+/** Each suffix belongs to exactly one dialect, including plain CSS. */
 export function createCssDialectMap(suffixes: CssDialectSuffixes = {}): Map<string, CssDialect> {
-  const dialects = new Map<string, CssDialect>(
-    PREPROCESSOR_DIALECTS.map(dialect => [`.${dialect}`, dialect]),
-  );
-  const custom = new Map<string, CssDialect>();
-  for (const dialect of PREPROCESSOR_DIALECTS) {
-    for (const suffix of normalizeCssSuffixes(suffixes[`${dialect}Suffixes`])) {
-      const previous = custom.get(suffix);
+  const dialects = new Map<string, CssDialect>();
+  for (const dialect of ['css', ...PREPROCESSOR_DIALECTS] as const) {
+    for (const suffix of normalizeCssSuffixes(suffixes[`${dialect}Suffixes`] ?? [`.${dialect}`])) {
+      const previous = dialects.get(suffix);
       if (previous && previous !== dialect) {
         throw new Error(`CSS suffix ${suffix} is configured for both ${previous} and ${dialect}`);
       }
-      custom.set(suffix, dialect);
       dialects.set(suffix, dialect);
     }
   }

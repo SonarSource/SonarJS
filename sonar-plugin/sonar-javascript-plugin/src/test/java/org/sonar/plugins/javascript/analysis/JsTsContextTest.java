@@ -110,7 +110,7 @@ class JsTsContextTest {
   }
 
   @Test
-  void includesNormalizedDialectSuffixesInDiscoveryAndBridgeConfiguration() {
+  void keepsNormalizedDialectSuffixesSeparateInBridgeConfiguration() {
     var config = new MapSettings()
       .setProperty(CssLanguage.FILE_SUFFIXES_KEY, ".css")
       .setProperty(CssLanguage.SCSS_FILE_SUFFIXES_KEY, " CUSTOM-SCSS, .custom-scss ")
@@ -120,14 +120,26 @@ class JsTsContextTest {
     var context = mock(SensorContext.class, RETURNS_DEEP_STUBS);
     when(context.config()).thenReturn(config);
     var analysis = new JsTsContext<>(context);
-    assertThat(analysis.getCssExtensions()).containsExactly(
-      ".css",
-      ".custom-scss",
-      ".custom-sass",
-      ".custom-less"
-    );
+    assertThat(analysis.getCssExtensions()).containsExactly(".css");
     assertThat(analysis.getScssExtensions()).containsExactly(".custom-scss");
     assertThat(analysis.getSassExtensions()).containsExactly(".custom-sass");
     assertThat(analysis.getLessExtensions()).containsExactly(".custom-less");
+  }
+
+  @Test
+  void preservesExplicitlyEmptyPreprocessorSuffixLists() {
+    var context = mock(SensorContext.class, RETURNS_DEEP_STUBS);
+    when(context.config()).thenReturn(
+      new MapSettings()
+        .setProperty(CssLanguage.SCSS_FILE_SUFFIXES_KEY, " ")
+        .setProperty(CssLanguage.SASS_FILE_SUFFIXES_KEY, " ")
+        .setProperty(CssLanguage.LESS_FILE_SUFFIXES_KEY, " ")
+        .asConfig()
+    );
+    var analysis = new JsTsContext<>(context);
+    assertThat(analysis.getCssExtensions()).containsExactly(".css");
+    assertThat(analysis.getScssExtensions()).isEmpty();
+    assertThat(analysis.getSassExtensions()).isEmpty();
+    assertThat(analysis.getLessExtensions()).isEmpty();
   }
 }

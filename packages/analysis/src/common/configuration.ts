@@ -37,6 +37,8 @@ import {
   createCssDialectMap,
   DEFAULT_CSS_SUFFIXES,
   normalizeCssSuffixes,
+  getStylesheetSuffixes,
+  type CssDialectSuffixes,
 } from '../css/linter/dialect.js';
 
 /**
@@ -295,10 +297,11 @@ export function createConfigurationFromInput(input: ConfigurationInput): Configu
   }
   // Normalize baseDir first so it can be used by other normalization functions
   const baseDir = normalizeToAbsolutePath(input.baseDir);
-  const scssSuffixes = normalizeCssSuffixes(input.scssSuffixes);
-  const sassSuffixes = normalizeCssSuffixes(input.sassSuffixes);
-  const lessSuffixes = normalizeCssSuffixes(input.lessSuffixes);
-  createCssDialectMap({ scssSuffixes, sassSuffixes, lessSuffixes });
+  const cssSuffixes = normalizeCssSuffixes(input.cssSuffixes ?? DEFAULT_CSS_EXTENSIONS);
+  const scssSuffixes = normalizeCssSuffixes(input.scssSuffixes ?? ['.scss']);
+  const sassSuffixes = normalizeCssSuffixes(input.sassSuffixes ?? ['.sass']);
+  const lessSuffixes = normalizeCssSuffixes(input.lessSuffixes ?? ['.less']);
+  createCssDialectMap({ cssSuffixes, scssSuffixes, sassSuffixes, lessSuffixes });
   return {
     baseDir,
     canAccessFileSystem: input.canAccessFileSystem ?? true,
@@ -313,14 +316,7 @@ export function createConfigurationFromInput(input: ConfigurationInput): Configu
     globals: input.globals ?? DEFAULT_GLOBALS,
     tsSuffixes: input.tsSuffixes ?? DEFAULT_TS_EXTENSIONS,
     jsSuffixes: input.jsSuffixes ?? DEFAULT_JS_EXTENSIONS,
-    cssSuffixes: [
-      ...new Set([
-        ...(input.cssSuffixes ?? DEFAULT_CSS_EXTENSIONS),
-        ...scssSuffixes,
-        ...sassSuffixes,
-        ...lessSuffixes,
-      ]),
-    ],
+    cssSuffixes,
     scssSuffixes,
     sassSuffixes,
     lessSuffixes,
@@ -357,7 +353,7 @@ const HELM_DIRECTIVE_IN_COMMENT_OR_STRING = new RegExp(
 /**
  * File suffix configuration for determining file types.
  */
-type FileSuffixes = {
+type FileSuffixes = CssDialectSuffixes & {
   jsSuffixes: string[];
   tsSuffixes: string[];
   cssSuffixes: string[];
@@ -401,6 +397,9 @@ export function getShouldIgnoreParams(configuration: Configuration): FilterFileP
     jsSuffixes: configuration.jsSuffixes,
     tsSuffixes: configuration.tsSuffixes,
     cssSuffixes: configuration.cssSuffixes,
+    scssSuffixes: configuration.scssSuffixes,
+    sassSuffixes: configuration.sassSuffixes,
+    lessSuffixes: configuration.lessSuffixes,
     htmlSuffixes: configuration.htmlSuffixes,
     yamlSuffixes: configuration.yamlSuffixes,
     cssAdditionalSuffixes: configuration.cssAdditionalSuffixes,
@@ -485,6 +484,9 @@ export function getAnalyzableFilesConfigKey(configuration: Configuration) {
     jsSuffixes: shouldIgnoreParams.jsSuffixes,
     tsSuffixes: shouldIgnoreParams.tsSuffixes,
     cssSuffixes: shouldIgnoreParams.cssSuffixes,
+    scssSuffixes: shouldIgnoreParams.scssSuffixes,
+    sassSuffixes: shouldIgnoreParams.sassSuffixes,
+    lessSuffixes: shouldIgnoreParams.lessSuffixes,
     htmlSuffixes: shouldIgnoreParams.htmlSuffixes,
     yamlSuffixes: shouldIgnoreParams.yamlSuffixes,
     cssAdditionalSuffixes: shouldIgnoreParams.cssAdditionalSuffixes,
@@ -607,7 +609,7 @@ export function isAnalyzableFile(
     isHtmlFile(filePath, suffixes.htmlSuffixes) ||
     isYamlFile(filePath, undefined, suffixes.yamlSuffixes) ||
     isJsTsFile(filePath, suffixes) ||
-    isCssFile(filePath, suffixes.cssSuffixes) ||
+    isCssFile(filePath, getStylesheetSuffixes(suffixes)) ||
     isAlsoCssFile(filePath, suffixes.cssAdditionalSuffixes)
   );
 }

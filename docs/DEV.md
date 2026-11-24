@@ -832,23 +832,27 @@ Add a link to the RSPEC PR from the SonarJS PR as shown in
 
 ## Custom stylesheet dialect suffixes
 
-`sonar.css.file.suffixes` selects standalone stylesheet files. Standard `.scss`, `.sass`, and
-`.less` extensions select their matching dialect; other configured extensions use plain CSS,
-including CSS-only rules.
+Each standalone stylesheet dialect has its own suffix setting. `sonar.css.file.suffixes` selects
+plain CSS files and defaults to `.css`. The SCSS, Sass, and Less settings default to `.scss`,
+`.sass`, and `.less`, respectively. Each setting selects both the files to discover and their
+parser and rules.
 
-Use these properties to add extensions for preprocessor dialects:
+For example, to retain the standard extensions and add custom ones:
 
 ```properties
-sonar.css.scss.file.suffixes=.custom-scss
-sonar.css.sass.file.suffixes=.custom-sass
-sonar.css.less.file.suffixes=.custom-less
+sonar.css.file.suffixes=.css,.custom-css
+sonar.css.scss.file.suffixes=.scss,.custom-scss
+sonar.css.sass.file.suffixes=.sass,.custom-sass
+sonar.css.less.file.suffixes=.less,.custom-less
 ```
 
-These properties are empty by default and add their suffixes to CSS file discovery automatically.
-There is no need to repeat them in `sonar.css.file.suffixes`. Suffixes are case insensitive and may
-be written with or without a leading dot. Existing standard defaults are preserved. An explicit
-association takes precedence over the standard dialect for that extension; assigning the same
-suffix to multiple dialect properties fails analysis with a configuration error.
+Configured values replace the defaults for that dialect. Defaults apply only when a setting is
+absent; an explicitly empty list disables file discovery for that dialect. Suffixes are case
+insensitive and may be written with or without a leading dot. The same suffix cannot appear in
+more than one dialect setting, including plain CSS. Conflicting assignments fail analysis with a
+configuration error. To move an extension to another dialect, remove it from its original list.
+Existing configurations that list preprocessor extensions in `sonar.css.file.suffixes` should move
+those extensions to their corresponding dialect settings.
 Compound suffixes such as `.sass.tpl` are supported. When dialect associations overlap, the longest
 matching suffix determines the dialect, so `.sass.tpl` takes precedence over `.tpl`.
 

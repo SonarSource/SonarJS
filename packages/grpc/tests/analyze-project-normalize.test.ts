@@ -23,7 +23,7 @@ import {
   InvalidAnalyzeProjectRequestError,
   normalizeAnalyzeProjectRequest,
 } from '../src/analyze-project-normalize.js';
-import { createConfiguration } from '../../analysis/src/common/configuration.js';
+import { createConfiguration, isAnalyzableFile } from '../../analysis/src/common/configuration.js';
 import {
   dependencyManifestStore,
   generatedSourceStore,
@@ -64,6 +64,28 @@ function stringList(values: string[]) {
 }
 
 describe('normalizeAnalyzeProjectRequest', () => {
+  for (const dialect of ['css', 'scss', 'sass', 'less'] as const) {
+    it(`preserves omitted, empty, and replaced ${dialect} suffix lists over the wire`, async () => {
+      const baseDir = await createBaseDir();
+      for (const suffixes of [undefined, [], ['.custom']]) {
+        const request = sonarjs.analyzeproject.v1.AnalyzeProjectRequest.decode(
+          sonarjs.analyzeproject.v1.AnalyzeProjectRequest.encode({
+            configuration: {
+              baseDir,
+              canAccessFileSystem: false,
+              [`${dialect}Suffixes`]: suffixes === undefined ? undefined : stringList(suffixes),
+            },
+          }).finish(),
+        );
+        const { configuration } = await normalizeAnalyzeProjectRequest(request);
+        expect(configuration[`${dialect}Suffixes`]).toEqual(suffixes ?? [`.${dialect}`]);
+        expect(
+          isAnalyzableFile(normalizeToAbsolutePath(`input.${dialect}`, baseDir), configuration),
+        ).toBe(suffixes === undefined);
+      }
+    });
+  }
+
   it('should normalize explicit files, paths, rules and protobuf values', async () => {
     const baseDir = await createBaseDir();
     const mainFile = join(baseDir, 'src', 'main.ts');
@@ -84,9 +106,9 @@ describe('normalizeAnalyzeProjectRequest', () => {
         tsSuffixes: stringList(['.ts']),
         jsSuffixes: stringList(['.js']),
         cssSuffixes: stringList(['.css']),
-        scssSuffixes: ['.custom-scss'],
-        sassSuffixes: ['.custom-sass'],
-        lessSuffixes: ['.custom-less'],
+        scssSuffixes: stringList(['.custom-scss']),
+        sassSuffixes: stringList(['.custom-sass']),
+        lessSuffixes: stringList(['.custom-less']),
         htmlSuffixes: stringList(['.html']),
         yamlSuffixes: stringList(['.yaml']),
         cssAdditionalSuffixes: stringList(['.scss']),
@@ -171,12 +193,7 @@ describe('normalizeAnalyzeProjectRequest', () => {
     expect(normalized.configuration.scssSuffixes).toEqual(['.custom-scss']);
     expect(normalized.configuration.sassSuffixes).toEqual(['.custom-sass']);
     expect(normalized.configuration.lessSuffixes).toEqual(['.custom-less']);
-    expect(normalized.configuration.cssSuffixes).toEqual([
-      '.css',
-      '.custom-scss',
-      '.custom-sass',
-      '.custom-less',
-    ]);
+    expect(normalized.configuration.cssSuffixes).toEqual(['.css']);
     expect(normalized.configuration.fsEvents).toEqual([
       normalizeToAbsolutePath(join(baseDir, 'src', 'created.ts'), baseDir),
     ]);

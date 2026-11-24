@@ -220,18 +220,11 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
   }
 
   public static List<String> getCssExtensions(Configuration config) {
-    return Stream.concat(
-      getNormalizedExtensions(
-        config,
-        CssLanguage.FILE_SUFFIXES_KEY,
-        CssLanguage.DEFAULT_FILE_SUFFIXES
-      ).stream(),
-      CssLanguage.DIALECT_FILE_SUFFIXES_KEYS.stream().flatMap(key ->
-        CssLanguage.getDialectSuffixes(config, key).stream()
-      )
-    )
-      .distinct()
-      .toList();
+    return getNormalizedExtensions(
+      config,
+      CssLanguage.FILE_SUFFIXES_KEY,
+      CssLanguage.DEFAULT_FILE_SUFFIXES
+    );
   }
 
   @Override

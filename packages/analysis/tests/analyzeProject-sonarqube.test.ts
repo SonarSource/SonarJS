@@ -1207,6 +1207,35 @@ describe('SonarQube project analysis', () => {
     expect(result.files[normalizeToAbsolutePath(yamlFile)]).toBeDefined();
   });
 
+  for (const dialect of ['css', 'scss', 'sass', 'less'] as const) {
+    it(`does not discover ${dialect} files when its suffix list is empty`, async () => {
+      const baseDir = fs.mkdtempSync(path.join(os.tmpdir(), 'empty-css-dialect-'));
+      try {
+        for (const extension of ['css', 'scss', 'sass', 'less']) {
+          fs.writeFileSync(
+            path.join(baseDir, `theme.${extension}`),
+            extension === 'sass' ? 'a\n  color: #ggg' : 'a { color: #ggg; }',
+          );
+        }
+        const configuration = await initForTest({ baseDir, [`${dialect}Suffixes`]: [] });
+        const result = await analyzeProject(
+          {
+            rules: [],
+            cssRules: [{ key: 'color-no-invalid-hex', configurations: [] }],
+            bundles: [],
+          },
+          configuration,
+        );
+        expect(Object.keys(result.files)).toHaveLength(3);
+        expect(
+          result.files[normalizeToAbsolutePath(path.join(baseDir, `theme.${dialect}`))],
+        ).toBeUndefined();
+      } finally {
+        fs.rmSync(baseDir, { recursive: true, force: true });
+      }
+    });
+  }
+
   it('discovers and analyzes custom stylesheet dialects with metrics and CSS-only rules', async () => {
     const baseDir = fs.mkdtempSync(path.join(os.tmpdir(), 'custom-css-dialects-'));
     try {
