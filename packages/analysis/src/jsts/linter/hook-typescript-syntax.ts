@@ -14,71 +14,102 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import ts from 'typescript';
+import type ts from 'typescript';
 
-// Do not share the compiler's function objects. A hook only gets frozen boolean queries.
-function predicate<Input, Output extends Input>(test: (value: Input) => value is Output) {
-  return Object.freeze((value: Input): value is Output => test(value));
+type Compiler = typeof ts;
+
+// Binding is lazy so the same definition can supply compatibility keys without a compiler.
+function bindSyntax(getCompiler: () => Compiler) {
+  function predicate<Input, Output extends Input>(
+    select: (compiler: Compiler) => (value: Input) => value is Output,
+  ) {
+    return Object.freeze((value: Input): value is Output => select(getCompiler())(value));
+  }
+
+  return Object.freeze({
+    isAsExpression: predicate(ts => ts.isAsExpression),
+    isAwaitExpression: predicate(ts => ts.isAwaitExpression),
+    isBindingElement: predicate(ts => ts.isBindingElement),
+    isCallExpression: predicate(ts => ts.isCallExpression),
+    isCallSignatureDeclaration: predicate(ts => ts.isCallSignatureDeclaration),
+    isClassDeclaration: predicate(ts => ts.isClassDeclaration),
+    isClassExpression: predicate(ts => ts.isClassExpression),
+    isConditionalExpression: predicate(ts => ts.isConditionalExpression),
+    isConstructorDeclaration: predicate(ts => ts.isConstructorDeclaration),
+    isConstructSignatureDeclaration: predicate(ts => ts.isConstructSignatureDeclaration),
+    isElementAccessExpression: predicate(ts => ts.isElementAccessExpression),
+    isExportDeclaration: predicate(ts => ts.isExportDeclaration),
+    isExternalModuleReference: predicate(ts => ts.isExternalModuleReference),
+    isFunctionDeclaration: predicate(ts => ts.isFunctionDeclaration),
+    isFunctionTypeNode: predicate(ts => ts.isFunctionTypeNode),
+    isIdentifier: predicate(ts => ts.isIdentifier),
+    isImportDeclaration: predicate(ts => ts.isImportDeclaration),
+    isImportEqualsDeclaration: predicate(ts => ts.isImportEqualsDeclaration),
+    isInterfaceDeclaration: predicate(ts => ts.isInterfaceDeclaration),
+    isMethodDeclaration: predicate(ts => ts.isMethodDeclaration),
+    isMethodSignature: predicate(ts => ts.isMethodSignature),
+    isModuleDeclaration: predicate(ts => ts.isModuleDeclaration),
+    isNewExpression: predicate(ts => ts.isNewExpression),
+    isNonNullExpression: predicate(ts => ts.isNonNullExpression),
+    isNumericLiteral: predicate(ts => ts.isNumericLiteral),
+    isParenthesizedExpression: predicate(ts => ts.isParenthesizedExpression),
+    isPrivateIdentifier: predicate(ts => ts.isPrivateIdentifier),
+    isPropertyAccessExpression: predicate(ts => ts.isPropertyAccessExpression),
+    isPropertyDeclaration: predicate(ts => ts.isPropertyDeclaration),
+    isPropertySignature: predicate(ts => ts.isPropertySignature),
+    isSourceFile: predicate(ts => ts.isSourceFile),
+    isStringLiteral: predicate(ts => ts.isStringLiteral),
+    isStringLiteralLike: predicate(ts => ts.isStringLiteralLike),
+    isTaggedTemplateExpression: predicate(ts => ts.isTaggedTemplateExpression),
+    isTypeAliasDeclaration: predicate(ts => ts.isTypeAliasDeclaration),
+    isTypeAssertionExpression: predicate(ts => ts.isTypeAssertionExpression),
+    isVariableDeclaration: predicate(ts => ts.isVariableDeclaration),
+    isImportKeyword: Object.freeze(
+      (node: ts.Node) => node.kind === getCompiler().SyntaxKind.ImportKeyword,
+    ),
+    hasStaticModifier: Object.freeze((node: ts.Node) => {
+      const ts = getCompiler();
+      return (
+        ts.canHaveModifiers(node) &&
+        (ts.getModifiers(node)?.some(modifier => modifier.kind === ts.SyntaxKind.StaticKeyword) ??
+          false)
+      );
+    }),
+    isBroadType: Object.freeze((type: ts.Type) => {
+      const { TypeFlags } = getCompiler();
+      return (
+        (type.flags &
+          (TypeFlags.Any | TypeFlags.Unknown | TypeFlags.Never | TypeFlags.NonPrimitive)) !==
+        0
+      );
+    }),
+    isTypeParameter: Object.freeze((type: ts.Type) => type.isTypeParameter()),
+    isAliasSymbol: Object.freeze(
+      (symbol: ts.Symbol) => (symbol.flags & getCompiler().SymbolFlags.Alias) !== 0,
+    ),
+    isFunctionSymbol: Object.freeze(
+      (symbol: ts.Symbol) => (symbol.flags & getCompiler().SymbolFlags.Function) !== 0,
+    ),
+  });
 }
 
 /** Classifies objects already available through typed ESLint parser services. */
-export const hookTypeScriptSyntax = Object.freeze({
-  isAsExpression: predicate(ts.isAsExpression),
-  isAwaitExpression: predicate(ts.isAwaitExpression),
-  isBindingElement: predicate(ts.isBindingElement),
-  isCallExpression: predicate(ts.isCallExpression),
-  isCallSignatureDeclaration: predicate(ts.isCallSignatureDeclaration),
-  isClassDeclaration: predicate(ts.isClassDeclaration),
-  isClassExpression: predicate(ts.isClassExpression),
-  isConditionalExpression: predicate(ts.isConditionalExpression),
-  isConstructorDeclaration: predicate(ts.isConstructorDeclaration),
-  isConstructSignatureDeclaration: predicate(ts.isConstructSignatureDeclaration),
-  isElementAccessExpression: predicate(ts.isElementAccessExpression),
-  isExportDeclaration: predicate(ts.isExportDeclaration),
-  isExternalModuleReference: predicate(ts.isExternalModuleReference),
-  isFunctionDeclaration: predicate(ts.isFunctionDeclaration),
-  isFunctionTypeNode: predicate(ts.isFunctionTypeNode),
-  isIdentifier: predicate(ts.isIdentifier),
-  isImportDeclaration: predicate(ts.isImportDeclaration),
-  isImportEqualsDeclaration: predicate(ts.isImportEqualsDeclaration),
-  isInterfaceDeclaration: predicate(ts.isInterfaceDeclaration),
-  isMethodDeclaration: predicate(ts.isMethodDeclaration),
-  isMethodSignature: predicate(ts.isMethodSignature),
-  isModuleDeclaration: predicate(ts.isModuleDeclaration),
-  isNewExpression: predicate(ts.isNewExpression),
-  isNonNullExpression: predicate(ts.isNonNullExpression),
-  isNumericLiteral: predicate(ts.isNumericLiteral),
-  isParenthesizedExpression: predicate(ts.isParenthesizedExpression),
-  isPrivateIdentifier: predicate(ts.isPrivateIdentifier),
-  isPropertyAccessExpression: predicate(ts.isPropertyAccessExpression),
-  isPropertyDeclaration: predicate(ts.isPropertyDeclaration),
-  isPropertySignature: predicate(ts.isPropertySignature),
-  isSourceFile: predicate(ts.isSourceFile),
-  isStringLiteral: predicate(ts.isStringLiteral),
-  isStringLiteralLike: predicate(ts.isStringLiteralLike),
-  isTaggedTemplateExpression: predicate(ts.isTaggedTemplateExpression),
-  isTypeAliasDeclaration: predicate(ts.isTypeAliasDeclaration),
-  isTypeAssertionExpression: predicate(ts.isTypeAssertionExpression),
-  isVariableDeclaration: predicate(ts.isVariableDeclaration),
-  isImportKeyword: Object.freeze((node: ts.Node) => node.kind === ts.SyntaxKind.ImportKeyword),
-  hasStaticModifier: Object.freeze(
-    (node: ts.Node) =>
-      ts.canHaveModifiers(node) &&
-      (ts.getModifiers(node)?.some(modifier => modifier.kind === ts.SyntaxKind.StaticKeyword) ??
-        false),
-  ),
-  isBroadType: Object.freeze(
-    (type: ts.Type) =>
-      (type.flags &
-        (ts.TypeFlags.Any |
-          ts.TypeFlags.Unknown |
-          ts.TypeFlags.Never |
-          ts.TypeFlags.NonPrimitive)) !==
-      0,
-  ),
-  isTypeParameter: Object.freeze((type: ts.Type) => type.isTypeParameter()),
-  isAliasSymbol: Object.freeze((symbol: ts.Symbol) => (symbol.flags & ts.SymbolFlags.Alias) !== 0),
-  isFunctionSymbol: Object.freeze(
-    (symbol: ts.Symbol) => (symbol.flags & ts.SymbolFlags.Function) !== 0,
-  ),
-});
+export function createHookTypeScriptSyntax(compiler: Compiler) {
+  return bindSyntax(() => compiler);
+}
+
+const requiredHelpers = Object.keys(
+  bindSyntax(() => {
+    throw new Error('No compiler bound to the hook contract');
+  }),
+);
+
+export function isHookTypeScriptSyntax(
+  value: unknown,
+): value is ReturnType<typeof createHookTypeScriptSyntax> {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    requiredHelpers.every(name => typeof (value as Record<string, unknown>)[name] === 'function')
+  );
+}

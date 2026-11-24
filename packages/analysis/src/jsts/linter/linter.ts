@@ -70,9 +70,10 @@ import {
 import { parseInlineNPMImport } from '../rules/helpers/dependency-manifests/resolvers/npm-import.js';
 import { isTestCaseFile } from '../../common/rule-file-type.js';
 import { isVendorFile } from '../../common/vendor-file-pattern.js';
-import { hookTypeScriptSyntax } from './hook-typescript-syntax.js';
+import ts from 'typescript';
+import { createHookTypeScriptSyntax } from './hook-typescript-syntax.js';
 
-const hookSettings = Object.freeze({ typescriptSyntax: hookTypeScriptSyntax });
+const hookSettings = Object.freeze({ typescriptSyntax: createHookTypeScriptSyntax(ts) });
 
 interface InitializeParams {
   rules?: RuleConfig[];

@@ -69,6 +69,10 @@ For example, `typescriptSyntax.isCallExpression(node)` checks a mapped TypeScrip
 comparing its numeric `SyntaxKind`. The predicates return booleans and expose no compiler objects
 or numeric enums. If the predicates are required and the setting is absent on an older host, treat
 that analysis as unavailable. Do not assume `require('typescript')` can load the embedded compiler.
+The `org.sonarsource.javascript:api` JAR contains `sonarjs-hook-api/hook-typescript-syntax.ts` for
+bundle builds. Use its compatibility check and inferred contract rather than copying predicate
+names. `createHookTypeScriptSyntax` is useful in tests with a local fixture compiler; rules should
+use the host-provided setting during analysis.
 
 ## Components
 

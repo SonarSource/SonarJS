@@ -162,6 +162,10 @@ describe('Linter', () => {
     const result = bundle.getResult();
     expect(Object.keys(result.sonarjsSettings)).toEqual(['typescriptSyntax']);
     const syntax = result.sonarjsSettings.typescriptSyntax;
+    const { isHookTypeScriptSyntax } =
+      await import('../../../src/jsts/linter/hook-typescript-syntax.js');
+    expect(isHookTypeScriptSyntax(syntax)).toBe(true);
+    expect(isHookTypeScriptSyntax({ ...syntax, isNewExpression: undefined })).toBe(false);
     expect(Object.isFrozen(syntax)).toBe(true);
     expect(Object.values(syntax).every(fn => typeof fn === 'function' && Object.isFrozen(fn))).toBe(
       true,
