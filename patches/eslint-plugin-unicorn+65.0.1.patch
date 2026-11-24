@@ -1,8 +1,8 @@
 diff --git a/node_modules/eslint-plugin-unicorn/rules/prefer-class-fields.js b/node_modules/eslint-plugin-unicorn/rules/prefer-class-fields.js
-index ceabecb07a..0480942771 100644
+index ceabecb07a..a917b2254f 100644
 --- a/node_modules/eslint-plugin-unicorn/rules/prefer-class-fields.js
 +++ b/node_modules/eslint-plugin-unicorn/rules/prefer-class-fields.js
-@@ -29,6 +29,72 @@ const removeFieldAssignment = (node, sourceCode, fixer) => {
+@@ -29,6 +29,68 @@ const removeFieldAssignment = (node, sourceCode, fixer) => {
  		: fixer.remove(node);
  };
  
@@ -23,32 +23,28 @@ index ceabecb07a..0480942771 100644
 +const isStaticValue = node => node.type === 'Literal'
 +	|| (node.type === 'ArrayExpression' && node.elements.length === 0);
 +
-+function * getAdditionalProblems(constructor, classBody, sourceCode) {
-+	const statements = constructor.value.body.body.filter(node => node.type !== 'EmptyStatement');
-+	const assignedProperties = new Set();
-+	const propertyKey = property => property.type === 'Literal'
-+		? `Identifier:${property.value}`
-+		: `${property.type}:${property.name}`;
-+	const observesInstance = node => sourceCode.getTokens(node).some(token =>
-+		token.type === 'Keyword' && (token.value === 'this' || token.value === 'super'));
++const propertyKey = property => property.type === 'Literal'
++	? `Identifier:${property.value}`
++	: `${property.type}:${property.name}`;
 +
-+	for (const parameter of constructor.value.params) {
-+		if (parameter.type === 'TSParameterProperty') {
-+			assignedProperties.add(propertyKey(parameter.parameter.left ?? parameter.parameter));
-+		}
-+	}
++const observesInstance = (node, sourceCode) => sourceCode.getTokens(node).some(token =>
++	token.type === 'Keyword' && (token.value === 'this' || token.value === 'super'));
++
++function * getAdditionalProblems(constructor, classBody, sourceCode, parameterProperties) {
++	const statements = constructor.value.body.body.filter(node => node.type !== 'EmptyStatement');
++	const assignedProperties = new Set(parameterProperties);
 +
 +	for (const statement of statements) {
 +		const assignment = getThisAssignment(statement);
 +		if (!assignment) {
-+			if (!['ExpressionStatement', 'VariableDeclaration'].includes(statement.type) || observesInstance(statement)) {
++			if (!['ExpressionStatement', 'VariableDeclaration'].includes(statement.type) || observesInstance(statement, sourceCode)) {
 +				break;
 +			}
 +
 +			continue;
 +		}
 +
-+		if (observesInstance(assignment.right)) {
++		if (observesInstance(assignment.right, sourceCode)) {
 +			break;
 +		}
 +
@@ -75,11 +71,14 @@ index ceabecb07a..0480942771 100644
  /**
  @type {import('eslint').Rule.RuleModule['create']}
  */
-@@ -47,23 +113,19 @@ const create = context => {
+@@ -47,23 +109,23 @@ const create = context => {
  			return;
  		}
  
-+		for (const problem of getAdditionalProblems(constructor, classBody, sourceCode)) {
++		const parameterProperties = new Set(constructor.value.params
++			.filter(parameter => parameter.type === 'TSParameterProperty')
++			.map(parameter => propertyKey(parameter.parameter.left ?? parameter.parameter)));
++		for (const problem of getAdditionalProblems(constructor, classBody, sourceCode, parameterProperties)) {
 +			context.report(problem);
 +		}
 +
@@ -96,7 +95,8 @@ index ceabecb07a..0480942771 100644
 -			&& node.expression.right.type === 'Literal'
 -		)) {
 +		const assignment = getThisAssignment(node);
-+		if (!assignment || !isStaticValue(assignment.right)) {
++		if (!assignment || !isStaticValue(assignment.right)
++			|| parameterProperties.has(propertyKey(assignment.left.property))) {
  			return;
  		}
  
@@ -106,3 +106,17 @@ index ceabecb07a..0480942771 100644
  		const propertyType = node.expression.left.property.type;
  		const existingProperty = classBody.body.find(node =>
  			node.type === 'PropertyDefinition'
+@@ -77,6 +139,13 @@ const create = context => {
+ 			messageId: MESSAGE_ID_ERROR,
+ 		};
+ 
++		// Moving an assignment can change what later field initializers read.
++		if (existingProperty && classBody.body.slice(classBody.body.indexOf(existingProperty) + 1)
++			.some(member => member.type === 'PropertyDefinition' && !member.static
++				&& member.value && observesInstance(member.value, sourceCode))) {
++			return problem;
++		}
++
+ 		/**
+ 			@param {import('eslint').Rule.RuleFixer} fixer
+ 			*/

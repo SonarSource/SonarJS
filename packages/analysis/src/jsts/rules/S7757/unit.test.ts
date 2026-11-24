@@ -38,9 +38,62 @@ ruleTester.run('S7757', rule, {
     "class A { constructor() { this.id = createId(); this.items = []; } get 'items'() { return []; } }",
     'class A { static #items; constructor() { this.id = createId(); this.#items = []; } }',
     'class A { constructor(public items: unknown[]) { this.id = createId(); this.items = []; } }',
+    'class A { constructor(public items: string[]) { this.items = []; } }',
+    'class A { constructor(public readonly items: string[] = []) { this.items = []; } }',
+    'class A { constructor(public count: number) { this.count = 0; } }',
+    'class A { constructor(readonly count = 1) { this.count = 0; } }',
     'class A { constructor() { initialize(); return; this.items = []; } }',
   ].map(code => ({ code })),
   invalid: [
+    ...['items', '#items'].flatMap(property =>
+      ['[]', '0'].flatMap(value =>
+        ['', ' = existingValue'].map(initializer => ({
+          // A later field reads the old value. Neither a fix nor a suggestion is safe.
+          code: `class Cart {
+  ${property}${initializer};
+  saved = this.${property};
+  constructor() {
+    this.${property} = ${value};
+  }
+}`,
+          output: null,
+          errors: [{ messageId, suggestions: [] }],
+        })),
+      ),
+    ),
+    {
+      // A reader before the changed field still reads undefined after the fix.
+      code: `class Cart {
+  saved = this.items;
+  items;
+  constructor() {
+    this.items = [];
+  }
+}`,
+      output: `class Cart {
+  saved = this.items;
+  items = [];
+  constructor() {
+  }
+}`,
+      errors: [{ messageId }],
+    },
+    {
+      // A new field is added after all existing field initializers.
+      code: `class Cart {
+  saved = this.items;
+  constructor() {
+    this.items = [];
+  }
+}`,
+      output: `class Cart {
+  saved = this.items;
+  constructor() {
+  }
+  items = [];
+}`,
+      errors: [{ messageId }],
+    },
     {
       // Report both static assignments in the community example in one scan.
       code: `class SampleModel {
@@ -156,6 +209,21 @@ ruleTester.run('S7757', rule, {
 ruleTester.run('S7757 additional constructor assignments', rule, {
   valid: [],
   invalid: [
+    {
+      // Known false positive: the id setter reads items before its constructor assignment.
+      // Moving items to a field changes saved from undefined to []. We do not follow setter calls.
+      code: `class Cart {
+  constructor(id) {
+    this.id = id;
+    this.items = [];
+  }
+  set id(value) {
+    this.saved = this.items;
+  }
+}`,
+      output: null,
+      errors: [{ messageId, line: 4, suggestions: [] }],
+    },
     {
       code: `class A {
   constructor() {
