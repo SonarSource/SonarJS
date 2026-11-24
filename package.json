@@ -99,7 +99,7 @@
     "protobufjs-cli": "2.7.1",
     "rimraf": "6.1.4",
     "tsx": "4.23.15",
-    "type-fest": "6.0.1"
+    "type-fest": "6.0.2"
   },
   "dependencies": {
     "@angular-eslint/eslint-plugin": "22.8.0",
