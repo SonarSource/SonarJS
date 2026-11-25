@@ -123,7 +123,7 @@ function indexedAccessDeclarations(
     return undefined;
   }
   const { literal } = node.indexType;
-  if (!ts.isStringLiteral(literal) && !ts.isNumericLiteral(literal)) {
+  if (!ts.isStringLiteralLike(literal) && !ts.isNumericLiteral(literal)) {
     return undefined;
   }
   const objectType = checker.getTypeAtLocation(node.objectType);
@@ -146,7 +146,7 @@ function indexedAccessDeclarations(
  */
 function indexSignatureDeclarations(
   objectType: ts.Type,
-  literal: ts.StringLiteral | ts.NumericLiteral,
+  literal: ts.StringLiteralLike | ts.NumericLiteral,
   checker: ts.TypeChecker,
 ): readonly ts.Declaration[] | undefined {
   const kinds = ts.isNumericLiteral(literal)
