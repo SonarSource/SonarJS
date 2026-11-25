@@ -1,3 +1,6 @@
+## 2026-11-25, Version 4.2.3
+
+
 ## 2026-09-28, Version 4.2.2
 
 * [[JS-2535](https://sonarsource.atlassian.net/browse/JS-2535)] - S7059: False positive on a resolved-Promise sentinel in a constructor
