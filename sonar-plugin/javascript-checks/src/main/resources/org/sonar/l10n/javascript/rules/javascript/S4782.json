@@ -1,5 +1,5 @@
 {
-  "title": "Optional property declarations should not use both '?' and 'undefined' syntax",
+  "title": "Optional properties should not redundantly include 'undefined'",
   "type": "CODE_SMELL",
   "code": {
     "impacts": {
