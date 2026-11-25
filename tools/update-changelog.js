@@ -27,12 +27,18 @@ import { fileURLToPath } from 'node:url';
  *
  * To run manually:
  *   node tools/update-changelog.js 3.0.0
+ * Requires JIRA_USER and JIRA_TOKEN environment variables.
  */
 
 const version = process.argv[2];
 
 if (!version) {
   throw new Error('Please provide a version');
+}
+
+const { JIRA_USER, JIRA_TOKEN } = process.env;
+if (!JIRA_USER || !JIRA_TOKEN) {
+  throw new Error('Please provide JIRA_USER and JIRA_TOKEN');
 }
 
 export const DIRNAME = dirname(fileURLToPath(import.meta.url));
@@ -53,6 +59,11 @@ const startDate = changelog.match(/^## (\d+-\d+-\d+)/)[1];
 const jql = `project = JS AND labels = eslint-plugin AND resolutiondate > '${startDate}'`;
 const response = await fetch(
   `https://sonarsource.atlassian.net/rest/api/3/search/jql?jql=${encodeURIComponent(jql)}&fields=key,summary`,
+  {
+    headers: {
+      Authorization: `Basic ${Buffer.from(`${JIRA_USER}:${JIRA_TOKEN}`).toString('base64')}`,
+    },
+  },
 );
 if (!response.ok) {
   const errorText = await response.text();

@@ -20,13 +20,23 @@ jobs:
   update-changelog:
     runs-on: sonar-xs
     permissions:
+      id-token: write
       contents: write
       pull-requests: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Vault
+        id: secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/kv/data/jira user | JIRA_USER;
+            development/kv/data/jira token | JIRA_TOKEN;
       - name: Update changelog
         env:
           VERSION: ${{ inputs.version }}
+          JIRA_USER: ${{ fromJSON(steps.secrets.outputs.vault).JIRA_USER }}
+          JIRA_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).JIRA_TOKEN }}
         run: node tools/update-changelog.js "$VERSION"
       - uses: peter-evans/create-pull-request@3ffccacd46053766916f087ce41d627c0b8cf2d1 # v8.1.3
         with:
