@@ -42,6 +42,57 @@ export const rule: Rule.RuleModule = {
     const checker = parserServices.program.getTypeChecker();
     const canResolveTypes = isStrictCompilerOptionEnabled(compilerOptions, 'strictNullChecks');
 
+    function reportExactOptionalRedundantUndefined(rootType: TSESTree.TypeNode) {
+      const redundantUndefined = canResolveTypes
+        ? findRedundantUndefinedTypeNode(rootType, parserServices)
+        : undefined;
+      if (redundantUndefined) {
+        report(context, {
+          message: "Remove this redundant 'undefined' type annotation.",
+          loc: redundantUndefined.loc,
+          suggest: [getUndefinedRemovalSuggestion(context, redundantUndefined)],
+        });
+      }
+    }
+
+    function findUndefinedTypeNode(rootType: TSESTree.TypeNode): TSESTree.TypeNode | undefined {
+      const syntacticNode =
+        rootType.type === 'TSUnionType' ? findSyntacticUndefinedTypeNode(rootType) : undefined;
+      if (syntacticNode || !canResolveTypes) {
+        return syntacticNode;
+      }
+      return findSemanticUndefinedTypeNode(rootType, parserServices);
+    }
+
+    // Without strictNullChecks, an optional never property still rejects explicit undefined.
+    function isUnresolvedNeverUnion(rootType: TSESTree.TypeNode, typeNode: TSESTree.TypeNode) {
+      return (
+        !canResolveTypes &&
+        unionConstituents(rootType).every(
+          member =>
+            member === typeNode ||
+            isIntrinsicNeverType(
+              checker.getTypeAtLocation(parserServices.esTreeNodeToTSNodeMap.get(member)),
+            ),
+        )
+      );
+    }
+
+    function buildUndefinedAnnotationMessage(
+      rootType: TSESTree.TypeNode,
+      typeNode: TSESTree.TypeNode,
+    ) {
+      const suggest =
+        typeNode.parent?.type === 'TSUnionType'
+          ? [getUndefinedRemovalSuggestion(context, typeNode)]
+          : [];
+      const message =
+        suggest.length > 0
+          ? "Consider removing the redundant 'undefined' type."
+          : `The type annotation '${context.sourceCode.text.slice(...rootType.range)}' includes 'undefined'. Use a type without 'undefined' here, keeping '?'.`;
+      return { message, suggest };
+    }
+
     function checkProperty(node: estree.Node) {
       const tsNode = node as TSESTree.Node as
         TSESTree.PropertyDefinition | TSESTree.TSPropertySignature;
@@ -52,61 +103,25 @@ export const rule: Rule.RuleModule = {
       }
 
       if (compilerOptions.exactOptionalPropertyTypes) {
-        const redundantUndefined = canResolveTypes
-          ? findRedundantUndefinedTypeNode(rootType, parserServices)
-          : undefined;
-        if (redundantUndefined) {
-          report(context, {
-            message: "Remove this redundant 'undefined' type annotation.",
-            loc: redundantUndefined.loc,
-            suggest: [getUndefinedRemovalSuggestion(context, redundantUndefined)],
-          });
-        }
+        reportExactOptionalRedundantUndefined(rootType);
         return;
       }
 
-      let typeNode: TSESTree.TypeNode | undefined;
-      if (rootType.type === 'TSUnionType') {
-        typeNode = findSyntacticUndefinedTypeNode(rootType);
+      const typeNode = findUndefinedTypeNode(rootType);
+      if (!typeNode || isUnresolvedNeverUnion(rootType, typeNode)) {
+        return;
       }
 
-      if (!typeNode && canResolveTypes) {
-        typeNode = findSemanticUndefinedTypeNode(rootType, parserServices);
-      }
-
-      if (typeNode) {
-        // Without strictNullChecks, an optional never property still rejects explicit undefined.
-        if (
-          !canResolveTypes &&
-          unionConstituents(rootType).every(
-            member =>
-              member === typeNode ||
-              isIntrinsicNeverType(
-                checker.getTypeAtLocation(parserServices.esTreeNodeToTSNodeMap.get(member)),
-              ),
-          )
-        ) {
-          return;
-        }
-        const suggest =
-          typeNode.parent?.type === 'TSUnionType'
-            ? [getUndefinedRemovalSuggestion(context, typeNode)]
-            : [];
-        const message =
-          suggest.length > 0
-            ? "Consider removing the redundant 'undefined' type."
-            : `The type annotation '${context.sourceCode.text.slice(...rootType.range)}' includes 'undefined'. Use a type without 'undefined' here, keeping '?'.`;
-
-        report(
-          context,
-          {
-            message,
-            loc: optionalToken.loc,
-            suggest,
-          },
-          [toSecondaryLocation(typeNode)],
-        );
-      }
+      const { message, suggest } = buildUndefinedAnnotationMessage(rootType, typeNode);
+      report(
+        context,
+        {
+          message,
+          loc: optionalToken.loc,
+          suggest,
+        },
+        [toSecondaryLocation(typeNode)],
+      );
     }
 
     return {
