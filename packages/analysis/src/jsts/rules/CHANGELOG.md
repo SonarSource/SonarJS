@@ -1,3 +1,37 @@
+## 2026-11-25, Version 4.2.3
+
+* [[JS-2940](https://sonarsource.atlassian.net/browse/JS-2940)] - Fix S2699 false positives on Cypress helper returns
+* [[JS-2880](https://sonarsource.atlassian.net/browse/JS-2880)] - S2699: Recognize Supertest assertions through helper values
+* [[JS-2847](https://sonarsource.atlassian.net/browse/JS-2847)] - Fix S3776 false positives after ternary function branches
+* [[JS-2803](https://sonarsource.atlassian.net/browse/JS-2803)] - Fix TypeScript 6 implicit strict-null handling in SonarJS rules
+* [[JS-2801](https://sonarsource.atlassian.net/browse/JS-2801)] - Centralize test-file classification and remove filename filtering from rule implementations
+* [[JS-2798](https://sonarsource.atlassian.net/browse/JS-2798)] - S1541: Make Cyclomatic Complexity function exclusions precise and consistent
+* [[JS-2774](https://sonarsource.atlassian.net/browse/JS-2774)] - S5332: Consume Analyzer Commons shared URL exclusions
+* [[JS-2756](https://sonarsource.atlassian.net/browse/JS-2756)] - Fix FN S4043: false negatives for static method names and array receiver types
+* [[JS-2755](https://sonarsource.atlassian.net/browse/JS-2755)] - Fix FP on S4043: sort()/reverse() used as a for-of iterable
+* [[JS-2749](https://sonarsource.atlassian.net/browse/JS-2749)] - Fix FP S2699: Recognize local Supertest factories
+* [[JS-2722](https://sonarsource.atlassian.net/browse/JS-2722)] - Add experimental TSGo IPC provider using TypeScript 7.1 beta
+* [[JS-2715](https://sonarsource.atlassian.net/browse/JS-2715)] - Use Vercel's in-process TypeScript 7 compiler
+* [[JS-2699](https://sonarsource.atlassian.net/browse/JS-2699)] - S2245: Implement security-context heuristic to reduce false positives
+* [[JS-2667](https://sonarsource.atlassian.net/browse/JS-2667)] - Functional validation: unrelated base changes in ruling fixes
+* [[JS-2666](https://sonarsource.atlassian.net/browse/JS-2666)] - Functional validation: stale ruling report after reverting S1135
+* [[JS-2644](https://sonarsource.atlassian.net/browse/JS-2644)] - Fix S1848 false positives for CDK Terrain constructors without type information
+* [[JS-2625](https://sonarsource.atlassian.net/browse/JS-2625)] - Optimize S8754 and bound acyclic helper expansion
+* [[JS-2609](https://sonarsource.atlassian.net/browse/JS-2609)] - Fix S6324 false positives for grouped ANSI introducers
+* [[JS-2607](https://sonarsource.atlassian.net/browse/JS-2607)] - Fix FP S6324: recognize complete OSC terminators
+* [[JS-2606](https://sonarsource.atlassian.net/browse/JS-2606)] - Fix S6324 false positive for ANSI C1 introducers
+* [[JS-2571](https://sonarsource.atlassian.net/browse/JS-2571)] - Fix S2699 false positives for Supertest .expect() after .send() or .set()
+* [[JS-2569](https://sonarsource.atlassian.net/browse/JS-2569)] - Restore type-aware analysis for Vue SFC scripts
+* [[JS-2537](https://sonarsource.atlassian.net/browse/JS-2537)] - S2234: False positive on deliberate argument swapping after a length comparison
+* [[JS-2452](https://sonarsource.atlassian.net/browse/JS-2452)] - Port S9384 to S1101 for JS/TS/JSX: parent-scoped identical-link check aligned with SONARHTML-492
+* [[JS-2409](https://sonarsource.atlassian.net/browse/JS-2409)] - Implement rule S9382: Promises should not be awaited sequentially in a loop
+* [[JS-2407](https://sonarsource.atlassian.net/browse/JS-2407)] - Implement rule S9383: Promises should be handled
+* [[JS-2406](https://sonarsource.atlassian.net/browse/JS-2406)] - Implement rule S9381: Promises should not be nested
+* [[JS-2372](https://sonarsource.atlassian.net/browse/JS-2372)] - Refactor getRole helper to use undefined instead of null as its "no role" sentinel
+* [[JS-2235](https://sonarsource.atlassian.net/browse/JS-2235)] - S9169: vi.mock should be declared at module scope
+* [[JS-1905](https://sonarsource.atlassian.net/browse/JS-1905)] - Setup SIT diff validation jobs
+* [[JS-1560](https://sonarsource.atlassian.net/browse/JS-1560)] - Rule coverage: testing libs
+
 ## 2026-09-28, Version 4.2.2
 
 * [[JS-2535](https://sonarsource.atlassian.net/browse/JS-2535)] - S7059: False positive on a resolved-Promise sentinel in a constructor
