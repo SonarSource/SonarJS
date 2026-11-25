@@ -597,6 +597,17 @@ describe('S4782', () => {
             filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
           },
           {
+            // A no-substitution template literal index names the property just
+            // like a string literal does.
+            code: `
+            import type { FakeExternalProperties } from 'fake-lib';
+            interface Example {
+              attribute?: FakeExternalProperties[\`optional\`];
+            };
+            `,
+            filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
+          },
+          {
             // JS-2192: the access resolves through an index signature declared
             // externally, so the `undefined` is just as unremovable.
             code: `
