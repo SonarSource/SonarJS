@@ -24,7 +24,7 @@ describe('S5332', () => {
     const ruleTester = new DefaultParserRuleTester();
     ruleTester.run('Using clear-text protocols is security-sensitive', rule, {
       valid: [
-        ...corpus.safeUrls.map(value => ({ code: JSON.stringify(value) })),
+        ...[...new Set(corpus.safeUrls)].map(value => ({ code: JSON.stringify(value) })),
         {
           // Shared exclusions apply in request calls too, with case-insensitive path matching.
           code: `fetch("HTTP://WWW.TOPOGRAFIX.COM/gpx/1/1");`,
@@ -229,6 +229,12 @@ describe('S5332', () => {
       });`,
         },
         {
+          // JS-2368: $schema identifier mandated verbatim by the CycloneDX spec, never dereferenced
+          code: `
+      const bom = { "$schema": "http://cyclonedx.org/schema/bom-1.5.schema.json" };
+      `,
+        },
+        {
           // JS-2368: coding-system identifier, only ever compared, never fetched
           code: `
       const SNOMED_SYSTEM = "http://snomed.info/sct";
@@ -255,8 +261,10 @@ describe('S5332', () => {
         url = 'http://maven.apache.org/POM/4.0.0';
         url = 'http://ogp.me/ns#';
 
-        // Shared Jabber protocol namespace prefix
+        // Namespace URI authorities — added for JS-2368 (spec-mandated identifiers, never dereferenced)
+        url = 'http://adlnet.gov/expapi/verbs/completed';
         url = 'http://jabber.org/protocol/muc';
+        url = 'http://etherx.jabber.org/streams';
 
         // XMPP stream-feature namespaces live under /features/, not /protocol/
         url = 'http://jabber.org/features/iq-auth';
@@ -273,18 +281,18 @@ describe('S5332', () => {
       ],
       invalid: [
         // A standalone bare scheme is allowed by the rule; concatenation must still report it.
-        ...corpus.unsafeUrls.map(value => ({ code: `${JSON.stringify(value)} + path`, errors: 1 })),
+        ...[...new Set(corpus.unsafeUrls)].map(value => ({
+          code: `${JSON.stringify(value)} + path`,
+          errors: 1,
+        })),
         {
-          // Existing SonarJS-only exemptions now follow the Commons configuration.
+          // Namespace path exemptions do not cover other paths or placeholder ports.
           code: `
-      const bom = { "$schema": "http://cyclonedx.org/schema/bom-1.5.schema.json" };
-      url = "http://adlnet.gov/expapi/verbs/completed";
-      url = "http://etherx.jabber.org/streams";
       url = "http://snomed.info/other";
       url = "http://cyclonedx.org:\${port}/schema/bom-1.5.schema.json";
       url = "HTTP://CYCLONEDX.ORG:\${port}/schema/bom-1.5.schema.json";
       `,
-          errors: 6,
+          errors: 3,
         },
         {
           code: `
