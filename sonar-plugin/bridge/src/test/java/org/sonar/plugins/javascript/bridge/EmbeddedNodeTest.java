@@ -19,7 +19,6 @@ package org.sonar.plugins.javascript.bridge;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -32,6 +31,7 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -155,12 +155,8 @@ class EmbeddedNodeTest {
 
   @Test
   void should_extract_runtime_and_version_when_nothing_is_deployed() throws Exception {
-    var env = linuxX64Environment(tempDir);
-    var resourceFetcher = resourceFetcherFor(
-      "linux-x64/bin/node.xz",
-      "linux-x64/version.txt",
-      "v1"
-    );
+    var env = hostEnvironment();
+    var resourceFetcher = resourceFetcherFor(hostArchivePath(), hostVersionPath(), "v1");
 
     var embeddedNode = new ScannerEmbeddedNode(successfulProcessWrapper(), env, resourceFetcher);
     embeddedNode.deploy();
@@ -170,24 +166,22 @@ class EmbeddedNodeTest {
     assertThat(
       Files.readString(deployDirectory().resolve(EmbeddedNode.VERSION_FILENAME))
     ).isEqualTo("v1");
-    assertThat(Files.getPosixFilePermissions(embeddedNode.binary())).containsExactlyInAnyOrder(
-      PosixFilePermission.OWNER_READ,
-      PosixFilePermission.OWNER_WRITE,
-      PosixFilePermission.OWNER_EXECUTE
-    );
+    if (!isWindowsHost()) {
+      assertThat(Files.getPosixFilePermissions(embeddedNode.binary())).containsExactlyInAnyOrder(
+        PosixFilePermission.OWNER_READ,
+        PosixFilePermission.OWNER_WRITE,
+        PosixFilePermission.OWNER_EXECUTE
+      );
+    }
   }
 
   @Test
   void should_extract_runtime_when_deployed_version_is_different() throws Exception {
-    var env = linuxX64Environment(tempDir);
+    var env = hostEnvironment();
     Files.createDirectories(deployDirectory());
-    Files.writeString(deployDirectory().resolve("node"), "node-binary-old");
+    Files.writeString(deployDirectory().resolve(hostBinaryName()), "node-binary-old");
     Files.writeString(deployDirectory().resolve(EmbeddedNode.VERSION_FILENAME), "old");
-    var resourceFetcher = resourceFetcherFor(
-      "linux-x64/bin/node.xz",
-      "linux-x64/version.txt",
-      "v2"
-    );
+    var resourceFetcher = resourceFetcherFor(hostArchivePath(), hostVersionPath(), "v2");
 
     var embeddedNode = new ScannerEmbeddedNode(successfulProcessWrapper(), env, resourceFetcher);
     embeddedNode.deploy();
@@ -201,10 +195,7 @@ class EmbeddedNodeTest {
 
   @Test
   void should_extract_windows_runtime_without_changing_permissions() throws Exception {
-    var env = mock(Environment.class);
-    when(env.getOsName()).thenReturn("Windows 11");
-    when(env.getOsArch()).thenReturn("amd64");
-    when(env.getSonarUserHome()).thenReturn(tempDir);
+    var env = windowsX64Environment(tempDir);
     var resourceFetcher = resourceFetcherFor("win-x64/node.exe.xz", "win-x64/version.txt", "v1");
 
     var embeddedNode = new ScannerEmbeddedNode(successfulProcessWrapper(), env, resourceFetcher);
@@ -213,6 +204,38 @@ class EmbeddedNodeTest {
     assertThat(embeddedNode.isAvailable()).isTrue();
     assertThat(embeddedNode.binary().getFileName()).hasToString("node.exe");
     assertThat(Files.readString(embeddedNode.binary())).isEqualTo("node-binary-v1");
+  }
+
+  /**
+   * Extraction really writes files and sets permissions, so the simulated platform has to match the host:
+   * POSIX permissions are not supported on Windows file systems.
+   */
+  private static boolean isWindowsHost() {
+    return OS.current() == OS.WINDOWS;
+  }
+
+  private Environment hostEnvironment() {
+    return isWindowsHost() ? windowsX64Environment(tempDir) : linuxX64Environment(tempDir);
+  }
+
+  private static String hostArchivePath() {
+    return isWindowsHost() ? "win-x64/node.exe.xz" : "linux-x64/bin/node.xz";
+  }
+
+  private static String hostVersionPath() {
+    return isWindowsHost() ? "win-x64/version.txt" : "linux-x64/version.txt";
+  }
+
+  private static String hostBinaryName() {
+    return isWindowsHost() ? "node.exe" : "node";
+  }
+
+  private Environment windowsX64Environment(Path sonarUserHome) {
+    var env = mock(Environment.class);
+    when(env.getOsName()).thenReturn("Windows 11");
+    when(env.getOsArch()).thenReturn("amd64");
+    when(env.getSonarUserHome()).thenReturn(sonarUserHome);
+    return env;
   }
 
   private Path deployDirectory() {
@@ -237,7 +260,8 @@ class EmbeddedNodeTest {
 
   private ProcessWrapper successfulProcessWrapper() throws Exception {
     var processWrapper = mock(ProcessWrapper.class);
-    when(processWrapper.startProcess(any(), any(), any(), any())).thenReturn(mock(Process.class));
+    var process = mock(Process.class);
+    when(processWrapper.startProcess(any(), any(), any(), any())).thenReturn(process);
     when(processWrapper.waitFor(any(), anyLong(), any())).thenReturn(true);
     when(processWrapper.exitValue(any())).thenReturn(0);
     return processWrapper;
@@ -276,10 +300,10 @@ class EmbeddedNodeTest {
     seedUpToDateRuntime(tempDir);
     var env = linuxX64Environment(tempDir);
     var resourceFetcher = mock(ResourceFetcher.class);
-    when(resourceFetcher.fetch(eq(PLUGIN_KEY), eq("linux-x64/bin/node.xz"))).thenReturn(
+    when(resourceFetcher.fetch(PLUGIN_KEY, "linux-x64/bin/node.xz")).thenReturn(
       copyTestResource("/linux-x64/node.xz", "node.xz")
     );
-    when(resourceFetcher.fetch(eq(PLUGIN_KEY), eq("linux-x64/version.txt"))).thenReturn(
+    when(resourceFetcher.fetch(PLUGIN_KEY, "linux-x64/version.txt")).thenReturn(
       copyTestResource("/linux-x64/version.txt", "version.txt")
     );
 
