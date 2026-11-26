@@ -107,7 +107,7 @@
   "dependencies": {
     "@angular-eslint/eslint-plugin": "22.8.0",
     "@angular-eslint/utils": "22.8.0",
-    "@babel/core": "8.1.2",
+    "@babel/core": "8.1.3",
     "@babel/eslint-parser": "8.1.2",
     "@csstools/css-calc": "3.4.4",
     "@csstools/css-parser-algorithms": "4.0.3",
