@@ -34,7 +34,10 @@ function bindSyntax(getCompiler: () => Compiler) {
     isCallSignatureDeclaration: predicate(ts => ts.isCallSignatureDeclaration),
     isClassDeclaration: predicate(ts => ts.isClassDeclaration),
     isClassExpression: predicate(ts => ts.isClassExpression),
-    isConditionalExpression: predicate(ts => ts.isConditionalExpression),
+    isConditionalExpression: Object.freeze(
+      (node: ts.Node): node is ts.ConditionalExpression =>
+        node.kind === getCompiler().SyntaxKind.ConditionalExpression,
+    ),
     isConstructorDeclaration: predicate(ts => ts.isConstructorDeclaration),
     isConstructSignatureDeclaration: predicate(ts => ts.isConstructSignatureDeclaration),
     isElementAccessExpression: predicate(ts => ts.isElementAccessExpression),
@@ -50,7 +53,10 @@ function bindSyntax(getCompiler: () => Compiler) {
     isMethodSignature: predicate(ts => ts.isMethodSignature),
     isModuleDeclaration: predicate(ts => ts.isModuleDeclaration),
     isNewExpression: predicate(ts => ts.isNewExpression),
-    isNonNullExpression: predicate(ts => ts.isNonNullExpression),
+    isNonNullExpression: Object.freeze(
+      (node: ts.Node): node is ts.NonNullExpression =>
+        node.kind === getCompiler().SyntaxKind.NonNullExpression,
+    ),
     isNumericLiteral: predicate(ts => ts.isNumericLiteral),
     isParenthesizedExpression: predicate(ts => ts.isParenthesizedExpression),
     isPrivateIdentifier: predicate(ts => ts.isPrivateIdentifier),
