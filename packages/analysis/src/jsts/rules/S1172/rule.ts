@@ -186,11 +186,10 @@ function isThisParameter(variable: Scope.Variable) {
   return variable.name === 'this';
 }
 
-// In `{ a, ...rest }`, `a` is used to leave a property out of `rest`, as TypeScript's noUnusedParameters considers it
+// In `{ a, ...rest }`, `a` is used to leave a property out of `rest`.
 function isRestSibling(variable: Scope.Variable) {
   return variable.defs.some(def => {
-    const parent = (def.name as TSESTree.Node).parent;
-    const property = parent?.type === 'AssignmentPattern' ? parent.parent : parent;
+    const property = (def.name as TSESTree.Node).parent;
 
     return (
       property?.type === 'Property' &&

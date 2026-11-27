@@ -101,13 +101,45 @@ describe('S1172', () => {
           code: `
         const f = ({ a, ...rest }) => rest; // OK, a leaves a property out of rest
         const g = ({ a: b, ...rest }) => rest;
-        const h = ({ a = 1, ...rest }) => rest;
+        const h = (key, { [key]: removed, ...rest }) => rest;
+        const i = (data, { [data.Id]: removed, ...rest }) => rest;
+        const j = ({ a, ...rest } = {}) => rest;
         function fun(x, { a, b, ...rest }) {
           return [x, rest];
         }`,
         },
       ],
       invalid: [
+        {
+          code: `const f = ({ a = 1, ...rest }) => rest;`,
+          errors: [
+            {
+              messageId: 'removeOrRenameParameter',
+              data: { param: 'a' },
+              suggestions: 1,
+            },
+          ],
+        },
+        {
+          code: `const f = ({ a: removed = 1, ...rest }) => rest;`,
+          errors: [
+            {
+              messageId: 'removeOrRenameParameter',
+              data: { param: 'removed' },
+              suggestions: 1,
+            },
+          ],
+        },
+        {
+          code: `const f = (key, { [key]: removed = 1, ...rest }) => rest;`,
+          errors: [
+            {
+              messageId: 'removeOrRenameParameter',
+              data: { param: 'removed' },
+              suggestions: 1,
+            },
+          ],
+        },
         {
           code: `function fun(a, b) {
                 a = 1;
