@@ -67,13 +67,17 @@ Use `context.settings.sonarjs?.typescriptSyntax` to classify nodes, types and sy
 those services. For example, `typescriptSyntax.kindOf(node) === 'CallExpression'` checks a
 mapped TypeScript node without comparing its numeric `SyntaxKind`. `kindOf` returns a
 [supported name](../../packages/analysis/src/jsts/linter/hook-typescript-syntax.ts), or `undefined`
-for an unsupported kind. It does not narrow the original TypeScript node. The other helpers
-return booleans. None of these helpers expose compiler objects or numeric enums. If the helpers
+for an unsupported kind. It does not narrow the original TypeScript node. The host advertises
+its recognized names in the frozen `supportedKinds` list. The other helpers return booleans.
+None of these helpers expose compiler objects or numeric enums. If the helpers
 are required and the setting is absent or incompatible on an older host, treat that analysis as
 unavailable. Do not assume `require('typescript')` can load the embedded compiler.
 The `org.sonarsource.javascript:api` JAR contains `sonarjs-hook-api/hook-typescript-syntax.ts` for
 bundle builds. Use its compatibility check and inferred contract rather than copying helper
-names. `createHookTypeScriptSyntax` is useful in tests with a local fixture compiler; rules should
+names. `isHookTypeScriptSyntax` checks that the running host advertises every kind in the
+bundled contract by default. A hook that only uses a subset may pass its required kind names
+as the second argument. Extra host kinds are allowed. `createHookTypeScriptSyntax` is useful
+in tests with a local fixture compiler; rules should
 use the host-provided setting during analysis.
 
 ## Components

@@ -166,9 +166,12 @@ describe('Linter', () => {
       await import('../../../src/jsts/linter/hook-typescript-syntax.js');
     expect(isHookTypeScriptSyntax(syntax)).toBe(true);
     expect(Object.isFrozen(syntax)).toBe(true);
-    expect(Object.values(syntax).every(fn => typeof fn === 'function' && Object.isFrozen(fn))).toBe(
-      true,
-    );
+    const { supportedKinds, ...helpers } = syntax;
+    expect(Object.isFrozen(supportedKinds)).toBe(true);
+    expect(supportedKinds).toContain('NewExpression');
+    expect(
+      Object.values(helpers).every(fn => typeof fn === 'function' && Object.isFrozen(fn)),
+    ).toBe(true);
     expect(result.program).toBe(program);
     expect(result.callKind).toBe('CallExpression');
     expect(result.newKind).toBe('NewExpression');

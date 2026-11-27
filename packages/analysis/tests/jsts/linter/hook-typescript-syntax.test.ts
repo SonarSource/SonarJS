@@ -186,9 +186,28 @@ describe('TypeScript hook syntax', () => {
 
   it('rejects missing and incompatible hook settings from other hosts', () => {
     expect(isHookTypeScriptSyntax(syntax)).toBe(true);
-    const { kindOf: _kindOf, ...oldSettings } = syntax;
-    for (const value of [undefined, null, {}, oldSettings, { ...syntax, isBroadType: true }]) {
+    const { supportedKinds: _supportedKinds, ...oldSettings } = syntax;
+    for (const value of [
+      undefined,
+      null,
+      {},
+      oldSettings,
+      { ...syntax, kindOf: undefined },
+      { ...syntax, isBroadType: true },
+      { ...syntax, supportedKinds: 'CallExpression' },
+      { ...syntax, supportedKinds: [...syntax.supportedKinds, 0] },
+    ]) {
       expect(isHookTypeScriptSyntax(value)).toBe(false);
     }
+  });
+
+  it('requires the advertised kinds needed by the hook and permits extra kinds', () => {
+    expect(syntax.supportedKinds).toEqual(nodeCases.map(([kind]) => kind));
+    const olderHost = { ...syntax, supportedKinds: ['CallExpression'] };
+    expect(isHookTypeScriptSyntax(olderHost)).toBe(false);
+    expect(isHookTypeScriptSyntax(olderHost, ['CallExpression', 'NewExpression'])).toBe(false);
+    expect(isHookTypeScriptSyntax(olderHost, ['CallExpression'])).toBe(true);
+    const newerHost = { ...syntax, supportedKinds: [...syntax.supportedKinds, 'FutureKind'] };
+    expect(isHookTypeScriptSyntax(newerHost)).toBe(true);
   });
 });

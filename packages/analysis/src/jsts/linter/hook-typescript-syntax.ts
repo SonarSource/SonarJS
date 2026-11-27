@@ -62,10 +62,14 @@ const nodeKinds = [
 
 export type HookNodeKind = (typeof nodeKinds)[number];
 
+// A newer host may advertise kind names unknown to this copy of the contract.
+const supportedKinds: readonly string[] = Object.freeze(nodeKinds);
+
 // Binding is lazy so the same definition can supply compatibility keys without a compiler.
 function bindSyntax(getCompiler: () => Compiler) {
   let kinds: ReadonlyMap<ts.SyntaxKind, HookNodeKind> | undefined;
   return Object.freeze({
+    supportedKinds,
     /** Returns a supported kind name for a node owned by the host compiler. */
     kindOf: Object.freeze((node: ts.Node): HookNodeKind | undefined => {
       kinds ??= new Map(nodeKinds.map(name => [getCompiler().SyntaxKind[name], name]));
@@ -102,18 +106,28 @@ export function createHookTypeScriptSyntax(compiler: Compiler) {
   return bindSyntax(() => compiler);
 }
 
-const requiredHelpers = Object.keys(
+const requiredHelpers = Object.entries(
   bindSyntax(() => {
     throw new Error('No compiler bound to the hook contract');
   }),
-);
+)
+  .filter(([, helper]) => typeof helper === 'function')
+  .map(([name]) => name);
 
+/** By default the host must recognize every kind in the bundled contract. */
 export function isHookTypeScriptSyntax(
   value: unknown,
+  requiredKinds: readonly HookNodeKind[] = nodeKinds,
 ): value is ReturnType<typeof createHookTypeScriptSyntax> {
+  if (typeof value !== 'object' || value === null) return false;
+  const settings = value as Record<string, unknown>;
+  const advertised = settings.supportedKinds;
+  if (!Array.isArray(advertised)) return false;
+  for (const name of advertised) {
+    if (typeof name !== 'string') return false;
+  }
   return (
-    typeof value === 'object' &&
-    value !== null &&
-    requiredHelpers.every(name => typeof (value as Record<string, unknown>)[name] === 'function')
+    requiredKinds.every(name => advertised.includes(name)) &&
+    requiredHelpers.every(name => typeof settings[name] === 'function')
   );
 }
