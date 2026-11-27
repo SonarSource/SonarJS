@@ -23,9 +23,7 @@ import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
 
 type FunctionLike =
-  | TSESTree.ArrowFunctionExpression
-  | TSESTree.FunctionDeclaration
-  | TSESTree.FunctionExpression;
+  TSESTree.ArrowFunctionExpression | TSESTree.FunctionDeclaration | TSESTree.FunctionExpression;
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -84,7 +82,8 @@ function reportUnusedArgument(
       isUnusedVariable(param) &&
       !isIgnoredParameter(param) &&
       !isParameterProperty(param) &&
-      !isThisParameter(param)
+      !isThisParameter(param) &&
+      !isRestSibling(param)
     ) {
       context.report({
         messageId: 'removeOrRenameParameter',
@@ -185,4 +184,18 @@ export function isParameterProperty(variable: Scope.Variable) {
 
 function isThisParameter(variable: Scope.Variable) {
   return variable.name === 'this';
+}
+
+// In `{ a, ...rest }`, `a` is used to leave a property out of `rest`, as TypeScript's noUnusedParameters considers it
+function isRestSibling(variable: Scope.Variable) {
+  return variable.defs.some(def => {
+    const parent = (def.name as TSESTree.Node).parent;
+    const property = parent?.type === 'AssignmentPattern' ? parent.parent : parent;
+
+    return (
+      property?.type === 'Property' &&
+      property.parent.type === 'ObjectPattern' &&
+      property.parent.properties.some(element => element.type === 'RestElement')
+    );
+  });
 }
