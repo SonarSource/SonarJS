@@ -28,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.sonar.api.scanner.ResourceFetcher;
 import org.sonar.plugins.javascript.nodejs.ProcessWrapper;
 
 class EmbeddedNodeCleanupTest {
@@ -48,19 +49,33 @@ class EmbeddedNodeCleanupTest {
     when(env.isAlpine()).thenReturn(false);
     when(env.getSonarUserHome()).thenReturn(tempDir);
 
-    var embeddedNode = new EmbeddedNode(processWrapper, env);
+    var resources = tempDir.resolve("resources");
+    var archiveResource = resources.resolve("node.xz");
+    Files.createDirectories(resources);
+    Files.writeString(archiveResource, "broken");
+    var versionResource = resources.resolve("version.txt");
+    try (var versionInput = getClass().getResourceAsStream("/linux-x64/version.txt")) {
+      assertThat(versionInput).isNotNull();
+      Files.writeString(
+        versionResource,
+        new String(versionInput.readAllBytes(), StandardCharsets.UTF_8)
+      );
+    }
+
+    var resourceFetcher = mock(ResourceFetcher.class);
+    when(resourceFetcher.fetch("javascript", "linux-x64/bin/node.xz")).thenReturn(archiveResource);
+    when(resourceFetcher.fetch("javascript", "linux-x64/version.txt")).thenReturn(versionResource);
+
+    // Pre-seed an already-deployed runtime whose version matches the fetched version.txt, so deploy()
+    // takes its "already up to date" branch and skips re-extracting the (dummy, non-XZ) archive fixture - the
+    // validation failure below must come from running the (mocked) binary, not from extraction itself.
+    var embeddedNode = new ScannerEmbeddedNode(processWrapper, env, resourceFetcher);
     var runtimeDir = tempDir.resolve("js").resolve("node-runtime");
     var runtimeBinary = runtimeDir.resolve("node");
     var runtimeVersion = runtimeDir.resolve(EmbeddedNode.VERSION_FILENAME);
     Files.createDirectories(runtimeDir);
     Files.writeString(runtimeBinary, "broken");
-    try (var versionInput = getClass().getResourceAsStream("/linux-x64/version.txt")) {
-      assertThat(versionInput).isNotNull();
-      Files.writeString(
-        runtimeVersion,
-        new String(versionInput.readAllBytes(), StandardCharsets.UTF_8)
-      );
-    }
+    Files.copy(versionResource, runtimeVersion);
 
     embeddedNode.deploy();
 
