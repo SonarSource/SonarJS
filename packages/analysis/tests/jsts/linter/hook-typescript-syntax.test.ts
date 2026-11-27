@@ -20,6 +20,7 @@ import ts from 'typescript';
 import {
   createHookTypeScriptSyntax,
   isHookTypeScriptSyntax,
+  type HookNodeKind,
 } from '../../../src/jsts/linter/hook-typescript-syntax.js';
 
 const syntax = createHookTypeScriptSyntax(ts);
@@ -34,170 +35,83 @@ function nodesIn(sourceFile: ts.SourceFile): ts.Node[] {
   return nodes;
 }
 
-describe('TypeScript hook predicates', () => {
-  // Match exactly the listed nodes, so every other node in each snippet is also a negative case.
-  const nodeCases: [string, (node: ts.Node) => boolean, string, string[]][] = [
-    ['as expression', syntax.isAsExpression, 'const x = value as string;', ['value as string']],
-    ['await expression', syntax.isAwaitExpression, 'await load();', ['await load()']],
-    ['binding element', syntax.isBindingElement, 'const { key: name } = value;', ['key: name']],
-    ['call expression', syntax.isCallExpression, 'fn(); new Fn();', ['fn()']],
+describe('TypeScript hook syntax', () => {
+  // Every other node in each snippet is also a negative case.
+  const nodeCases: [HookNodeKind, string, string[]][] = [
+    ['AsExpression', 'const x = value as string;', ['value as string']],
+    ['AwaitExpression', 'await load();', ['await load()']],
+    ['BindingElement', 'const { key: name } = value;', ['key: name']],
+    ['CallExpression', 'fn(); new Fn();', ['fn()']],
+    ['CallSignature', 'interface Box { (): void; }', ['(): void;']],
+    ['ClassDeclaration', 'class Box {} const x = class {};', ['class Box {}']],
+    ['ClassExpression', 'class Box {} const x = class {};', ['class {}']],
+    ['ConditionalExpression', 'const x = b ? y : z;', ['b ? y : z']],
+    ['Constructor', 'class Box { constructor() {} }', ['constructor() {}']],
+    ['ConstructSignature', 'interface Box { new (): Box; }', ['new (): Box;']],
+    ['ElementAccessExpression', 'obj[0]; obj.key;', ['obj[0]']],
+    ['ExportDeclaration', 'export { name } from "pkg";', ['export { name } from "pkg";']],
+    ['ExternalModuleReference', 'import pkg = require("pkg");', ['require("pkg")']],
+    ['FunctionDeclaration', 'function fn() {}', ['function fn() {}']],
+    ['FunctionType', 'type Fn = () => void;', ['() => void']],
+    ['Identifier', 'obj.#field; obj.field;', ['obj', 'obj', 'field']],
     [
-      'call signature',
-      syntax.isCallSignatureDeclaration,
-      'interface Box { (): void; }',
-      ['(): void;'],
-    ],
-    [
-      'class declaration',
-      syntax.isClassDeclaration,
-      'class Box {} const x = class {};',
-      ['class Box {}'],
-    ],
-    [
-      'class expression',
-      syntax.isClassExpression,
-      'class Box {} const x = class {};',
-      ['class {}'],
-    ],
-    [
-      'conditional expression',
-      syntax.isConditionalExpression,
-      'const x = b ? y : z;',
-      ['b ? y : z'],
-    ],
-    [
-      'constructor declaration',
-      syntax.isConstructorDeclaration,
-      'class Box { constructor() {} }',
-      ['constructor() {}'],
-    ],
-    [
-      'construct signature',
-      syntax.isConstructSignatureDeclaration,
-      'interface Box { new (): Box; }',
-      ['new (): Box;'],
-    ],
-    ['element access', syntax.isElementAccessExpression, 'obj[0]; obj.key;', ['obj[0]']],
-    [
-      'export declaration',
-      syntax.isExportDeclaration,
-      'export { name } from "pkg";',
-      ['export { name } from "pkg";'],
-    ],
-    [
-      'external module reference',
-      syntax.isExternalModuleReference,
-      'import pkg = require("pkg");',
-      ['require("pkg")'],
-    ],
-    [
-      'function declaration',
-      syntax.isFunctionDeclaration,
-      'function fn() {}',
-      ['function fn() {}'],
-    ],
-    ['function type', syntax.isFunctionTypeNode, 'type Fn = () => void;', ['() => void']],
-    ['identifier', syntax.isIdentifier, 'obj.#field; obj.field;', ['obj', 'obj', 'field']],
-    [
-      'import declaration',
-      syntax.isImportDeclaration,
+      'ImportDeclaration',
       'import x from "pkg"; import y = require("pkg");',
       ['import x from "pkg";'],
     ],
     [
-      'import-equals declaration',
-      syntax.isImportEqualsDeclaration,
+      'ImportEqualsDeclaration',
       'import x from "pkg"; import y = require("pkg");',
       ['import y = require("pkg");'],
     ],
-    [
-      'interface declaration',
-      syntax.isInterfaceDeclaration,
-      'interface Box {}',
-      ['interface Box {}'],
-    ],
-    [
-      'method declaration',
-      syntax.isMethodDeclaration,
-      'class Box { getValue() {} }',
-      ['getValue() {}'],
-    ],
-    [
-      'method signature',
-      syntax.isMethodSignature,
-      'interface Box { getValue(): string; }',
-      ['getValue(): string;'],
-    ],
-    [
-      'module declaration',
-      syntax.isModuleDeclaration,
-      'declare module "pkg" {}',
-      ['declare module "pkg" {}'],
-    ],
-    ['new expression', syntax.isNewExpression, 'fn(); new Fn();', ['new Fn()']],
-    ['non-null expression', syntax.isNonNullExpression, 'const x = value!;', ['value!']],
-    ['numeric literal', syntax.isNumericLiteral, 'obj[0]; obj["1"];', ['0']],
-    ['parenthesized expression', syntax.isParenthesizedExpression, 'fn((value));', ['(value)']],
-    [
-      'private identifier',
-      syntax.isPrivateIdentifier,
-      'class Box { #field = 1; field = 2; }',
-      ['#field'],
-    ],
-    ['property access', syntax.isPropertyAccessExpression, 'obj[0]; obj.key;', ['obj.key']],
-    [
-      'property declaration',
-      syntax.isPropertyDeclaration,
-      'class Box { value = 1; }',
-      ['value = 1;'],
-    ],
-    [
-      'property signature',
-      syntax.isPropertySignature,
-      'interface Box { value: string; }',
-      ['value: string;'],
-    ],
-    ['source file', syntax.isSourceFile, 'const x = 1;', ['const x = 1;']],
-    ['string literal', syntax.isStringLiteral, '"pkg"; `pkg`; 1;', ['"pkg"']],
-    [
-      'string literal-like node',
-      syntax.isStringLiteralLike,
-      '"pkg"; `pkg`; 1;',
-      ['"pkg"', '`pkg`'],
-    ],
-    ['tagged template', syntax.isTaggedTemplateExpression, 'tag`text`; `text`;', ['tag`text`']],
-    ['type alias', syntax.isTypeAliasDeclaration, 'type Value = string;', ['type Value = string;']],
-    [
-      'angle-bracket assertion',
-      syntax.isTypeAssertionExpression,
-      '<string>value; value as string;',
-      ['<string>value'],
-    ],
-    ['variable declaration', syntax.isVariableDeclaration, 'const x = 1;', ['x = 1']],
-    [
-      'dynamic import keyword',
-      syntax.isImportKeyword,
-      'import x from "pkg"; import("pkg");',
-      ['import'],
-    ],
-    [
-      'static members',
-      syntax.hasStaticModifier,
-      'class Box { field = 1; public method() {} static create() {} static count = 0; }',
-      ['static create() {}', 'static count = 0;'],
-    ],
+    ['ImportKeyword', 'import x from "pkg"; import("pkg");', ['import']],
+    ['InterfaceDeclaration', 'interface Box {}', ['interface Box {}']],
+    ['MethodDeclaration', 'class Box { getValue() {} }', ['getValue() {}']],
+    ['MethodSignature', 'interface Box { getValue(): string; }', ['getValue(): string;']],
+    ['ModuleDeclaration', 'declare module "pkg" {}', ['declare module "pkg" {}']],
+    ['NewExpression', 'fn(); new Fn();', ['new Fn()']],
+    ['NoSubstitutionTemplateLiteral', '"pkg"; `pkg`; 1;', ['`pkg`']],
+    ['NonNullExpression', 'const x = value!;', ['value!']],
+    ['NumericLiteral', 'obj[0]; obj["1"];', ['0']],
+    ['ParenthesizedExpression', 'fn((value));', ['(value)']],
+    ['PrivateIdentifier', 'class Box { #field = 1; field = 2; }', ['#field']],
+    ['PropertyAccessExpression', 'obj[0]; obj.key;', ['obj.key']],
+    ['PropertyDeclaration', 'class Box { value = 1; }', ['value = 1;']],
+    ['PropertySignature', 'interface Box { value: string; }', ['value: string;']],
+    ['SourceFile', 'const x = 1;', ['const x = 1;']],
+    ['StringLiteral', '"pkg"; `pkg`; 1;', ['"pkg"']],
+    ['TaggedTemplateExpression', 'tag`text`; `text`;', ['tag`text`']],
+    ['TypeAliasDeclaration', 'type Value = string;', ['type Value = string;']],
+    ['TypeAssertionExpression', '<string>value; value as string;', ['<string>value']],
+    ['VariableDeclaration', 'const x = 1;', ['x = 1']],
   ];
 
-  for (const [description, predicate, source, expected] of nodeCases) {
-    it(`recognizes ${description} without matching neighboring nodes`, () => {
+  for (const [kind, source, expected] of nodeCases) {
+    it(`recognizes ${kind} without matching neighboring nodes`, () => {
       const sourceFile = ts.createSourceFile('hook.ts', source, ts.ScriptTarget.Latest, true);
       expect(
         nodesIn(sourceFile)
-          .filter(predicate)
+          .filter(node => syntax.kindOf(node) === kind)
           .map(node => node.getText(sourceFile)),
       ).toEqual(expected);
     });
   }
+
+  it('returns undefined for kinds outside the hook contract', () => {
+    const file = ts.createSourceFile('hook.ts', 'fn();', ts.ScriptTarget.Latest, true);
+    expect(syntax.kindOf(file.statements[0])).toBeUndefined();
+  });
+
+  it('recognizes only static members', () => {
+    const source =
+      'class Box { field = 1; public method() {} static create() {} static count = 0; }';
+    const file = ts.createSourceFile('hook.ts', source, ts.ScriptTarget.Latest, true);
+    expect(
+      nodesIn(file)
+        .filter(syntax.hasStaticModifier)
+        .map(node => node.getText(file)),
+    ).toEqual(['static create() {}', 'static count = 0;']);
+  });
 
   const fileName = 'hook.ts';
   const sourceFile = ts.createSourceFile(
@@ -272,7 +186,8 @@ describe('TypeScript hook predicates', () => {
 
   it('rejects missing and incompatible hook settings from other hosts', () => {
     expect(isHookTypeScriptSyntax(syntax)).toBe(true);
-    for (const value of [undefined, null, {}, { ...syntax, isBroadType: true }]) {
+    const { kindOf: _kindOf, ...oldSettings } = syntax;
+    for (const value of [undefined, null, {}, oldSettings, { ...syntax, isBroadType: true }]) {
       expect(isHookTypeScriptSyntax(value)).toBe(false);
     }
   });

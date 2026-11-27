@@ -29,13 +29,11 @@ exports.rules = [
         return {
           CallExpression(estreeNode) {
             const node = esTreeNodeToTSNodeMap.get(estreeNode);
-            result.callIsConstruct = typescriptSyntax.isNewExpression(node);
-            if (typescriptSyntax.isCallExpression(node)) {
-              result.declaration = program.getTypeChecker().getResolvedSignature(node)?.getDeclaration();
-            }
+            result.callKind = typescriptSyntax.kindOf(node);
+            result.declaration = program.getTypeChecker().getResolvedSignature(node)?.getDeclaration();
           },
           NewExpression(estreeNode) {
-            result.newIsConstruct = typescriptSyntax.isNewExpression(esTreeNodeToTSNodeMap.get(estreeNode));
+            result.newKind = typescriptSyntax.kindOf(esTreeNodeToTSNodeMap.get(estreeNode));
           },
         };
       },

@@ -18,61 +18,59 @@ import type ts from 'typescript';
 
 type Compiler = typeof ts;
 
+// Use explicit names: TypeScript's reverse enum lookup can return aliases such as FirstLiteralToken.
+const nodeKinds = [
+  'AsExpression',
+  'AwaitExpression',
+  'BindingElement',
+  'CallExpression',
+  'CallSignature',
+  'ClassDeclaration',
+  'ClassExpression',
+  'ConditionalExpression',
+  'Constructor',
+  'ConstructSignature',
+  'ElementAccessExpression',
+  'ExportDeclaration',
+  'ExternalModuleReference',
+  'FunctionDeclaration',
+  'FunctionType',
+  'Identifier',
+  'ImportDeclaration',
+  'ImportEqualsDeclaration',
+  'ImportKeyword',
+  'InterfaceDeclaration',
+  'MethodDeclaration',
+  'MethodSignature',
+  'ModuleDeclaration',
+  'NewExpression',
+  'NoSubstitutionTemplateLiteral',
+  'NonNullExpression',
+  'NumericLiteral',
+  'ParenthesizedExpression',
+  'PrivateIdentifier',
+  'PropertyAccessExpression',
+  'PropertyDeclaration',
+  'PropertySignature',
+  'SourceFile',
+  'StringLiteral',
+  'TaggedTemplateExpression',
+  'TypeAliasDeclaration',
+  'TypeAssertionExpression',
+  'VariableDeclaration',
+] as const satisfies readonly (keyof Compiler['SyntaxKind'])[];
+
+export type HookNodeKind = (typeof nodeKinds)[number];
+
 // Binding is lazy so the same definition can supply compatibility keys without a compiler.
 function bindSyntax(getCompiler: () => Compiler) {
-  function predicate<Input, Output extends Input>(
-    select: (compiler: Compiler) => (value: Input) => value is Output,
-  ) {
-    return Object.freeze((value: Input): value is Output => select(getCompiler())(value));
-  }
-
+  let kinds: ReadonlyMap<ts.SyntaxKind, HookNodeKind> | undefined;
   return Object.freeze({
-    isAsExpression: predicate(ts => ts.isAsExpression),
-    isAwaitExpression: predicate(ts => ts.isAwaitExpression),
-    isBindingElement: predicate(ts => ts.isBindingElement),
-    isCallExpression: predicate(ts => ts.isCallExpression),
-    isCallSignatureDeclaration: predicate(ts => ts.isCallSignatureDeclaration),
-    isClassDeclaration: predicate(ts => ts.isClassDeclaration),
-    isClassExpression: predicate(ts => ts.isClassExpression),
-    isConditionalExpression: Object.freeze(
-      (node: ts.Node): node is ts.ConditionalExpression =>
-        node.kind === getCompiler().SyntaxKind.ConditionalExpression,
-    ),
-    isConstructorDeclaration: predicate(ts => ts.isConstructorDeclaration),
-    isConstructSignatureDeclaration: predicate(ts => ts.isConstructSignatureDeclaration),
-    isElementAccessExpression: predicate(ts => ts.isElementAccessExpression),
-    isExportDeclaration: predicate(ts => ts.isExportDeclaration),
-    isExternalModuleReference: predicate(ts => ts.isExternalModuleReference),
-    isFunctionDeclaration: predicate(ts => ts.isFunctionDeclaration),
-    isFunctionTypeNode: predicate(ts => ts.isFunctionTypeNode),
-    isIdentifier: predicate(ts => ts.isIdentifier),
-    isImportDeclaration: predicate(ts => ts.isImportDeclaration),
-    isImportEqualsDeclaration: predicate(ts => ts.isImportEqualsDeclaration),
-    isInterfaceDeclaration: predicate(ts => ts.isInterfaceDeclaration),
-    isMethodDeclaration: predicate(ts => ts.isMethodDeclaration),
-    isMethodSignature: predicate(ts => ts.isMethodSignature),
-    isModuleDeclaration: predicate(ts => ts.isModuleDeclaration),
-    isNewExpression: predicate(ts => ts.isNewExpression),
-    isNonNullExpression: Object.freeze(
-      (node: ts.Node): node is ts.NonNullExpression =>
-        node.kind === getCompiler().SyntaxKind.NonNullExpression,
-    ),
-    isNumericLiteral: predicate(ts => ts.isNumericLiteral),
-    isParenthesizedExpression: predicate(ts => ts.isParenthesizedExpression),
-    isPrivateIdentifier: predicate(ts => ts.isPrivateIdentifier),
-    isPropertyAccessExpression: predicate(ts => ts.isPropertyAccessExpression),
-    isPropertyDeclaration: predicate(ts => ts.isPropertyDeclaration),
-    isPropertySignature: predicate(ts => ts.isPropertySignature),
-    isSourceFile: predicate(ts => ts.isSourceFile),
-    isStringLiteral: predicate(ts => ts.isStringLiteral),
-    isStringLiteralLike: predicate(ts => ts.isStringLiteralLike),
-    isTaggedTemplateExpression: predicate(ts => ts.isTaggedTemplateExpression),
-    isTypeAliasDeclaration: predicate(ts => ts.isTypeAliasDeclaration),
-    isTypeAssertionExpression: predicate(ts => ts.isTypeAssertionExpression),
-    isVariableDeclaration: predicate(ts => ts.isVariableDeclaration),
-    isImportKeyword: Object.freeze(
-      (node: ts.Node) => node.kind === getCompiler().SyntaxKind.ImportKeyword,
-    ),
+    /** Returns a supported kind name for a node owned by the host compiler. */
+    kindOf: Object.freeze((node: ts.Node): HookNodeKind | undefined => {
+      kinds ??= new Map(nodeKinds.map(name => [getCompiler().SyntaxKind[name], name]));
+      return kinds.get(node.kind);
+    }),
     hasStaticModifier: Object.freeze((node: ts.Node) => {
       const ts = getCompiler();
       return (

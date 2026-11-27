@@ -64,13 +64,15 @@ type checker for the mapped node. Treat this shared compiler state as read-only.
 services are not available, report unavailable evidence rather than assuming the code has no
 external calls. Use ESTree for traversal and source locations, including for Vue components.
 Use `context.settings.sonarjs?.typescriptSyntax` to classify nodes, types and symbols from
-those services with the [host compiler’s predicates](../../packages/analysis/src/jsts/linter/hook-typescript-syntax.ts).
-For example, `typescriptSyntax.isCallExpression(node)` checks a mapped TypeScript node without
-comparing its numeric `SyntaxKind`. The predicates return booleans and expose no compiler objects
-or numeric enums. If the predicates are required and the setting is absent on an older host, treat
-that analysis as unavailable. Do not assume `require('typescript')` can load the embedded compiler.
+those services. For example, `typescriptSyntax.kindOf(node) === 'CallExpression'` checks a
+mapped TypeScript node without comparing its numeric `SyntaxKind`. `kindOf` returns a
+[supported name](../../packages/analysis/src/jsts/linter/hook-typescript-syntax.ts), or `undefined`
+for an unsupported kind. It does not narrow the original TypeScript node. The other helpers
+return booleans. None of these helpers expose compiler objects or numeric enums. If the helpers
+are required and the setting is absent or incompatible on an older host, treat that analysis as
+unavailable. Do not assume `require('typescript')` can load the embedded compiler.
 The `org.sonarsource.javascript:api` JAR contains `sonarjs-hook-api/hook-typescript-syntax.ts` for
-bundle builds. Use its compatibility check and inferred contract rather than copying predicate
+bundle builds. Use its compatibility check and inferred contract rather than copying helper
 names. `createHookTypeScriptSyntax` is useful in tests with a local fixture compiler; rules should
 use the host-provided setting during analysis.
 

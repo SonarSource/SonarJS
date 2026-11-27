@@ -165,15 +165,13 @@ describe('Linter', () => {
     const { isHookTypeScriptSyntax } =
       await import('../../../src/jsts/linter/hook-typescript-syntax.js');
     expect(isHookTypeScriptSyntax(syntax)).toBe(true);
-    expect(isHookTypeScriptSyntax({ ...syntax, isNewExpression: undefined })).toBe(false);
     expect(Object.isFrozen(syntax)).toBe(true);
     expect(Object.values(syntax).every(fn => typeof fn === 'function' && Object.isFrozen(fn))).toBe(
       true,
     );
-    expect(syntax.isCallExpression).not.toBe(ts.isCallExpression);
     expect(result.program).toBe(program);
-    expect(result.callIsConstruct).toBe(false);
-    expect(result.newIsConstruct).toBe(true);
+    expect(result.callKind).toBe('CallExpression');
+    expect(result.newKind).toBe('NewExpression');
     expect(result.declaration.name.text).toBe('max');
   });
 
