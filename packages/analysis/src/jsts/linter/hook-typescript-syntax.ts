@@ -119,12 +119,18 @@ export function isHookTypeScriptSyntax(
   value: unknown,
   requiredKinds: readonly HookNodeKind[] = nodeKinds,
 ): value is ReturnType<typeof createHookTypeScriptSyntax> {
-  if (typeof value !== 'object' || value === null) return false;
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
   const settings = value as Record<string, unknown>;
   const advertised = settings.supportedKinds;
-  if (!Array.isArray(advertised)) return false;
+  if (!Array.isArray(advertised)) {
+    return false;
+  }
   for (const name of advertised) {
-    if (typeof name !== 'string') return false;
+    if (typeof name !== 'string') {
+      return false;
+    }
   }
   return (
     requiredKinds.every(name => advertised.includes(name)) &&
