@@ -500,6 +500,14 @@ public class WebSensor implements ProjectSensor {
       if (fsListener != null) {
         configurationBuilder.clearFsEvents().addAllFsEvents(fsListener.listFSEvents().keySet());
       }
+      configurationBuilder.clearRequestedMaxNodeModuleJsDepth();
+      if (!handlerContext.isSonarLint()) {
+        int depth = checks.requestedMaxNodeModuleJsDepth(handlerContext.getAnalysisMode());
+        if (depth > 0) {
+          LOG.info("ESLint hooks: requestedMaxNodeModuleJsDepth={}", depth);
+          configurationBuilder.setRequestedMaxNodeModuleJsDepth(depth);
+        }
+      }
       configurationBuilder.setSkipAst(handlerContext.skipAst(consumers));
       if (recordFilesystemCache) {
         try {

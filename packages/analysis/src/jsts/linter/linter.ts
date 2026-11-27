@@ -70,6 +70,10 @@ import {
 import { parseInlineNPMImport } from '../rules/helpers/dependency-manifests/resolvers/npm-import.js';
 import { isTestCaseFile } from '../../common/rule-file-type.js';
 import { isVendorFile } from '../../common/vendor-file-pattern.js';
+import ts from 'typescript';
+import { createHookTypeScriptSyntax } from './hook-typescript-syntax.js';
+
+const hookSettings = Object.freeze({ typescriptSyntax: createHookTypeScriptSyntax(ts) });
 
 interface InitializeParams {
   rules?: RuleConfig[];
@@ -297,6 +301,7 @@ export class Linter {
         sonarRuntime: true,
         workDir: Linter.rulesWorkdir,
         ...lintOptions.additionalSettings,
+        sonarjs: hookSettings,
       },
       files: [`**/*${path.posix.extname(normalizePath(filePath))}`],
     };

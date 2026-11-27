@@ -23,6 +23,8 @@ import { installFsCache } from '../../../shared/src/fs-cache/hook.js';
 import { setArchivedFileSystemCaseSensitivity } from '../../src/jsts/rules/helpers/filesystem-case.js';
 import {
   createConfiguration,
+  createConfigurationFromInput,
+  getJsTsConfigFields,
   isAlsoCssFile,
   isAnalyzableFile,
   isHtmlFile,
@@ -31,6 +33,19 @@ import {
 import { normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
 
 describe('createConfiguration', () => {
+  for (const requestedMaxNodeModuleJsDepth of [undefined, 0, 1, 4, 8, 9, 10, 0x7fffffff]) {
+    it(`preserves optional analysis node_modules depth ${requestedMaxNodeModuleJsDepth}`, () => {
+      const input = { baseDir: '/path/to/project', requestedMaxNodeModuleJsDepth };
+      for (const create of [createConfiguration, createConfigurationFromInput]) {
+        const configuration = create(input);
+        expect(configuration.requestedMaxNodeModuleJsDepth).toBe(requestedMaxNodeModuleJsDepth);
+        expect(getJsTsConfigFields(configuration).requestedMaxNodeModuleJsDepth).toBe(
+          requestedMaxNodeModuleJsDepth || undefined,
+        );
+      }
+    });
+  }
+
   it('rejects ambiguous custom dialects before returning a configuration', () => {
     expect(() =>
       createConfiguration({ baseDir: '/tmp', sassSuffixes: ['TXT'], lessSuffixes: ['.txt'] }),
@@ -82,6 +97,37 @@ describe('createConfiguration', () => {
       }
     });
   }
+
+  for (const requestedMaxNodeModuleJsDepth of ['4', NaN, null, true, {}, []]) {
+    it(`ignores nonnumeric optional analysis depth ${String(requestedMaxNodeModuleJsDepth)}`, () => {
+      const configuration = createConfiguration({
+        baseDir: '/path/to/project',
+        requestedMaxNodeModuleJsDepth,
+      });
+      expect(configuration.requestedMaxNodeModuleJsDepth).toBeUndefined();
+    });
+  }
+
+  it('leaves normal project defaults unchanged when analysis depth is omitted', () => {
+    const configuration = createConfiguration({ baseDir: '/path/to/project' });
+    expect(configuration.requestedMaxNodeModuleJsDepth).toBeUndefined();
+    expect(configuration.disableTypeChecking).toBe(false);
+    expect(configuration.createTSProgramForOrphanFiles).toBe(true);
+  });
+
+  it('does not apply analysis depth to SonarLint, including already constructed configurations', () => {
+    const configuration = createConfiguration({
+      baseDir: '/path/to/project',
+      sonarlint: true,
+      requestedMaxNodeModuleJsDepth: 4,
+    });
+    expect(configuration.requestedMaxNodeModuleJsDepth).toBe(4);
+    expect(getJsTsConfigFields(configuration).requestedMaxNodeModuleJsDepth).toBeUndefined();
+    expect(
+      getJsTsConfigFields({ ...configuration, requestedMaxNodeModuleJsDepth: 6 })
+        .requestedMaxNodeModuleJsDepth,
+    ).toBeUndefined();
+  });
 
   it('allows discovered suffixes to be associated with a preprocessor', () => {
     const config = createConfiguration({

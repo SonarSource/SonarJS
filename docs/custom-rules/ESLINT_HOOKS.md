@@ -16,6 +16,70 @@ The `EslintHook` interface is the modern way to define custom rules in SonarJS. 
 - **Are activated through quality profiles** - by default, run only when enabled in the active quality profile
 - **Provide full control** over analysis modes, file types, and configurations
 
+## Dependency inference requested by hooks
+
+An enabled data-collection hook can request deeper inference into
+JavaScript dependencies without exposing its collected data through SonarJS's result protocol:
+
+```java
+@Override
+public int requestedMaxNodeModuleJsDepth() {
+  return 4;
+}
+```
+
+Accepted requests are integers from `0` through `9` inclusive; out-of-range requests are logged with
+the hook key and ignored, without failing the analysis or discarding other hooks' valid requests.
+Java validates this operational ceiling, chosen from memory tests rather than a TypeScript compiler
+limit. The gRPC boundary checks only the value's shape. The ceiling limits hook-requested dependency
+traversal, but is not an execution-time guarantee and never caps a larger value in the project's own
+tsconfig.
+The default is `0` (no request). SonarJS aggregates the largest positive request among enabled
+checks/hooks that can run in the current analysis in Java, then sends it once in the analysis
+`ProjectConfiguration`. `DEFAULT` hooks also contribute during `SKIP_UNCHANGED` analyses because they
+run on changed and added files. Hooks supporting only `SKIP_UNCHANGED` do not contribute to a full
+`DEFAULT` analysis. The request is not part of `EslintRule`, `JsTsRule`, or the Node `RuleConfig`.
+The `requestedMaxNodeModuleJsDepth` request raises the **inference ceiling**, without forcing
+TypeScript to traverse that far. Configured, orphan/merged and restored scanner programs use the
+maximum of the baseline `maxNodeModuleJsDepth` (defaulting to `0`) and the hook request,
+without changing cached tsconfig options. For example, a request of `4` raises a project depth of `1`
+to `4`, but preserves a project depth of `12`. An absent or zero request leaves the project setting
+unchanged. It does not override `sonar.javascript.disableTypeChecking=true`, and it
+does not apply to SonarLint. When the hook is absent or disabled, ordinary compiler behavior is
+preserved. Recorded program selections retain the baseline compiler options, without the hook's
+depth increase; replay applies only the current analysis's request, including when it is absent or zero.
+This option controls inference from JavaScript in `node_modules`, not declaration-file resolution
+or a general recursion limit for TypeScript types.
+
+For cross-plugin data collection, prefer a directly registered `EslintHookRegistrar` and a packaged
+`Bundle`. The hook can use the existing parser services and write versioned artifacts into an
+explicit scan-scoped directory passed via `configurations()`. A later sensor in the owning plugin
+reads those artifacts. Keep per-run isolation, atomic writes, source-coordinate validation and
+missing/incomplete-file diagnostics in that plugin; missing evidence must not imply non-reachability.
+No quality-profile activation or inventory-specific SonarJS callback/gRPC schema is needed.
+
+For typed analysis, use the existing ESLint `context.sourceCode.parserServices`. When a
+TypeScript program and an `esTreeNodeToTSNodeMap` are available, the hook can query the program's
+type checker for the mapped node. Treat this shared compiler state as read-only. When those
+services are not available, report unavailable evidence rather than assuming the code has no
+external calls. Use ESTree for traversal and source locations, including for Vue components.
+Use `context.settings.sonarjs?.typescriptSyntax` to classify nodes, types and symbols from
+those services. For example, `typescriptSyntax.kindOf(node) === 'CallExpression'` checks a
+mapped TypeScript node without comparing its numeric `SyntaxKind`. `kindOf` returns a
+[supported name](../../packages/analysis/src/jsts/linter/hook-typescript-syntax.ts), or `undefined`
+for an unsupported kind. It does not narrow the original TypeScript node. The host advertises
+its recognized names in the frozen `supportedKinds` list. The other helpers return booleans.
+None of these helpers expose compiler objects or numeric enums. If the helpers
+are required and the setting is absent or incompatible on an older host, treat that analysis as
+unavailable. Do not assume `require('typescript')` can load the embedded compiler.
+The `org.sonarsource.javascript:api` JAR contains `sonarjs-hook-api/hook-typescript-syntax.ts` for
+bundle builds. Use its compatibility check and inferred contract rather than copying helper
+names. `isHookTypeScriptSyntax` checks that the running host advertises every kind in the
+bundled contract by default. A hook that only uses a subset may pass its required kind names
+as the second argument. Extra host kinds are allowed. `createHookTypeScriptSyntax` is useful
+in tests with a local fixture compiler; rules should
+use the host-provided setting during analysis.
+
 ## Components
 
 A complete custom rules integration requires:

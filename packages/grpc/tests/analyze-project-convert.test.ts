@@ -23,6 +23,27 @@ import {
   toAnalyzeProjectUnaryResponse,
 } from '../src/analyze-project-convert.js';
 import { sonarjs as analyzeProjectProto } from '../src/proto/analyze-project.js';
+import type { JsTsAnalysisOutput } from '../../analysis/src/jsts/analysis/analysis.js';
+import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
+
+function roundTripFileResult(result: JsTsAnalysisOutput) {
+  const filePath = normalizeToAbsolutePath('/project/file.ts');
+  const files = createFileResults();
+  files[filePath] = result;
+  const { AnalyzeProjectUnaryResponse, AnalyzeProjectStreamResponse } =
+    analyzeProjectProto.analyzeproject.v1;
+  const unary = AnalyzeProjectUnaryResponse.decode(
+    AnalyzeProjectUnaryResponse.encode(
+      toAnalyzeProjectUnaryResponse({ files, meta: { warnings: [] } }),
+    ).finish(),
+  );
+  const stream = AnalyzeProjectStreamResponse.decode(
+    AnalyzeProjectStreamResponse.encode(
+      toAnalyzeProjectStreamResponse({ ...result, messageType: 'fileResult', filename: filePath }),
+    ).finish(),
+  );
+  return [unary.files[filePath], stream.fileResult!.result!];
+}
 
 function createProjectAnalysisTelemetry() {
   return {
@@ -65,6 +86,33 @@ function toPlainTelemetryValue(value: object | null | undefined) {
 }
 
 describe('analyze-project convert', () => {
+  it('does not transport compiler requirements as rule metadata', () => {
+    const { JsTsRule } = analyzeProjectProto.analyzeproject.v1;
+    const ruleWithCompilerRequest = { key: 'custom/api-usages', requestedMaxNodeModuleJsDepth: 4 };
+    const decoded = JsTsRule.decode(JsTsRule.encode(ruleWithCompilerRequest).finish());
+    expect(decoded.key).toBe(ruleWithCompilerRequest.key);
+    expect(decoded).not.toHaveProperty('requestedMaxNodeModuleJsDepth');
+    expect(JsTsRule.fromObject(ruleWithCompilerRequest)).not.toHaveProperty(
+      'requestedMaxNodeModuleJsDepth',
+    );
+    // Decoding also ignores unrecognized rule field 7.
+    expect(JsTsRule.decode(Uint8Array.from([0x38, 4]))).not.toHaveProperty(
+      'requestedMaxNodeModuleJsDepth',
+    );
+  });
+
+  it('does not transport the retired external API inventory', () => {
+    const legacyResult = {
+      issues: [],
+      externalApiUsages: { usages: [], coverage: 'COMPLETE', unresolvedCalls: 0 },
+    };
+    for (const result of roundTripFileResult(legacyResult)) {
+      expect(result).not.toHaveProperty('externalApiUsages');
+    }
+    expect(analyzeProjectProto.analyzeproject.v1).not.toHaveProperty('ExternalApiUsages');
+    expect(analyzeProjectProto.analyzeproject.v1).not.toHaveProperty('ExternalApiUsage');
+  });
+
   it('should preserve final metadata through protobuf serialization', () => {
     const telemetry = createProjectAnalysisTelemetry();
 

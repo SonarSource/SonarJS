@@ -37,4 +37,15 @@
       <artifactId>assertj-core</artifactId>
     </dependency>
   </dependencies>
+  <build>
+    <resources>
+      <resource>
+        <directory>../../packages/analysis/src/jsts/linter</directory>
+        <includes>
+          <include>hook-typescript-syntax.ts</include>
+        </includes>
+        <targetPath>sonarjs-hook-api</targetPath>
+      </resource>
+    </resources>
+  </build>
 </project>

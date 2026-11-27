@@ -116,6 +116,9 @@ function createConfigurationFromProto(configuration: ProjectConfiguration | null
     canAccessFileSystem: optionalBoolean(configuration.canAccessFileSystem),
     createTSProgramForOrphanFiles: optionalBoolean(configuration.createTsProgramForOrphanFiles),
     disableTypeChecking: optionalBoolean(configuration.disableTypeChecking),
+    requestedMaxNodeModuleJsDepth: normalizeRequestedMaxNodeModuleJsDepth(
+      configuration.requestedMaxNodeModuleJsDepth,
+    ),
     skipNodeModuleLookupOutsideBaseDir: optionalBoolean(
       configuration.skipNodeModuleLookupOutsideBaseDir,
     ),
@@ -181,6 +184,19 @@ function normalizeJsTsRules(rules: JsTsRule[] | null | undefined): JsTsRuleConfi
       blacklistedExtensions: [...(rule.blacklistedExtensions ?? [])],
     };
   });
+}
+
+function normalizeRequestedMaxNodeModuleJsDepth(depth: number | null | undefined) {
+  if (depth == null) {
+    return undefined;
+  }
+  // Java validates hook policy limits; this boundary only checks the request's shape.
+  if (!Number.isInteger(depth) || depth < 0) {
+    throw new InvalidAnalyzeProjectRequestError(
+      'configuration.requested_max_node_module_js_depth must be a non-negative integer',
+    );
+  }
+  return depth;
 }
 
 function normalizeCssRules(rules: CssRule[] | null | undefined): CssRuleConfig[] {

@@ -34,6 +34,8 @@ import {
 } from '../../../src/telemetry.js';
 import { toInternalMetricsSettings } from '../../../src/jsts/rules/helpers/internal-metrics.js';
 import { jsTsInput } from '../tools/helpers/input.js';
+import ts from 'typescript';
+import { pathToFileURL } from 'node:url';
 
 describe('Linter', () => {
   it('should initialize the linter wrapper', async ({ mock }) => {
@@ -119,6 +121,61 @@ describe('Linter', () => {
         message: 'call',
       }),
     );
+  });
+
+  it('provides the host compiler predicates without exposing the TypeScript module', async () => {
+    const bundlePath = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'index', 'host-compiler-bundle.cjs'),
+    );
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(import.meta.dirname),
+      rules: [
+        {
+          key: 'host-compiler-probe',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+      bundles: [bundlePath],
+    });
+    const filePath = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'index', 'custom.js'),
+    );
+    const bundle = await import(pathToFileURL(bundlePath).href);
+    Linter.lint(await parseJavaScriptSourceFile(filePath), filePath);
+    expect(bundle.getResult().program).toBeFalsy();
+    expect(Object.keys(bundle.getResult().sonarjsSettings)).toEqual(['typescriptSyntax']);
+
+    const fileContent = 'new Date(); Math.max(1, 2);';
+    const options = { allowJs: true, types: [], noEmit: true };
+    const host = ts.createCompilerHost(options, true);
+    const getSourceFile = host.getSourceFile.bind(host);
+    host.getSourceFile = (file, version, ...rest) =>
+      file === filePath
+        ? ts.createSourceFile(file, fileContent, version, true)
+        : getSourceFile(file, version, ...rest);
+    const program = ts.createProgram([filePath], options, host);
+    Linter.lint(build(await jsTsInput({ filePath, fileContent, program })), filePath);
+
+    const result = bundle.getResult();
+    expect(Object.keys(result.sonarjsSettings)).toEqual(['typescriptSyntax']);
+    const syntax = result.sonarjsSettings.typescriptSyntax;
+    const { isHookTypeScriptSyntax } =
+      await import('../../../src/jsts/linter/hook-typescript-syntax.js');
+    expect(isHookTypeScriptSyntax(syntax)).toBe(true);
+    expect(Object.isFrozen(syntax)).toBe(true);
+    const { supportedKinds, ...helpers } = syntax;
+    expect(Object.isFrozen(supportedKinds)).toBe(true);
+    expect(supportedKinds).toContain('NewExpression');
+    expect(
+      Object.values(helpers).every(fn => typeof fn === 'function' && Object.isFrozen(fn)),
+    ).toBe(true);
+    expect(result.program).toBe(program);
+    expect(result.callKind).toBe('CallExpression');
+    expect(result.newKind).toBe('NewExpression');
+    expect(result.declaration.name.text).toBe('max');
   });
 
   it('should enable environments', async () => {

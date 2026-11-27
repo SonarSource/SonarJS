@@ -848,6 +848,66 @@ class WebSensorTest {
   }
 
   @Test
+  void should_send_dependency_depth_once_in_configuration_and_clear_a_disabled_request() {
+    var checks = mock(JsTsChecks.class);
+    when(checks.enabledEslintRules()).thenReturn(List.of());
+    when(checks.requestedMaxNodeModuleJsDepth(any())).thenReturn(4, 0);
+    var sensor = createSensor(
+      checks,
+      new AnalysisConsumers(),
+      null,
+      new WebSensorModuleConfiguration()
+    );
+    var handler = executeSensorAndCaptureHandler(sensor, context);
+
+    var enabled = handler.getRequest();
+    assertThat(enabled.getConfiguration().hasRequestedMaxNodeModuleJsDepth()).isTrue();
+    assertThat(enabled.getConfiguration().getRequestedMaxNodeModuleJsDepth()).isEqualTo(4);
+    assertThat(enabled.getRulesList()).isEmpty();
+    assertThat(logTester.logs(Level.INFO)).contains(
+      "ESLint hooks: requestedMaxNodeModuleJsDepth=4"
+    );
+    logTester.clear();
+    assertThat(
+      handler.getRequest().getConfiguration().hasRequestedMaxNodeModuleJsDepth()
+    ).isFalse();
+    assertThat(logTester.logs(Level.INFO)).noneMatch(message ->
+      message.startsWith("ESLint hooks: requestedMaxNodeModuleJsDepth=")
+    );
+  }
+
+  @Test
+  void should_omit_dependency_depth_without_an_enabled_request() {
+    assertThat(
+      executeSensorAndCaptureHandler(createSensor(), context)
+        .getRequest()
+        .getConfiguration()
+        .hasRequestedMaxNodeModuleJsDepth()
+    ).isFalse();
+  }
+
+  @Test
+  void should_not_collect_dependency_depth_requests_on_sonarlint() {
+    setSonarLintRuntime(context);
+    var checks = mock(JsTsChecks.class);
+    when(checks.enabledEslintRules()).thenReturn(List.of());
+    when(checks.requestedMaxNodeModuleJsDepth(any())).thenReturn(4);
+    var sensor = createSensor(
+      checks,
+      new AnalysisConsumers(),
+      new FSListenerImpl(),
+      new WebSensorModuleConfiguration()
+    );
+    assertThat(
+      executeSensorAndCaptureHandler(sensor, context)
+        .getRequest()
+        .getConfiguration()
+        .hasRequestedMaxNodeModuleJsDepth()
+    ).isFalse();
+    verify(checks, never()).requestedMaxNodeModuleJsDepth(any());
+  }
+
+  @Test
   void should_send_skipNodeModuleLookupOutsideBaseDir_false_by_default() {
     assertThat(
       executeSensorAndCaptureHandler(createSensor(), context)

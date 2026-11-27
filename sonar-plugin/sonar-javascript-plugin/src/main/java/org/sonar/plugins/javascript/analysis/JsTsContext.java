@@ -158,7 +158,7 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
   }
 
   public boolean skipAst(AnalysisConsumers consumers) {
-    return (!consumers.isEnabled());
+    return !consumers.isEnabled();
   }
 
   @Override
@@ -303,7 +303,10 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
       return null;
     }
     var normalized = trimmed.toLowerCase(Locale.ROOT);
-    return normalized.startsWith(".") ? normalized : ("." + normalized);
+    if (normalized.startsWith(".")) {
+      return normalized;
+    }
+    return "." + normalized;
   }
 
   @Override
@@ -312,11 +315,7 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
     if (isSonarLint()) {
       return Arrays.asList(getJsTsExcludedPaths(context.config()));
     }
-    var workDir = context
-      .fileSystem()
-      .workDir()
-      .getAbsolutePath()
-      .replace('\\', '/');
+    var workDir = context.fileSystem().workDir().getAbsolutePath().replace('\\', '/');
     return concat(
       stream(getJsTsExcludedPaths(context.config())),
       Stream.of("directory:" + workDir)

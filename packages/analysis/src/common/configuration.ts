@@ -98,6 +98,8 @@ export type Configuration = {
   detectGeneratedCode: boolean /* sonar.javascript.detectGeneratedCode - whether generated-source detection should affect analysis behavior */;
   createTSProgramForOrphanFiles: boolean /* sonar.javascript.createTSProgramForOrphanFiles - whether to create a TS program for orphan files */;
   disableTypeChecking: boolean /* sonar.javascript.disableTypeChecking - whether to completely disable TypeScript type checking */;
+  /** JavaScript dependency inference requested by ESLint hooks, not a sonar.* property; absent or zero keeps project settings. */
+  requestedMaxNodeModuleJsDepth?: number;
   skipNodeModuleLookupOutsideBaseDir: boolean /* sonar.internal.analysis.skipNodeModuleLookupOutsideBaseDir - whether to skip node_modules lookups outside baseDir in TS compiler host */;
   ecmaScriptVersion?: string /* sonar.javascript.ecmaScriptVersion - explicit ES version override e.g. 'ES2022' */;
 };
@@ -135,6 +137,7 @@ export type ConfigurationInput = {
   detectGeneratedCode?: boolean;
   createTSProgramForOrphanFiles?: boolean;
   disableTypeChecking?: boolean;
+  requestedMaxNodeModuleJsDepth?: number;
   skipNodeModuleLookupOutsideBaseDir?: boolean;
   ecmaScriptVersion?: string;
 };
@@ -283,6 +286,7 @@ export function createConfiguration(raw: unknown): Configuration {
       isBoolean,
     ),
     disableTypeChecking: getOptionalValue(raw, 'disableTypeChecking', isBoolean),
+    requestedMaxNodeModuleJsDepth: getOptionalValue(raw, 'requestedMaxNodeModuleJsDepth', isNumber),
     skipNodeModuleLookupOutsideBaseDir: getOptionalValue(
       raw,
       'skipNodeModuleLookupOutsideBaseDir',
@@ -336,6 +340,7 @@ export function createConfigurationFromInput(input: ConfigurationInput): Configu
     detectGeneratedCode: input.detectGeneratedCode ?? true,
     createTSProgramForOrphanFiles: input.createTSProgramForOrphanFiles ?? true,
     disableTypeChecking: input.disableTypeChecking ?? false,
+    requestedMaxNodeModuleJsDepth: input.requestedMaxNodeModuleJsDepth,
     skipNodeModuleLookupOutsideBaseDir: input.skipNodeModuleLookupOutsideBaseDir ?? false,
     ecmaScriptVersion: input.ecmaScriptVersion,
   };
@@ -664,6 +669,7 @@ function sanitizeFsEvents(raw: unknown): string[] | undefined {
  * Used by analyzeWithProgram, analyzeWithIncrementalProgram, analyzeWithoutProgram.
  */
 export type JsTsConfigFields = {
+  requestedMaxNodeModuleJsDepth?: number;
   allowTsParserJsFiles: boolean;
   analysisMode: AnalysisMode;
   ignoreHeaderComments: boolean;
@@ -684,6 +690,11 @@ export type JsTsConfigFields = {
  */
 export function getJsTsConfigFields(configuration: Configuration): JsTsConfigFields {
   return {
+    // Zero means no hook request, so preserve the project's compiler setting rather than force depth 0.
+    requestedMaxNodeModuleJsDepth:
+      configuration.sonarlint || !configuration.requestedMaxNodeModuleJsDepth
+        ? undefined
+        : configuration.requestedMaxNodeModuleJsDepth,
     allowTsParserJsFiles: configuration.allowTsParserJsFiles,
     analysisMode: configuration.analysisMode,
     ignoreHeaderComments: configuration.ignoreHeaderComments,

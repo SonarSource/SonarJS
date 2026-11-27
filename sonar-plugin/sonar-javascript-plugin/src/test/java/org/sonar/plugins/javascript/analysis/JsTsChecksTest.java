@@ -27,22 +27,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.slf4j.event.Level;
 import org.sonar.api.batch.rule.CheckFactory;
-import org.sonar.scanner.plugin.api.impl.rule.ActiveRulesBuilder;
-import org.sonar.scanner.plugin.api.impl.rule.NewActiveRule;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.javascript.checks.MainFileCheck;
+import org.sonar.plugins.javascript.api.AnalysisMode;
 import org.sonar.plugins.javascript.api.CustomRuleRepository;
 import org.sonar.plugins.javascript.api.EslintHook;
 import org.sonar.plugins.javascript.api.EslintHookRegistrar;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.Language;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
+import org.sonar.scanner.plugin.api.impl.rule.ActiveRulesBuilder;
+import org.sonar.scanner.plugin.api.impl.rule.NewActiveRule;
 
 class JsTsChecksTest {
+
+  @RegisterExtension
+  public LogTesterJUnit5 logTester = new LogTesterJUnit5();
 
   @Test
   void test() {
@@ -76,14 +83,151 @@ class JsTsChecksTest {
     );
     assertThat(hook.isRegisterCalled).isTrue();
     assertThat(hook.isIsEnabledCalled).isFalse();
-    checks.enabledEslintRules();
+    assertThat(checks.enabledEslintRules()).hasSize(1);
+    assertThat(checks.requestedMaxNodeModuleJsDepth(AnalysisMode.DEFAULT)).isEqualTo(4);
     assertThat(hook.isIsEnabledCalled).isTrue();
+  }
+
+  @Test
+  void disabled_hook_does_not_request_dependency_inference() {
+    var hook = new TestEslintHook();
+    hook.enabled = false;
+    var checks = new JsTsChecks(checkFactory("repo", "customcheck"), new EslintHookRegistrar[] {
+      hook,
+    });
+    assertThat(checks.enabledEslintRules()).isEmpty();
+    assertThat(checks.requestedMaxNodeModuleJsDepth(AnalysisMode.DEFAULT)).isZero();
+    assertThat(new CustomTsCheck().requestedMaxNodeModuleJsDepth()).isZero();
+  }
+
+  @Test
+  void should_aggregate_only_enabled_mode_compatible_dependency_depth_requests() {
+    var first = new TestEslintHook();
+    var second = new TestEslintHook();
+    second.depth = 9;
+    var disabled = new TestEslintHook();
+    disabled.depth = Integer.MAX_VALUE;
+    disabled.enabled = false;
+    var checks = new JsTsChecks(checkFactory("repo", "customcheck"), new EslintHookRegistrar[] {
+      first,
+      second,
+      disabled,
+    });
+
+    assertThat(checks.requestedMaxNodeModuleJsDepth(AnalysisMode.DEFAULT)).isEqualTo(9);
+    second.modes = List.of(AnalysisMode.SKIP_UNCHANGED);
+    assertThat(checks.requestedMaxNodeModuleJsDepth(AnalysisMode.DEFAULT)).isEqualTo(4);
+    assertThat(checks.requestedMaxNodeModuleJsDepth(AnalysisMode.SKIP_UNCHANGED)).isEqualTo(9);
+    first.depth = 0;
+    assertThat(checks.requestedMaxNodeModuleJsDepth(AnalysisMode.DEFAULT)).isZero();
+    second.enabled = false;
+    assertThat(checks.requestedMaxNodeModuleJsDepth(AnalysisMode.SKIP_UNCHANGED)).isZero();
+  }
+
+  @Test
+  void default_hooks_keep_their_depth_request_in_skip_unchanged_analyses() {
+    var hook = new TestEslintHook();
+    var checks = new JsTsChecks(checkFactory("repo", "customcheck"), new EslintHookRegistrar[] {
+      hook,
+    });
+
+    assertThat(checks.requestedMaxNodeModuleJsDepth(AnalysisMode.SKIP_UNCHANGED)).isEqualTo(4);
+    assertThat(checks.requestedMaxNodeModuleJsDepth(AnalysisMode.DEFAULT)).isEqualTo(4);
+    hook.enabled = false;
+    assertThat(checks.requestedMaxNodeModuleJsDepth(AnalysisMode.SKIP_UNCHANGED)).isZero();
+  }
+
+  @Test
+  void skip_unchanged_depth_includes_default_hooks_with_a_larger_request() {
+    var defaultHook = new TestEslintHook();
+    defaultHook.depth = 9;
+    var skipUnchangedHook = new TestEslintHook();
+    skipUnchangedHook.modes = List.of(AnalysisMode.SKIP_UNCHANGED);
+    var checks = new JsTsChecks(checkFactory("repo", "customcheck"), new EslintHookRegistrar[] {
+      defaultHook,
+      skipUnchangedHook,
+    });
+
+    assertThat(checks.requestedMaxNodeModuleJsDepth(AnalysisMode.SKIP_UNCHANGED)).isEqualTo(9);
+    defaultHook.modes = List.of();
+    assertThat(checks.requestedMaxNodeModuleJsDepth(AnalysisMode.SKIP_UNCHANGED)).isEqualTo(4);
+    assertThat(checks.requestedMaxNodeModuleJsDepth(AnalysisMode.DEFAULT)).isZero();
+  }
+
+  @Test
+  void should_accept_the_maximum_dependency_depth() {
+    var hook = new TestEslintHook();
+    hook.depth = 9;
+    var checks = new JsTsChecks(checkFactory("repo", "customcheck"), new EslintHookRegistrar[] {
+      hook,
+    });
+    assertThat(checks.requestedMaxNodeModuleJsDepth(AnalysisMode.DEFAULT)).isEqualTo(9);
+  }
+
+  @Test
+  void should_warn_and_ignore_invalid_dependency_depth_requests() {
+    for (int depth : new int[] { Integer.MIN_VALUE, -1, 10, Integer.MAX_VALUE }) {
+      var hook = new TestEslintHook();
+      hook.depth = depth;
+      var checks = new JsTsChecks(checkFactory("repo", "customcheck"), new EslintHookRegistrar[] {
+        hook,
+      });
+      assertThat(checks.requestedMaxNodeModuleJsDepth(AnalysisMode.DEFAULT)).isZero();
+      assertThat(logTester.logs(Level.WARN)).contains(
+        "Ignoring requestedMaxNodeModuleJsDepth=" +
+          depth +
+          " from ESLint hook 'test-hook': expected an integer between 0 and 9 inclusive"
+      );
+    }
+  }
+
+  @Test
+  void invalid_dependency_depth_does_not_discard_other_hooks_requests() {
+    var invalid = new TestEslintHook();
+    invalid.depth = 10;
+    var valid = new TestEslintHook();
+    var checks = new JsTsChecks(checkFactory("repo", "customcheck"), new EslintHookRegistrar[] {
+      invalid,
+      valid,
+    });
+    assertThat(checks.requestedMaxNodeModuleJsDepth(AnalysisMode.DEFAULT)).isEqualTo(4);
+  }
+
+  @Test
+  void should_collect_dependency_requirements_only_from_active_checks() {
+    var repository = new TsRepository() {
+      @Override
+      public List<Class<? extends EslintHook>> checkClasses() {
+        return List.of(DepthRequestingCheck.class);
+      }
+    };
+    var active = new JsTsChecks(checkFactory("repo", "depth-check"), new CustomRuleRepository[] {
+      repository,
+    });
+    var inactive = new JsTsChecks(checkFactory("repo", "other-check"), new CustomRuleRepository[] {
+      repository,
+    });
+    assertThat(active.requestedMaxNodeModuleJsDepth(AnalysisMode.DEFAULT)).isEqualTo(7);
+    assertThat(inactive.requestedMaxNodeModuleJsDepth(AnalysisMode.DEFAULT)).isZero();
+  }
+
+  @TypeScriptRule
+  @Rule(key = "depth-check")
+  public static class DepthRequestingCheck extends MainFileCheck {
+
+    @Override
+    public int requestedMaxNodeModuleJsDepth() {
+      return 7;
+    }
   }
 
   private static class TestEslintHook implements EslintHook, EslintHookRegistrar {
 
     public boolean isIsEnabledCalled = false;
     public boolean isRegisterCalled = false;
+    public boolean enabled = true;
+    int depth = 4;
+    List<AnalysisMode> modes = List.of(AnalysisMode.DEFAULT);
 
     @Override
     public String eslintKey() {
@@ -91,9 +235,19 @@ class JsTsChecksTest {
     }
 
     @Override
+    public int requestedMaxNodeModuleJsDepth() {
+      return depth;
+    }
+
+    @Override
+    public List<AnalysisMode> analysisModes() {
+      return modes;
+    }
+
+    @Override
     public boolean isEnabled() {
       isIsEnabledCalled = true;
-      return true;
+      return enabled;
     }
 
     @Override
