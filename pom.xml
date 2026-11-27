@@ -112,7 +112,7 @@
       </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>bridge</artifactId>
+        <artifactId>analysis-client</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

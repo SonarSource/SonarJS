@@ -4,7 +4,7 @@
 
 SonarJS analyzes JavaScript, TypeScript and CSS for SonarQube Server, SonarQube Cloud and SonarQube for IDE, including embedded code in HTML, Vue and YAML. It also publishes `eslint-plugin-sonarjs` from the JavaScript and TypeScript rules in `packages/analysis` using `tsconfig-plugin.json`.
 
-The Java plugin (`sonar-plugin/`) exposes the custom-rules API and talks to the Node.js analysis server (`packages/analysis`, `packages/grpc`, `packages/shared`) through its analysis client (`sonar-plugin/bridge`). Plugin and ESLint integration tests live under `its/`; ruling uses `packages/ruling` and `its/ruling`. There are no component-specific `AGENTS.md` files.
+The Java plugin (`sonar-plugin/`) exposes the custom-rules API and talks to the Node.js analysis server (`packages/analysis`, `packages/grpc`, `packages/shared`) through its analysis client (`sonar-plugin/analysis-client`). Plugin and ESLint integration tests live under `its/`; ruling uses `packages/ruling` and `its/ruling`. There are no component-specific `AGENTS.md` files.
 
 ## Commands
 

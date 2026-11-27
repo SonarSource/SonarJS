@@ -7,8 +7,8 @@
     <artifactId>sonar-plugin</artifactId>
     <version>${revision}</version>
   </parent>
-  <artifactId>bridge</artifactId>
-  <name>SonarQube JavaScript :: Bridge</name>
+  <artifactId>analysis-client</artifactId>
+  <name>SonarQube JavaScript :: Analysis Client</name>
   <properties>
     <protobuf.version>4.36.2</protobuf.version>
     <sonar.coverage.jacoco.xmlReportPaths>${project.reporting.outputDirectory}/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
@@ -269,7 +269,7 @@
               <workingDirectory>../..</workingDirectory>
               <arguments>
                 <argument>tools/sync-nodejs-versions.mjs</argument>
-                <argument>sonar-plugin/bridge</argument>
+                <argument>sonar-plugin/analysis-client</argument>
               </arguments>
             </configuration>
           </execution>

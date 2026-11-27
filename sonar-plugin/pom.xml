@@ -51,7 +51,7 @@
   <modules>
     <module>api</module>
     <module>javascript-checks</module>
-    <module>bridge</module>
+    <module>analysis-client</module>
     <module>css</module>
     <module>sonar-javascript-plugin</module>
     <module>standalone</module>

@@ -73,7 +73,7 @@ Fast Java-only compile loop:
 mvn -pl sonar-plugin/sonar-javascript-plugin -am -Dskip-nodejs -Dskip-java-generation test-compile
 ```
 
-Bridge-only Node build:
+Analysis-server-only Node build:
 
 ```bash
 npm run bridge:build:fast
@@ -220,13 +220,13 @@ The `sonar-plugin` reactor builds modules in this order:
 
 1. `api`
 2. `javascript-checks`
-3. `bridge`
+3. `analysis-client`
 4. `css`
 5. `sonar-javascript-plugin`
 6. `standalone`
 
 Shared rule metadata and Java rule classes are generated once by the `sonar-plugin` aggregator
-before the child modules build. The bridge therefore does not need an artificial dependency on
+before the child modules build. The analysis client therefore does not need an artificial dependency on
 `javascript-checks` to order metadata generation. The explicit RSPEC refresh path is not part of
 this normal reactor flow.
 
@@ -245,11 +245,10 @@ It skips:
 - `tools/sync-nodejs-versions.mjs`
 - `npm run generate-meta`
 - `npm run generate-java-rule-classes`
-- bridge `npm run bridge:compile`
-- bridge `npm run bridge:bundle`
-- bridge `npm pack`
+- analysis server compilation (`npm run bridge:compile`), bundling (`npm run bridge:bundle`),
+  and packaging (`npm pack`)
 - protobuf Java generation for parser and analyze-project gRPC stubs
-- copying the packaged bridge tarball into `bridge/target/classes`
+- copying the packaged analysis server tarball into `sonar-plugin/analysis-client/target/classes`
 - unpacking embedded Node runtimes in `sonar-javascript-plugin`
 - CycloneDX SBOM generation and attachment, even when `-Psbom` is also supplied
 
@@ -261,7 +260,7 @@ Important details:
 - You can override that branch per command with `-Drspec.branch=<rspec-branch>`.
 - SHA wins over branch selection: an explicit `-Drspec.sha=...` or a root `rspec.sha` file takes
   precedence over any branch setting.
-- The `bridge` module still adds `target/generated-sources` to the Java source roots, so an existing
+- The `analysis-client` module still adds `target/generated-sources` to the Java source roots, so an existing
   generated stub directory can be reused without re-running protobuf generation.
 - This flag is intended for Java-only loops after a previous non-skipped build.
 
@@ -270,7 +269,7 @@ Do not use `-Dskip-nodejs`:
 - right after `mvn clean`
 - on a fresh checkout that has never produced the generated artifacts
 - after changing `.proto` files
-- after changing bridge TypeScript or bundling inputs
+- after changing analysis server TypeScript or bundling inputs
 - after changing `package.json` Node version metadata
 - after changing RSPEC sync / metadata generation inputs
 
@@ -289,8 +288,8 @@ It can be combined with `-Dskip-nodejs`.
 
 The clean phase removes the derived outputs that make the fast loop work:
 
-- `sonar-plugin/bridge/target/generated-sources`
-- `sonar-plugin/bridge/src/main/resources/org/sonar/plugins/javascript/bridge/node-info.properties`
+- `sonar-plugin/analysis-client/target/generated-sources`
+- `sonar-plugin/analysis-client/src/main/resources/org/sonar/plugins/javascript/bridge/node-info.properties`
 - `sonar-plugin/sonar-javascript-plugin/src/main/resources/node-info.properties`
 - `lib/` and `bin/`
 - downloaded rule data under `resources/rule-data`
@@ -332,8 +331,8 @@ Because of that, a common workflow is:
 - reads the plugin module's generated `node-info.properties`
 - runs `npm run generate-meta`
 - runs `npm run generate-java-rule-classes`
-- builds, bundles, and packs the bridge
-- generates `bridge/src/main/resources/org/sonar/plugins/javascript/bridge/node-info.properties`
+- builds, bundles, and packs the analysis server
+- generates `sonar-plugin/analysis-client/src/main/resources/org/sonar/plugins/javascript/bridge/node-info.properties`
 
 Explicit RSPEC refresh
 
@@ -345,7 +344,7 @@ Explicit RSPEC refresh
 
 `process-resources`
 
-- copies the packaged bridge tarball into the bridge module output
+- copies the packaged analysis server tarball into the analysis client module output
 - unpacks embedded Node runtimes for plugin packaging
 
 `prepare-package`, `package` with `-Psbom`

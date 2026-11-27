@@ -501,7 +501,7 @@ public class MyPlugin implements Plugin {
 
 ### Why Hooks Cannot Raise Issues
 
-Hooks registered via `EslintHookRegistrar` bypass `CheckFactory` entirely. They are stored directly without building the `eslintKey → RuleKey` mapping that's required for issue conversion. When the bridge returns issues, `ruleKeyByEslintKey()` won't find a mapping for hook eslintKeys, so issues are silently discarded.
+Hooks registered via `EslintHookRegistrar` bypass `CheckFactory` entirely. They are stored directly without building the `eslintKey → RuleKey` mapping that's required for issue conversion. When the analysis server returns issues, `ruleKeyByEslintKey()` won't find a mapping for hook eslintKeys, so issues are silently discarded.
 
 ```
 CustomRuleRepository path:
@@ -610,7 +610,7 @@ private void doAddChecks(Language language, String repositoryKey, Iterable<?> ch
 
 ### 4. Issue Transformation
 
-When the bridge returns an issue, `AnalysisProcessor` converts it to a Sonar issue:
+When the analysis server returns an issue, `AnalysisProcessor` converts it to a Sonar issue:
 
 ```java
 var ruleKey = checks.ruleKeyByEslintKey(issue.ruleId(), language);
@@ -714,5 +714,5 @@ This is why `CustomRuleRepository` rules can raise issues: their `eslintKey` is 
 | `JsTsChecks.addCustomChecks()` | `sonar-plugin/sonar-javascript-plugin/.../JsTsChecks.java`                   | Processes custom repositories         |
 | `JsTsChecks.doAddChecks()`     | `sonar-plugin/sonar-javascript-plugin/.../JsTsChecks.java`                   | Instantiates checks via CheckFactory  |
 | `JavaScriptProfilesDefinition` | `sonar-plugin/sonar-javascript-plugin/.../JavaScriptProfilesDefinition.java` | Applies default-profile contributions |
-| `RulesBundles`                 | `sonar-plugin/bridge/.../RulesBundles.java`                                  | Deploys JS bundles                    |
+| `RulesBundles`                 | `sonar-plugin/analysis-client/.../RulesBundles.java`                         | Deploys JS bundles                    |
 | `Linter`                       | `packages/analysis/src/jsts/linter/linter.ts`                                | Loads and executes rules              |

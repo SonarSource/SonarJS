@@ -18,9 +18,10 @@ import fs from 'fs/promises';
 import semver from 'semver';
 import path from 'node:path/posix';
 
+const analysisClient = 'sonar-plugin/analysis-client';
 const dirs = process.argv[2]
   ? [process.argv[2]]
-  : ['sonar-plugin/bridge', 'sonar-plugin/sonar-javascript-plugin'];
+  : [analysisClient, 'sonar-plugin/sonar-javascript-plugin'];
 
 // 1. Read package.json and extract the minimum Node.js version
 const pkgRaw = await fs.readFile('package.json', 'utf8');
@@ -35,7 +36,7 @@ const minVersion = semver.minVersion(range).version;
 for (const dir of dirs) {
   const resourcesDir = path.resolve(path.join(dir, 'src', 'main', 'resources'));
   const propertiesFile =
-    dir === 'sonar-plugin/bridge'
+    dir === analysisClient
       ? path.join(
           resourcesDir,
           'org',
@@ -47,7 +48,7 @@ for (const dir of dirs) {
         )
       : path.join(resourcesDir, 'node-info.properties');
   const propertiesContent =
-    dir === 'sonar-plugin/bridge'
+    dir === analysisClient
       ? `# This file is auto-generated from package.json\n` +
         `node.supported.versions=${rangeSantized}\n`
       : `# This file is auto-generated from package.json\n` + `node.min.version=${minVersion}\n`;
