@@ -97,6 +97,15 @@ describe('S1172', () => {
           return <Tag />
         }`,
         },
+        {
+          code: `
+        const f = ({ a, ...rest }) => rest; // OK, a leaves a property out of rest
+        const g = ({ a: b, ...rest }) => rest;
+        const h = ({ a = 1, ...rest }) => rest;
+        function fun(x, { a, b, ...rest }) {
+          return [x, rest];
+        }`,
+        },
       ],
       invalid: [
         {
@@ -316,6 +325,21 @@ describe('S1172', () => {
                 {
                   desc: 'Rename "b" to "_b"',
                   output: 'function fun(a, { _b }, c) { a = c; }',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          // nested pattern without a rest element
+          code: `const f = ({ a: { b }, ...rest }) => rest;`,
+          errors: [
+            {
+              messageId: 'removeOrRenameParameter',
+              suggestions: [
+                {
+                  desc: 'Rename "b" to "_b"',
+                  output: 'const f = ({ a: { _b }, ...rest }) => rest;',
                 },
               ],
             },
