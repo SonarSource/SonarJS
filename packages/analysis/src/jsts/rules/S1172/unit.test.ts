@@ -116,7 +116,12 @@ describe('S1172', () => {
             {
               messageId: 'removeOrRenameParameter',
               data: { param: 'a' },
-              suggestions: 1,
+              suggestions: [
+                {
+                  desc: 'Rename "a" to "_a"',
+                  output: 'const f = ({ a: _a = 1, ...rest }) => rest;',
+                },
+              ],
             },
           ],
         },
@@ -126,7 +131,12 @@ describe('S1172', () => {
             {
               messageId: 'removeOrRenameParameter',
               data: { param: 'removed' },
-              suggestions: 1,
+              suggestions: [
+                {
+                  desc: 'Rename "removed" to "_removed"',
+                  output: 'const f = ({ a: _removed = 1, ...rest }) => rest;',
+                },
+              ],
             },
           ],
         },
@@ -136,7 +146,12 @@ describe('S1172', () => {
             {
               messageId: 'removeOrRenameParameter',
               data: { param: 'removed' },
-              suggestions: 1,
+              suggestions: [
+                {
+                  desc: 'Rename "removed" to "_removed"',
+                  output: 'const f = (key, { [key]: _removed = 1, ...rest }) => rest;',
+                },
+              ],
             },
           ],
         },
@@ -356,7 +371,7 @@ describe('S1172', () => {
               suggestions: [
                 {
                   desc: 'Rename "b" to "_b"',
-                  output: 'function fun(a, { _b }, c) { a = c; }',
+                  output: 'function fun(a, { b: _b }, c) { a = c; }',
                 },
               ],
             },
@@ -371,7 +386,7 @@ describe('S1172', () => {
               suggestions: [
                 {
                   desc: 'Rename "b" to "_b"',
-                  output: 'const f = ({ a: { _b }, ...rest }) => rest;',
+                  output: 'const f = ({ a: { b: _b }, ...rest }) => rest;',
                 },
               ],
             },

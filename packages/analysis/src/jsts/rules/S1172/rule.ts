@@ -99,13 +99,19 @@ function reportUnusedArgument(
 
 function getSuggestions(paramVariable: Scope.Variable, context: Rule.RuleContext) {
   const paramIdentifier = paramVariable.identifiers[0];
+  const parent = (paramIdentifier as TSESTree.Node).parent;
+  const property = parent?.type === 'AssignmentPattern' ? parent.parent : parent;
   const suggestions: Rule.SuggestionReportDescriptor[] = [
     {
       messageId: 'suggestRenameParameter',
       data: {
         param: paramVariable.name,
       },
-      fix: fixer => fixer.insertTextBefore(paramIdentifier, '_'),
+      fix: fixer =>
+        fixer.insertTextBefore(
+          paramIdentifier,
+          property?.type === 'Property' && property.shorthand ? `${paramVariable.name}: _` : '_',
+        ),
     },
   ];
   const func = paramVariable.defs[0].node as FunctionLike;
