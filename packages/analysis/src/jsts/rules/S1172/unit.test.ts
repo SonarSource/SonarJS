@@ -97,8 +97,64 @@ describe('S1172', () => {
           return <Tag />
         }`,
         },
+        {
+          code: `
+        const f = ({ a, ...rest }) => rest; // OK, a leaves a property out of rest
+        const g = ({ a: b, ...rest }) => rest;
+        const h = (key, { [key]: removed, ...rest }) => rest;
+        const i = (data, { [data.Id]: removed, ...rest }) => rest;
+        const j = ({ a, ...rest } = {}) => rest;
+        function fun(x, { a, b, ...rest }) {
+          return [x, rest];
+        }`,
+        },
       ],
       invalid: [
+        {
+          code: `const f = ({ a = 1, ...rest }) => rest;`,
+          errors: [
+            {
+              messageId: 'removeOrRenameParameter',
+              data: { param: 'a' },
+              suggestions: [
+                {
+                  desc: 'Rename "a" to "_a"',
+                  output: 'const f = ({ a: _a = 1, ...rest }) => rest;',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `const f = ({ a: removed = 1, ...rest }) => rest;`,
+          errors: [
+            {
+              messageId: 'removeOrRenameParameter',
+              data: { param: 'removed' },
+              suggestions: [
+                {
+                  desc: 'Rename "removed" to "_removed"',
+                  output: 'const f = ({ a: _removed = 1, ...rest }) => rest;',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `const f = (key, { [key]: removed = 1, ...rest }) => rest;`,
+          errors: [
+            {
+              messageId: 'removeOrRenameParameter',
+              data: { param: 'removed' },
+              suggestions: [
+                {
+                  desc: 'Rename "removed" to "_removed"',
+                  output: 'const f = (key, { [key]: _removed = 1, ...rest }) => rest;',
+                },
+              ],
+            },
+          ],
+        },
         {
           code: `function fun(a, b) {
                 a = 1;
@@ -315,7 +371,22 @@ describe('S1172', () => {
               suggestions: [
                 {
                   desc: 'Rename "b" to "_b"',
-                  output: 'function fun(a, { _b }, c) { a = c; }',
+                  output: 'function fun(a, { b: _b }, c) { a = c; }',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          // nested pattern without a rest element
+          code: `const f = ({ a: { b }, ...rest }) => rest;`,
+          errors: [
+            {
+              messageId: 'removeOrRenameParameter',
+              suggestions: [
+                {
+                  desc: 'Rename "b" to "_b"',
+                  output: 'const f = ({ a: { b: _b }, ...rest }) => rest;',
                 },
               ],
             },
