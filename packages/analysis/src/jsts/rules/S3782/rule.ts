@@ -59,7 +59,7 @@ export const rule: Rule.RuleModule = {
         if (!parameterType) {
           return null;
         }
-        const declaredType = tc.getTypeFromTypeNode(parameterType);
+        const declaredType = tc.getTypeAtLocation(parameters[i]);
         const actualType = getTypeFromTreeNode(callExpression.arguments[i], services);
         if (
           // @ts-ignore private API, see https://github.com/microsoft/TypeScript/issues/9879
