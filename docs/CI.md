@@ -257,7 +257,7 @@ to select their own API version.
 After building the plugin locally, run:
 
 ```shell
-mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false verify
+mise run test:its:sonarlint
 ```
 
 Local runs discover the built JAR in `sonar-plugin/sonar-javascript-plugin/target`; set
@@ -502,7 +502,7 @@ Responsibilities:
 
 - probe the exact `node_modules` cache
 - if present, stop early
-- if missing, install dependencies and let the post step save the cache
+- if missing, run `install:npm` and let the post step save the cache
 
 Platform specifics:
 
@@ -518,7 +518,7 @@ Responsibilities:
 - restore Maven cache
 - restore rule-api cache
 - authenticate to RSPEC through Vault-fetched GitHub token
-- run `npm run rspec:refresh`
+- run `generate:rspec`
 - upload refreshed rule JSON and `rspec.sha` files as an artifact
 
 This is the only job in the pipeline that refreshes RSPEC.
@@ -535,8 +535,9 @@ Responsibilities:
 - download refreshed RSPEC files
 - configure Maven/Repox
 - fetch deploy/signing credentials
-- regenerate NPM dependency licenses before the bridge is packed
-- run Maven deploy with license-header validation, Maven dependency-license regeneration, and the coverage/sign/release/`sbom` profiles
+- run `generate:licenses` before the analysis server is packed
+- validate source headers separately with `license:headers`
+- run `build:plugin` to validate and deploy the Maven artifacts
 - share SonarJS packages and Maven targets through S3 (GitHub Artifacts on merge queues)
 - upload JaCoCo XML reports and, on nightly runs, generated dependency licenses
 
@@ -548,7 +549,7 @@ Responsibilities:
 
 - Windows verification build
 - restores `node_modules`, CycloneDX CLI cache, and RSPEC artifact; restores the Maven cache and, on the default branch, also saves it
-- runs `mvn verify -Psbom -T1C`
+- runs `build:plugin` with the `verify` goal
 
 It validates Windows buildability but does not deploy artifacts.
 
@@ -559,9 +560,14 @@ Responsibilities:
 - restore `node_modules`
 - configure npm registry
 - download refreshed RSPEC data
-- build ESLint plugin package
+- run `build:eslint-plugin` to type-check and package the npm plugin
 - upload tarball artifact
 - on nightly runs, update rule counts and upload both generated README files
+
+#### `test_eslint_plugin`
+
+Each matrix leg runs its `test:eslint-plugin:eslint<N>` task on the downloaded tarball to verify
+that the packaged plugin works with the supported ESLint major at its minimum Node.js version.
 
 #### `generated_files_freshness`
 
@@ -578,15 +584,15 @@ Responsibilities:
 
 - restore `node_modules`
 - download refreshed RSPEC data
-- run `npm run bbf`
-- run `npx knip`
+- verify that the local-only Java module tasks are discoverable
+- run `test:ci` to check cache recovery and `lint:knip` to check for unused code
 
 #### `test_js`
 
 Responsibilities:
 
 - use `coverage/js` cache as a skip mechanism
-- on miss, restore `node_modules`, download refreshed RSPEC data, generate metadata, compile bridge, run JS tests with coverage
+- on miss, restore `node_modules`, download refreshed RSPEC data and run `coverage:analysis-server`
 - validate coverage files exist
 - upload coverage reports artifact for analysis jobs
 
@@ -598,7 +604,7 @@ Its skip cache is keyed on source, workflow, and dependency inputs, plus a diges
 Responsibilities:
 
 - use a Windows marker cache as a skip mechanism
-- on miss, restore `node_modules`, download refreshed RSPEC data, generate metadata, compile bridge, run JS tests
+- on miss, restore `node_modules`, download refreshed RSPEC data and run `test:analysis-server`
 - create marker directory so the post step can save it
 
 Like `test_js`, its skip key includes workflow and dependency inputs and the refreshed RSPEC rule-resource digest in addition to source inputs.
@@ -632,6 +638,10 @@ These jobs all consume:
 - often orchestrator cache
 - various licenses and runtime credentials
 
+Full QA uses `test:its:sonarlint` and/or `test:its:plugin`; fast QA uses `test:its:fast` or
+`test:its:fast-without-node`. The optional minimal Ubuntu job uses `test:its:embedded-node`, whose
+PATH guard prevents a system runtime from masking an embedded-runtime failure.
+
 Variants differ by:
 
 - Node present vs disabled
@@ -652,7 +662,7 @@ Responsibilities:
 - checkout the tested tree with submodules and depth two; capture the PR merge's first parent
 - restore `node_modules`
 - download refreshed RSPEC data
-- run JS/TS ruling
+- run `test:ruling:analysis-server` (also used by replay to validate the saved snapshots)
 - save generated results when ruling fails; expose the ruling outcome, successful persistence,
   tested base and exact producing artifact name to `js_ts_ruling_update`
 
@@ -861,16 +871,10 @@ These are the most important reusable components in the current pipeline.
 
 ## Toolchain Provisioning (mise)
 
-Java, Maven, and Node for CI are declared exactly once, in the repo-root [`mise.toml`](../mise.toml):
-
-```toml
-[tools]
-java = "21.0"
-maven = "3.9"
-node = "24.11.1"
-```
-
-Every `jdx/mise-action` step in `build.yml` picks this up automatically — **no job in `build.yml` passes its own `mise_toml` input.** Passing that input would overwrite the tracked file on the runner (`mise-action` writes it to `mise.toml` in the working directory), which is exactly what jobs used to do before this file existed, each restating the same three versions inline.
+The root [`mise.toml`](../mise.toml) pins the default Java, Maven and Node toolchain and includes
+[component task configs](../.mise/tasks). Check step names match the tasks developers can rerun
+locally (see [the build guide](BUILD.md#ci-backed-tasks)). No job overrides the root file with a
+`mise_toml` input; that would also drop the task includes.
 
 ### Installing only a subset of tools
 
@@ -883,13 +887,19 @@ A job that does not need every tool restricts installation with `install_args` i
 | `populate_npm_cache`, `populate_npm_cache_win`, `test_js`, `test_js_win`                                                                                                                        | _(none — installs everything)_ | same as `&mise`, but these steps carry their own `if: cache-hit != 'true'` guard, so they can't use the anchor and appear as separate inline steps instead |
 | `plugin_qa_without_node`, `plugin_qa_without_node_dev`, `plugin_qa_fast_without_node`, `plugin_qa_fast_without_node_dev`, `minimal_ubuntu_analyzer_check` (the `&mise_java_only` anchor)        | `java maven`                   | Install no system Node so QA and the minimal Ubuntu check exercise the bundled runtime                                                                     |
 | `plugin_qa_without_node_alpine`, `plugin_qa_fast_without_node_alpine` (the `&alpine_setup_maven` anchor)                                                                                        | `maven`                        | the Alpine container image already ships its own JDK; only Maven is missing                                                                                |
-| `test_eslint_plugin`, `js_ts_ruling_update`                                                                                                                                                     | `node`                         | These jobs only need Node, with the ESLint test version set by its matrix (see below)                                                                      |
+| `js_ts_ruling_update`                                                                                                                                                                           | `node`                         | Only needs the default Node runtime.                                                                                                                       |
+| `test_eslint_plugin`                                                                                                                                                                            | `node` and the matrix runtime  | The default Node is available during registry setup; task tools select the runtime for the test.                                                           |
 
-A tool declared in `mise.toml` but omitted from `install_args` is simply left uninstalled: `mise ls` reports it `(missing)`, no shim is created for it, and `mise env` does not export it (confirmed against the pinned Alpine image — the container's own `JAVA_HOME` survives untouched). This is what makes the Alpine/`_only` rows above safe even though `mise.toml` also declares tools they don't want.
+The embedded-runtime jobs set `MISE_DISABLE_TOOLS=node` so `mise run` does not activate Node
+from the root config even if mise has it cached. The regular Ubuntu variants mask any runner Node
+with a command that fails; the minimal Ubuntu check requires that no `node` command exists. The
+Alpine jobs also disable mise's `java` to keep the image's JDK.
 
 ### Overriding one tool's version per job (matrix Node versions)
 
-`plugin_qa_with_node`, `plugin_qa_fast_with_node`, and `test_eslint_plugin` each need a _different_ Node version per matrix leg instead of `mise.toml`'s default. They override it at runtime with a `MISE_<TOOL>_VERSION` env var, e.g.:
+`plugin_qa_with_node` and `plugin_qa_fast_with_node` keep the runtime matrix derived from the
+package engine range. They override the root Node version with `MISE_NODE_VERSION` because their
+QA tasks do not declare a Node version:
 
 ```yaml
 plugin_qa_with_node:
@@ -905,19 +915,19 @@ plugin_qa_with_node:
 Two rules — getting the first one wrong is a silent _correctness_ bug; getting the second one wrong is only a _cache-efficiency_ problem, but both are worth getting right:
 
 1. **Declare the env var at job level, not on the mise-action step.** This one has no safety net — get it wrong and there is no test failure to catch it. `mise-action` puts mise's shim directory on `PATH` for every later step in the job (not just its own). Those shims resolve the tool version at invocation time from whatever's in the environment then. A step-scoped `env:` on the mise-action step only exists while that one step runs, so every subsequent step (npm scripts, the Maven QA run, ...) would silently fall back to `mise.toml`'s default version instead of the matrix leg's.
-2. **Pass an explicit `cache_key` that includes the env var.** `mise-action`'s default cache key is `{{cache_key_prefix}}-{{platform}}-{{version}}[-{{mise_env}}][-{{install_args_hash}}][-{{bootstrap_hash}}]-{{file_hash}}` (`{{version}}` here is the pinned _mise binary_ version, e.g. `2026.8.14` — not a provisioned tool's version) — `file_hash` is a hash of the mise config files, and nothing in that template reflects a `MISE_<TOOL>_VERSION` override. Since `mise.toml` is now identical across every matrix leg, legs with a _different_ Node version would resolve to the same default key and fight over one shared cache entry unless `cache_key` folds the env var in explicitly (as shown above). Getting this wrong doesn't break the override itself — `mise install` still installs the version `MISE_NODE_VERSION` asks for regardless of what the restored cache contained — it just means wasted downloads and cache churn between legs. Two legs that happen to want the _same_ Node version (e.g. `test_eslint_plugin`'s `eslint-9` and `eslint-8` matrix entries, both on Node 18.18.0) correctly still share one cache entry; that's fine, since they install the identical toolset.
+2. **Pass an explicit `cache_key` that includes the env var.** `mise-action`'s default cache key is `{{cache_key_prefix}}-{{platform}}-{{version}}[-{{mise_env}}][-{{install_args_hash}}][-{{bootstrap_hash}}]-{{file_hash}}` (`{{version}}` here is the pinned _mise binary_ version, e.g. `2026.8.14` — not a provisioned tool's version) — `file_hash` is a hash of the mise config files, and nothing in that template reflects a `MISE_<TOOL>_VERSION` override. Since `mise.toml` is now identical across every matrix leg, legs with a _different_ Node version would resolve to the same default key and fight over one shared cache entry unless `cache_key` folds the env var in explicitly (as shown above). Getting this wrong doesn't break the override itself — `mise install` still installs the version `MISE_NODE_VERSION` asks for regardless of what the restored cache contained — it just means wasted downloads and cache churn between legs. The ESLint test matrix instead uses the Node versions in the [task definitions](../.mise/tasks/eslint-plugin.toml), which also apply locally. Its matrix version labels preserve check names and separate the tool caches; ESLint 8 and 9 share the same runtime cache.
 
 Also note: `install_args_hash` already differentiates jobs with different `install_args` sets (e.g. the `java maven`-only jobs never collide with the full-install jobs), so the explicit `cache_key` above is only needed for the _env-var-override_ case, not for the `install_args`-restriction case.
 
 ### Keeping the JS unit-test skip-cache honest
 
-`setup`'s `js-files-hash` step (`build.yml`, "Compute JS test hash for skip caching") hashes a `find` list that includes `mise.toml`. The skip-cache keys for `test_js` and `test_js_win` combine that hash with `prepare_rspec_rule_data`'s `test-input-hash`, computed after refreshing the generated JS and CSS rule resources. On a hit, `test_js` skips checkout/mise/npm/test entirely but still runs its unconditional coverage-upload step, publishing whatever coverage was already in the restored cache; `test_js_win` is a restored success marker with no upload step at all, so its failure mode is simpler but just as invisible — it reports green having run nothing. Before `mise.toml` existed, the tool versions lived inside `build.yml` itself, which _is_ in `js-files-hash`, so a version bump correctly invalidated the skip cache and forced a real re-run. `mise.toml` has to stay in that `find` list for the same property to hold: without it, bumping `mise.toml` alone would hit the stale cache and never re-run on the new toolchain.
+`setup`'s `js-files-hash` step (`build.yml`, "Compute JS test hash for skip caching") hashes the task configuration and root tool pins along with implementation inputs. The skip-cache keys for `test_js` and `test_js_win` combine that hash with `prepare_rspec_rule_data`'s `test-input-hash`, computed after refreshing the generated JS and CSS rule resources. On a hit, `test_js` skips checkout/mise/npm/test entirely but still runs its unconditional coverage-upload step, publishing whatever coverage was already in the restored cache; `test_js_win` is a restored success marker with no upload step at all, so its failure mode is simpler but just as invisible — it reports green having run nothing. Before `mise.toml` existed, the tool versions lived inside `build.yml` itself, which _is_ in `js-files-hash`, so a version bump correctly invalidated the skip cache and forced a real re-run. `mise.toml` has to stay in that `find` list for the same property to hold: without it, bumping `mise.toml` alone would hit the stale cache and never re-run on the new toolchain.
 
-Being _in_ the hash isn't sufficient on its own, though — the hash is over `mise.toml`'s _text_, not the version mise actually resolves at runtime. A fuzzy spec like `node = "24.11"` has the same declared text before and after a new `24.11.x` patch ships, so the skip-cache key wouldn't change even though the Node runtime under test would. That's why `node` is pinned to an exact version (`24.11.1`) above rather than left fuzzy like `java`/`maven`: `java`/`maven`'s exact patch doesn't affect `test_js`'s behavior (that job never touches Maven, and Java only matters to Maven-based jobs, which have no equivalent skip-cache), but Node's does, so Node's declared and resolved versions have to be the same value at all times. See [Why Node is pinned exactly, and every other version is a fuzzy minor spec](#why-node-is-pinned-exactly-and-every-other-version-is-a-fuzzy-minor-spec) below.
+Being _in_ the hash isn't sufficient on its own, though — the hash is over `mise.toml`'s _text_, not the version mise actually resolves at runtime. A fuzzy spec like `node = "24.11"` has the same declared text before and after a new `24.11.x` patch ships, so the skip-cache key wouldn't change even though the Node runtime under test would. That's why `node` is pinned to an exact version in `mise.toml` rather than left fuzzy like `java`/`maven`: `java`/`maven`'s exact patch doesn't affect `test_js`'s behavior (that job never touches Maven, and Java only matters to Maven-based jobs, which have no equivalent skip-cache), but Node's does, so Node's declared and resolved versions have to be the same value at all times. See [Why Node is pinned exactly, and every other version is a fuzzy minor spec](#why-node-is-pinned-exactly-and-every-other-version-is-a-fuzzy-minor-spec) below.
 
 ### Why Node is pinned exactly, and every other version is a fuzzy minor spec
 
-`mise.toml` uses `java = "21.0"` and `maven = "3.9"` — minor-precision fuzzy specs — but pins `node = "24.11.1"` to an exact patch. This isn't an inconsistency; each is deliberate, for different reasons:
+`mise.toml` uses `java = "21.0"` and `maven = "3.9"` — minor-precision fuzzy specs — but pins `node` to an exact patch. This isn't an inconsistency; each is deliberate, for different reasons:
 
 - **Node has to be exact because its resolved version feeds a cache key that only encodes declared text, not resolved version** (see [Keeping the JS unit-test skip-cache honest](#keeping-the-js-unit-test-skip-cache-honest) above, and the same is true of `mise-action`'s own cache key). A fuzzy `node = "24.11"` would keep the same declared text across a `24.11.1` → `24.11.2` patch release, so every hash keyed on that text would stay unchanged even though the actual Node runtime under test would not — a real toolchain change with zero corresponding cache invalidation. Pinning exactly means the declared version and the resolved version are always the same value, closing that gap outright.
 - **Java and Maven stay fuzzy because nothing about their exact patch feeds any skip-cache key that matters.** `test_js`/`test_js_win` never touch Maven and don't run under a JVM, so a Java or Maven patch bump has no equivalent staleness risk to close.
@@ -931,7 +941,7 @@ Being _in_ the hash isn't sufficient on its own, though — the hash is over `mi
 
 Several jobs/steps are guarded by `if: github.event_name == 'schedule'`, and GitHub only fires `schedule` on the default branch — so they don't run on `push`, `pull_request`, or even a manual `workflow_dispatch`: `plugin_qa_without_node_dev`, `plugin_qa_without_node_alpine`, `plugin_qa_fast_without_node_dev`, `plugin_qa_fast_without_node_alpine`, `analyze_shadows`, `run_iris`, `generated_files_freshness`, and the nightly steps inside `build_eslint_plugin` and `build` (the `generated-licenses-${github.sha}` upload). A change that only affects one of these (like an Alpine-container `install_args` tweak) gets **no CI signal at all** until the first post-merge nightly.
 
-Do not "fix" this by dispatching `build.yml` manually to force them — a `workflow_dispatch` run satisfies `github.event_name != 'pull_request'`, so it will also run `build`'s `mvn deploy -Pdeploy-sonarsource,coverage,sign,release,sbom,license-regeneration -T1C` and the `promote` job, publishing and promoting real artifacts in Repox from a throwaway ref. For container-specific behavior (e.g. the Alpine jobs), reproduce it locally instead: run the exact pinned container image with the exact pinned `mise` version (`curl https://mise.run | MISE_VERSION=v<pinned> sh`) and mount in `mise.toml`, rather than the version installed on your own machine.
+Do not "fix" this by dispatching `build.yml` manually to force them — a `workflow_dispatch` run satisfies `github.event_name != 'pull_request'`, so it will also run `build`'s `build:plugin` task in deploy mode and the `promote` job, publishing and promoting real artifacts in Repox from a throwaway ref. For container-specific behavior (e.g. the Alpine jobs), reproduce it locally instead: run the exact pinned container image with the exact pinned `mise` version (`curl https://mise.run | MISE_VERSION=v<pinned> sh`) and mount in `mise.toml`, rather than the version installed on your own machine.
 
 ## PR Cleanup Workflow
 

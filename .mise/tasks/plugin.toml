@@ -1,0 +1,38 @@
+["build:plugin"]
+description = "Build the Java plugin, bundle the analysis server and run Java unit tests"
+tools = { java = "{% set cfg = read_toml(path=config_root ~ '/mise.toml') %}{{ cfg.tools.java }}", maven = "{% set cfg = read_toml(path=config_root ~ '/mise.toml') %}{{ cfg.tools.maven }}", node = "{% set cfg = read_toml(path=config_root ~ '/mise.toml') %}{{ cfg.tools.node }}" }
+run = 'mvn "${MAVEN_GOAL:-install}" "-P${MAVEN_PROFILES:-sbom}" -T1C -Dlicense.skip=true'
+
+["test:plugin:api"]
+description = "Run Java unit tests for the custom-rules API"
+extends = "plugin-unit-test"
+vars = { module = "api" }
+
+["test:plugin:analysis-client"]
+description = "Run Java unit tests for the analysis client"
+extends = "plugin-unit-test"
+vars = { module = "analysis-client" }
+
+["test:plugin:css"]
+description = "Run Java unit tests for CSS"
+extends = "plugin-unit-test"
+vars = { module = "css" }
+
+["test:plugin:javascript-checks"]
+description = "Run Java unit tests for JavaScript checks"
+extends = "plugin-unit-test"
+vars = { module = "javascript-checks" }
+
+["test:plugin:sonar-javascript-plugin"]
+description = "Run Java unit tests for the SonarQube plugin"
+extends = "plugin-unit-test"
+vars = { module = "sonar-javascript-plugin" }
+
+["test:plugin:standalone"]
+description = "Run Java unit tests for the standalone parser"
+extends = "plugin-unit-test"
+vars = { module = "standalone" }
+
+["test:plugin"]
+description = "Run all Java module unit tests after a plugin build"
+depends = ["test:plugin:*"]

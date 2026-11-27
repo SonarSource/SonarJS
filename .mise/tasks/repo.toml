@@ -1,0 +1,43 @@
+["install:npm"]
+description = "Install npm dependencies from the root lockfile"
+tools = { node = "{% set cfg = read_toml(path=config_root ~ '/mise.toml') %}{{ cfg.tools.node }}" }
+run = "npm ci"
+
+["generate:rspec"]
+description = "Refresh the tracked rule data from RSPEC"
+tools = { node = "{% set cfg = read_toml(path=config_root ~ '/mise.toml') %}{{ cfg.tools.node }}", java = "{% set cfg = read_toml(path=config_root ~ '/mise.toml') %}{{ cfg.tools.java }}", maven = "{% set cfg = read_toml(path=config_root ~ '/mise.toml') %}{{ cfg.tools.maven }}" }
+run = "npm run rspec:refresh"
+
+["generate:licenses"]
+description = "Regenerate npm dependency licenses"
+tools = { node = "{% set cfg = read_toml(path=config_root ~ '/mise.toml') %}{{ cfg.tools.node }}" }
+run = "npm run license-regeneration"
+
+["license:headers"]
+description = "Check source license headers across the Maven reactor"
+tools = { java = "{% set cfg = read_toml(path=config_root ~ '/mise.toml') %}{{ cfg.tools.java }}", maven = "{% set cfg = read_toml(path=config_root ~ '/mise.toml') %}{{ cfg.tools.maven }}" }
+run = "mvn -Dlicense.skip=false com.mycila:license-maven-plugin:check"
+
+[license]
+description = "Run repository license checks"
+depends = ["license:headers"]
+
+["lint:knip"]
+description = "Check for unused code and npm dependencies"
+tools = { node = "{% set cfg = read_toml(path=config_root ~ '/mise.toml') %}{{ cfg.tools.node }}" }
+depends = ["build:analysis-server"]
+run = "npx knip --no-gitignore"
+
+[lint]
+description = "Run repository lint checks"
+depends = ["lint:knip"]
+
+["test:ci"]
+description = "Test CI cache recovery conditions"
+tools = { node = "{% set cfg = read_toml(path=config_root ~ '/mise.toml') %}{{ cfg.tools.node }}" }
+run = "node --test .github/tests/cache-restore.test.mjs"
+
+[build]
+description = "Build the analysis server, Java plugin and ESLint package"
+# All three build tasks use the same lib/ directory.
+run = [{ task = "build:analysis-server" }, { task = "build:plugin" }, { task = "build:eslint-plugin" }]

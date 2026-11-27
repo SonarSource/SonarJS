@@ -4,38 +4,53 @@ For the GitHub Actions pipeline, cache design, artifacts, job graph, and externa
 
 ## Default workflow
 
-Run `npm ci` first on a fresh checkout, and again after any `package.json` or lockfile change.
+Run `mise install` to provision the pinned tools, then `mise run install:npm` on a fresh checkout
+and after any `package.json` or lockfile change. Check tasks do not reinstall dependencies.
+Use `mise tasks` to find the smallest task for your change. Tasks run against tracked rule data
+unless you explicitly run `mise run generate:rspec`.
 
-Use `mvn install` for normal development after Node dependencies are installed.
-This reuses the tracked rule metadata already present in the checkout unless an explicit RSPEC refresh is requested.
+## CI-backed tasks
 
-Avoid `mvn clean` while iterating. The fast Java-only loop reuses previously generated artifacts,
-and `clean` deletes them. Only use `mvn clean install` when you explicitly want to rebuild generated
-assets from scratch. If that clean rebuild should also pick up the latest RSPEC data, run
-`npm run rspec:refresh` first.
+| Task                                                  | When to use it                                                                                                                                     |
+| ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `build:analysis-server`                               | Generate metadata and compile the Node.js server and its tests.                                                                                    |
+| `test:analysis-server` / `coverage:analysis-server`   | Run the compiled unit tests, with Sonar reports for the coverage task.                                                                             |
+| `build:eslint-plugin`                                 | Type-check and build the npm tarball.                                                                                                              |
+| `test:eslint-plugin:eslint8`, `:eslint9`, `:eslint10` | Test an existing tarball with that ESLint major and its minimum Node version.                                                                      |
+| `build:plugin`                                        | Build and install the Maven reactor, including Java unit tests and the SBOM. Set `MAVEN_GOAL` or `MAVEN_PROFILES` to override `install` or `sbom`. |
+| `test:plugin:<module>`                                | Run a Maven module's Java tests after `build:plugin`, reusing generated artifacts.                                                                 |
+| `test:its:<suite>` / `test:ruling:<component>`        | Run integration or ruling checks; see prerequisites below.                                                                                         |
+| `test:ci`, `lint:knip`, `license:headers`             | Run CI helper tests, unused-code checks, or source license-header checks.                                                                          |
 
-## Common commands
-
-Full reactor build using the tracked local rule JSON:
+For example, run one rule's compiled tests instead of the full CI suite:
 
 ```bash
-mvn install
+mise run test:analysis-server lib/analysis/src/jsts/rules/S905/unit.test.js
 ```
 
-Full reactor build without tests using the tracked local rule JSON:
+Use a component's parent task (such as `test:plugin` or `test:eslint-plugin`) for broader checks.
+`test:its` selects the fast suites for the current Node.js environment. The embedded-runtime check
+requires no `node` on `PATH`; set `MISE_DISABLE_TOOLS=node` to keep mise from activating one.
 
-```bash
-mvn install -DskipTests
-```
+Build and install the plugin before running the integration or Java ruling tests. Ruling also needs
+`its/sources` initialized for a normal local run. Integration tasks accept `ITS_TESTS` (Surefire
+selection), `SONAR_RUNTIME_VERSION` (defaults to `LATEST_RELEASE`), and the optional Orchestrator
+settings `ORCHESTRATOR_CONFIG_URL` and `ORCHESTRATOR_HOME`. If required services or credentials
+are unavailable, report the check as not run. See [CI.md](CI.md) for the CI variants.
+
+## Specialized commands
+
+Use `mise exec --` for flags and maintenance commands not covered by tasks. Avoid `clean` when
+iterating: it deletes the generated outputs needed by the fast Java-only loop.
 
 Generate and attach the analyzer CycloneDX SBOM:
 
 ```bash
-mvn -Psbom -pl sonar-plugin/sonar-javascript-plugin -am package
+mise exec -- mvn -Psbom -pl sonar-plugin/sonar-javascript-plugin -am package
 ```
 
-The `sbom` profile is intentionally opt-in for local builds. CI enables it on the Linux deploy and
-Windows verification builds. It generates the Maven and npm BOMs, hierarchically merges them,
+The `sbom` profile is enabled by `build:plugin` and is opt-in when running Maven directly.
+It generates the Maven and npm BOMs, hierarchically merges them,
 validates the result, and verifies that every npm package included by esbuild is represented.
 
 The pinned CycloneDX CLI is stored under `${XDG_CACHE_HOME:-$HOME/.cache}/cyclonedx-cli` after its
@@ -44,61 +59,37 @@ SHA-256 checksum is verified. Set `CYCLONEDX_CLI_CACHE_DIR` to override that loc
 Clean rebuild using the tracked local rule JSON:
 
 ```bash
-mvn clean install
+mise exec -- mvn clean install
 ```
 
-Refresh RSPEC first, then run a full Maven build:
+To build without tests, pass `-DskipTests` through Maven's environment:
 
 ```bash
-npm run rspec:refresh
-mvn install
-```
-
-Refresh RSPEC first, then run a Maven build without tests:
-
-```bash
-npm run rspec:refresh
-mvn install -DskipTests
+MAVEN_ARGS=-DskipTests mise run build:plugin
 ```
 
 Fast Java-only targeted test:
 
 ```bash
-mvn -pl sonar-plugin/sonar-javascript-plugin -am -Dskip-nodejs -Dskip-java-generation "-Dtest=WebSensorTest" "-Dsurefire.failIfNoSpecifiedTests=false" test
+mise exec -- mvn -pl sonar-plugin/sonar-javascript-plugin -am -Dskip-nodejs -Dskip-java-generation "-Dtest=WebSensorTest" "-Dsurefire.failIfNoSpecifiedTests=false" test
 ```
 
 Fast Java-only compile loop:
 
 ```bash
-mvn -pl sonar-plugin/sonar-javascript-plugin -am -Dskip-nodejs -Dskip-java-generation test-compile
+mise exec -- mvn -pl sonar-plugin/sonar-javascript-plugin -am -Dskip-nodejs -Dskip-java-generation test-compile
 ```
-
-Analysis-server-only Node build:
-
-```bash
-npm run bridge:build:fast
-```
-
-This command also assumes `npm ci` was already run in the checkout.
-
-Build the ESLint plugin tarball:
-
-```bash
-npm run eslint-plugin:build
-```
-
-This command also assumes `npm ci` was already run in the checkout.
 
 Regenerate rule metadata:
 
 ```bash
-npm run generate-meta
+mise exec -- npm run generate-meta
 ```
 
 Refresh tracked RSPEC rule data explicitly:
 
 ```bash
-npm run rspec:refresh
+mise run generate:rspec
 ```
 
 That refresh uses a dedicated root Maven profile. It syncs RSPEC once during `generate-resources`,
@@ -107,41 +98,40 @@ then deploys the JavaScript and CSS rule data during `process-resources`.
 Override the default RSPEC branch for one refresh run:
 
 ```bash
-npm run rspec:refresh -- -Drspec.branch=<rspec-branch>
+mise run generate:rspec -- -- -Drspec.branch=<rspec-branch>
 ```
 
 Pin the refresh to an exact RSPEC revision:
 
 ```bash
 echo "<rspec-commit-sha>" > rspec.sha
-npm run rspec:refresh
+mise run generate:rspec
 ```
 
 Or pin one refresh run directly from the command line:
 
 ```bash
-npm run rspec:refresh -- -Drspec.sha=<commit-sha>
+mise run generate:rspec -- -- -Drspec.sha=<commit-sha>
 ```
 
 Refresh RSPEC first, then run the fast local build:
 
 ```bash
-npm run bbf:latest
+mise run generate:rspec && mise run build:analysis-server
 ```
 
 Validate quickfix declarations:
 
 ```bash
-npm run validate-quickfix
+mise exec -- npm run validate-quickfix
 ```
 
 ## Baseline CI mismatches
 
 Local builds and CI do not consume RSPEC data the same way:
 
-- Normal local workflows such as `npm run bbf`, `npm run generate-meta`, and `mvn install` reuse
-  the tracked JavaScript rule JSON already present in the checkout unless you explicitly run
-  `npm run rspec:refresh`.
+- `build:analysis-server` and `build:plugin` reuse the tracked JavaScript rule JSON already present
+  in the checkout unless you explicitly run `generate:rspec`.
 - In GitHub Actions, `prepare_rspec_rule_data` refreshes RSPEC first and uploads an
   `rspec-rule-data-${github.sha}` artifact. Downstream jobs use that refreshed artifact instead of
   the tracked JSON from the branch.
@@ -310,7 +300,7 @@ Important detail:
 
 Because of that, a common workflow is:
 
-1. Run one regular build with `mvn install`.
+1. Run one regular build with `mise run build:plugin`.
 2. Iterate with `-Dskip-nodejs` and optionally `-Dskip-java-generation`.
 3. Run another regular build whenever you touch generated inputs.
 
@@ -367,4 +357,4 @@ Explicit RSPEC refresh
 - `-Dsurefire.failIfNoSpecifiedTests=false` is useful with `-pl ... -am -Dtest=...` because upstream
   modules in the reactor may not contain the selected test class.
 - If the fast path starts failing because generated artifacts are missing or stale, drop the skip
-  flags and run a regular `mvn install`.
+  flags and run `mise run build:plugin`.

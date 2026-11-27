@@ -21,7 +21,7 @@ env:
   # Keep public lockfile URLs on npmjs; CI selects the registry at install time.
   NPM_CONFIG_REPLACE_REGISTRY_HOST: npmjs
   NPM_CONFIG_LOGLEVEL: ${{ inputs.validate-registry-routing && 'http' || 'notice' }}
-  # Run the Maven license-header check only in the Linux build; other Maven jobs skip it.
+  # Check source headers in the dedicated Linux build step, not in Maven lifecycles.
   MAVEN_ARGS: -Dlicense.skip=true
   # Workflows modified by a pull request cannot create the refs used by get-build-number even
   # when contents: write is requested. Reuse the stable workflow run number in that case.
@@ -66,7 +66,7 @@ jobs:
       - name: Compute JS test hash for skip caching
         id: compute-js-hash
         run: |
-          HASH=$(find .github/workflows/build.yml mise.toml packages patches sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules sonar-plugin/css/src/test/resources/default-stylesheet-suffixes.json tools typings .nycrc package.json package-lock.json server.mjs -type f 2>/dev/null | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
+          HASH=$(find .github/workflows/build.yml mise.toml .mise/tasks/analysis-server.toml packages patches sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules sonar-plugin/css/src/test/resources/default-stylesheet-suffixes.json tools typings .nycrc package.json package-lock.json server.mjs -type f 2>/dev/null | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
           echo "hash=$HASH" >> $GITHUB_OUTPUT
           echo "Computed JS test hash: $HASH"
       - name: Compute Maven hash for cache key
@@ -186,8 +186,9 @@ jobs:
           disable-caching: 'true'
       - &npm_cache_install
         if: *npm_cache_miss
-        name: Install NPM dependencies
-        run: npm ci
+        name: install:npm
+        shell: bash
+        run: mise run install:npm
 
   populate_npm_cache_win:
     runs-on: warp-custom-windows-2022-s
@@ -280,12 +281,17 @@ jobs:
             development/artifactory/token/{REPO_OWNER_NAME_DASH}-qa-deployer access_token | ARTIFACTORY_DEPLOY_ACCESS_TOKEN;
             development/kv/data/sign key | SIGN_KEY;
             development/kv/data/sign passphrase | PGP_PASSPHRASE;
-      - name: Regenerate NPM dependency licenses
-        run: npm run license-regeneration
-      - name: Build, test and deploy Maven artifacts
-        run: mvn deploy -Pdeploy-sonarsource,coverage,sign,release,sbom,license-regeneration -T1C
+      - name: generate:licenses
+        run: mise run generate:licenses
+      - name: license:headers
+        run: mise run license:headers
         env:
           MAVEN_ARGS: ''
+      - name: build:plugin
+        run: mise run build:plugin
+        env:
+          MAVEN_GOAL: deploy
+          MAVEN_PROFILES: deploy-sonarsource,coverage,sign,release,sbom,license-regeneration
           ARTIFACTORY_URL: https://repox.jfrog.io/artifactory
           ARTIFACTORY_DEPLOY_USERNAME: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_USERNAME }}
           ARTIFACTORY_DEPLOY_PASSWORD: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_ACCESS_TOKEN }}
@@ -386,8 +392,11 @@ jobs:
           restore-keys: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-
       - *cyclonedx_cli_cache
       - *config_maven
-      - name: Build and test Maven (no deploy)
-        run: mvn verify -Psbom -T1C
+      - name: build:plugin
+        shell: bash
+        run: mise run build:plugin
+        env:
+          MAVEN_GOAL: verify
       - *clean_sonarjs_m2
 
   prepare_rspec_rule_data:
@@ -418,8 +427,8 @@ jobs:
         with:
           secrets: |
             development/github/token/{REPO_OWNER_NAME_DASH}-rspec token | RSPEC_GITHUB_TOKEN;
-      - name: Refresh and deploy RSPEC rule data
-        run: npm run rspec:refresh
+      - name: generate:rspec
+        run: mise run generate:rspec
         env:
           GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
       - name: Compute generated RSPEC test input hash
@@ -459,8 +468,8 @@ jobs:
           artifactory-reader-role: private-reader
           disable-caching: 'true'
       - *download_rspec_rule_data
-      - name: Build ESLint plugin
-        run: npm run eslint-plugin:build
+      - name: build:eslint-plugin
+        run: mise run build:eslint-plugin
       - name: Regenerate tracked README files
         if: github.event_name == 'schedule'
         run: npm run count-rules
@@ -542,49 +551,33 @@ jobs:
     permissions: *read_permissions
     env:
       BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
-      MISE_NODE_VERSION: ${{ matrix.node-version }}
     strategy:
       fail-fast: false
       matrix:
+        # Keep check names and cache partitions stable; the tasks select the runtime.
         include:
           - eslint-version: 10
             node-version: '20.19.0'
-            node-label: 'min supported'
           - eslint-version: 9
             node-version: '18.18.0'
-            node-label: 'min supported'
           - eslint-version: 8
             node-version: '18.18.0'
-            node-label: 'min supported'
     steps:
       - *checkout
       - uses: jdx/mise-action@90f833d396d0cc3674b631d2d225e306476c303a # v5.2.10
         with:
           version: 2026.10.20
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
-          cache_key: '{{default}}-{{env.MISE_NODE_VERSION}}'
-          install_args: node
+          cache_key: '{{default}}-${{ matrix.node-version }}'
+          install_args: node node@${{ matrix.node-version }}
       - name: Download ESLint plugin tarball
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: eslint-tarball-${{ github.sha }}
           path: lib
-      - name: Validate ESLint plugin tarball
-        shell: bash
-        run: |
-          TARBALL=lib/eslint-plugin-sonarjs-0.0.0-SNAPSHOT.tgz
-
-          if [ ! -f "$TARBALL" ]; then
-            echo "::error file=$TARBALL::Missing ESLint plugin tarball"
-            exit 1
-          fi
       - *config_npm_edge
-      - name: Test ESLint Plugin
-        run: |
-          cd its/eslint${{ matrix.eslint-version }}-plugin-sonarjs
-          npm install --ignore-scripts --fetch-retry-mintimeout=10000 --fetch-retry-maxtimeout=60000 --fetch-retries=3
-          npx tsc --noEmit
-          npm run test
+      - name: test:eslint-plugin:eslint${{ matrix.eslint-version }}
+        run: mise run test:eslint-plugin:eslint${{ matrix.eslint-version }}
 
   knip:
     runs-on: sonar-xs
@@ -596,12 +589,16 @@ jobs:
       - *mise
       - *npm_cache
       - *download_rspec_rule_data
-      - name: Test CI cache recovery conditions
-        run: node --test .github/tests/cache-restore.test.mjs
-      - name: Run knip
+      - name: Verify Java module tasks are discoverable
         run: |
-          npm run bbf
-          npx knip --no-gitignore
+          for pom in sonar-plugin/*/pom.xml; do
+            module=${pom#sonar-plugin/}
+            mise tasks info "test:plugin:${module%/pom.xml}" >/dev/null
+          done
+      - name: test:ci
+        run: mise run test:ci
+      - name: lint:knip
+        run: mise run lint:knip
 
   test_js:
     runs-on: sonar-m
@@ -641,11 +638,8 @@ jobs:
           name: rspec-rule-data-${{ github.sha }}
           path: sonar-plugin
       - if: *js_coverage_cache_miss
-        name: Run JS tests with coverage
-        run: |
-          npm run generate-meta
-          npm run bridge:compile
-          npm run bridge:test:cov
+        name: coverage:analysis-server
+        run: mise run coverage:analysis-server
       - &validate_js_coverage_reports
         name: Validate JS coverage reports
         run: |
@@ -703,12 +697,10 @@ jobs:
           name: rspec-rule-data-${{ github.sha }}
           path: sonar-plugin
       - if: *js_marker_cache_miss
-        name: Run JS tests on Windows
+        name: test:analysis-server
         shell: bash
         run: |
-          npm run generate-meta
-          npm run bridge:compile
-          npm run bridge:test:js
+          mise run test:analysis-server
           mkdir -p .js-test-marker-win && touch .js-test-marker-win/success
 
   analyze_primary:
@@ -945,14 +937,16 @@ jobs:
           echo "ORCHESTRATOR_CONFIG_URL=file://$config_path" >> "$GITHUB_ENV"
       - &orchestrator_cache_restore
         uses: ./.github/actions/orchestrator-cache
-      - name: Run Plugin QA
-        run: |
-          mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
-          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
-          mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
-        env:
+      - &qa_sonarlint
+        name: test:its:sonarlint
+        run: mise run test:its:sonarlint
+        env: &qa_env
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+      - &qa_plugin
+        name: test:its:plugin
+        run: mise run test:its:plugin
+        env: *qa_env
       - *clean_sonarjs_m2
 
   plugin_qa_fast_with_node:
@@ -982,13 +976,9 @@ jobs:
         uses: ./.github/actions/orchestrator-cache
         with:
           key-prefix: orchestrator-production-fast
-      - name: Run Fast Plugin QA
-        run: |
-          mvn package -f its/plugin/plugins/pom.xml
-          mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
-        env:
-          SONARSOURCE_QA: true
-          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+      - name: test:its:fast
+        run: mise run test:its:fast
+        env: *qa_env
       - *clean_sonarjs_m2
 
   plugin_qa_without_node:
@@ -997,7 +987,10 @@ jobs:
     needs: [setup, get_build_number, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
-    env: *shared_build_number
+    env: &without_node
+      BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
+      MISE_DISABLE_TOOLS: node
+      SONARJS_ARTIFACT: multi
     steps:
       - *checkout
       - &mise_java_only
@@ -1019,25 +1012,15 @@ jobs:
         name: Disable existing node
         shell: bash
         run: |
-          node --version
-
-          function node() {
-            echo "node is disabled"
-            exit 0
-          }
-          export -f node
-
-          node
+          if command -v node; then
+            mkdir -p "$RUNNER_TEMP/without-node"
+            printf '#!/bin/sh\nexit 127\n' > "$RUNNER_TEMP/without-node/node"
+            chmod +x "$RUNNER_TEMP/without-node/node"
+            echo "$RUNNER_TEMP/without-node" >> "$GITHUB_PATH"
+          fi
       - uses: ./.github/actions/orchestrator-cache
-      - name: Run Plugin QA without Node
-        run: |
-          mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
-          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
-          mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
-        env:
-          SONARSOURCE_QA: true
-          SONARJS_ARTIFACT: multi
-          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+      - *qa_sonarlint
+      - *qa_plugin
       - *clean_sonarjs_m2
 
   # DEV tests run only on nightly schedule to avoid constant downloads
@@ -1047,7 +1030,7 @@ jobs:
     needs: [setup, get_build_number, build]
     if: github.event_name == 'schedule'
     permissions: *read_permissions
-    env: *shared_build_number
+    env: *without_node
     steps:
       - *checkout
       - *mise_java_only
@@ -1063,15 +1046,15 @@ jobs:
       - uses: ./.github/actions/orchestrator-cache
         with:
           enabled: 'false'
-      - name: Run Plugin QA without Node (DEV)
-        run: |
-          mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
-          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=DEV -B -e -V verify surefire-report:report
-          mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=DEV -B -e -V verify surefire-report:report
-        env:
+      - name: test:its:sonarlint
+        run: mise run test:its:sonarlint
+        env: &qa_dev_env
           SONARSOURCE_QA: true
-          SONARJS_ARTIFACT: multi
+          SONAR_RUNTIME_VERSION: DEV
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+      - name: test:its:plugin
+        run: mise run test:its:plugin
+        env: *qa_dev_env
       - *clean_sonarjs_m2
 
   minimal_ubuntu_analyzer_check:
@@ -1084,7 +1067,9 @@ jobs:
     container:
       image: ubuntu:26.04@sha256:d66b366dac61b575bee2aef07e9c26e8070096fbe84a3d4d3eb0da069b5d76db
     permissions: *read_permissions
-    env: *shared_build_number
+    env:
+      BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
+      MISE_DISABLE_TOOLS: node
     steps:
       - name: Prepare minimal Ubuntu environment
         run: |
@@ -1101,14 +1086,8 @@ jobs:
       - *config_maven
       - *get_licenses_token
       - *configure_orchestrator
-      - name: Verify analyzer with bundled Node
-        run: |
-          # Ensure analysis exercises the bundled runtime without a system Node fallback.
-          if command -v node; then
-            echo 'The minimal Ubuntu environment must not supply system Node.' >&2
-            exit 1
-          fi
-          mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dtest=EmbeddedNodeTest -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify
+      - name: test:its:embedded-node
+        run: mise run test:its:embedded-node
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
@@ -1128,6 +1107,8 @@ jobs:
       # so get-build-number would generate a new number instead of reusing the one
       # from the get_build_number job.
       BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
+      MISE_DISABLE_TOOLS: java,node
+      SONARJS_ARTIFACT: linux-x64-musl
     steps:
       - *checkout
       - &alpine_install_deps
@@ -1162,16 +1143,13 @@ jobs:
           chown -R sonar:sonar "$GITHUB_WORKSPACE"
           chown -R sonar:sonar "$RUNNER_TEMP/orchestrator-production-config"
           chown -R sonar:sonar /github/home
-      - name: Run Plugin QA without Node
-        shell: bash
-        run: |
-          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn package -f its/plugin/plugins/consumer-plugin/pom.xml -B
-          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
-          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
-        env:
-          SONARSOURCE_QA: true
-          SONARJS_ARTIFACT: linux-x64-musl
-          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+          echo "MISE_TRUSTED_CONFIG_PATHS=$GITHUB_WORKSPACE" >> "$GITHUB_ENV"
+      - name: test:its:sonarlint
+        run: setpriv --reuid=sonar --regid=sonar --init-groups -- mise run test:its:sonarlint
+        env: *qa_env
+      - name: test:its:plugin
+        run: setpriv --reuid=sonar --regid=sonar --init-groups -- mise run test:its:plugin
+        env: *qa_env
       - *clean_sonarjs_m2
 
   plugin_qa_fast_without_node:
@@ -1180,7 +1158,7 @@ jobs:
     needs: [setup, get_build_number, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
-    env: *shared_build_number
+    env: *without_node
     steps:
       - *checkout
       - *mise_java_only
@@ -1196,14 +1174,9 @@ jobs:
       - uses: ./.github/actions/orchestrator-cache
         with:
           key-prefix: orchestrator-production-fast
-      - name: Run Fast Plugin QA without Node
-        run: |
-          mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin
-          mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dtest=!EslintCustomRulesTest -B -e -V verify surefire-report:report
-        env:
-          SONARSOURCE_QA: true
-          SONARJS_ARTIFACT: multi
-          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+      - name: test:its:fast-without-node
+        run: mise run test:its:fast-without-node
+        env: *qa_env
       - *clean_sonarjs_m2
 
   # DEV tests run only on nightly schedule to avoid constant downloads
@@ -1213,7 +1186,7 @@ jobs:
     needs: [setup, get_build_number, build]
     if: github.event_name == 'schedule'
     permissions: *read_permissions
-    env: *shared_build_number
+    env: *without_node
     steps:
       - *checkout
       - *mise_java_only
@@ -1229,14 +1202,9 @@ jobs:
       - uses: ./.github/actions/orchestrator-cache
         with:
           enabled: 'false'
-      - name: Run Fast Plugin QA without Node (DEV)
-        run: |
-          mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin
-          mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=DEV -Dtest=!EslintCustomRulesTest -B -e -V verify surefire-report:report
-        env:
-          SONARSOURCE_QA: true
-          SONARJS_ARTIFACT: multi
-          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+      - name: test:its:fast-without-node
+        run: mise run test:its:fast-without-node
+        env: *qa_dev_env
       - *clean_sonarjs_m2
 
   plugin_qa_fast_without_node_alpine:
@@ -1249,6 +1217,8 @@ jobs:
     permissions: *read_permissions
     env:
       BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
+      MISE_DISABLE_TOOLS: java,node
+      SONARJS_ARTIFACT: linux-x64-musl
     steps:
       - *checkout
       - *alpine_install_deps
@@ -1262,15 +1232,9 @@ jobs:
       - *get_licenses_token
       - *configure_orchestrator
       - *orchestrator_fast_cache_restore
-      - name: Run Fast Plugin QA without Node
-        shell: bash
-        run: |
-          mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin -B
-          mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dtest=!EslintCustomRulesTest -B -e -V verify surefire-report:report
-        env:
-          SONARSOURCE_QA: true
-          SONARJS_ARTIFACT: linux-x64-musl
-          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+      - name: test:its:fast-without-node
+        run: mise run test:its:fast-without-node
+        env: *qa_env
       - *clean_sonarjs_m2
 
   plugin_qa_win:
@@ -1300,7 +1264,7 @@ jobs:
       - *get_licenses_token
       - *configure_orchestrator
       - uses: ./.github/actions/orchestrator-cache
-      - name: Run Plugin QA on Windows
+      - name: test:its:plugin
         shell: bash
         run: |
           # Tests for group 1 (group 2 runs everything else)
@@ -1313,8 +1277,7 @@ jobs:
             TEST_PATTERN="$GROUP1_TESTS"
           fi
 
-          mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
-          mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" -f its/plugin/tests/pom.xml -DskipTests=false -Dtest="$TEST_PATTERN" -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          ITS_TESTS="$TEST_PATTERN" mise run test:its:plugin
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
@@ -1336,10 +1299,9 @@ jobs:
       - *install_sonarjs_m2
       - *download_sonarjs_m2
       - *config_maven
-      - name: Run Plugin QA on Windows
+      - name: test:its:sonarlint
         shell: bash
-        run: |
-          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+        run: mise run test:its:sonarlint
         env:
           SONARSOURCE_QA: true
       - *clean_sonarjs_m2
@@ -1373,7 +1335,7 @@ jobs:
       - uses: ./.github/actions/orchestrator-cache
         with:
           key-prefix: orchestrator-production-fast
-      - name: Run Fast Plugin QA on Windows
+      - name: test:its:fast
         shell: bash
         run: |
           # Tests for group 1 (group 2 runs everything else)
@@ -1386,8 +1348,7 @@ jobs:
             TEST_PATTERN="$GROUP1_TESTS"
           fi
 
-          mvn package -f its/plugin/plugins/pom.xml
-          mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dtest="$TEST_PATTERN" -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          ITS_TESTS="$TEST_PATTERN" mise run test:its:fast
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
@@ -1429,12 +1390,9 @@ jobs:
         # Owned by config.mjs / provenance.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
         run: echo "name=actual_js_ts-${GITHUB_RUN_ATTEMPT}" >> "$GITHUB_OUTPUT"
         # END GENERATED ARTIFACT NAME
-      - name: Run JS/TS Ruling
+      - name: test:ruling:analysis-server
         id: ruling
-        run: |
-          npm run generate-meta
-          npm run proto:generate
-          npm run ruling:cache
+        run: mise run test:ruling:analysis-server
       - name: Upload JS/TS ruling filesystem snapshots
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
@@ -1528,11 +1486,8 @@ jobs:
         with:
           name: js-ts-ruling-filesystem-snapshots-${{ github.sha }}
           path: packages/ruling/filesystem-cache
-      - name: Run JS/TS Ruling from filesystem snapshots
-        run: |
-          npm run generate-meta
-          npm run proto:generate
-          npm run ruling:cache
+      - name: test:ruling:analysis-server
+        run: mise run test:ruling:analysis-server
 
   ruling:
     runs-on: sonar-xl
@@ -1553,12 +1508,8 @@ jobs:
       - *get_licenses_token
       - *configure_orchestrator
       - *orchestrator_cache_restore
-      - name: Run Ruling Tests
-        run: |
-          cd its/ruling
-          # Cap ruling parallelism explicitly: using all CPUs on sonar-xl can
-          # overwhelm the shared SonarQube/Node workload and make the runner drop.
-          mvn "-Dorchestrator.configUrl=$ORCHESTRATOR_CONFIG_URL" "-Dorchestrator.home=$ORCHESTRATOR_HOME" test -Dtest=RulingTest -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -Djunit.jupiter.execution.parallel.config.strategy=fixed -Djunit.jupiter.execution.parallel.config.fixed.parallelism=8 -B -e -V
+      - name: test:ruling:plugin
+        run: mise run test:ruling:plugin
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
