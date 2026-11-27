@@ -2,3 +2,28 @@
 java = "21.0"
 maven = "3.9"
 node = "24.22.3"
+
+[task_config]
+includes = [".mise/tasks/*.toml"]
+shell = "bash -c"
+
+[task_templates.eslint-integration]
+dir = "its/eslint{{ vars.eslint }}-plugin-sonarjs"
+run = '''
+set -e
+if [[ ! -f ../../lib/eslint-plugin-sonarjs-0.0.0-SNAPSHOT.tgz ]]; then
+  echo 'Missing ESLint plugin tarball. Run mise run build:eslint-plugin first.' >&2
+  exit 1
+fi
+npm install --ignore-scripts --fetch-retry-mintimeout=10000 --fetch-retry-maxtimeout=60000 --fetch-retries=3
+npx tsc --noEmit
+npm run test
+'''
+
+[task_templates.plugin-unit-test]
+tools = { java = "{% set cfg = read_toml(path=config_root ~ '/mise.toml') %}{{ cfg.tools.java }}", maven = "{% set cfg = read_toml(path=config_root ~ '/mise.toml') %}{{ cfg.tools.maven }}" }
+run = 'mvn -Dskip-nodejs -pl sonar-plugin/{{ vars.module }} test'
+
+[task_templates.integration-test]
+tools = { java = "{% set cfg = read_toml(path=config_root ~ '/mise.toml') %}{{ cfg.tools.java }}", maven = "{% set cfg = read_toml(path=config_root ~ '/mise.toml') %}{{ cfg.tools.maven }}" }
+run = 'bash .mise/maven-qa.sh {{ vars.suite }}'

@@ -1,0 +1,35 @@
+["test:its:sonarlint"]
+description = "Run the SonarLint integration tests"
+extends = "integration-test"
+vars = { suite = "sonarlint" }
+
+["test:its:plugin"]
+description = "Run the full SonarQube plugin integration tests"
+extends = "integration-test"
+vars = { suite = "plugin" }
+
+["test:its:fast"]
+description = "Run the fast SonarQube plugin integration tests with Node.js"
+extends = "integration-test"
+vars = { suite = "fast" }
+
+["test:its:fast-without-node"]
+description = "Run fast plugin integration tests without the ESLint custom-rules test"
+extends = "integration-test"
+vars = { suite = "fast-without-node" }
+
+["test:its:embedded-node"]
+description = "Verify the analyzer uses embedded Node.js without a host runtime"
+extends = "integration-test"
+vars = { suite = "embedded-node" }
+
+["test:its"]
+description = "Run the integration suites for the current Node.js environment"
+run = '''
+mise run test:its:sonarlint && mise run test:its:plugin &&
+  if command -v node >/dev/null; then
+    mise run test:its:fast
+  else
+    mise run test:its:fast-without-node && mise run test:its:embedded-node
+  fi
+'''

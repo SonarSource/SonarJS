@@ -1,0 +1,26 @@
+["build:eslint-plugin"]
+description = "Type-check and pack eslint-plugin-sonarjs"
+tools = { node = "{% set cfg = read_toml(path=config_root ~ '/mise.toml') %}{{ cfg.tools.node }}" }
+run = "npm run eslint-plugin:build"
+
+["test:eslint-plugin:eslint8"]
+description = "Test the tarball with ESLint 8"
+extends = "eslint-integration"
+vars = { eslint = 8 }
+tools = { node = "18.18.0" }
+
+["test:eslint-plugin:eslint9"]
+description = "Test the tarball with ESLint 9"
+extends = "eslint-integration"
+vars = { eslint = 9 }
+tools = { node = "18.18.0" }
+
+["test:eslint-plugin:eslint10"]
+description = "Test the tarball with ESLint 10"
+extends = "eslint-integration"
+vars = { eslint = 10 }
+tools = { node = "20.19.0" }
+
+["test:eslint-plugin"]
+description = "Run all ESLint plugin integration tests"
+depends = ["test:eslint-plugin:*"]

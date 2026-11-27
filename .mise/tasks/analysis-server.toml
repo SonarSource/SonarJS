@@ -1,0 +1,25 @@
+["build:analysis-server"]
+description = "Compile the analysis server and its tests"
+tools = { node = "{% set cfg = read_toml(path=config_root ~ '/mise.toml') %}{{ cfg.tools.node }}" }
+run = "npm run bbf"
+
+["test:analysis-server"]
+description = "Run analysis server unit tests"
+tools = { node = "{% set cfg = read_toml(path=config_root ~ '/mise.toml') %}{{ cfg.tools.node }}" }
+depends = ["build:analysis-server"]
+usage = 'arg "[files]" var=#true help="Compiled test files in lib/ (default: full suite)"'
+run = '''
+set -e
+{% if usage.files %}
+npm exec -- tsx tools/copy-test-resources.ts
+node --test --enable-source-maps -- {% for file in usage.files %}'{{ file | replace(from="'", to="'\"'\"'") }}' {% endfor %}
+{% else %}
+npm run bridge:test:js
+{% endif %}
+'''
+
+["coverage:analysis-server"]
+description = "Run analysis server tests with Sonar coverage and test reports"
+tools = { node = "{% set cfg = read_toml(path=config_root ~ '/mise.toml') %}{{ cfg.tools.node }}" }
+depends = ["build:analysis-server"]
+run = "npm run bridge:test:cov"

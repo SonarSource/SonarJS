@@ -1,0 +1,13 @@
+["test:ruling:analysis-server"]
+description = "Run JS/TS ruling using the analysis server directly"
+tools = { node = "{% set cfg = read_toml(path=config_root ~ '/mise.toml') %}{{ cfg.tools.node }}" }
+run = ["npm run generate-meta", "npm run proto:generate", "npm run ruling:cache"]
+
+["test:ruling:plugin"]
+description = "Run plugin ruling in SonarQube"
+extends = "integration-test"
+vars = { suite = "ruling" }
+
+["test:ruling"]
+description = "Run both ruling suites"
+run = [{ task = "test:ruling:analysis-server" }, { task = "test:ruling:plugin" }]

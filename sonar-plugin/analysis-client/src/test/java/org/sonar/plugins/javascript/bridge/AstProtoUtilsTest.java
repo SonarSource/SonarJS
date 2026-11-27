@@ -60,6 +60,14 @@ class AstProtoUtilsTest {
     if (path.toFile().exists()) {
       return path;
     }
-    return Path.of("sonar-plugin", "bridge", "src", "test", "resources", "files", fileName);
+    return Path.of(
+      "sonar-plugin",
+      "analysis-client",
+      "src",
+      "test",
+      "resources",
+      "files",
+      fileName
+    );
   }
 }

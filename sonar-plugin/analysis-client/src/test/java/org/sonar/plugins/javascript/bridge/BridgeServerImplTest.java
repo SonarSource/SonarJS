@@ -323,8 +323,10 @@ class BridgeServerImplTest {
 
   private record AnalysisResponse(List<Issue> issues, Node ast) {}
 
-  private ProjectAnalysisHandler createStreamingHandler(DefaultInputFile inputFile, boolean skipAst)
-    throws IOException {
+  private ProjectAnalysisHandler createStreamingHandler(
+    DefaultInputFile inputFile,
+    boolean skipAst
+  ) throws IOException {
     var request = createProjectRequest(inputFile, skipAst);
     var future = new CompletableFuture<Void>();
     return new ProjectAnalysisHandler() {
@@ -431,8 +433,7 @@ class BridgeServerImplTest {
   }
 
   @Test
-  void test_use_existing_node_should_validate_port_configuration_and_reuse_alive_process()
-    throws Exception {
+  void validatesPortAndReusesExistingNodeProcess() throws Exception {
     String starting = "Creating Node.js process to start the bridge server on port";
     var useExisting = "Using existing Node.js process on port 60000";
     var alreadyStarted = "The bridge server is up, no need to start.";
@@ -1226,7 +1227,7 @@ class BridgeServerImplTest {
     bridgeServer = createBridgeServer(new BundleImpl());
     var deployLocation = Path.of("src", "test", "resources");
     if (!deployLocation.toFile().exists()) {
-      deployLocation = Path.of("sonar-plugin", "bridge", "src", "test", "resources");
+      deployLocation = Path.of("sonar-plugin", "analysis-client", "src", "test", "resources");
     }
     var settings = new MapSettings().setProperty(
       BridgeServerImpl.SONARLINT_BUNDLE_PATH,
@@ -1330,7 +1331,15 @@ class BridgeServerImplTest {
     if (path.toFile().exists()) {
       return path;
     }
-    return Path.of("sonar-plugin", "bridge", "src", "test", "resources", "files", fileName);
+    return Path.of(
+      "sonar-plugin",
+      "analysis-client",
+      "src",
+      "test",
+      "resources",
+      "files",
+      fileName
+    );
   }
 
   private void invokeOnLeaseTerminated(Throwable throwable) throws Exception {
@@ -1349,8 +1358,11 @@ class BridgeServerImplTest {
     field.setBoolean(bridgeServer, value);
   }
 
-  private static void setPrivateField(BridgeServerImpl bridgeServer, String fieldName, Object value)
-    throws Exception {
+  private static void setPrivateField(
+    BridgeServerImpl bridgeServer,
+    String fieldName,
+    Object value
+  ) throws ReflectiveOperationException {
     var field = BridgeServerImpl.class.getDeclaredField(fieldName);
     field.setAccessible(true);
     field.set(bridgeServer, value);
@@ -1393,7 +1405,7 @@ class BridgeServerImplTest {
       }
       return Path.of(
         "sonar-plugin",
-        "bridge",
+        "analysis-client",
         "src",
         "test",
         "resources",
@@ -1406,7 +1418,7 @@ class BridgeServerImplTest {
     public String resolve(String relativePath) {
       File file = new File("src/test/resources");
       if (!file.exists()) {
-        file = new File("sonar-plugin/bridge/src/test/resources");
+        file = new File("sonar-plugin/analysis-client/src/test/resources");
       }
       return new File(file.getAbsoluteFile(), relativePath).getAbsolutePath();
     }

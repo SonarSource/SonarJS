@@ -19,7 +19,7 @@
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>bridge</artifactId>
+      <artifactId>analysis-client</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sonarsource.api.plugin</groupId>

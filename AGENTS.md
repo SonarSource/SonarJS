@@ -4,18 +4,13 @@
 
 SonarJS analyzes JavaScript, TypeScript and CSS for SonarQube Server, SonarQube Cloud and SonarQube for IDE, including embedded code in HTML, Vue and YAML. It also publishes `eslint-plugin-sonarjs` from the JavaScript and TypeScript rules in `packages/analysis` using `tsconfig-plugin.json`.
 
-The Java plugin (`sonar-plugin/`) exposes the custom-rules API and talks to the Node.js analysis server (`packages/analysis`, `packages/grpc`, `packages/shared`) through its analysis client (`sonar-plugin/bridge`). Plugin and ESLint integration tests live under `its/`; ruling uses `packages/ruling` and `its/ruling`. There are no component-specific `AGENTS.md` files.
+The Java plugin (`sonar-plugin/`) exposes the custom-rules API and talks to the Node.js analysis server (`packages/analysis`, `packages/grpc`, `packages/shared`) through its analysis client (`sonar-plugin/analysis-client`). Plugin and ESLint integration tests live under `its/`; ruling uses `packages/ruling` and `its/ruling`. There are no component-specific `AGENTS.md` files.
 
 ## Commands
 
 - Run `mise install` to install the toolchain pinned in [`mise.toml`](mise.toml).
-- Run every build and check through mise. Use `mise tasks` to discover the CI-backed tasks when available; start with the smallest task that covers the change, then run the component-level task if needed. Without those tasks, use `mise exec --` to run the repository's existing commands with the pinned tools:
-  - `mise exec -- npm ci` — install dependencies after a fresh checkout or a change to the package manifest or lockfile.
-  - `mise exec -- npm run bbf` — fast analysis-server build without tests.
-  - `mise exec -- npm run bridge:test` — analysis-server unit tests.
-  - `mise exec -- mvn install -DskipTests` — full build without Java tests.
-  - `mise exec -- npm run eslint-plugin:build` — build the npm package.
-  - `mise exec -- npm run check-format` — check formatting without editing files.
+- Run `mise run install:npm` after a fresh checkout or a change to `package.json` or the lockfile.
+- Run every build and check through mise. `mise tasks` lists the tasks; CI's check steps are named after the tasks they run. Start with the smallest leaf task that covers the change, then run the component task if needed. See [the build guide](docs/BUILD.md#ci-backed-tasks) for examples. For commands without a task, use `mise exec --`.
 
 ## Constraints
 

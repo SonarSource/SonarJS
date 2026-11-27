@@ -292,13 +292,13 @@ configuration values typed from the generated Java check through Node.js.
 
 ## Relevant Files
 
-| Area                    | File                                                                                                |
-| ----------------------- | --------------------------------------------------------------------------------------------------- |
-| JS/TS option types      | `packages/analysis/src/jsts/rules/helpers/configs.ts`                                               |
-| JS/TS option examples   | `packages/analysis/src/jsts/rules/*/config.ts`                                                      |
-| JS/TS option merging    | `packages/analysis/src/jsts/rules/helpers/configs.ts`                                               |
-| CSS binding metadata    | `packages/analysis/src/css/rules/metadata.ts`                                                       |
-| Java check generation   | `tools/generate-java-rule-classes.ts`                                                               |
-| Java protobuf encoding  | `sonar-plugin/bridge/src/main/java/org/sonar/plugins/javascript/bridge/AnalyzeProjectMessages.java` |
-| Node request conversion | `packages/grpc/src/analyze-project-normalize.ts`                                                    |
-| Stylelint activation    | `packages/analysis/src/css/linter/config.ts`                                                        |
+| Area                    | File                                                                                                         |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------ |
+| JS/TS option types      | `packages/analysis/src/jsts/rules/helpers/configs.ts`                                                        |
+| JS/TS option examples   | `packages/analysis/src/jsts/rules/*/config.ts`                                                               |
+| JS/TS option merging    | `packages/analysis/src/jsts/rules/helpers/configs.ts`                                                        |
+| CSS binding metadata    | `packages/analysis/src/css/rules/metadata.ts`                                                                |
+| Java check generation   | `tools/generate-java-rule-classes.ts`                                                                        |
+| Java protobuf encoding  | `sonar-plugin/analysis-client/src/main/java/org/sonar/plugins/javascript/bridge/AnalyzeProjectMessages.java` |
+| Node request conversion | `packages/grpc/src/analyze-project-normalize.ts`                                                             |
+| Stylelint activation    | `packages/analysis/src/css/linter/config.ts`                                                                 |
