@@ -433,7 +433,7 @@ class BridgeServerImplTest {
   }
 
   @Test
-  void test_use_existing_node_should_validate_port_configuration_and_reuse_alive_process() throws Exception {
+  void validatesPortAndReusesExistingNodeProcess() throws Exception {
     String starting = "Creating Node.js process to start the bridge server on port";
     var useExisting = "Using existing Node.js process on port 60000";
     var alreadyStarted = "The bridge server is up, no need to start.";
@@ -1362,7 +1362,7 @@ class BridgeServerImplTest {
     BridgeServerImpl bridgeServer,
     String fieldName,
     Object value
-  ) throws Exception {
+  ) throws ReflectiveOperationException {
     var field = BridgeServerImpl.class.getDeclaredField(fieldName);
     field.setAccessible(true);
     field.set(bridgeServer, value);
