@@ -20,6 +20,7 @@ import {
   RuleTester,
 } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
+import path from 'node:path';
 
 describe('S3782', () => {
   it('S3782', () => {
@@ -34,8 +35,26 @@ describe('S3782', () => {
     });
 
     const typeScriptRuleTester = new RuleTester();
+    const strictProject = path.join(
+      import.meta.dirname,
+      '../../../../tests/jsts/tools/testers/fixtures/tsconfig.strict.json',
+    );
     typeScriptRuleTester.run('Correct types should be used', rule, {
       valid: [
+        {
+          // an optional parameter accepts undefined under strictNullChecks
+          code: `
+      declare const n: number | undefined;
+      'str'.slice(0, n);
+      'str'.slice(0, undefined);
+      (5).toLocaleString('en-US', undefined);
+      `,
+          languageOptions: {
+            parserOptions: {
+              project: strictProject,
+            },
+          },
+        },
         {
           code: `
         var arr = [];
@@ -157,9 +176,31 @@ describe('S3782', () => {
         {
           code: `
         new Date().setTime("a");
-        
+
       `,
           errors: 1,
+        },
+        {
+          code: `
+      declare const n: number | undefined;
+      'str'.padStart(n);
+      'str'.slice(0, 'x');
+      `,
+          languageOptions: {
+            parserOptions: {
+              project: strictProject,
+            },
+          },
+          errors: [
+            {
+              message: `Verify that argument is of correct type: expected 'number' instead of 'number | undefined'.`,
+              line: 3,
+            },
+            {
+              message: `Verify that argument is of correct type: expected 'number | undefined' instead of 'string'.`,
+              line: 4,
+            },
+          ],
         },
       ],
     });
