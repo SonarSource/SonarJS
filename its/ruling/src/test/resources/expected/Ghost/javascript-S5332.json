@@ -33,11 +33,7 @@
 133
 ],
 "Ghost:core/server/data/xml/sitemap/base-generator.js": [
-15,
 16
-],
-"Ghost:core/server/data/xml/sitemap/index-generator.js": [
-13
 ],
 "Ghost:core/server/data/xml/xmlrpc.js": [
 73
@@ -81,9 +77,6 @@
 ],
 "Ghost:core/test/functional/client/editor_test.js": [
 178
-],
-"Ghost:core/test/functional/routes/api/public_api_spec.js": [
-204
 ],
 "Ghost:core/test/functional/routes/api/users_spec.js": [
 319
