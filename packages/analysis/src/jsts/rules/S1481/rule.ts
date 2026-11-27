@@ -96,11 +96,7 @@ export const rule: Rule.RuleModule = {
         }
 
         for (const element of elements) {
-          if (
-            element.type === 'Property' &&
-            element.shorthand &&
-            element.value.type === 'Identifier'
-          ) {
+          if (element.type === 'Property' && element.value.type === 'Identifier') {
             toIgnore.push(element.value);
           }
         }

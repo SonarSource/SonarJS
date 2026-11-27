@@ -62,6 +62,29 @@ describe('S1481', () => {
       }
       `,
         },
+        {
+          code: `
+      function omitComputed(errors, data) {
+        const { [data.Id]: _ignore, ...rest } = errors;
+        return rest;
+      }
+
+      function omitComputedWithoutUnderscore(errors, key) {
+        const { [key]: removed, ...rest } = errors;
+        return rest;
+      }
+
+      function omitRenamed(errors) {
+        const { x: _ignore, ...rest } = errors;
+        return rest;
+      }
+
+      function omitStringKey(errors) {
+        const { 'x-y': removed, ...rest } = errors;
+        return rest;
+      }
+      `,
+        },
       ],
       invalid: [
         {
@@ -216,7 +239,7 @@ describe('S1481', () => {
         var {a2, b2, c2, ...interestingProps2} = obj; // Noncompliant, interestingProps2
 
       
-        var {a3, b: b3, c3, ...interestingProps3} = obj; // Noncompliant, b3
+        var {a3, b: b3, c3, ...interestingProps3} = obj; // OK
 
         foo(interestingProps3);
       
@@ -233,11 +256,35 @@ describe('S1481', () => {
               line: 10,
               column: 29,
             },
-            {
-              message: `Remove the declaration of the unused 'b3' variable.`,
-              line: 13,
-              column: 21,
-            },
+          ],
+        },
+        {
+          code: `
+      function computedWithoutRest(errors, data) {
+        const { [data.Id]: removed } = errors;
+        return errors;
+      }
+
+      function renamedWithoutRest(errors) {
+        const { x: _ignore } = errors;
+        return errors;
+      }
+
+      function unusedRest(errors, data) {
+        const { [data.Id]: removed, ...rest } = errors;
+        return errors;
+      }
+
+      function nestedWithoutRest(errors) {
+        const { x: { removed }, ...rest } = errors;
+        return rest;
+      }
+      `,
+          errors: [
+            { messageId: 'unusedVariable', data: { symbol: 'removed' }, line: 3 },
+            { messageId: 'unusedVariable', data: { symbol: '_ignore' }, line: 8 },
+            { messageId: 'unusedVariable', data: { symbol: 'rest' }, line: 13 },
+            { messageId: 'unusedVariable', data: { symbol: 'removed' }, line: 18 },
           ],
         },
         {
