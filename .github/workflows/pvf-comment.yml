@@ -31,7 +31,7 @@ jobs:
             development/github/token/{REPO_OWNER_NAME_DASH}-pvf-dispatch token | DISPATCH_TOKEN;
 
       - name: Trigger performance validation in peachee-js
-        uses: SonarSource/core-languages-tooling-public/pvf-trigger@master
+        uses: SonarSource/core-languages-tooling-public/pvf-trigger@a04d15c9fe09880db6870b01875e184ed57ca242
         with:
           comment: ${{ github.event.comment.body }}
           pr-number: ${{ github.event.issue.number }}
